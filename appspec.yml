@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /var/www/html/external_service_provider/
+    destination: /var/www/html/felidae-network/service-providers/
 file_exists_behavior: OVERWRITE
 hooks:
   BeforeInstall:
