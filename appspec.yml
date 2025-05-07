@@ -6,16 +6,16 @@ files:
 file_exists_behavior: OVERWRITE
 hooks:
   BeforeInstall:
-    - location: buildscript/dummy.sh
+    - location: service-providers/buildscript/dummy.sh
       timeout: 5
   AfterInstall:
-    - location: buildscript/dummy.sh
+    - location: service-providers/buildscript/dummy.sh
       timeout: 5
       runas: ubuntu
   ApplicationStart:
-    - location: buildscript/change_permission.sh
+    - location: service-providers/buildscript/change_permission.sh
       timeout: 5
   ValidateService:
-    - location: buildscript/build.sh
+    - location: service-providers/buildscript/build.sh
       timeout: 360
 
