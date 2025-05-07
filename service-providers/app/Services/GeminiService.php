@@ -11,6 +11,7 @@ use App\Http\Exceptions\Forbidden;
 use App\Http\Exceptions\NotFound;
 use App\Http\Resources\Gemini\CodeGenerationResource;
 use App\Models\ServiceProvider;
+use App\Models\ServiceProviderType;
 use App\Models\ServiceType;
 use App\Traits\GeminiTrait;
 use Exception;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Client\Response;
 use stdClass;
+use Throwable;
 
 class GeminiService
 {
@@ -34,6 +36,7 @@ class GeminiService
 
     /**
      * @throws NotFound
+     * @throws Throwable
      */
     protected function initializeService(string $serviceTypeName): void
     {
@@ -43,16 +46,24 @@ class GeminiService
             throw new NotFound('Gemini service provider not found.');
         }
 
-        $serviceType = ServiceType::where([
-            'service_provider_id' => $provider->id,
-            'name' => $serviceTypeName,
-        ])->first();
-
+        $serviceType = ServiceType::where('name', $serviceTypeName)->first();
         if (!$serviceType) {
             throw new NotFound('Gemini service type not found.');
         }
 
-        $this->apiKey = config('services.gemini.api_key');
+        $providerType = ServiceProviderType::where([
+            ['service_provider_id', $provider->id],
+            ['service_type_id', $serviceType->id],
+        ])->first();
+
+        if (!$providerType) {
+            throw new NotFound('Gemini provider type configuration missing.');
+        }
+
+        $apiKey = config('services.gemini.api_key');
+        throw_if(empty($apiKey), new NotFound('Gemini key not configured.'));
+
+        $this->apiKey = $apiKey;
         $this->maxTokens = $provider->parameter['max_tokens'];
     }
 
@@ -64,7 +75,7 @@ class GeminiService
      *
      * @throws ConnectionException
      * @throws Forbidden
-     * @throws NotFound
+     * @throws NotFound|Throwable
      */
     public function textGeneration(TextGenerationData $data): array
     {
@@ -113,7 +124,7 @@ class GeminiService
      * @return CodeGenerationResource
      *
      * @throws Forbidden
-     * @throws NotFound
+     * @throws NotFound|Throwable
      */
     public function codeGeneration(CodeGenerationData $data): CodeGenerationResource
     {
@@ -176,7 +187,7 @@ class GeminiService
      *
      * @throws ConnectionException
      * @throws Forbidden
-     * @throws NotFound
+     * @throws NotFound|Throwable
      */
     public function imageAnalysis(ImageAnalysisData $data): array
     {
@@ -224,7 +235,7 @@ class GeminiService
      *
      * @throws ConnectionException
      * @throws Forbidden
-     * @throws NotFound
+     * @throws NotFound|Throwable
      */
     public function documentSummarization(DocumentSummarizationData $data): array
     {
