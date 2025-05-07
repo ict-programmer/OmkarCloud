@@ -1,0 +1,80 @@
+<?php
+
+namespace App\Http\Resources\Assets;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class ListAssetsResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'username' => $this->username,
+            'channel_id' => $this->channel_id,
+            'password' => $this->password,
+            'api_key' => $this->api_key,
+            'user_id' => $this->user_id,
+            'api_key_status' => $this->api_key_status,
+            'asset_status' => $this->asset_status,
+            'last_email_sent' => $this->last_email_sent,
+            'activity_id' => $this->activity_id,
+            'start_limit' => $this->start_limit,
+            'end_limit' => $this->end_limit,
+            'current_limit' => $this->current_limit,
+            'current_size' => $this->current_size,
+            'increment_1' => $this->increment_1,
+            'increment_2' => $this->increment_2,
+            'increment_1_start_limit' => $this->increment_1_start_limit,
+            'increment_2_start_limit' => $this->increment_2_start_limit,
+            'efficiency' => $this->efficiency,
+            '24H_efficiency' => $this->efficiency_24h,
+            '1W_efficiency' => $this->efficiency_1w,
+            'reset_date' => $this->reset_date,
+            'process_record' => $this->process_record,
+            'brand_id' => $this->brand_id,
+            'duplicate' => $this->duplicate,
+            'primary_id' => $this->primary_id,
+            'notes' => $this->notes,
+            'allowed_campaigns' => $this->allowed_campaigns,
+            'available_campaigns' => $this->available_campaigns,
+            'next_campaigns_check' => $this->next_campaigns_check,
+            'twilio_sid' => $this->twilio_sid,
+            'twilio_number' => $this->twilio_number,
+            'twilio_auth_token' => $this->twilio_auth_token,
+            'mailchimp_action' => $this->mailchimp_action,
+            'gsuite_password' => $this->gsuite_password,
+            'twitter_api_secret' => $this->twitter_api_secret,
+            'twitter_client_secret' => $this->twitter_client_secret,
+            'twitter_client_id' => $this->twitter_client_id,
+            'linkedin_social_Id' => $this->linkedin_social_Id,
+            'facebook_page_id' => $this->facebook_page_id,
+            'instagram_business_id' => $this->instagram_business_id,
+            'buka_api_secret' => $this->buka_api_secret,
+            'buka_app_id' => $this->buka_app_id,
+            'wp_database' => $this->wp_database,
+            'wp_host_url' => $this->wp_host_url,
+            'active_frequency' => $this->active_frequency,
+            'inactive_frequency' => $this->inactive_frequency,
+            'inactive_definition' => $this->inactive_definition,
+            'domain_authority' => $this->domain_authority,
+            'spam_score' => $this->spam_score,
+            'guest_post1' => $this->guest_post1,
+            'guest_post2' => $this->guest_post2,
+            'guest_post3' => $this->guest_post3,
+            'guest_post4' => $this->guest_post4,
+            'guest_post5' => $this->guest_post5,
+            'semrush_score' => $this->semrush_score,
+            'grammarly_score' => $this->grammarly_score,
+            'zerogpt_score' => $this->zerogpt_score,
+            'organic_traffics' => $this->organic_traffics,
+            'authority_score' => $this->authority_score,
+            'authority_status' => $this->authority_status,
+            'top_anchor' => $this->top_anchor,
+            'natural_profile' => $this->natural_profile,
+            'name' => $this->name,
+            'status' => $this->status,
+        ];
+    }
+}

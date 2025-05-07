@@ -1,0 +1,59 @@
+<?php
+
+namespace App\Http\Requests\Gemini;
+
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
+
+class ImageAnalysisRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, ValidationRule|array|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'image_url' => ['required', 'url'],
+            'description_required' => ['required', 'string'],
+        ];
+    }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'image_url.required' => __('The image URL is required.'),
+            'image_url.url' => __('The image URL must be a valid URL.'),
+            'description_required.required' => __('The description is required.'),
+            'description_required.string' => __('The description must be a string.'),
+        ];
+    }
+
+    /**
+     * Handle a failed validation attempt.
+     */
+    protected function failedValidation(Validator $validator): void
+    {
+        throw new HttpResponseException(response()->json([
+            'status' => 'error',
+            'message' => 'Validation failed',
+            'errors' => $validator->errors(),
+        ], 422));
+    }
+}

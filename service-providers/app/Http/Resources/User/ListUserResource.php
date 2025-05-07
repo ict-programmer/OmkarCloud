@@ -1,0 +1,83 @@
+<?php
+
+namespace App\Http\Resources\User;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class ListUserResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'restaurant_name' => $this->restaurant_name,
+            'email' => $this->email,
+            'email_verified_at' => $this->email_verified_at,
+            'is_approved' => $this->is_approved,
+            'password' => $this->password,
+            'two_factor_secret' => $this->two_factor_secret,
+            'two_factor_recovery_codes' => $this->two_factor_recovery_codes,
+            'two_factor_confirmed_at' => $this->two_factor_confirmed_at,
+            'country_code' => $this->country_code,
+            'mobile' => $this->mobile,
+            'whatsapp' => $this->whatsapp,
+            'telegram_group_id' => $this->telegram_group_id,
+            'send_daily_report' => $this->send_daily_report,
+            'send_weekly_report' => $this->send_weekly_report,
+            'send_monthly_report' => $this->send_monthly_report,
+            'user_type' => $this->user_type,
+            'parent_id' => $this->parent_id,
+            'approved' => $this->approved,
+            'referral_code' => $this->referral_code,
+            'company_name' => $this->company_name,
+            'company_title' => $this->company_title,
+            'orderific_client' => $this->orderific_client,
+            'refer_leads' => $this->refer_leads,
+            'business_tenure' => $this->business_tenure,
+            'remember_token' => $this->remember_token,
+            'profile' => $this->profile,
+            'product_service' => $this->product_service,
+            'zoom_info' => $this->zoom_info,
+            'company_website' => $this->company_website,
+            'industry' => $this->industry,
+            'location' => $this->location,
+            'about' => $this->about,
+            'expertskill' => $this->expertskill,
+            'expert_level' => $this->expert_level,
+            'copy' => $this->copy,
+            'graphics' => $this->graphics,
+            'video' => $this->video,
+            'audio' => $this->audio,
+            'email_otp' => $this->email_otp,
+            'email_otp_expired_at' => $this->email_otp_expired_at,
+            'forgot_otp' => $this->forgot_otp,
+            'forgot_otp_expired_at' => $this->forgot_otp_expired_at,
+            'otp_attempt' => $this->otp_attempt,
+            'forgot_otp_attempt' => $this->forgot_otp_attempt,
+            'creator_api_key' => $this->creator_api_key,
+            'creator_secure_key' => $this->creator_secure_key,
+            'brand_key' => $this->brand_key,
+            'referred_by' => $this->referred_by,
+            'currency_code' => $this->currency_code,
+            'sub_domain_brand_id' => $this->sub_domain_brand_id,
+            'profile_cid' => $this->profile_cid,
+            'profile_image_name' => $this->profile_image_name,
+            'user_code' => $this->user_code,
+            'is_testing' => $this->is_testing,
+            'user_auth_token' => $this->user_auth_token,
+            'driver_currency_id' => $this->driver_currency_id,
+            'first_name' => $this->first_name,
+            'middle_name' => $this->middle_name,
+            'last_name' => $this->last_name,
+            'login_pin' => $this->login_pin,
+            'bio' => $this->bio,
+            'last_login_at' => $this->last_login_at,
+            'status' => $this->status,
+            'share_mode' => $this->share_mode,
+            'delete_reason' => $this->delete_reason,
+            'default_address' => $this->default_address,
+        ];
+    }
+}
