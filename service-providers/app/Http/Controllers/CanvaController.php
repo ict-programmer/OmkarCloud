@@ -170,40 +170,67 @@ class CanvaController extends BaseController
         description: 'Create a new design with the specified parameters',
         tags: ["Canva"],
     )]
-    #[OA\Parameter(
-        name: 'design_type[type]',
-        in: 'query',
+    #[OA\RequestBody(
+        description: 'Create a new design',
         required: true,
-        description: 'Design type',
-        schema: new OA\Schema(type: 'string', example: 'presentation')
-    )]
-    #[OA\Parameter(
-        name: 'design_type[name]',
-        in: 'query',
-        required: true,
-        description: 'Design type name',
-        schema: new OA\Schema(type: 'string', example: 'My Presentation')
-    )]
-    #[OA\Parameter(
-        name: 'asset_id',
-        in: 'query',
-        required: true,
-        description: 'Asset ID',
-        schema: new OA\Schema(type: 'string', example: 'asset_12345')
-    )]
-    #[OA\Parameter(
-        name: 'title',
-        in: 'query',
-        required: true,
-        description: 'Title of the design',
-        schema: new OA\Schema(type: 'string', example: 'My Holiday Presentation')
-    )]
-    #[OA\Parameter(
-        name: 'endpoint_interface',
-        in: 'query',
-        required: true,
-        description: 'Endpoint interface',
-        schema: new OA\Schema(type: 'string', example: 'generate')
+        content: new OA\MediaType(
+            mediaType: 'application/json',
+            schema: new OA\Schema(
+                type: 'object',
+                required: ['design_type', 'asset_id', 'title', 'endpoint_interface'],
+                properties: [
+                    new OA\Property(
+                        property: 'design_type',
+                        type: 'object',
+                        required: ['type', 'name'],
+                        properties: [
+                            new OA\Property(
+                                property: 'type',
+                                type: 'string',
+                                description: 'Design type',
+                                example: 'preset'
+                            ),
+                            new OA\Property(
+                                property: 'name',
+                                type: 'string',
+                                description: 'Design type name',
+                                example: 'presentation'
+                            ),
+                            new OA\Property(
+                                property: 'width',
+                                type: 'integer',
+                                description: 'Design width',
+                                example: 800
+                            ),
+                            new OA\Property(
+                                property: 'height',
+                                type: 'integer',
+                                description: 'Design height',
+                                example: 600
+                            ),
+                        ]
+                    ),
+                    new OA\Property(
+                        property: 'asset_id',
+                        type: 'string',
+                        description: 'Asset ID',
+                        example: 'MAGnWRFNXUA'
+                    ),
+                    new OA\Property(
+                        property: 'title',
+                        type: 'string',
+                        description: 'Title of the design',
+                        example: 'My Holiday Presentation'
+                    ),
+                    new OA\Property(
+                        property: 'endpoint_interface',
+                        type: 'string',
+                        description: 'Endpoint interface',
+                        example: 'generate'
+                    ),
+                ]
+            )
+        )
     )]
     #[OA\Response(
         response: 200,
