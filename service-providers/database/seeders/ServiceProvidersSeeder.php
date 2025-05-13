@@ -42,6 +42,7 @@ class ServiceProvidersSeeder extends Seeder
                 'type' => 'Canva',
                 'parameter' => [
                     'base_url' => 'https://api.canva.com',
+                    'version' => 'v1',
                 ]
             ],
             [

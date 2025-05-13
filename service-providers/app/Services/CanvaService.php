@@ -129,17 +129,10 @@ class CanvaService
     try {
       $response = $this->client
         ->withHeader('Content-Type', 'application/json')
-        ->post($this->apiUrl . '/designs', [
-          'design_type' => [
-            'type' => $data->design_type['type'],
-            'name' => $data->design_type['name'],
-          ],
-          'asset_id' => $data->asset_id,
-          'title' => $data->title,
-        ]);
+        ->post($this->apiUrl . '/designs', $data);
     } catch (ConnectionException | Exception $e) {
       Log::error('Canva API request error: ' . json_encode($e->getMessage()));
-      throw new Forbidden('Canva API request failed');
+      throw new Forbidden('Canva API request failed: ' . $e->getMessage());
     }
 
     $result = $this->handleResponse($response);
