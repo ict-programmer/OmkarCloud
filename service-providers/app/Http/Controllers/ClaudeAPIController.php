@@ -670,8 +670,8 @@ class ClaudeAPIController extends BaseController
     #[OA\Post(
         path: '/api/claudeapi/personalize',
         operationId: '/api/claudeapi/personalize',
-        description: 'Personalize your content using Claude API',
-        summary: 'Personalize your content using Claude API',
+        description: 'Personalize your own content using Claude API',
+        summary: 'Personalize your own content using Claude API',
         security: [['authentication' => []]],
         tags: ['ClaudeAPI'],
     )]
