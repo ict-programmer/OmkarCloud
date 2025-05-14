@@ -2,20 +2,20 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /var/www/html/felidae-network/service-providers/
+    destination: /var/www/html/felidae-network/
 file_exists_behavior: OVERWRITE
 hooks:
   BeforeInstall:
-    - location: service-providers/buildscript/dummy.sh
+    - location: service-providers/dummy.sh
       timeout: 5
   AfterInstall:
-    - location: service-providers/buildscript/dummy.sh
+    - location: service-providers/dummy.sh
       timeout: 5
       runas: ubuntu
   ApplicationStart:
-    - location: service-providers/buildscript/change_permission.sh
+    - location: service-providers/change_permission.sh
       timeout: 5
   ValidateService:
-    - location: service-providers/buildscript/build.sh
+    - location: service-providers/build.sh
       timeout: 360
 
