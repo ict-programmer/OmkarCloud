@@ -14,6 +14,8 @@ class MoveFolderItemResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return $this->data;
+        return [
+            'status' => 'success',
+        ];
     }
 }
