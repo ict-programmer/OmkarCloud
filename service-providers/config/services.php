@@ -71,6 +71,8 @@ return [
             'design:content:write',
             'design:meta:read',
             'profile:read',
+            'folder:write',
+            'folder:read'
         ],
     ],
     'perplexity' => [

@@ -613,10 +613,13 @@ class CanvaController extends BaseController
     )]
     #[OA\Parameter(
         name: 'exportID',
-        in: 'query',
+        in: 'path',
         required: true,
         description: 'ID of the export',
-        schema: new OA\Schema(type: 'string', example: 'exportID')
+        schema: new OA\Schema(
+            type: 'string',
+            example: '17f20503-6c24-4c16-946b-35dbbce2af2f',
+        ),
     )]
     #[OA\Response(
         response: 202,
@@ -1054,7 +1057,7 @@ class CanvaController extends BaseController
     )]
     #[OA\Parameter(
         name: 'folderID',
-        in: 'query',
+        in: 'path',
         required: true,
         description: 'The folder ID to be deleted',
         schema: new OA\Schema(type: 'string', example: 'root', minLength: 1, maxLength: 50)
@@ -1062,6 +1065,11 @@ class CanvaController extends BaseController
     #[OA\Response(
         response: 200,
         description: 'Successful response',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'success'
+            ]
+        )
     )]
     #[OA\Response(
         response: 400,
@@ -1097,13 +1105,6 @@ class CanvaController extends BaseController
         tags: ["Canva"],
     )]
     #[OA\Parameter(
-        name: 'name',
-        in: 'query',
-        required: true,
-        description: 'The name of the folder',
-        schema: new OA\Schema(type: 'string', example: 'My awesome holiday', minLength: 1, maxLength: 255)
-    )]
-    #[OA\Parameter(
         name: 'folder_id',
         in: 'query',
         required: true,
@@ -1111,15 +1112,97 @@ class CanvaController extends BaseController
         schema: new OA\Schema(type: 'string', example: 'FAF2lZtloor')
     )]
     #[OA\Parameter(
-        name: 'endpoint_interface',
+        name: 'continuation',
         in: 'query',
-        required: true,
-        description: 'Endpoint interface',
-        schema: new OA\Schema(type: 'string', example: 'generate', enum: ['generate'])
+        required: false,
+        description: 'Continuation token (optional)',
+        schema: new OA\Schema(type: 'string', example: 'continue-here')
+    )]
+    #[OA\Parameter(
+        name: 'item_types',
+        in: 'query',
+        required: false,
+        description: 'Filter by item types (optional)',
+        schema: new OA\Schema(
+            type: 'array',
+            items: new OA\Items(
+                type: 'string',
+                enum: ['design', 'folder', 'image']
+            ),
+            example: ['design', 'image']
+        ),
+        style: 'form',
+        explode: true
+    )]
+    #[OA\Parameter(
+        name: 'sort_by',
+        in: 'query',
+        required: false,
+        description: 'Sort items by criteria',
+        schema: new OA\Schema(
+            type: 'string',
+            enum: [
+                'created_ascending',
+                'created_descending',
+                'modified_ascending',
+                'modified_descending',
+                'title_ascending',
+                'title_descending'
+            ],
+            example: 'created_descending'
+        )
     )]
     #[OA\Response(
         response: 200,
-        description: 'Successful response',
+        description: 'Successful response with items',
+        content: new OA\JsonContent(
+            type: 'object',
+            required: ['items'],
+            properties: [
+                new OA\Property(
+                    property: 'items',
+                    type: 'array',
+                    items: new OA\Items(
+                        type: 'object',
+                        required: ['type', 'folder'],
+                        properties: [
+                            new OA\Property(
+                                property: 'type',
+                                type: 'string',
+                                example: 'folder'
+                            ),
+                            new OA\Property(
+                                property: 'folder',
+                                type: 'object',
+                                required: ['id', 'name', 'created_at', 'updated_at'],
+                                properties: [
+                                    new OA\Property(
+                                        property: 'id',
+                                        type: 'string',
+                                        example: 'FAFniUzF2XY'
+                                    ),
+                                    new OA\Property(
+                                        property: 'name',
+                                        type: 'string',
+                                        example: 'item 1'
+                                    ),
+                                    new OA\Property(
+                                        property: 'created_at',
+                                        type: 'integer',
+                                        example: 1747330758
+                                    ),
+                                    new OA\Property(
+                                        property: 'updated_at',
+                                        type: 'integer',
+                                        example: 1747330758
+                                    ),
+                                ]
+                            )
+                        ]
+                    )
+                )
+            ]
+        )
     )]
     #[OA\Response(
         response: 400,
@@ -1174,6 +1257,15 @@ class CanvaController extends BaseController
     #[OA\Response(
         response: 200,
         description: 'Successful response',
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'success'
+            ]
+        )
     )]
     #[OA\Response(
         response: 400,
