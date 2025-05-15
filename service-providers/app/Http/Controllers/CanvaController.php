@@ -1253,11 +1253,6 @@ class CanvaController extends BaseController
         description: 'The ID of the item to move',
         schema: new OA\Schema(type: 'string', example: 'FAF2lZtloor')
     )]
-
-    #[OA\Response(
-        response: 200,
-        description: 'Successful response',
-    )]
     #[OA\Response(
         response: 200,
         description: 'Successful response',
