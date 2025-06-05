@@ -11,6 +11,7 @@ use App\Http\Exceptions\Forbidden;
 use App\Http\Resources\OpenAI\CodeCompletionResource;
 use App\Traits\OpenAIChatTrait;
 use Exception;
+use finfo;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
@@ -304,33 +305,31 @@ class ChatGPTService
     {
         $client = OpenAI::client(config('services.openai.api_key'));
 
-        $messages = [
-            [
-                'role' => 'system',
-                'content' => 'You are a UI field extraction assistant. DO NOT return screen type, reasoning, or any explanation. Just return a comma-separated list of visible UI field labels related to backend database values. No headings, no intros, no explanations.',
-            ],
-            [
-                'role' => 'user',
-                'content' => [
-                    [
-                        'type' => 'text',
-                        'text' => config('chatGPT.system_prompts.ui_fields.universal'),
-                    ],
-                    [
-                        'type' => 'image_url',
-                        'image_url' => [
-                            'url' => $data->image,
+        $response = $client->chat()->create([
+            'model' => 'gpt-4-turbo',
+            'messages' => [
+                [
+                    'role' => 'system',
+                    'content' => 'You are a UI field extraction assistant. DO NOT return screen type, reasoning, or any explanation. Just return a comma-separated list of visible UI field labels related to backend database values. No headings, no intros, no explanations.',
+                ],
+                [
+                    'role' => 'user',
+                    'content' => [
+                        [
+                            'type' => 'text',
+                            'text' => 'Extract UI field labels from this form.',
+                        ],
+                        [
+                            'type' => 'image_url',
+                            'image_url' => [
+                                'url' => $data->image,
+                            ],
                         ],
                     ],
                 ],
             ],
-        ];
-        $payload = [
-            'model' => 'gpt-4-turbo',
-            'messages' => $messages,
-        ];
+        ]);
 
-        $response = $client->chat()->create($payload);
         if (!isset($response->choices[0]->message->content))
             throw new Exception('No content returned from OpenAI');
 

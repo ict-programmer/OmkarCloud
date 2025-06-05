@@ -334,7 +334,7 @@ class ChatGPTController extends BaseController
                         new OA\Property(
                             property: 'image',
                             type: 'string',
-                            example: 'https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/2c94a50d-b88a-4148-96bc-4453c288fd7b'
+                            example: 'https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/9a0be22e-d351-4329-bb74-c0bb7592d83e'
                         ),
                     ],
                     type: 'object'
