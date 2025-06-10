@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Data\Request\Shutterstock\DownloadImageData;
 use App\Data\Request\Shutterstock\GetImageData;
 use App\Data\Request\Shutterstock\LicenseImageData;
 use App\Data\Request\Shutterstock\SearchImagesData;
+use App\Http\Requests\Shutterstock\DownloadImageRequest;
 use App\Http\Requests\Shutterstock\GetImageRequest;
 use App\Http\Requests\Shutterstock\LicenseImageRequest;
 use App\Http\Requests\Shutterstock\SearchImagesRequest;
@@ -304,6 +306,89 @@ class ShutterstockController extends BaseController
 
         return $this->logAndResponse([
             'message' => 'Image licensed successfully.',
+            'data' => $result,
+        ]);
+    }
+
+    #[OA\Post(
+        path: '/api/shutterstock/download_image',
+        operationId: 'shutterstock_download_image',
+        description: 'Get a redownload link for a previously licensed image using Shutterstock API',
+        summary: 'Shutterstock Download Image',
+        security: [['authentication' => []]],
+        tags: ['Shutterstock'],
+    )]
+    #[OA\RequestBody(
+        description: 'Download image request with license_id parameter',
+        required: true,
+        content: new OA\MediaType(
+            mediaType: 'application/json',
+            schema: new OA\Schema(
+                required: ['license_id'],
+                properties: [
+                    new OA\Property(
+                        property: 'license_id',
+                        description: 'License ID from a previously licensed image',
+                        type: 'string',
+                        example: 'i4117504971'
+                    ),
+                ],
+                type: 'object'
+            )
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            example: [
+                'message' => 'Download link generated successfully.',
+                'data' => [
+                    'url' => 'https://download.shutterstock.com/gatekeeper/[random-characters]/shutterstock_1079756147.jpg'
+                ]
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 422,
+        description: 'Validation error',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'validation_error',
+                'message' => [
+                    'license_id' => 'The license_id field is required.',
+                ],
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 404,
+        description: 'License not found',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'License not found'
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 500,
+        description: 'Server error',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Failed to generate download link'
+            ]
+        )
+    )]
+    public function downloadImage(DownloadImageRequest $request): JsonResponse
+    {
+        $data = DownloadImageData::from($request->validated());
+
+        $result = $this->service->downloadImage($data);
+
+        return $this->logAndResponse([
+            'message' => 'Download link generated successfully.',
             'data' => $result,
         ]);
     }

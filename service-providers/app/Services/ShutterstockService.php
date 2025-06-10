@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Data\Request\Shutterstock\DownloadImageData;
 use App\Data\Request\Shutterstock\GetImageData;
 use App\Data\Request\Shutterstock\LicenseImageData;
 use App\Data\Request\Shutterstock\SearchImagesData;
@@ -14,7 +15,6 @@ class ShutterstockService
     {
         $response = $this->callShutterstockAPI(
             endpoint: config('shutterstock.search_images_endpoint'),
-            method: 'GET',
             params: [
                 'query' => $data->query,
                 'orientation' => $data->orientation,
@@ -31,7 +31,6 @@ class ShutterstockService
         
         $response = $this->callShutterstockAPI(
             endpoint: $endpoint,
-            method: 'GET'
         );
 
         return $response->json();
@@ -58,6 +57,18 @@ class ShutterstockService
         return $response->json();
     }
 
+    public function downloadImage(DownloadImageData $data): array
+    {
+        $endpoint = config('shutterstock.download_image_endpoint') . '/' . $data->license_id . '/downloads';
+        
+        $response = $this->callShutterstockAPI(
+            endpoint: $endpoint,
+            method: 'POST',
+        );
+
+        return $response->json();
+    }
+
     private function callShutterstockAPI(
         string $endpoint,
         string $method = 'GET',
@@ -71,7 +82,6 @@ class ShutterstockService
             'Accept' => 'application/json',
         ];
 
-        // Add Content-Type header for POST requests
         if ($method === 'POST') {
             $headers['Content-Type'] = 'application/json';
         }
@@ -82,11 +92,14 @@ class ShutterstockService
             'GET' => $httpClient->get($url, $params),
             'POST' => $httpClient->post($url, $data),
         };
-        
-        if ($response->failed() || ($response->json('errors') && count($response->json('errors')) > 0)) {
+
+
+        $errors = $response->json('errors');
+        if ($response->failed() || ($errors && count($errors) > 0)) {
             $statusCode = 403;
             abort(response()->json([
-                'errors' => $response->json('errors'),
+                'message' => $response->json('message') ?? 'An error occurred',
+                'errors' => $response->json('errors') ?? ($response->json('error') ?? 'An error occurred'),
                 'data' => $response->json('data'),
             ], $statusCode));
         }

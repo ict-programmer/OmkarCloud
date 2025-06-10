@@ -167,7 +167,8 @@ Route::prefix('users')->controller(UserController::class)->group(function () {
 });
 
 Route::prefix('shutterstock')->controller(ShutterstockController::class)->group(function () {
-    Route::post('search_images', 'searchImages');
-    Route::post('get_image', 'getImage');
-    Route::post('license_image', 'licenseImage');
+    Route::post('/search_images', 'searchImages');
+    Route::post('/get_image', 'getImage');
+    Route::post('/license_image', 'licenseImage');
+    Route::post('/download_image', 'downloadImage');
 });
