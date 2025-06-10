@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Data\Request\Shutterstock\AddToCollectionData;
 use App\Data\Request\Shutterstock\CreateCollectionData;
 use App\Data\Request\Shutterstock\DownloadImageData;
 use App\Data\Request\Shutterstock\GetImageData;
@@ -85,6 +86,21 @@ class ShutterstockService
         return $response->json();
     }
 
+    public function addToCollection(AddToCollectionData $data): void
+    {
+        $endpoint = config('shutterstock.add_to_collection_endpoint') . '/' . $data->collection_id . '/items';
+
+        $requestBody = [
+            'items' => $data->items
+        ];
+        
+        $this->callShutterstockAPI(
+            endpoint: $endpoint,
+            method: 'POST',
+            data: $requestBody
+        );
+    }
+
     private function callShutterstockAPI(
         string $endpoint,
         string $method = 'GET',
@@ -92,7 +108,7 @@ class ShutterstockService
         array $data = []
     ): Response {
         $url = config('shutterstock.base_url') . $endpoint;
-        
+
         $headers = [
             'Authorization' => 'Bearer ' . config('shutterstock.api_token'),
             'Accept' => 'application/json',

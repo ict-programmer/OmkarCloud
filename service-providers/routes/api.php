@@ -172,4 +172,5 @@ Route::prefix('shutterstock')->controller(ShutterstockController::class)->group(
     Route::post('/license_image', 'licenseImage');
     Route::post('/download_image', 'downloadImage');
     Route::post('/create_collection', 'createCollection');
+    Route::post('/add_to_collection', 'addToCollection');
 });

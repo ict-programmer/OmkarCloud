@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Data\Request\Shutterstock\AddToCollectionData;
 use App\Data\Request\Shutterstock\CreateCollectionData;
 use App\Data\Request\Shutterstock\DownloadImageData;
 use App\Data\Request\Shutterstock\GetImageData;
 use App\Data\Request\Shutterstock\LicenseImageData;
 use App\Data\Request\Shutterstock\SearchImagesData;
 use App\Enums\LogTypeEnum;
+use App\Http\Requests\Shutterstock\AddToCollectionRequest;
 use App\Http\Requests\Shutterstock\CreateCollectionRequest;
 use App\Http\Requests\Shutterstock\DownloadImageRequest;
 use App\Http\Requests\Shutterstock\GetImageRequest;
@@ -486,6 +488,125 @@ class ShutterstockController extends BaseController
         return $this->logAndResponse([
             'message' => 'Collection created successfully.',
             'data' => $result,
+        ]);
+    }
+
+    #[OA\Post(
+        path: '/api/shutterstock/add_to_collection',
+        operationId: 'shutterstock_add_to_collection',
+        description: 'Add images to a collection using Shutterstock API',
+        summary: 'Shutterstock Add Images to Collection',
+        security: [['authentication' => []]],
+        tags: ['Shutterstock'],
+    )]
+    #[OA\RequestBody(
+        description: 'Add images to collection request with collection_id and items array',
+        required: true,
+        content: new OA\MediaType(
+            mediaType: 'application/json',
+            schema: new OA\Schema(
+                required: ['collection_id', 'items'],
+                properties: [
+                    new OA\Property(
+                        property: 'collection_id',
+                        description: 'The ID of the collection to add images to',
+                        type: 'string',
+                        example: '326120296'
+                    ),
+                    new OA\Property(
+                        property: 'items',
+                        description: 'Array of items to add to the collection',
+                        type: 'array',
+                        items: new OA\Items(
+                            properties: [
+                                new OA\Property(property: 'id', type: 'string', example: '49572945'),
+                                new OA\Property(property: 'media_type', type: 'string', example: 'image')
+                            ],
+                            type: 'object'
+                        ),
+                        example: [
+                            [
+                                'id' => '49572945',
+                                'media_type' => 'image'
+                            ]
+                        ]
+                    ),
+                ],
+                type: 'object'
+            )
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Successfully added images to collection',
+        content: new OA\JsonContent(
+            example: [
+                'message' => 'Images added to collection successfully.',
+                'data' => []
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 422,
+        description: 'Validation error',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'validation_error',
+                'message' => [
+                    'collection_id' => 'The collection_id field is required.',
+                    'items' => 'The items field is required.',
+                ],
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized - Invalid API token',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Unauthorized access'
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 403,
+        description: 'Forbidden - Insufficient permissions',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Insufficient permissions to modify collections'
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 404,
+        description: 'Collection not found',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Collection not found'
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 500,
+        description: 'Server error',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Failed to add images to collection'
+            ]
+        )
+    )]
+    public function addToCollection(AddToCollectionRequest $request): JsonResponse
+    {
+        $data = AddToCollectionData::from($request->validated());
+
+        $this->service->addToCollection($data);
+
+        return $this->logAndResponse([
+            'message' => 'Images added to collection successfully.',
         ]);
     }
 } 

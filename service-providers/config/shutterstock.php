@@ -7,5 +7,6 @@ return [
     'license_image_endpoint' => '/v2/images/licenses',
     'download_image_endpoint' => '/v2/images/licenses',
     'create_collection_endpoint' => '/v2/images/collections',
+    'add_to_collection_endpoint' => '/v2/images/collections',
     'api_token' => env('SHUTTERSTOCK_API_TOKEN'),
 ]; 
