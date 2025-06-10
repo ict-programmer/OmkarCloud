@@ -143,4 +143,8 @@ return [
     'descriptai' => [
         'api_key' => env('DESCRIPTAI_API_KEY'),
     ],
+
+    'pexels' => [
+        'api_key' => env('PEXELS_API_KEY'),
+    ],
 ];

@@ -10,6 +10,7 @@ use App\Http\Controllers\FFMpegServiceController;
 use App\Http\Controllers\GeminiController;
 use App\Http\Controllers\GoogleSheetsController;
 use App\Http\Controllers\PerplexityController;
+use App\Http\Controllers\PexelsController;
 use App\Http\Controllers\PlacidController;
 use App\Http\Controllers\PremierProController;
 use App\Http\Controllers\QwenController;
@@ -163,4 +164,15 @@ Route::prefix('users')->controller(UserController::class)->group(function () {
     Route::get('list', 'listUsers');
     Route::post('create', 'createUser');
     Route::delete('delete', 'deleteUser');
+});
+
+Route::prefix('pexels')->group(function () {
+    Route::get('photos/search', [PexelsController::class, 'searchPhotos']);
+    Route::get('photos/curated', [PexelsController::class, 'getCuratedPhotos']);
+    Route::get('photos/{id}', [PexelsController::class, 'getPhoto']);
+    Route::get('videos/search', [PexelsController::class, 'searchVideos']);
+    Route::get('videos/popular', [PexelsController::class, 'getPopularVideos']);
+    Route::get('videos/{id}', [PexelsController::class, 'getVideo']);
+    Route::get('collections/featured', [PexelsController::class, 'getFeaturedCollections']);
+    Route::get('collection/{id}', [PexelsController::class, 'getCollection']);
 });
