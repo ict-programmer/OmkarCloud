@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Data\Request\Shutterstock\CreateCollectionData;
 use App\Data\Request\Shutterstock\DownloadImageData;
 use App\Data\Request\Shutterstock\GetImageData;
 use App\Data\Request\Shutterstock\LicenseImageData;
 use App\Data\Request\Shutterstock\SearchImagesData;
+use App\Enums\LogTypeEnum;
+use App\Http\Requests\Shutterstock\CreateCollectionRequest;
 use App\Http\Requests\Shutterstock\DownloadImageRequest;
 use App\Http\Requests\Shutterstock\GetImageRequest;
 use App\Http\Requests\Shutterstock\LicenseImageRequest;
@@ -389,6 +392,99 @@ class ShutterstockController extends BaseController
 
         return $this->logAndResponse([
             'message' => 'Download link generated successfully.',
+            'data' => $result,
+        ]);
+    }
+
+    #[OA\Post(
+        path: '/api/shutterstock/create_collection',
+        operationId: 'shutterstock_create_collection',
+        description: 'Create an image collection (lightbox) using Shutterstock API',
+        summary: 'Shutterstock Create Collection',
+        security: [['authentication' => []]],
+        tags: ['Shutterstock'],
+    )]
+    #[OA\RequestBody(
+        description: 'Create collection request with name parameter',
+        required: true,
+        content: new OA\MediaType(
+            mediaType: 'application/json',
+            schema: new OA\Schema(
+                required: ['name'],
+                properties: [
+                    new OA\Property(
+                        property: 'name',
+                        description: 'The name of the collection to create',
+                        type: 'string',
+                        example: 'My collection'
+                    ),
+                ],
+                type: 'object'
+            )
+        )
+    )]
+    #[OA\Response(
+        response: 201,
+        description: 'Successfully created image collection',
+        content: new OA\JsonContent(
+            example: [
+                'message' => 'Collection created successfully.',
+                'data' => [
+                    'id' => '48433105'
+                ]
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 422,
+        description: 'Validation error',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'validation_error',
+                'message' => [
+                    'name' => 'The name field is required.',
+                ],
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized - Invalid API token',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Unauthorized access'
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 403,
+        description: 'Forbidden - Insufficient permissions',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Insufficient permissions to create collections'
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 500,
+        description: 'Server error',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Failed to create collection'
+            ]
+        )
+    )]
+    public function createCollection(CreateCollectionRequest $request): JsonResponse
+    {
+        $data = CreateCollectionData::from($request->validated());
+
+        $result = $this->service->createCollection($data);
+
+        return $this->logAndResponse([
+            'message' => 'Collection created successfully.',
             'data' => $result,
         ]);
     }

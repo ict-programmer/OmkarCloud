@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Data\Request\Shutterstock\CreateCollectionData;
 use App\Data\Request\Shutterstock\DownloadImageData;
 use App\Data\Request\Shutterstock\GetImageData;
 use App\Data\Request\Shutterstock\LicenseImageData;
@@ -64,6 +65,21 @@ class ShutterstockService
         $response = $this->callShutterstockAPI(
             endpoint: $endpoint,
             method: 'POST',
+        );
+
+        return $response->json();
+    }
+
+    public function createCollection(CreateCollectionData $data): array
+    {
+        $requestBody = [
+            'name' => $data->name
+        ];
+        
+        $response = $this->callShutterstockAPI(
+            endpoint: config('shutterstock.create_collection_endpoint'),
+            method: 'POST',
+            data: $requestBody
         );
 
         return $response->json();
