@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Data\Pexels\GetCollectionData;
+use App\Data\Pexels\GetCollectionsData;
 use App\Data\Pexels\GetCuratedPhotosData;
 use App\Data\Pexels\GetFeaturedCollectionsData;
 use App\Data\Pexels\GetPhotoData;
@@ -11,6 +12,7 @@ use App\Data\Pexels\GetVideoData;
 use App\Data\Pexels\SearchPhotosData;
 use App\Data\Pexels\SearchVideosData;
 use App\Http\Requests\Pexels\GetCollectionRequest;
+use App\Http\Requests\Pexels\GetCollectionsRequest;
 use App\Http\Requests\Pexels\GetCuratedPhotosRequest;
 use App\Http\Requests\Pexels\GetFeaturedCollectionsRequest;
 use App\Http\Requests\Pexels\GetPhotoRequest;
@@ -607,7 +609,62 @@ class PexelsController extends BaseController
     }
 
     #[OA\Get(
-        path: '/api/pexels/collection/{id}',
+        path: '/api/pexels/collections',
+        summary: 'Get collections',
+        description: 'Get collections',
+        tags: ["Pexels"],
+        security: [['authentication' => []]],
+    )]
+    #[OA\Parameter(
+        name: 'page',
+        in: 'query',
+        required: false,
+        description: 'Page number',
+        schema: new OA\Schema(type: 'integer', example: 1)
+    )]
+    #[OA\Parameter(
+        name: 'per_page',
+        in: 'query',
+        required: false,
+        description: 'Number of results per page',
+        schema: new OA\Schema(type: 'integer', example: 15)
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            example: [
+                'total_results' => 100,
+                'per_page' => 15,
+                'page' => 1,
+                'prev_page' => 'https://www.pexels.com/api/v1/search?query=dog&orientation=landscape&size=medium&color=red&locale=en&page=1&per_page=10',
+                'next_page' => 'https://www.pexels.com/api/v1/search?query=dog&orientation=landscape&size=medium&color=red&locale=en&page=2&per_page=10',
+                'collections' => [
+                    [
+                        'id' => '123456789',
+                        'title' => 'Cool Dogs',
+                        'description' => 'Dog Running on Grass',
+                        'private' => false,
+                        'media_count' => 10,
+                        'photos_count' => 7,
+                        'videos_count' => 3,
+                    ]
+                ],
+            ]
+        )
+    )]
+    public function getCollections(GetCollectionsRequest $request): JsonResponse
+    {
+        $data = GetCollectionsData::from($request->validated());
+
+        $result = $this->service->getCollections($data);
+
+        return $this->logAndResponse($result);
+    }
+
+
+    #[OA\Get(
+        path: '/api/pexels/collections/{id}',
         summary: 'Get collections',
         description: 'Get collections',
         tags: ["Pexels"],

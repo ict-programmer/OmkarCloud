@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Data\Pexels\GetCollectionData;
+use App\Data\Pexels\GetCollectionsData;
 use App\Data\Pexels\GetCuratedPhotosData;
 use App\Data\Pexels\GetFeaturedCollectionsData;
 use App\Data\Pexels\GetPhotoData;
@@ -143,6 +144,22 @@ class PexelsService
 
     try {
       $response = $this->client->featuredCollections($searchParams);
+    } catch (NetworkException $e) {
+      throw new BadRequest($e->getMessage());
+    }
+
+    return $response;
+  }
+
+  public function getCollections(GetCollectionsData $data): Collections
+  {
+    $searchParams = new PaginationParameters(
+      page: $data->page ?? 1,
+      per_page: $data->per_page ?? 10,
+    );
+
+    try {
+      $response = $this->client->collections($searchParams);
     } catch (NetworkException $e) {
       throw new BadRequest($e->getMessage());
     }

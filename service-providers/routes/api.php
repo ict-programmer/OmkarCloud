@@ -174,5 +174,6 @@ Route::prefix('pexels')->group(function () {
     Route::get('videos/popular', [PexelsController::class, 'getPopularVideos']);
     Route::get('videos/{id}', [PexelsController::class, 'getVideo']);
     Route::get('collections/featured', [PexelsController::class, 'getFeaturedCollections']);
-    Route::get('collection/{id}', [PexelsController::class, 'getCollection']);
+    Route::get('collections', [PexelsController::class, 'getCollections']);
+    Route::get('collections/{id}', [PexelsController::class, 'getCollection']);
 });
