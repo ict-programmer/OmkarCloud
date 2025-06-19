@@ -25,7 +25,7 @@ class AddToCollectionRequest extends FormRequest
             'collection_id' => 'required|string|regex:/^[1-9][0-9]*$/',
             'items' => 'required|array|min:1',
             'items.*.id' => 'required|string|regex:/^[1-9][0-9]*$/',
-            'items.*.media_type' => 'required|string|in:image',
+            'items.*.media_type' => 'required|string|in:image,video',
         ];
     }
 } 

@@ -8,5 +8,9 @@ return [
     'download_image_endpoint' => '/v2/images/licenses',
     'create_collection_endpoint' => '/v2/images/collections',
     'add_to_collection_endpoint' => '/v2/images/collections',
+    'search_videos_endpoint' => '/v2/videos/search',
+    'get_video_endpoint' => '/v2/videos',
+    'license_video_endpoint' => '/v2/videos/licenses',
+    'download_video_endpoint' => '/v2/videos/licenses',
     'api_token' => env('SHUTTERSTOCK_API_TOKEN'),
 ]; 

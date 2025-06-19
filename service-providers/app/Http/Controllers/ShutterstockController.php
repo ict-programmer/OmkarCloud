@@ -3,18 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Data\Request\Shutterstock\AddToCollectionData;
+use App\Data\Request\Shutterstock\AddToVideoCollectionData;
 use App\Data\Request\Shutterstock\CreateCollectionData;
+use App\Data\Request\Shutterstock\CreateVideoCollectionData;
 use App\Data\Request\Shutterstock\DownloadImageData;
+use App\Data\Request\Shutterstock\DownloadVideoData;
 use App\Data\Request\Shutterstock\GetImageData;
+use App\Data\Request\Shutterstock\GetVideoData;
 use App\Data\Request\Shutterstock\LicenseImageData;
+use App\Data\Request\Shutterstock\LicenseVideoData;
 use App\Data\Request\Shutterstock\SearchImagesData;
-use App\Enums\LogTypeEnum;
+use App\Data\Request\Shutterstock\SearchVideosData;
 use App\Http\Requests\Shutterstock\AddToCollectionRequest;
+use App\Http\Requests\Shutterstock\AddToVideoCollectionRequest;
 use App\Http\Requests\Shutterstock\CreateCollectionRequest;
+use App\Http\Requests\Shutterstock\CreateVideoCollectionRequest;
 use App\Http\Requests\Shutterstock\DownloadImageRequest;
+use App\Http\Requests\Shutterstock\DownloadVideoRequest;
 use App\Http\Requests\Shutterstock\GetImageRequest;
+use App\Http\Requests\Shutterstock\GetVideoRequest;
 use App\Http\Requests\Shutterstock\LicenseImageRequest;
+use App\Http\Requests\Shutterstock\LicenseVideoRequest;
 use App\Http\Requests\Shutterstock\SearchImagesRequest;
+use App\Http\Requests\Shutterstock\SearchVideosRequest;
 use App\Services\ShutterstockService;
 use Illuminate\Http\JsonResponse;
 use OpenApi\Attributes as OA;
@@ -22,6 +33,218 @@ use OpenApi\Attributes as OA;
 class ShutterstockController extends BaseController
 {
     public function __construct(protected ShutterstockService $service) {}
+
+    #[OA\Post(
+        path: '/api/shutterstock/create_collection',
+        operationId: 'shutterstock_create_collection',
+        description: 'Create an image collection (lightbox) using Shutterstock API',
+        summary: 'Shutterstock Create Collection',
+        security: [['authentication' => []]],
+        tags: ['Shutterstock'],
+    )]
+    #[OA\RequestBody(
+        description: 'Create collection request with name parameter',
+        required: true,
+        content: new OA\MediaType(
+            mediaType: 'application/json',
+            schema: new OA\Schema(
+                required: ['name'],
+                properties: [
+                    new OA\Property(
+                        property: 'name',
+                        description: 'The name of the collection to create',
+                        type: 'string',
+                        example: 'My collection'
+                    ),
+                ],
+                type: 'object'
+            )
+        )
+    )]
+    #[OA\Response(
+        response: 201,
+        description: 'Successfully created image collection',
+        content: new OA\JsonContent(
+            example: [
+                'message' => 'Collection created successfully.',
+                'data' => [
+                    'id' => '48433105'
+                ]
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 422,
+        description: 'Validation error',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'validation_error',
+                'message' => [
+                    'name' => 'The name field is required.',
+                ],
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized - Invalid API token',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Unauthorized access'
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 403,
+        description: 'Forbidden - Insufficient permissions',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Insufficient permissions to create collections'
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 500,
+        description: 'Server error',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Failed to create collection'
+            ]
+        )
+    )]
+    public function createCollection(CreateCollectionRequest $request): JsonResponse
+    {
+        $data = CreateCollectionData::from($request->validated());
+
+        $result = $this->service->createCollection($data);
+
+        return $this->logAndResponse([
+            'message' => 'Collection created successfully.',
+            'data' => $result,
+        ]);
+    }
+
+    #[OA\Post(
+        path: '/api/shutterstock/add_to_collection',
+        operationId: 'shutterstock_add_to_collection',
+        description: 'Add images to a collection using Shutterstock API',
+        summary: 'Shutterstock Add Images to Collection',
+        security: [['authentication' => []]],
+        tags: ['Shutterstock'],
+    )]
+    #[OA\RequestBody(
+        description: 'Add images to collection request with collection_id and items array',
+        required: true,
+        content: new OA\MediaType(
+            mediaType: 'application/json',
+            schema: new OA\Schema(
+                required: ['collection_id', 'items'],
+                properties: [
+                    new OA\Property(
+                        property: 'collection_id',
+                        description: 'The ID of the collection to add images to',
+                        type: 'string',
+                        example: '326120296'
+                    ),
+                    new OA\Property(
+                        property: 'items',
+                        description: 'Array of items to add to the collection',
+                        type: 'array',
+                        items: new OA\Items(
+                            properties: [
+                                new OA\Property(property: 'id', type: 'string', example: '49572945'),
+                                new OA\Property(property: 'media_type', type: 'string', example: 'image')
+                            ],
+                            type: 'object'
+                        ),
+                        example: [
+                            [
+                                'id' => '49572945',
+                                'media_type' => 'image'
+                            ]
+                        ]
+                    ),
+                ],
+                type: 'object'
+            )
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Successfully added images to collection',
+        content: new OA\JsonContent(
+            example: [
+                'message' => 'Images added to collection successfully.',
+                'data' => []
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 422,
+        description: 'Validation error',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'validation_error',
+                'message' => [
+                    'collection_id' => 'The collection_id field is required.',
+                    'items' => 'The items field is required.',
+                ],
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized - Invalid API token',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Unauthorized access'
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 403,
+        description: 'Forbidden - Insufficient permissions',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Insufficient permissions to modify collections'
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 404,
+        description: 'Collection not found',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Collection not found'
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 500,
+        description: 'Server error',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Failed to add images to collection'
+            ]
+        )
+    )]
+    public function addToCollection(AddToCollectionRequest $request): JsonResponse
+    {
+        $data = AddToCollectionData::from($request->validated());
+
+        $this->service->addToCollection($data);
+
+        return $this->logAndResponse([
+            'message' => 'Item added to collection successfully.',
+        ]);
+    }
 
     #[OA\Post(
         path: '/api/shutterstock/search_images',
@@ -399,137 +622,33 @@ class ShutterstockController extends BaseController
     }
 
     #[OA\Post(
-        path: '/api/shutterstock/create_collection',
-        operationId: 'shutterstock_create_collection',
-        description: 'Create an image collection (lightbox) using Shutterstock API',
-        summary: 'Shutterstock Create Collection',
+        path: '/api/shutterstock/videos/search',
+        operationId: 'shutterstock_search_videos',
+        description: 'Search for videos using Shutterstock API',
+        summary: 'Shutterstock Video Search',
         security: [['authentication' => []]],
         tags: ['Shutterstock'],
     )]
     #[OA\RequestBody(
-        description: 'Create collection request with name parameter',
+        description: 'Search videos request with query and orientation parameters',
         required: true,
         content: new OA\MediaType(
             mediaType: 'application/json',
             schema: new OA\Schema(
-                required: ['name'],
+                required: ['query', 'orientation'],
                 properties: [
                     new OA\Property(
-                        property: 'name',
-                        description: 'The name of the collection to create',
+                        property: 'query',
+                        description: 'Search query for videos',
                         type: 'string',
-                        example: 'My collection'
-                    ),
-                ],
-                type: 'object'
-            )
-        )
-    )]
-    #[OA\Response(
-        response: 201,
-        description: 'Successfully created image collection',
-        content: new OA\JsonContent(
-            example: [
-                'message' => 'Collection created successfully.',
-                'data' => [
-                    'id' => '48433105'
-                ]
-            ]
-        )
-    )]
-    #[OA\Response(
-        response: 422,
-        description: 'Validation error',
-        content: new OA\JsonContent(
-            example: [
-                'status' => 'validation_error',
-                'message' => [
-                    'name' => 'The name field is required.',
-                ],
-            ]
-        )
-    )]
-    #[OA\Response(
-        response: 401,
-        description: 'Unauthorized - Invalid API token',
-        content: new OA\JsonContent(
-            example: [
-                'status' => 'error',
-                'message' => 'Unauthorized access'
-            ]
-        )
-    )]
-    #[OA\Response(
-        response: 403,
-        description: 'Forbidden - Insufficient permissions',
-        content: new OA\JsonContent(
-            example: [
-                'status' => 'error',
-                'message' => 'Insufficient permissions to create collections'
-            ]
-        )
-    )]
-    #[OA\Response(
-        response: 500,
-        description: 'Server error',
-        content: new OA\JsonContent(
-            example: [
-                'status' => 'error',
-                'message' => 'Failed to create collection'
-            ]
-        )
-    )]
-    public function createCollection(CreateCollectionRequest $request): JsonResponse
-    {
-        $data = CreateCollectionData::from($request->validated());
-
-        $result = $this->service->createCollection($data);
-
-        return $this->logAndResponse([
-            'message' => 'Collection created successfully.',
-            'data' => $result,
-        ]);
-    }
-
-    #[OA\Post(
-        path: '/api/shutterstock/add_to_collection',
-        operationId: 'shutterstock_add_to_collection',
-        description: 'Add images to a collection using Shutterstock API',
-        summary: 'Shutterstock Add Images to Collection',
-        security: [['authentication' => []]],
-        tags: ['Shutterstock'],
-    )]
-    #[OA\RequestBody(
-        description: 'Add images to collection request with collection_id and items array',
-        required: true,
-        content: new OA\MediaType(
-            mediaType: 'application/json',
-            schema: new OA\Schema(
-                required: ['collection_id', 'items'],
-                properties: [
-                    new OA\Property(
-                        property: 'collection_id',
-                        description: 'The ID of the collection to add images to',
-                        type: 'string',
-                        example: '326120296'
+                        example: 'nature'
                     ),
                     new OA\Property(
-                        property: 'items',
-                        description: 'Array of items to add to the collection',
-                        type: 'array',
-                        items: new OA\Items(
-                            properties: [
-                                new OA\Property(property: 'id', type: 'string', example: '49572945'),
-                                new OA\Property(property: 'media_type', type: 'string', example: 'image')
-                            ],
-                            type: 'object'
-                        ),
-                        example: [
-                            [
-                                'id' => '49572945',
-                                'media_type' => 'image'
-                            ]
-                        ]
+                        property: 'orientation',
+                        description: 'Video orientation',
+                        type: 'string',
+                        enum: ['horizontal', 'vertical', 'square'],
+                        example: 'horizontal'
                     ),
                 ],
                 type: 'object'
@@ -538,75 +657,202 @@ class ShutterstockController extends BaseController
     )]
     #[OA\Response(
         response: 200,
-        description: 'Successfully added images to collection',
+        description: 'Successful response',
         content: new OA\JsonContent(
             example: [
-                'message' => 'Images added to collection successfully.',
-                'data' => []
+                'message' => 'Videos search successful.',
+                'data' => [
+                    'data' => [
+                        [
+                            'id' => '1012345678',
+                            'aspect' => 1.78,
+                            'description' => 'Beautiful nature video',
+                            'media_type' => 'video',
+                            'assets' => [
+                                'preview_mp4' => [
+                                    'url' => 'https://ak.picdn.net/shutterstock/videos/1012345678/preview/stock-footage-beautiful-nature.mp4'
+                                ]
+                            ]
+                        ]
+                    ],
+                    'page' => 1,
+                    'per_page' => 5,
+                    'total_count' => 45
+                ]
             ]
         )
     )]
-    #[OA\Response(
-        response: 422,
-        description: 'Validation error',
-        content: new OA\JsonContent(
-            example: [
-                'status' => 'validation_error',
-                'message' => [
-                    'collection_id' => 'The collection_id field is required.',
-                    'items' => 'The items field is required.',
-                ],
-            ]
-        )
-    )]
-    #[OA\Response(
-        response: 401,
-        description: 'Unauthorized - Invalid API token',
-        content: new OA\JsonContent(
-            example: [
-                'status' => 'error',
-                'message' => 'Unauthorized access'
-            ]
-        )
-    )]
-    #[OA\Response(
-        response: 403,
-        description: 'Forbidden - Insufficient permissions',
-        content: new OA\JsonContent(
-            example: [
-                'status' => 'error',
-                'message' => 'Insufficient permissions to modify collections'
-            ]
-        )
-    )]
-    #[OA\Response(
-        response: 404,
-        description: 'Collection not found',
-        content: new OA\JsonContent(
-            example: [
-                'status' => 'error',
-                'message' => 'Collection not found'
-            ]
-        )
-    )]
-    #[OA\Response(
-        response: 500,
-        description: 'Server error',
-        content: new OA\JsonContent(
-            example: [
-                'status' => 'error',
-                'message' => 'Failed to add images to collection'
-            ]
-        )
-    )]
-    public function addToCollection(AddToCollectionRequest $request): JsonResponse
+    public function searchVideos(SearchVideosRequest $request): JsonResponse
     {
-        $data = AddToCollectionData::from($request->validated());
-
-        $this->service->addToCollection($data);
+        $data = SearchVideosData::from($request->validated());
+        $result = $this->service->searchVideos($data);
 
         return $this->logAndResponse([
-            'message' => 'Images added to collection successfully.',
+            'message' => 'Videos search successful.',
+            'data' => $result,
+        ]);
+    }
+
+    #[OA\Post(
+        path: '/api/shutterstock/videos/get',
+        operationId: 'shutterstock_get_video',
+        description: 'Get details about a specific video using Shutterstock API',
+        summary: 'Shutterstock Get Video Details',
+        security: [['authentication' => []]],
+        tags: ['Shutterstock'],
+    )]
+    #[OA\RequestBody(
+        description: 'Get video request with video_id parameter',
+        required: true,
+        content: new OA\MediaType(
+            mediaType: 'application/json',
+            schema: new OA\Schema(
+                required: ['video_id'],
+                properties: [
+                    new OA\Property(
+                        property: 'video_id',
+                        description: 'Shutterstock video ID',
+                        type: 'string',
+                        example: '1012345678'
+                    ),
+                ],
+                type: 'object'
+            )
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            example: [
+                'message' => 'Video details retrieved successfully.',
+                'data' => [
+                    'id' => '1012345678',
+                    'aspect' => 1.78,
+                    'description' => 'Beautiful nature video',
+                    'media_type' => 'video',
+                    'duration' => 15.5,
+                    'fps' => 29.97
+                ]
+            ]
+        )
+    )]
+    public function getVideo(GetVideoRequest $request): JsonResponse
+    {
+        $data = GetVideoData::from($request->validated());
+        $result = $this->service->getVideo($data);
+
+        return $this->logAndResponse([
+            'message' => 'Video details retrieved successfully.',
+            'data' => $result,
+        ]);
+    }
+
+    #[OA\Post(
+        path: '/api/shutterstock/videos/license',
+        operationId: 'shutterstock_license_video',
+        description: 'License a video using Shutterstock API',
+        summary: 'Shutterstock License Video',
+        security: [['authentication' => []]],
+        tags: ['Shutterstock'],
+    )]
+    #[OA\RequestBody(
+        description: 'License video request with video_id parameter',
+        required: true,
+        content: new OA\MediaType(
+            mediaType: 'application/json',
+            schema: new OA\Schema(
+                required: ['video_id'],
+                properties: [
+                    new OA\Property(
+                        property: 'video_id',
+                        description: 'Shutterstock video ID to license',
+                        type: 'string',
+                        example: '1012345678'
+                    ),
+                ],
+                type: 'object'
+            )
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            example: [
+                'message' => 'Video licensed successfully.',
+                'data' => [
+                    'data' => [
+                        [
+                            'video_id' => '1012345678',
+                            'download' => [
+                                'url' => 'https://download.shutterstock.com/gatekeeper/[random-characters]/shutterstock_1012345678.mov'
+                            ],
+                            'allotment_charge' => 1
+                        ]
+                    ]
+                ]
+            ]
+        )
+    )]
+    public function licenseVideo(LicenseVideoRequest $request): JsonResponse
+    {
+        $data = LicenseVideoData::from($request->validated());
+        $result = $this->service->licenseVideo($data);
+
+        return $this->logAndResponse([
+            'message' => 'Video licensed successfully.',
+            'data' => $result,
+        ]);
+    }
+
+    #[OA\Post(
+        path: '/api/shutterstock/videos/download',
+        operationId: 'shutterstock_download_video',
+        description: 'Get a redownload link for a previously licensed video using Shutterstock API',
+        summary: 'Shutterstock Download Video',
+        security: [['authentication' => []]],
+        tags: ['Shutterstock'],
+    )]
+    #[OA\RequestBody(
+        description: 'Download video request with license_id parameter',
+        required: true,
+        content: new OA\MediaType(
+            mediaType: 'application/json',
+            schema: new OA\Schema(
+                required: ['license_id'],
+                properties: [
+                    new OA\Property(
+                        property: 'license_id',
+                        description: 'License ID from a previously licensed video',
+                        type: 'string',
+                        example: 'v4117504971'
+                    ),
+                ],
+                type: 'object'
+            )
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            example: [
+                'message' => 'Download link generated successfully.',
+                'data' => [
+                    'url' => 'https://download.shutterstock.com/gatekeeper/[random-characters]/shutterstock_1012345678.mov'
+                ]
+            ]
+        )
+    )]
+    public function downloadVideo(DownloadVideoRequest $request): JsonResponse
+    {
+        $data = DownloadVideoData::from($request->validated());
+        $result = $this->service->downloadVideo($data);
+
+        return $this->logAndResponse([
+            'message' => 'Download link generated successfully.',
+            'data' => $result,
         ]);
     }
 } 

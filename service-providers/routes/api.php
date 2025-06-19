@@ -17,6 +17,7 @@ use App\Http\Controllers\ReactJsController;
 use App\Http\Controllers\RunwaymlAPIController;
 use App\Http\Controllers\ServiceProviderController;
 use App\Http\Controllers\ShutterstockController;
+use App\Http\Controllers\ShutterstockVideoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WhisperController;
 use Illuminate\Support\Facades\Route;
@@ -167,10 +168,20 @@ Route::prefix('users')->controller(UserController::class)->group(function () {
 });
 
 Route::prefix('shutterstock')->controller(ShutterstockController::class)->group(function () {
-    Route::post('/search_images', 'searchImages');
-    Route::post('/get_image', 'getImage');
-    Route::post('/license_image', 'licenseImage');
-    Route::post('/download_image', 'downloadImage');
     Route::post('/create_collection', 'createCollection');
     Route::post('/add_to_collection', 'addToCollection');
+
+    Route::prefix('images')->group(function () {
+        Route::post('/search', 'searchImages');
+        Route::post('/get', 'getImage');
+        Route::post('/license', 'licenseImage');
+        Route::post('/download', 'downloadImage');
+    });
+
+    Route::prefix('videos')->group(function () {
+        Route::post('/search', 'searchVideos');
+        Route::post('/get', 'getVideo');
+        Route::post('/license', 'licenseVideo');
+        Route::post('/download', 'downloadVideo');
+    });
 });
