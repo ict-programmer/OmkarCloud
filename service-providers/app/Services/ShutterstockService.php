@@ -141,20 +141,10 @@ class ShutterstockService
 
     public function licenseVideo(LicenseVideoData $data): array
     {
-        $requestBody = [
-            'videos' => [
-                [
-                    'video_id' => $data->video_id,
-                    'size' => 'hd',
-                    'format' => 'mov',
-                ]
-            ]
-        ];
-        
         $response = $this->callShutterstockAPI(
             endpoint: config('shutterstock.license_video_endpoint'),
             method: 'POST',
-            data: $requestBody
+            data: $data->videos
         );
 
         return $response;
@@ -229,7 +219,6 @@ class ShutterstockService
         };
         
         if ($response->failed()) {
-            th($response->json());
             $statusCode = $response->status();
             $errorMessage = $response->json('message') ?? 'Request failed';
             

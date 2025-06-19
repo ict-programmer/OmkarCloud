@@ -751,24 +751,44 @@ class ShutterstockController extends BaseController
     #[OA\Post(
         path: '/api/shutterstock/videos/license',
         operationId: 'shutterstock_license_video',
-        description: 'License a video using Shutterstock API',
-        summary: 'Shutterstock License Video',
+        description: 'License one or more videos using Shutterstock API',
+        summary: 'Shutterstock License Videos',
         security: [['authentication' => []]],
         tags: ['Shutterstock'],
     )]
     #[OA\RequestBody(
-        description: 'License video request with video_id parameter',
+        description: 'License videos request with videos array containing video_id, subscription_id, and size',
         required: true,
         content: new OA\MediaType(
             mediaType: 'application/json',
             schema: new OA\Schema(
-                required: ['video_id'],
+                required: ['videos'],
                 properties: [
                     new OA\Property(
-                        property: 'video_id',
-                        description: 'Shutterstock video ID to license',
+                        property: 'videos',
+                        description: 'Array of videos to license',
+                        type: 'array',
+                        items: new OA\Items(
+                            properties: [
+                                new OA\Property(property: 'video_id', type: 'string', example: '2140697'),
+                                new OA\Property(property: 'subscription_id', type: 'string', example: 's12345678'),
+                                new OA\Property(property: 'size', type: 'string', enum: ['web', 'sd', 'hd', '4k'], example: 'hd')
+                            ],
+                            type: 'object'
+                        ),
+                        example: [
+                            [
+                                'video_id' => '2140697',
+                                'subscription_id' => 's12345678',
+                                'size' => 'hd'
+                            ]
+                        ]
+                    ),
+                    new OA\Property(
+                        property: 'search_id',
+                        description: 'The Search ID that led to this licensing event',
                         type: 'string',
-                        example: '1012345678'
+                        example: '749090bb-2967-4a20-b22e-c800dc845e10'
                     ),
                 ],
                 type: 'object'
@@ -780,17 +800,24 @@ class ShutterstockController extends BaseController
         description: 'Successful response',
         content: new OA\JsonContent(
             example: [
-                'message' => 'Video licensed successfully.',
+                'message' => 'Videos licensed successfully.',
                 'data' => [
                     'data' => [
                         [
-                            'video_id' => '1012345678',
+                            'video_id' => '2140697',
                             'download' => [
-                                'url' => 'https://download.shutterstock.com/gatekeeper/[random-characters]/shutterstock_1012345678.mov'
+                                'url' => 'https://download.shutterstock.com/gatekeeper/[random-characters]/shutterstock_2140697.mp4'
                             ],
-                            'allotment_charge' => 1
+                            'allotment_charge' => 1,
+                            'price' => [
+                                'local_amount' => 12.34,
+                                'local_currency' => 'EUR'
+                            ]
                         ]
-                    ]
+                    ],
+                    'page' => 1,
+                    'per_page' => 5,
+                    'total_count' => 1
                 ]
             ]
         )
@@ -801,7 +828,7 @@ class ShutterstockController extends BaseController
         $result = $this->service->licenseVideo($data);
 
         return $this->logAndResponse([
-            'message' => 'Video licensed successfully.',
+            'message' => 'Videos licensed successfully.',
             'data' => $result,
         ]);
     }
