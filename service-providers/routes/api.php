@@ -184,4 +184,8 @@ Route::prefix('shutterstock')->controller(ShutterstockController::class)->group(
         Route::post('/license', 'licenseVideo');
         Route::post('/download', 'downloadVideo');
     });
+
+    Route::prefix('user')->group(function () {
+        Route::get('/subscriptions', 'listUserSubscriptions');
+    });
 });

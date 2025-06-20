@@ -26,6 +26,7 @@ use App\Http\Requests\Shutterstock\LicenseImageRequest;
 use App\Http\Requests\Shutterstock\LicenseVideoRequest;
 use App\Http\Requests\Shutterstock\SearchImagesRequest;
 use App\Http\Requests\Shutterstock\SearchVideosRequest;
+use App\Http\Requests\Shutterstock\ListUserSubscriptionsRequest;
 use App\Services\ShutterstockService;
 use Illuminate\Http\JsonResponse;
 use OpenApi\Attributes as OA;
@@ -879,6 +880,86 @@ class ShutterstockController extends BaseController
 
         return $this->logAndResponse([
             'message' => 'Download link generated successfully.',
+            'data' => $result,
+        ]);
+    }
+
+    #[OA\Get(
+        path: '/api/shutterstock/user/subscriptions',
+        operationId: 'shutterstock_list_user_subscriptions',
+        description: 'List user subscriptions using Shutterstock API. This endpoint retrieves information about the current user\'s subscriptions including license type, allotments, and expiration dates.',
+        summary: 'Shutterstock List User Subscriptions',
+        security: [['authentication' => []]],
+        tags: ['Shutterstock'],
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            example: [
+                'message' => 'User subscriptions retrieved successfully.',
+                'data' => [
+                    'data' => [
+                        [
+                            'id' => 's12345678',
+                            'license' => 'standard',
+                            'description' => 'Monthly subscription with 10 images',
+                            'allotment' => [
+                                'downloads_left' => 8,
+                                'downloads_limit' => 10,
+                                'resets_at' => '2024-02-01T00:00:00Z'
+                            ],
+                            'expiration_time' => '2024-02-01T00:00:00Z',
+                            'formats' => [
+                                [
+                                    'format' => 'jpg',
+                                    'media_type' => 'image',
+                                    'min_resolution' => 4000,
+                                    'size' => 'huge'
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized - Invalid API token',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Unauthorized access'
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 403,
+        description: 'Forbidden - Insufficient permissions',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Insufficient permissions to view subscriptions'
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 500,
+        description: 'Server error',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Failed to retrieve user subscriptions'
+            ]
+        )
+    )]
+    public function listUserSubscriptions(): JsonResponse
+    {
+        $result = $this->service->listUserSubscriptions();
+
+        return $this->logAndResponse([
+            'message' => 'User subscriptions retrieved successfully.',
             'data' => $result,
         ]);
     }

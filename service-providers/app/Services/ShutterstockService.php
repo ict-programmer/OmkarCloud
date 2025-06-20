@@ -14,7 +14,6 @@ use App\Data\Request\Shutterstock\LicenseImageData;
 use App\Data\Request\Shutterstock\LicenseVideoData;
 use App\Data\Request\Shutterstock\SearchImagesData;
 use App\Data\Request\Shutterstock\SearchVideosData;
-use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
 class ShutterstockService
@@ -71,14 +70,11 @@ class ShutterstockService
     public function downloadImage(DownloadImageData $data): array
     {
         $endpoint = config('shutterstock.download_image_endpoint') . '/' . $data->license_id . '/downloads';
-        
-        $response = $this->callShutterstockAPI(
+
+        return $this->callShutterstockAPI(
             endpoint: $endpoint,
             method: 'POST',
-            data: []
         );
-
-        return $response;
     }
 
     public function createCollection(CreateCollectionData $data): array
@@ -86,14 +82,12 @@ class ShutterstockService
         $requestBody = [
             'name' => $data->name
         ];
-        
-        $response = $this->callShutterstockAPI(
+
+        return $this->callShutterstockAPI(
             endpoint: config('shutterstock.create_collection_endpoint'),
             method: 'POST',
             data: $requestBody
         );
-
-        return $response;
     }
 
     public function addToCollection(AddToCollectionData $data): void
@@ -111,85 +105,50 @@ class ShutterstockService
         );
     }
 
-    // Video methods
     public function searchVideos(SearchVideosData $data): array
     {
-        $response = $this->callShutterstockAPI(
+        return $this->callShutterstockAPI(
             endpoint: config('shutterstock.search_videos_endpoint'),
-            method: 'GET',
             params: [
                 'query' => $data->query,
                 'orientation' => $data->orientation,
                 'sort' => 'popular',
             ]
         );
-
-        return $response;
     }
 
     public function getVideo(GetVideoData $data): array
     {
         $endpoint = config('shutterstock.get_video_endpoint') . '/' . $data->video_id;
-        
-        $response = $this->callShutterstockAPI(
-            endpoint: $endpoint,
-            method: 'GET'
-        );
 
-        return $response;
+        return $this->callShutterstockAPI(
+            endpoint: $endpoint,
+        );
     }
 
     public function licenseVideo(LicenseVideoData $data): array
     {
-        $response = $this->callShutterstockAPI(
+        return $this->callShutterstockAPI(
             endpoint: config('shutterstock.license_video_endpoint'),
             method: 'POST',
             data: $data->videos
         );
-
-        return $response;
     }
 
     public function downloadVideo(DownloadVideoData $data): array
     {
         $endpoint = config('shutterstock.download_video_endpoint') . '/' . $data->license_id . '/downloads';
-        
-        $response = $this->callShutterstockAPI(
+
+        return $this->callShutterstockAPI(
             endpoint: $endpoint,
             method: 'POST',
-            data: []
         );
-
-        return $response;
     }
 
-    public function createVideoCollection(CreateVideoCollectionData $data): array
+    public function listUserSubscriptions(): array
     {
-        $requestBody = [
-            'name' => $data->name
-        ];
-        
-        $response = $this->callShutterstockAPI(
-            endpoint: config('shutterstock.create_video_collection_endpoint'),
-            method: 'POST',
-            data: $requestBody
-        );
-
-        return $response;
-    }
-
-    public function addToVideoCollection(AddToVideoCollectionData $data): void
-    {
-        $endpoint = config('shutterstock.add_to_video_collection_endpoint') . '/' . $data->collection_id . '/items';
-        
-        $requestBody = [
-            'items' => $data->items
-        ];
-        
-        $this->callShutterstockAPI(
-            endpoint: $endpoint,
-            method: 'POST',
-            data: $requestBody
+        return $this->callShutterstockAPI(
+            endpoint: config('shutterstock.list_user_subscriptions_endpoint'),
         );
     }
 
