@@ -8,6 +8,7 @@ use App\Http\Controllers\DeepSeekController;
 use App\Http\Controllers\DescriptAIController;
 use App\Http\Controllers\FFMpegServiceController;
 use App\Http\Controllers\GeminiController;
+use App\Http\Controllers\GettyimagesController;
 use App\Http\Controllers\GoogleSheetsController;
 use App\Http\Controllers\PerplexityController;
 use App\Http\Controllers\PexelsController;
@@ -176,4 +177,17 @@ Route::prefix('pexels')->group(function () {
     Route::get('collections/featured', [PexelsController::class, 'getFeaturedCollections']);
     Route::get('collections', [PexelsController::class, 'getCollections']);
     Route::get('collections/{id}', [PexelsController::class, 'getCollection']);
+});
+
+Route::prefix('gettyimages')->group(function () {
+    Route::get('image_search', [GettyimagesController::class, 'imageSearch']);
+    // Route::get('video_search', [GettyimagesController::class, 'videoSearch']);
+    Route::get('image_metadata/{id}', [GettyimagesController::class, 'imageMetadata']);
+    Route::get('video_metadata/{id}', [GettyimagesController::class, 'videoMetadata']);
+    Route::post('image_download/{id}', [GettyimagesController::class, 'imageDownload']);
+    Route::post('video_download/{id}', [GettyimagesController::class, 'videoDownload']);
+    // Route::get('ai_generate', [GettyimagesController::class, 'aiGenerate']);
+    // Route::get('remove_background', [GettyimagesController::class, 'removeBackground']);
+    Route::get('affiliate_image_search', [GettyimagesController::class, 'affiliateImageSearch']);
+    Route::get('affiliate_video_search', [GettyimagesController::class, 'affiliateVideoSearch']);
 });

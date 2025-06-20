@@ -147,4 +147,8 @@ return [
     'pexels' => [
         'api_key' => env('PEXELS_API_KEY'),
     ],
+
+    'gettyimages' => [
+        'api_key' => env('GETTYIMAGES_API_KEY'),
+    ],
 ];
