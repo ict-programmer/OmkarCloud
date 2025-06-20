@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Data\Request\Shutterstock\AddToCollectionData;
-use App\Data\Request\Shutterstock\AddToVideoCollectionData;
 use App\Data\Request\Shutterstock\CreateCollectionData;
-use App\Data\Request\Shutterstock\CreateVideoCollectionData;
 use App\Data\Request\Shutterstock\DownloadImageData;
 use App\Data\Request\Shutterstock\DownloadVideoData;
 use App\Data\Request\Shutterstock\GetImageData;
@@ -19,9 +17,7 @@ use App\Data\Request\Shutterstock\GetAudioData;
 use App\Data\Request\Shutterstock\LicenseAudioData;
 use App\Data\Request\Shutterstock\DownloadAudioData;
 use App\Http\Requests\Shutterstock\AddToCollectionRequest;
-use App\Http\Requests\Shutterstock\AddToVideoCollectionRequest;
 use App\Http\Requests\Shutterstock\CreateCollectionRequest;
-use App\Http\Requests\Shutterstock\CreateVideoCollectionRequest;
 use App\Http\Requests\Shutterstock\DownloadImageRequest;
 use App\Http\Requests\Shutterstock\DownloadVideoRequest;
 use App\Http\Requests\Shutterstock\GetImageRequest;
@@ -34,7 +30,6 @@ use App\Http\Requests\Shutterstock\SearchAudioRequest;
 use App\Http\Requests\Shutterstock\GetAudioRequest;
 use App\Http\Requests\Shutterstock\LicenseAudioRequest;
 use App\Http\Requests\Shutterstock\DownloadAudioRequest;
-use App\Http\Requests\Shutterstock\ListUserSubscriptionsRequest;
 use App\Services\ShutterstockService;
 use Illuminate\Http\JsonResponse;
 use OpenApi\Attributes as OA;
@@ -256,7 +251,7 @@ class ShutterstockController extends BaseController
     }
 
     #[OA\Post(
-        path: '/api/shutterstock/search_images',
+        path: '/api/shutterstock/images/search',
         operationId: 'shutterstock_search_images',
         description: 'Search for images using Shutterstock API',
         summary: 'Shutterstock Image Search',
@@ -354,7 +349,7 @@ class ShutterstockController extends BaseController
     }
 
     #[OA\Post(
-        path: '/api/shutterstock/get_image',
+        path: '/api/shutterstock/images/get',
         operationId: 'shutterstock_get_image',
         description: 'Get details about a specific image using Shutterstock API',
         summary: 'Shutterstock Get Image Details',
@@ -457,7 +452,7 @@ class ShutterstockController extends BaseController
     }
 
     #[OA\Post(
-        path: '/api/shutterstock/license_image',
+        path: '/api/shutterstock/images/license',
         operationId: 'shutterstock_license_image',
         description: 'License an image using Shutterstock API',
         summary: 'Shutterstock License Image',
@@ -548,7 +543,7 @@ class ShutterstockController extends BaseController
     }
 
     #[OA\Post(
-        path: '/api/shutterstock/download_image',
+        path: '/api/shutterstock/images/download',
         operationId: 'shutterstock_download_image',
         description: 'Get a redownload link for a previously licensed image using Shutterstock API',
         summary: 'Shutterstock Download Image',

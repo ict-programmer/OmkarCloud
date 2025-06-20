@@ -3,9 +3,7 @@
 namespace App\Services;
 
 use App\Data\Request\Shutterstock\AddToCollectionData;
-use App\Data\Request\Shutterstock\AddToVideoCollectionData;
 use App\Data\Request\Shutterstock\CreateCollectionData;
-use App\Data\Request\Shutterstock\CreateVideoCollectionData;
 use App\Data\Request\Shutterstock\DownloadImageData;
 use App\Data\Request\Shutterstock\DownloadVideoData;
 use App\Data\Request\Shutterstock\GetImageData;
@@ -66,9 +64,14 @@ class ShutterstockService
     {
         $endpoint = config('shutterstock.download_image_endpoint') . '/' . $data->license_id . '/downloads';
 
+        $body = [
+            'size' => 'huge',
+        ];
+
         return $this->callShutterstockAPI(
             endpoint: $endpoint,
             method: 'POST',
+            data: $body,
         );
     }
 
