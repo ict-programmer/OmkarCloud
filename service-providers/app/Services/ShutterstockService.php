@@ -18,32 +18,25 @@ use Illuminate\Support\Facades\Http;
 
 class ShutterstockService
 {
-    // Image methods
     public function searchImages(SearchImagesData $data): array
     {
-        $response = $this->callShutterstockAPI(
+        return $this->callShutterstockAPI(
             endpoint: config('shutterstock.search_images_endpoint'),
-            method: 'GET',
             params: [
                 'query' => $data->query,
                 'orientation' => $data->orientation,
                 'sort' => 'popular',
             ]
         );
-
-        return $response;
     }
 
     public function getImage(GetImageData $data): array
     {
         $endpoint = config('shutterstock.get_image_endpoint') . '/' . $data->image_id;
-        
-        $response = $this->callShutterstockAPI(
-            endpoint: $endpoint,
-            method: 'GET'
-        );
 
-        return $response;
+        return $this->callShutterstockAPI(
+            endpoint: $endpoint,
+        );
     }
 
     public function licenseImage(LicenseImageData $data): array
@@ -57,14 +50,12 @@ class ShutterstockService
                 ]
             ]
         ];
-        
-        $response = $this->callShutterstockAPI(
+
+        return $this->callShutterstockAPI(
             endpoint: config('shutterstock.license_image_endpoint'),
             method: 'POST',
             data: $requestBody
         );
-
-        return $response;
     }
 
     public function downloadImage(DownloadImageData $data): array
@@ -128,10 +119,18 @@ class ShutterstockService
 
     public function licenseVideo(LicenseVideoData $data): array
     {
+        $requestBody = [
+            'videos' => $data->videos
+        ];
+
+        if ($data->search_id) {
+            $requestBody['search_id'] = $data->search_id;
+        }
+        
         return $this->callShutterstockAPI(
             endpoint: config('shutterstock.license_video_endpoint'),
             method: 'POST',
-            data: $data->videos
+            data: $requestBody
         );
     }
 
