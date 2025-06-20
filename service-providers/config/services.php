@@ -139,8 +139,16 @@ return [
         'api_key' => env('PREMIERPRO_API_KEY'),
         'api_secret' => env('PREMIERPRO_API_SECRET'),
     ],
-    
+
     'descriptai' => [
         'api_key' => env('DESCRIPTAI_API_KEY'),
+    ],
+
+    'pexels' => [
+        'api_key' => env('PEXELS_API_KEY'),
+    ],
+
+    'freepik' => [
+        'api_key' => env('FREEPIK_API_KEY'),
     ],
 ];

@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.2",
         "darkaonline/l5-swagger": "^9.0",
+        "devscast/pexels": "^1.1",
         "gemini-api-php/laravel": "^0.3.0",
         "google-gemini-php/client": "^1.0",
         "google/apiclient": "^2.18",
