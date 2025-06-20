@@ -22,6 +22,7 @@ use App\Http\Controllers\ServiceProviderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WhisperController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ShutterstockController;
 
 /*
 |--------------------------------------------------------------------------
@@ -199,4 +200,33 @@ Route::prefix('gettyimages')->group(function () {
     // Route::get('remove_background', [GettyimagesController::class, 'removeBackground']);
     Route::get('affiliate_image_search', [GettyimagesController::class, 'affiliateImageSearch']);
     Route::get('affiliate_video_search', [GettyimagesController::class, 'affiliateVideoSearch']);
+});
+Route::prefix('shutterstock')->controller(ShutterstockController::class)->group(function () {
+    Route::post('/create_collection', 'createCollection');
+    Route::post('/add_to_collection', 'addToCollection');
+
+    Route::prefix('images')->group(function () {
+        Route::post('/search', 'searchImages');
+        Route::post('/get', 'getImage');
+        Route::post('/license', 'licenseImage');
+        Route::post('/download', 'downloadImage');
+    });
+
+    Route::prefix('videos')->group(function () {
+        Route::post('/search', 'searchVideos');
+        Route::post('/get', 'getVideo');
+        Route::post('/license', 'licenseVideo');
+        Route::post('/download', 'downloadVideo');
+    });
+
+    Route::prefix('audio')->group(function () {
+        Route::post('/search', 'searchAudio');
+        Route::post('/get', 'getAudio');
+        Route::post('/license', 'licenseAudio');
+        Route::post('/download', 'downloadAudio');
+    });
+
+    Route::prefix('user')->group(function () {
+        Route::get('/subscriptions', 'listUserSubscriptions');
+    });
 });
