@@ -188,6 +188,8 @@ Route::prefix('shutterstock')->controller(ShutterstockController::class)->group(
     Route::prefix('audio')->group(function () {
         Route::post('/search', 'searchAudio');
         Route::post('/get', 'getAudio');
+        Route::post('/license', 'licenseAudio');
+        Route::post('/download', 'downloadAudio');
     });
 
     Route::prefix('user')->group(function () {

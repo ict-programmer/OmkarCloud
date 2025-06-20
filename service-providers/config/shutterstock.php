@@ -14,6 +14,8 @@ return [
     'download_video_endpoint' => '/v2/videos/licenses',
     'search_audio_endpoint' => '/v2/audio/search',
     'get_audio_endpoint' => '/v2/audio',
+    'license_audio_endpoint' => '/v2/audio/licenses',
+    'download_audio_endpoint' => '/v2/audio/licenses',
     'list_user_subscriptions_endpoint' => '/v2/user/subscriptions',
     'api_token' => env('SHUTTERSTOCK_API_TOKEN'),
 ]; 

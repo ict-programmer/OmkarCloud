@@ -16,6 +16,8 @@ use App\Data\Request\Shutterstock\SearchImagesData;
 use App\Data\Request\Shutterstock\SearchVideosData;
 use App\Data\Request\Shutterstock\SearchAudioData;
 use App\Data\Request\Shutterstock\GetAudioData;
+use App\Data\Request\Shutterstock\LicenseAudioData;
+use App\Data\Request\Shutterstock\DownloadAudioData;
 use App\Http\Requests\Shutterstock\AddToCollectionRequest;
 use App\Http\Requests\Shutterstock\AddToVideoCollectionRequest;
 use App\Http\Requests\Shutterstock\CreateCollectionRequest;
@@ -30,6 +32,8 @@ use App\Http\Requests\Shutterstock\SearchImagesRequest;
 use App\Http\Requests\Shutterstock\SearchVideosRequest;
 use App\Http\Requests\Shutterstock\SearchAudioRequest;
 use App\Http\Requests\Shutterstock\GetAudioRequest;
+use App\Http\Requests\Shutterstock\LicenseAudioRequest;
+use App\Http\Requests\Shutterstock\DownloadAudioRequest;
 use App\Http\Requests\Shutterstock\ListUserSubscriptionsRequest;
 use App\Services\ShutterstockService;
 use Illuminate\Http\JsonResponse;
@@ -1082,6 +1086,200 @@ class ShutterstockController extends BaseController
 
         return $this->logAndResponse([
             'message' => 'Audio track details retrieved successfully.',
+            'data' => $result,
+        ]);
+    }
+
+    #[OA\Post(
+        path: '/api/shutterstock/audio/license',
+        operationId: 'shutterstock_license_audio',
+        description: 'License one or more audio tracks using Shutterstock API. This endpoint allows you to license audio tracks for commercial use.',
+        summary: 'Shutterstock License Audio Tracks',
+        security: [['authentication' => []]],
+        tags: ['Shutterstock'],
+    )]
+    #[OA\RequestBody(
+        description: 'License audio tracks request with audio_tracks array containing audio_id and license type',
+        required: true,
+        content: new OA\MediaType(
+            mediaType: 'application/json',
+            schema: new OA\Schema(
+                required: ['audio_tracks'],
+                properties: [
+                    new OA\Property(
+                        property: 'audio_tracks',
+                        description: 'Array of audio tracks to license',
+                        type: 'array',
+                        items: new OA\Items(
+                            properties: [
+                                new OA\Property(property: 'audio_id', type: 'string', example: '1234567890'),
+                                new OA\Property(property: 'license', type: 'string', enum: ['audio_platform', 'premier_music_basic', 'premier_music_extended', 'premier_music_pro', 'premier_music_comp', 'audio_standard', 'audio_enhanced'], example: 'audio_platform')
+                            ],
+                            type: 'object'
+                        ),
+                        example: [
+                            [
+                                'audio_id' => '1234567890',
+                                'license' => 'audio_platform'
+                            ]
+                        ]
+                    ),
+                    new OA\Property(
+                        property: 'search_id',
+                        description: 'The Search ID that led to this licensing event',
+                        type: 'string',
+                        example: '749090bb-2967-4a20-b22e-c800dc845e10'
+                    ),
+                ],
+                type: 'object'
+            )
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            example: [
+                'message' => 'Audio tracks licensed successfully.',
+                'data' => [
+                    'data' => [
+                        [
+                            'audio_id' => '1234567890',
+                            'download' => [
+                                'url' => 'https://download.shutterstock.com/gatekeeper/[random-characters]/shutterstock_1234567890.mp3'
+                            ],
+                            'allotment_charge' => 1,
+                            'price' => [
+                                'local_amount' => 9.99,
+                                'local_currency' => 'USD'
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 422,
+        description: 'Validation error',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'validation_error',
+                'message' => [
+                    'audio_tracks' => 'The audio_tracks field is required.',
+                ],
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 403,
+        description: 'Insufficient subscription or credits',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Insufficient subscription or credits to license this audio track'
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 500,
+        description: 'Server error',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Failed to license audio tracks'
+            ]
+        )
+    )]
+    public function licenseAudio(LicenseAudioRequest $request): JsonResponse
+    {
+        $data = LicenseAudioData::from($request->validated());
+        $result = $this->service->licenseAudio($data);
+
+        return $this->logAndResponse([
+            'message' => 'Audio tracks licensed successfully.',
+            'data' => $result,
+        ]);
+    }
+
+    #[OA\Post(
+        path: '/api/shutterstock/audio/download',
+        operationId: 'shutterstock_download_audio',
+        description: 'Get a redownload link for a previously licensed audio track using Shutterstock API',
+        summary: 'Shutterstock Download Audio Track',
+        security: [['authentication' => []]],
+        tags: ['Shutterstock'],
+    )]
+    #[OA\RequestBody(
+        description: 'Download audio track request with license_id parameter',
+        required: true,
+        content: new OA\MediaType(
+            mediaType: 'application/json',
+            schema: new OA\Schema(
+                required: ['license_id'],
+                properties: [
+                    new OA\Property(
+                        property: 'license_id',
+                        description: 'License ID from a previously licensed audio track',
+                        type: 'string',
+                        example: 'a4117504971'
+                    ),
+                ],
+                type: 'object'
+            )
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            example: [
+                'message' => 'Download link generated successfully.',
+                'data' => [
+                    'url' => 'https://download.shutterstock.com/gatekeeper/[random-characters]/shutterstock_1234567890.wav'
+                ]
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 422,
+        description: 'Validation error',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'validation_error',
+                'message' => [
+                    'license_id' => 'The license_id field is required.',
+                ],
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 404,
+        description: 'License not found',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'License not found'
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 500,
+        description: 'Server error',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Failed to generate download link'
+            ]
+        )
+    )]
+    public function downloadAudio(DownloadAudioRequest $request): JsonResponse
+    {
+        $data = DownloadAudioData::from($request->validated());
+        $result = $this->service->downloadAudio($data);
+
+        return $this->logAndResponse([
+            'message' => 'Download link generated successfully.',
             'data' => $result,
         ]);
     }

@@ -16,6 +16,8 @@ use App\Data\Request\Shutterstock\SearchImagesData;
 use App\Data\Request\Shutterstock\SearchVideosData;
 use App\Data\Request\Shutterstock\SearchAudioData;
 use App\Data\Request\Shutterstock\GetAudioData;
+use App\Data\Request\Shutterstock\LicenseAudioData;
+use App\Data\Request\Shutterstock\DownloadAudioData;
 use Illuminate\Support\Facades\Http;
 
 class ShutterstockService
@@ -170,6 +172,35 @@ class ShutterstockService
 
         return $this->callShutterstockAPI(
             endpoint: $endpoint,
+        );
+    }
+
+    public function licenseAudio(LicenseAudioData $data): array
+    {
+        $requestBody = [
+            'audio' => $data->audio_tracks
+        ];
+        
+        // Add search_id if provided
+        if ($data->search_id) {
+            $requestBody['search_id'] = $data->search_id;
+        }
+        
+        return $this->callShutterstockAPI(
+            endpoint: config('shutterstock.license_audio_endpoint'),
+            method: 'POST',
+            data: $requestBody
+        );
+    }
+
+    public function downloadAudio(DownloadAudioData $data): array
+    {
+        $endpoint = config('shutterstock.download_audio_endpoint') . '/' . $data->license_id . '/downloads';
+
+        return $this->callShutterstockAPI(
+            endpoint: $endpoint,
+            method: 'POST',
+            data: []
         );
     }
 
