@@ -72,7 +72,14 @@ class ServiceProvidersSeeder extends Seeder
                         "gemini-ultra"
                     ]
                 ]
-            ]
+            ],
+            [
+                'type' => 'Getty Images',
+                'parameter' => [
+                    'base_url' => 'https://api.gettyimages.com',
+                    'version' => 'v3',
+                ],
+            ],
         ];
 
         foreach ($serviceProviders as $serviceProvider) {

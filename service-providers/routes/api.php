@@ -9,6 +9,7 @@ use App\Http\Controllers\DescriptAIController;
 use App\Http\Controllers\FFMpegServiceController;
 use App\Http\Controllers\FreepikController;
 use App\Http\Controllers\GeminiController;
+use App\Http\Controllers\GettyimagesController;
 use App\Http\Controllers\GoogleSheetsController;
 use App\Http\Controllers\PerplexityController;
 use App\Http\Controllers\PexelsController;
@@ -20,8 +21,8 @@ use App\Http\Controllers\RunwaymlAPIController;
 use App\Http\Controllers\ServiceProviderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WhisperController;
-use App\Http\Controllers\ShutterstockController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ShutterstockController;
 
 /*
 |--------------------------------------------------------------------------
@@ -180,8 +181,6 @@ Route::prefix('pexels')->group(function () {
     Route::get('collections/{id}', [PexelsController::class, 'getCollection']);
 });
 
-
-// Perplexity
 Route::prefix('freepik')->controller(FreepikController::class)->group(function () {
     Route::get('stock_content', 'stockContent');
     Route::get('resource_detail/{resource_id}', 'resourceDetail');
@@ -190,7 +189,18 @@ Route::prefix('freepik')->controller(FreepikController::class)->group(function (
     Route::post('ai_image_classifier', 'aiImageClassifier');
 });
 
-
+Route::prefix('gettyimages')->group(function () {
+    Route::get('image_search', [GettyimagesController::class, 'imageSearch']);
+    // Route::get('video_search', [GettyimagesController::class, 'videoSearch']);
+    Route::get('image_metadata/{id}', [GettyimagesController::class, 'imageMetadata']);
+    Route::get('video_metadata/{id}', [GettyimagesController::class, 'videoMetadata']);
+    Route::post('image_download/{id}', [GettyimagesController::class, 'imageDownload']);
+    Route::post('video_download/{id}', [GettyimagesController::class, 'videoDownload']);
+    // Route::get('ai_generate', [GettyimagesController::class, 'aiGenerate']);
+    // Route::get('remove_background', [GettyimagesController::class, 'removeBackground']);
+    Route::get('affiliate_image_search', [GettyimagesController::class, 'affiliateImageSearch']);
+    Route::get('affiliate_video_search', [GettyimagesController::class, 'affiliateVideoSearch']);
+});
 Route::prefix('shutterstock')->controller(ShutterstockController::class)->group(function () {
     Route::post('/create_collection', 'createCollection');
     Route::post('/add_to_collection', 'addToCollection');
