@@ -185,6 +185,11 @@ Route::prefix('shutterstock')->controller(ShutterstockController::class)->group(
         Route::post('/download', 'downloadVideo');
     });
 
+    Route::prefix('audio')->group(function () {
+        Route::post('/search', 'searchAudio');
+        Route::post('/get', 'getAudio');
+    });
+
     Route::prefix('user')->group(function () {
         Route::get('/subscriptions', 'listUserSubscriptions');
     });

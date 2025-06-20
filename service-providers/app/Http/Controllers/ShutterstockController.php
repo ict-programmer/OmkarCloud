@@ -14,6 +14,8 @@ use App\Data\Request\Shutterstock\LicenseImageData;
 use App\Data\Request\Shutterstock\LicenseVideoData;
 use App\Data\Request\Shutterstock\SearchImagesData;
 use App\Data\Request\Shutterstock\SearchVideosData;
+use App\Data\Request\Shutterstock\SearchAudioData;
+use App\Data\Request\Shutterstock\GetAudioData;
 use App\Http\Requests\Shutterstock\AddToCollectionRequest;
 use App\Http\Requests\Shutterstock\AddToVideoCollectionRequest;
 use App\Http\Requests\Shutterstock\CreateCollectionRequest;
@@ -26,6 +28,8 @@ use App\Http\Requests\Shutterstock\LicenseImageRequest;
 use App\Http\Requests\Shutterstock\LicenseVideoRequest;
 use App\Http\Requests\Shutterstock\SearchImagesRequest;
 use App\Http\Requests\Shutterstock\SearchVideosRequest;
+use App\Http\Requests\Shutterstock\SearchAudioRequest;
+use App\Http\Requests\Shutterstock\GetAudioRequest;
 use App\Http\Requests\Shutterstock\ListUserSubscriptionsRequest;
 use App\Services\ShutterstockService;
 use Illuminate\Http\JsonResponse;
@@ -880,6 +884,204 @@ class ShutterstockController extends BaseController
 
         return $this->logAndResponse([
             'message' => 'Download link generated successfully.',
+            'data' => $result,
+        ]);
+    }
+
+    #[OA\Post(
+        path: '/api/shutterstock/audio/search',
+        operationId: 'shutterstock_search_audio',
+        description: 'Search for audio tracks using Shutterstock API. This endpoint allows you to find audio content based on various criteria including query terms, artists, genre, mood, and duration.',
+        summary: 'Shutterstock Audio Search',
+        security: [['authentication' => []]],
+        tags: ['Shutterstock'],
+    )]
+    #[OA\RequestBody(
+        description: 'Search audio tracks request with query and optional sort parameter',
+        required: true,
+        content: new OA\MediaType(
+            mediaType: 'application/json',
+            schema: new OA\Schema(
+                required: ['query'],
+                properties: [
+                    new OA\Property(
+                        property: 'query',
+                        description: 'Search query for audio tracks',
+                        type: 'string',
+                        example: 'upbeat jazz'
+                    ),
+                    new OA\Property(
+                        property: 'sort',
+                        description: 'Sort order for search results',
+                        type: 'string',
+                        enum: ['score', 'ranking_all', 'artist', 'title', 'bpm', 'freshness', 'duration'],
+                        example: 'score'
+                    ),
+                ],
+                type: 'object'
+            )
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            example: [
+                'message' => 'Audio search successful.',
+                'data' => [
+                    'data' => [
+                        [
+                            'id' => '1234567890',
+                            'title' => 'Upbeat Jazz Track',
+                            'description' => 'A lively jazz composition perfect for commercial use',
+                            'duration' => 180.5,
+                            'assets' => [
+                                'preview_mp3' => [
+                                    'url' => 'https://ak.picdn.net/shutterstock/audio/1234567890/preview/preview.mp3'
+                                ]
+                            ],
+                            'contributor' => [
+                                'id' => '12345678'
+                            ]
+                        ]
+                    ],
+                    'page' => 1,
+                    'per_page' => 20,
+                    'total_count' => 150
+                ]
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 422,
+        description: 'Validation error',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'validation_error',
+                'message' => [
+                    'query' => 'The query field is required.',
+                ],
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 500,
+        description: 'Server error',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Failed to search audio tracks'
+            ]
+        )
+    )]
+    public function searchAudio(SearchAudioRequest $request): JsonResponse
+    {
+        $data = SearchAudioData::from($request->validated());
+        $result = $this->service->searchAudio($data);
+
+        return $this->logAndResponse([
+            'message' => 'Audio search successful.',
+            'data' => $result,
+        ]);
+    }
+
+    #[OA\Post(
+        path: '/api/shutterstock/audio/get',
+        operationId: 'shutterstock_get_audio',
+        description: 'Get details about a specific audio track using Shutterstock API. This endpoint retrieves comprehensive information about an audio track including metadata, assets, and licensing details.',
+        summary: 'Shutterstock Get Audio Track Details',
+        security: [['authentication' => []]],
+        tags: ['Shutterstock'],
+    )]
+    #[OA\RequestBody(
+        description: 'Get audio track request with audio_id parameter',
+        required: true,
+        content: new OA\MediaType(
+            mediaType: 'application/json',
+            schema: new OA\Schema(
+                required: ['audio_id'],
+                properties: [
+                    new OA\Property(
+                        property: 'audio_id',
+                        description: 'Shutterstock audio track ID',
+                        type: 'string',
+                        example: '1234567890'
+                    ),
+                ],
+                type: 'object'
+            )
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            example: [
+                'message' => 'Audio track details retrieved successfully.',
+                'data' => [
+                    'id' => '1234567890',
+                    'title' => 'Upbeat Jazz Track',
+                    'description' => 'A lively jazz composition perfect for commercial use',
+                    'duration' => 180.5,
+                    'bpm' => 120,
+                    'instruments' => ['Piano', 'Saxophone', 'Drums'],
+                    'genres' => ['Jazz', 'Upbeat'],
+                    'moods' => ['Happy', 'Energetic'],
+                    'media_type' => 'audio',
+                    'assets' => [
+                        'preview_mp3' => [
+                            'url' => 'https://ak.picdn.net/shutterstock/audio/1234567890/preview/preview.mp3'
+                        ],
+                        'waveform_png' => [
+                            'url' => 'https://ak.picdn.net/shutterstock/audio/1234567890/waveform/waveform.png'
+                        ]
+                    ],
+                    'contributor' => [
+                        'id' => '12345678'
+                    ]
+                ]
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 422,
+        description: 'Validation error',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'validation_error',
+                'message' => [
+                    'audio_id' => 'The audio_id field is required.',
+                ],
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 404,
+        description: 'Audio track not found',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Audio track not found'
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 500,
+        description: 'Server error',
+        content: new OA\JsonContent(
+            example: [
+                'status' => 'error',
+                'message' => 'Failed to get audio track details'
+            ]
+        )
+    )]
+    public function getAudio(GetAudioRequest $request): JsonResponse
+    {
+        $data = GetAudioData::from($request->validated());
+        $result = $this->service->getAudio($data);
+
+        return $this->logAndResponse([
+            'message' => 'Audio track details retrieved successfully.',
             'data' => $result,
         ]);
     }
