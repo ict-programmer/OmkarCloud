@@ -190,14 +190,41 @@ Route::prefix('freepik')->controller(FreepikController::class)->group(function (
 });
 
 Route::prefix('gettyimages')->group(function () {
-    Route::get('image_search', [GettyimagesController::class, 'imageSearch']);
-    // Route::get('video_search', [GettyimagesController::class, 'videoSearch']);
+    Route::prefix('image_search')->group(function () {
+        Route::get('', [GettyimagesController::class, 'imageSearch']);
+        Route::get('creative', [GettyimagesController::class, 'imageSearchCreative']);
+        Route::get('creative/by-image', [GettyimagesController::class, 'imageSearchCreativeByImage']);
+        Route::get('editorial', [GettyimagesController::class, 'imageSearchEditorial']);
+        Route::put('by-image/upload', [GettyimagesController::class, 'imageSearchByImageUpload']);
+    });
+
+    Route::prefix('video_search')->group(function () {
+        Route::get('creative', [GettyimagesController::class, 'videoSearchCreative']);
+        Route::get('creative/by-image', [GettyimagesController::class, 'videoSearchCreativeByImage']);
+        Route::get('editorial', [GettyimagesController::class, 'videoSearchEditorial']);
+    });
+
+    Route::prefix('ai_generate/image-generation')->group(function () {
+        Route::post('', [GettyimagesController::class, 'imageGeneration']);
+        Route::get('{generationRequestId}', [GettyimagesController::class, 'imageGeneration']);
+        Route::post('{generationRequestId}/images/{index}/variations', [GettyimagesController::class, 'imageVariations']);
+        Route::post('refine', [GettyimagesController::class, 'refineImage']);
+        Route::post('extend', [GettyimagesController::class, 'extendImage']);
+        Route::post('object-removal', [GettyimagesController::class, 'removeObjectFromImage']);
+        Route::post('background-replacement', [GettyimagesController::class, 'replaceBackground']);
+        Route::post('influence-color-by-image', [GettyimagesController::class, 'influenceColorByImage']);
+        Route::post('influence-composition-by-image', [GettyimagesController::class, 'influenceCompositionByImage']);
+        Route::post('background-generations', [GettyimagesController::class, 'generateBackgrounds']);
+        Route::get('{generationRequestId}/images/{index}/download-sizes', [GettyimagesController::class, 'getDownloadSizes']);
+        Route::put('{generationRequestId}/images/{index}/download', [GettyimagesController::class, 'downloadImageAsync']);
+        Route::get('{generationRequestId}/images/{index}/download', [GettyimagesController::class, 'downloadImage']);
+    });
+    
+    Route::post('remove_background', [GettyimagesController::class, 'removeBackground']);
     Route::get('image_metadata/{id}', [GettyimagesController::class, 'imageMetadata']);
     Route::get('video_metadata/{id}', [GettyimagesController::class, 'videoMetadata']);
     Route::post('image_download/{id}', [GettyimagesController::class, 'imageDownload']);
     Route::post('video_download/{id}', [GettyimagesController::class, 'videoDownload']);
-    // Route::get('ai_generate', [GettyimagesController::class, 'aiGenerate']);
-    // Route::get('remove_background', [GettyimagesController::class, 'removeBackground']);
     Route::get('affiliate_image_search', [GettyimagesController::class, 'affiliateImageSearch']);
     Route::get('affiliate_video_search', [GettyimagesController::class, 'affiliateVideoSearch']);
 });

@@ -151,12 +151,12 @@ class ServiceTypeSeeder extends Seeder
                     'parameter' => [
                         "model" => "deepseek-chat",
                         "messages" =>
+                        [
                             [
-                                [
-                                    "role" => "user",
-                                    "content" => "Your input text"
-                                ]
-                            ],
+                                "role" => "user",
+                                "content" => "Your input text"
+                            ]
+                        ],
                         "max_tokens" => 500,
                         "temperature" => 0.7
                     ]
@@ -222,6 +222,213 @@ class ServiceTypeSeeder extends Seeder
                         "summary_length" => 200
                     ]
                 ]
+            ],
+            'GettyImages' => [
+                [
+                    "type" => "Image Search",
+                    "parameter" => [
+                        "phrase" => "sunset",
+                        "fields" => ["id", "title", "thumb"],
+                        "sort_order" => "best"
+                    ]
+                ],
+                [
+                    "type" => "Image Search Creative",
+                    "parameter" => [
+                        "phrase" => "sunset",
+                        "fields" => ["id", "title", "thumb"],
+                        "sort_order" => "best"
+                    ]
+                ],
+                [
+                    "type" => "Image Search Creative By Image",
+                    "parameter" => [
+                        "phrase" => "sunset",
+                        "fields" => ["id", "title", "thumb"],
+                        "sort_order" => "best"
+                    ]
+                ],
+                [
+                    "type" => "Image Search Editorial",
+                    "parameter" => [
+                        "phrase" => "sunset",
+                        "fields" => ["id", "title", "thumb"],
+                        "sort_order" => "best"
+                    ]
+                ],
+                [
+                    "type" => "Image Search By Image Upload",
+                    "parameter" => [
+                        "image" => "binary",
+                        "filename" => "example.jpg"
+                    ]
+                ],
+                [
+                    "type" => "Video Search Creative",
+                    "parameter" => [
+                        "phrase" => "ocean",
+                        "fields" => ["id", "title", "thumb"],
+                        "sort_order" => "newest"
+                    ]
+                ],
+                [
+                    "type" => "Video Search Creative By Image",
+                    "parameter" => [
+                        "image" => "binary",
+                        "filename" => "example.jpg"
+                    ]
+                ],
+                [
+                    "type" => "Video Search Editorial",
+                    "parameter" => [
+                        "phrase" => "ocean",
+                        "fields" => ["id", "title", "thumb"],
+                        "sort_order" => "newest"
+                    ]
+                ],
+                [
+                    "type" => "AI Image Generation",
+                    "parameter" => [
+                        "prompt" => "a futuristic city skyline"
+                    ]
+                ],
+                [
+                    "type" => "AI Refine Image",
+                    "parameter" => [
+                        "reference_asset_id" => "string",
+                        "reference_generation" => [
+                            "generation_request_id" => "string",
+                            "index" => 0
+                        ],
+                        "prompt" => "string",
+                        "product_id" => 0
+                    ]
+                ],
+                [
+                    "type" => "AI Extend Image",
+                    "parameter" => [
+                        "reference_asset_id" => "string",
+                        "reference_generation" => [
+                            "generation_request_id" => "string",
+                            "index" => 0
+                        ],
+                        "left_percentage" => 0,
+                        "right_percentage" => 0,
+                        "top_percentage" => 0,
+                        "bottom_percentage" => 0
+                    ]
+                ],
+                [
+                    "type" => "AI Object Removal",
+                    "parameter" => [
+                        "reference_asset_id" => "string",
+                        "reference_generation" => [
+                            "generation_request_id" => "string",
+                            "index" => 0
+                        ],
+                        "mask_url" => "https://example.com/mask.png"
+                    ]
+                ],
+                [
+                    "type" => "AI Background Replacement",
+                    "parameter" => [
+                        "prompt" => "mountain scenery",
+                        "reference_asset_id" => "string"
+                    ]
+                ],
+                [
+                    "type" => "AI Influence Color By Image",
+                    "parameter" => [
+                        "reference_asset_id" => "string",
+                        "reference_file_registration_id" => "string",
+                        "prompt" => "string",
+                        "noise_level" => 0
+                    ]
+                ],
+                [
+                    "type" => "AI Influence Composition By Image",
+                    "parameter" => [
+                        "reference_asset_id" => "string",
+                        "reference_file_registration_id" => "string",
+                        "prompt" => "string",
+                        "influence_level" => 0
+                    ]
+                ],
+                [
+                    "type" => "AI Background Generations",
+                    "parameter" => [
+                        "reference_file_registration_id" => "string",
+                        "prompt" => "cityscape"
+                    ]
+                ],
+                [
+                    "type" => "AI Get Download Sizes",
+                    "parameter" => [
+                        "generationRequestId" => "string",
+                        "index" => 0
+                    ]
+                ],
+                [
+                    "type" => "AI Download Image Async",
+                    "parameter" => [
+                        "generationRequestId" => "string",
+                        "index" => 0,
+                        "size_name" => "preview"
+                    ]
+                ],
+                [
+                    "type" => "AI Download Image",
+                    "parameter" => [
+                        "generationRequestId" => "string",
+                        "index" => 0
+                    ]
+                ],
+                [
+                    "type" => "Background Removal",
+                    "parameter" => [
+                        "image_url" => "https://example.com/image.jpg"
+                    ]
+                ],
+                [
+                    "type" => "Image Metadata",
+                    "parameter" => [
+                        "id" => "123456"
+                    ]
+                ],
+                [
+                    "type" => "Video Metadata",
+                    "parameter" => [
+                        "id" => "654321"
+                    ]
+                ],
+                [
+                    "type" => "Image Download",
+                    "parameter" => [
+                        "image_id" => "123456789",
+                        "license" => "royaltyfree"
+                    ]
+                ],
+                [
+                    "type" => "Video Download",
+                    "parameter" => [
+                        "video_id" => "987654321",
+                        "license" => "rightsmanaged"
+                    ]
+                ],
+                [
+                    "type" => "Affiliate Image Search",
+                    "parameter" => [
+                        "phrase" => "wildlife",
+                        "fields" => ["id", "thumb", "artist"]
+                    ]
+                ],
+                [
+                    "type" => "Affiliate Video Search",
+                    "parameter" => [
+                        "phrase" => "technology",
+                        "fields" => ["id", "thumb", "caption"]
+                    ]
+                ],
             ]
         ];
 
