@@ -45,15 +45,18 @@ class DeepSeekService
             'Authorization' => 'Bearer ' . $this->apiKey,
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
-        ])->post(
-            $this->baseUrl . '/chat/completions',
-            [
-                'messages' => $data->messages,
-                'model' => $data->model,
-                'max_tokens' => $data->max_tokens,
-                'temperature' => $data->temperature,
-            ]
-        );
+        ])
+            ->timeout(0)
+            ->connectTimeout(15)
+            ->post(
+                $this->baseUrl . '/chat/completions',
+                [
+                    'messages' => $data->messages,
+                    'model' => $data->model,
+                    'max_tokens' => $data->max_tokens,
+                    'temperature' => $data->temperature,
+                ]
+            );
 
         $jsonResponse = $response->json();
 
@@ -151,21 +154,24 @@ class DeepSeekService
             'Authorization' => 'Bearer ' . $this->apiKey,
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
-        ])->post(
-            $this->baseUrl . '/chat/completions',
-            [
-                'model' => 'deepseek-chat',
-                'messages' => [
-                    [
-                        'role' => 'user',
-                        'content' => json_encode([
-                            'question' => $data->question,
-                            'context' => $data->document_text,
-                        ]),
+        ])
+            ->timeout(0)
+            ->connectTimeout(15)
+            ->post(
+                $this->baseUrl . '/chat/completions',
+                [
+                    'model' => 'deepseek-chat',
+                    'messages' => [
+                        [
+                            'role' => 'user',
+                            'content' => json_encode([
+                                'question' => $data->question,
+                                'context' => $data->document_text,
+                            ]),
+                        ]
                     ]
                 ]
-            ]
-        );
+            );
 
         $jsonResponse = $response->json();
 
@@ -198,19 +204,22 @@ class DeepSeekService
             'Authorization' => 'Bearer ' . $this->apiKey,
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
-        ])->post(
-            $this->baseUrl . '/chat/completions',
-            [
-                'max_tokens' => $data->max_tokens,
-                'model' => $data->model,
-                'messages' => [
-                    [
-                        'role' => 'user',
-                        'content' => $data->problem_statement
-                    ]
-                ],
-            ]
-        );
+        ])
+            ->timeout(0)
+            ->connectTimeout(15)
+            ->post(
+                $this->baseUrl . '/chat/completions',
+                [
+                    'max_tokens' => $data->max_tokens,
+                    'model' => $data->model,
+                    'messages' => [
+                        [
+                            'role' => 'user',
+                            'content' => $data->problem_statement
+                        ]
+                    ],
+                ]
+            );
 
         $jsonResponse = $response->json();
 

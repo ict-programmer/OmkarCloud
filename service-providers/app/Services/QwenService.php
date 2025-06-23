@@ -14,14 +14,20 @@ use Illuminate\Support\Facades\Http;
 class QwenService
 {
   use QwenTrait;
-  
+
   protected $client;
 
   public function __construct()
   {
+    $token = config('services.qwen.api_key');
+
+    if (empty($token)) {
+      throw new \Exception('Qwen API key not configured.');
+    }
+
     $this->client = Http::withHeaders([
       'Content-Type' => 'application/json',
-      'Authorization' => 'Bearer ' . config('services.qwen.api_key'),
+      'Authorization' => 'Bearer ' . $token,
     ])
       ->timeout(0)
       ->connectTimeout(15)
@@ -69,12 +75,12 @@ class QwenService
         'role' => 'user',
         'content' => [],
       ]
-      ];
+    ];
 
-      $messages[0]['content'][] = [
-        'type' => 'text',
-        'text' => $data->prompt
-      ];
+    $messages[0]['content'][] = [
+      'type' => 'text',
+      'text' => $data->prompt
+    ];
 
     if (!empty($data->attachments)) {
       foreach ($data->attachments as $attachment) {

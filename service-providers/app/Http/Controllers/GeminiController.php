@@ -37,7 +37,7 @@ class GeminiController extends BaseController
         description: 'Generate Text using Gemini',
         required: true,
         content: new OA\MediaType(
-            mediaType: 'application/json',
+            mediaType: 'multipart/form-data',
             schema: new OA\Schema(
                 required: ['model', 'prompt', 'max_tokens', 'temperature'],
                 properties: [

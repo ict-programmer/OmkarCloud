@@ -193,6 +193,12 @@ class GeminiService
     {
         $this->initializeService(ServiceTypeEnum::IMAGE_ANALYSIS->value);
 
+        try{
+            $file = file_get_contents($data->image_url);
+        } catch (Throwable $e) {
+            throw new Forbidden('Failed to open provided file. Please try a different file.');
+        }
+
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
         ])->post("{$this->baseUrl}/models/gemini-1.5-pro:generateContent?key={$this->apiKey}", [
@@ -202,7 +208,7 @@ class GeminiService
                         [
                             'inlineData' => [
                                 'mimeType' => 'image/*',
-                                'data' => base64_encode(file_get_contents($data->image_url)),
+                                'data' => base64_encode($file),
                             ],
                         ],
                         ['text' => $data->description_required],
