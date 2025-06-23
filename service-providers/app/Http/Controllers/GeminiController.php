@@ -44,8 +44,8 @@ class GeminiController extends BaseController
                     new OA\Property(
                         property: 'model',
                         type: 'string',
-                        enum: ['gemini-pro', 'gemini-ultra', 'gemini-1.5-pro'],
-                        example: 'gemini-1.5-pro',
+                        enum: ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'],
+                        example: 'gemini-2.5-flash',
                     ),
                     new OA\Property(
                         property: 'prompt',
@@ -133,7 +133,7 @@ class GeminiController extends BaseController
                     new OA\Property(
                         property: 'model',
                         type: 'string',
-                        enum: ['gemini-pro', 'gemini-ultra', 'gemini-1.5-pro'],
+                        enum: ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'],
                         example: 'gemini-1.5-pro',
                     ),
                     new OA\Property(
@@ -227,7 +227,7 @@ class GeminiController extends BaseController
         description: 'Image analysis using Gemini',
         required: true,
         content: new OA\MediaType(
-            mediaType: 'application/json',
+            mediaType: 'multipart/form-data',
             schema: new OA\Schema(
                 required: ['image_url', 'description_required'],
                 properties: [
@@ -302,7 +302,7 @@ class GeminiController extends BaseController
         description: 'Image analysis using Gemini',
         required: true,
         content: new OA\MediaType(
-            mediaType: 'application/json',
+            mediaType: 'multipart/form-data',
             schema: new OA\Schema(
                 required: ['document_text', 'model', 'summary_length'],
                 properties: [
@@ -314,7 +314,7 @@ class GeminiController extends BaseController
                     new OA\Property(
                         property: 'model',
                         type: 'string',
-                        enum: ['gemini-pro', 'gemini-ultra', 'gemini-1.5-pro'],
+                        enum: ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'],
                         example: 'gemini-1.5-pro',
                     ),
                     new OA\Property(
