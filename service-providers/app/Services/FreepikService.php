@@ -4,10 +4,12 @@ namespace App\Services;
 
 use App\Data\Request\Freepik\AiImageClassifierData;
 use App\Data\Request\Freepik\DownloadResourceFormatData;
+use App\Data\Request\Freepik\IconGenerationData;
+use App\Data\Request\Freepik\KlingVideoData;
 use App\Data\Request\Freepik\StockContentData;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use OpenAI;
 
 class FreepikService
 {
@@ -32,18 +34,21 @@ class FreepikService
     public function resourceDetail(string $resource_id): array
     {
         $response = $this->client->get('/resources/' . $resource_id);
+
         return $response->json();
     }
 
     public function downloadResource(string $resource_id): array
     {
         $response = $this->client->get('/resources/' . $resource_id . '/download');
+
         return $response->json();
     }
 
     public function downloadResourceFormat(DownloadResourceFormatData $data): array
     {
         $response = $this->client->get("/resources/{$data->resource_id}/download/{$data->format}");
+
         return $response->json();
     }
 
@@ -54,5 +59,45 @@ class FreepikService
         ]);
 
         return $response->json();
+    }
+
+    public function iconGeneration(IconGenerationData $data): array
+    {
+        $response = $this->client
+            ->post('ai/text-to-icon', [
+                'prompt' => $data->prompt,
+                'webhook_url' => config('services.freepik.webhook_url'),
+            ])->throw();
+        $responseJson = $response->json();
+
+        // Set webhook result
+        $this->setWebhookResult($responseJson['data']);
+
+        return $responseJson;
+    }
+
+    public function klingVideo(KlingVideoData $data): array
+    {
+        $response = $this->client->post('ai/image-to-video/kling-v2-1-master', array_filter($data->toArray(), fn ($value) => $value !== null));
+
+        return $response->json();
+    }
+
+    public function klingVideoStatus(string $taskId): array
+    {
+        $response = $this->client
+            ->get("ai/image-to-video/kling-v2-1-master/{$taskId}");
+
+        return $response->json();
+    }
+
+    public function setWebhookResult(array $result): void
+    {
+        Cache::set('freepik_' . $result['task_id'], $result);
+    }
+
+    public function getWebhookResult(string $taskId): array
+    {
+        return Cache::get('freepik_' . $taskId) ?? ['status' => 'NOT_FOUND', 'message' => 'Result not available.'];
     }
 }

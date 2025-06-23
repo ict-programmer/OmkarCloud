@@ -119,7 +119,7 @@ Route::prefix('canva')->group(function () {
     Route::post('asset_upload', [CanvaController::class, 'uploadAsset']);
     Route::get('asset_upload_job', [CanvaController::class, 'getUploadJob']);
 
-    //folder
+    // folder
     Route::post('create_folder', [CanvaController::class, 'createFolder']);
     Route::get('get_folder_details', [CanvaController::class, 'getFolder']);
     Route::put('update_folder', [CanvaController::class, 'updateFolder']);
@@ -179,7 +179,6 @@ Route::prefix('pexels')->group(function () {
     Route::get('collections/{id}', [PexelsController::class, 'getCollection']);
 });
 
-
 // Perplexity
 Route::prefix('freepik')->controller(FreepikController::class)->group(function () {
     Route::get('stock_content', 'stockContent');
@@ -187,4 +186,11 @@ Route::prefix('freepik')->controller(FreepikController::class)->group(function (
     Route::get('download_resource/{resource_id}', 'downloadResource');
     Route::get('download_resource_format', 'downloadResourceFormat');
     Route::post('ai_image_classifier', 'aiImageClassifier');
+    Route::post('icon_generation', 'iconGeneration');
+    Route::get('icon_generation/result/{task_id}', 'getIconGenerationResult');
+    Route::post('kling_video_generation/image_to_video', 'klingVideoGenerationImageToVideo');
+    Route::post('kling_video_generation/text_to_video', 'klingVideoGenerationTextToVideo');
+    Route::get('kling_video_generation/status/{task_id}', 'klingVideoGenerationStatus');
 });
+
+Route::post('freepik/webhook', [FreepikController::class, 'handleWebhook'])->name('freepik.webhook');
