@@ -5,9 +5,11 @@ namespace App\Services;
 use App\Data\Request\Freepik\AiImageClassifierData;
 use App\Data\Request\Freepik\DownloadResourceFormatData;
 use App\Data\Request\Freepik\IconGenerationData;
-use App\Data\Request\Freepik\KlingVideoData;
+use App\Data\Request\Freepik\KlingImageToVideoData;
+use App\Data\Request\Freepik\KlingTextToVideoData;
 use App\Data\Request\Freepik\StockContentData;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
@@ -76,14 +78,29 @@ class FreepikService
         return $responseJson;
     }
 
-    public function klingVideo(KlingVideoData $data): array
+    public function klingImageToVideo(KlingImageToVideoData $data): array
+    {
+        $response = $this->client->post('ai/image-to-video/' . $data->model->value, array_filter(Arr::except($data->toArray(), 'model'), fn ($value) => $value !== null));
+
+        return $response->json();
+    }
+
+    public function klingImageToVideoStatus(string $model, string $taskId): array
+    {
+        $response = $this->client
+            ->get("ai/image-to-video/{$model}/{$taskId}");
+
+        return $response->json();
+    }
+
+    public function klingTextToVideo(KlingTextToVideoData $data): array
     {
         $response = $this->client->post('ai/image-to-video/kling-v2-1-master', array_filter($data->toArray(), fn ($value) => $value !== null));
 
         return $response->json();
     }
 
-    public function klingVideoStatus(string $taskId): array
+    public function klingTextToVideoStatus(string $taskId): array
     {
         $response = $this->client
             ->get("ai/image-to-video/kling-v2-1-master/{$taskId}");

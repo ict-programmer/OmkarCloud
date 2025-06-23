@@ -5,18 +5,20 @@ namespace App\Http\Controllers;
 use App\Data\Request\Freepik\AiImageClassifierData;
 use App\Data\Request\Freepik\DownloadResourceFormatData;
 use App\Data\Request\Freepik\IconGenerationData;
-use App\Data\Request\Freepik\KlingVideoData;
+use App\Data\Request\Freepik\KlingImageToVideoData;
+use App\Data\Request\Freepik\KlingTextToVideoData;
 use App\Data\Request\Freepik\StockContentData;
 use App\Http\Requests\Freepik\AiImageClassifierRequest;
 use App\Http\Requests\Freepik\DownloadResourceFormatRequest;
 use App\Http\Requests\Freepik\IconGenerationRequest;
-use App\Http\Requests\Freepik\KlingVideoRequest;
+use App\Http\Requests\Freepik\KlingImageToVideoRequest;
+use App\Http\Requests\Freepik\KlingImageToVideoStatusRequest;
+use App\Http\Requests\Freepik\KlingTextToVideoRequest;
 use App\Http\Requests\Freepik\StockContentRequest;
 use App\Services\FreepikService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use OpenApi\Attributes as OA;
 
@@ -432,8 +434,15 @@ class FreepikController extends BaseController
                 schema: new OA\Schema(
                     title: 'Image to Video',
                     type: 'object',
-                    required: ['duration', 'image', 'prompt'],
+                    required: ['duration'],
                     properties: [
+                        new OA\Property(
+                            property: 'model',
+                            type: 'string',
+                            enum: ['kling-v2-1-master', 'kling-v2-1-pro', 'kling-v2-1-std', 'kling-v2', 'kling-pro', 'kling-std'],
+                            description: 'Model of the generated video in seconds. Available options: kling-v2-1-master,kling-v2-1-pro,kling-v2-1-std,kling-v2,kling-pro,kling-std.',
+                            example: 'kling-v2-1-master'
+                        ),
                         new OA\Property(
                             property: 'duration',
                             type: 'string',
@@ -445,6 +454,12 @@ class FreepikController extends BaseController
                             property: 'image',
                             type: 'string',
                             description: 'Reference image. Supports Base64 encoding or URL. Max 10MB, min 300x300px, aspect ratio 1:2.5 to 2.5:1.',
+                            example: 'https://cdn.example.com/image.jpg'
+                        ),
+                        new OA\Property(
+                            property: 'image_tail',
+                            type: 'string',
+                            description: "Reference Image - End frame control. Supports Base64 encoding or URL. For URL, must be publicly accessible. Must follow the same format requirements as the 'image' field. (Optional) Not compatible with standard mode.",
                             example: 'https://cdn.example.com/image.jpg'
                         ),
                         new OA\Property(
@@ -519,10 +534,55 @@ class FreepikController extends BaseController
             ]
         )
     )]
-    public function klingVideoGenerationImageToVideo(KlingVideoRequest $request): JsonResponse
+    public function klingVideoGenerationImageToVideo(KlingImageToVideoRequest $request): JsonResponse
     {
-        $data = KlingVideoData::from($request->validated());
-        $result = $this->service->klingVideo($data);
+        $data = KlingImageToVideoData::from($request->validated());
+
+        $result = $this->service->klingImageToVideo($data);
+
+        return $this->logAndResponse($result);
+    }
+
+    #[OA\Get(
+        path: '/api/freepik/kling_video_generation/image_to_video/status/{task_id}',
+        operationId: 'klingVideoGenerationImageToVideoStatus',
+        summary: 'Get status of Kling v2.1 video generation task',
+        description: 'Check the current status of a Kling v2.1 Master image-to-video generation task by task ID.',
+        tags: ['Freepik'],
+    )]
+    #[OA\Parameter(
+        name: 'task_id',
+        in: 'path',
+        required: true,
+        description: 'ID of the video generation task',
+        schema: new OA\Schema(type: 'string'),
+        example: '046b6c7f-0b8a-43b9-b35d-6489e6daee91'
+    )]
+    #[OA\QueryParameter(
+        name: 'model',
+        required: true,
+        schema: new OA\Schema(type: 'string', enum: ['kling-v2-1-master', 'kling-v2-1-pro', 'kling-v2-1-std', 'kling-v2', 'kling-pro', 'kling-std']),
+        description: 'Model of the generated video in seconds. Available options: kling-v2-1-master,kling-v2-1-pro,kling-v2-1-std,kling-v2,kling-pro,kling-std.',
+        example: 'kling-v2-1-master'
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Task status response',
+        content: new OA\JsonContent(
+            type: 'object',
+            example: [
+                'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
+                'status' => 'IN_PROGRESS',
+                'generated' => [
+                    'https://cdn.example.com/video1.mp4',
+                    'https://cdn.example.com/video2.mp4',
+                ],
+            ]
+        )
+    )]
+    public function klingVideoGenerationImageToVideoStatus(KlingImageToVideoStatusRequest $request, string $task_id): JsonResponse
+    {
+        $result = $this->service->klingImageToVideoStatus($request->validated()['model'], $task_id);
 
         return $this->logAndResponse($result);
     }
@@ -542,7 +602,7 @@ class FreepikController extends BaseController
                 schema: new OA\Schema(
                     title: 'Text to Video',
                     type: 'object',
-                    required: ['duration', 'prompt'],
+                    required: ['duration'],
                     properties: [
                         new OA\Property(
                             property: 'duration',
@@ -595,19 +655,20 @@ class FreepikController extends BaseController
             ]
         )
     )]
-    public function klingVideoGenerationTextToVideo(KlingVideoRequest $request): JsonResponse
+    public function klingVideoGenerationTextToVideo(KlingTextToVideoRequest $request): JsonResponse
     {
-        $data = KlingVideoData::from($request->validated());
-        $result = $this->service->klingVideo($data);
+        $data = KlingTextToVideoData::from($request->validated());
+
+        $result = $this->service->klingTextToVideo($data);
 
         return $this->logAndResponse($result);
     }
 
     #[OA\Get(
-        path: '/api/freepik/kling_video_generation/status/{task_id}',
+        path: '/api/freepik/kling_video_generation/text_to_video/status/{task_id}',
         operationId: 'klingVideoGenerationStatus',
         summary: 'Get status of Kling v2.1 video generation task',
-        description: 'Check the current status of a Kling v2.1 Master image-to-video generation task by task ID.',
+        description: 'Check the current status of a Kling v2.1 Master text-to-video generation task by task ID.',
         tags: ['Freepik'],
     )]
     #[OA\Parameter(
@@ -633,9 +694,9 @@ class FreepikController extends BaseController
             ]
         )
     )]
-    public function klingVideoGenerationStatus(string $task_id): JsonResponse
+    public function klingVideoGenerationTextToVideoStatus(string $task_id): JsonResponse
     {
-        $result = $this->service->klingVideoStatus($task_id);
+        $result = $this->service->klingTextToVideoStatus($task_id);
 
         return $this->logAndResponse($result);
     }
