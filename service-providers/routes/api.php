@@ -192,6 +192,8 @@ Route::prefix('freepik')->controller(FreepikController::class)->group(function (
     Route::get('kling_video_generation/image_to_video/status/{task_id}', 'klingVideoGenerationImageToVideoStatus');
     Route::post('kling_video_generation/text_to_video', 'klingVideoGenerationTextToVideo');
     Route::get('kling_video_generation/text_to_video/status/{task_id}', 'klingVideoGenerationTextToVideoStatus');
+    Route::post('image_to_video_kling_elements', 'klingVideoGenerationTextToVideo');
+    Route::get('image_to_video_kling_elements/status/{task_id}', 'klingElementsVideoStatus');
 });
 
 Route::post('freepik/webhook', [FreepikController::class, 'handleWebhook'])->name('freepik.webhook');

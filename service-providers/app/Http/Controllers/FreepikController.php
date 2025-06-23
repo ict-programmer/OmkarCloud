@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Data\Request\Freepik\AiImageClassifierData;
 use App\Data\Request\Freepik\DownloadResourceFormatData;
 use App\Data\Request\Freepik\IconGenerationData;
+use App\Data\Request\Freepik\KlingElementsVideoData;
 use App\Data\Request\Freepik\KlingImageToVideoData;
 use App\Data\Request\Freepik\KlingTextToVideoData;
 use App\Data\Request\Freepik\StockContentData;
 use App\Http\Requests\Freepik\AiImageClassifierRequest;
 use App\Http\Requests\Freepik\DownloadResourceFormatRequest;
 use App\Http\Requests\Freepik\IconGenerationRequest;
+use App\Http\Requests\Freepik\KlingElementsVideoRequest;
+use App\Http\Requests\Freepik\KlingElementsVideoStatusRequest;
 use App\Http\Requests\Freepik\KlingImageToVideoRequest;
 use App\Http\Requests\Freepik\KlingImageToVideoStatusRequest;
 use App\Http\Requests\Freepik\KlingTextToVideoRequest;
@@ -697,6 +700,88 @@ class FreepikController extends BaseController
     public function klingVideoGenerationTextToVideoStatus(string $task_id): JsonResponse
     {
         $result = $this->service->klingTextToVideoStatus($task_id);
+
+        return $this->logAndResponse($result);
+    }
+
+    #[OA\Post(
+        path: '/api/freepik/image_to_video_kling_elements',
+        operationId: 'klingElementsVideo',
+        summary: 'Generate video using Kling Elements Pro model',
+        description: 'Create a video from 1–4 images with optional prompts, duration, aspect ratio, and webhook.',
+        tags: ['Freepik'],
+    )]
+    #[OA\Parameter(
+        name: 'images[]',
+        in: 'query',
+        required: true,
+        description: 'Array of up to 4 image URLs (publicly accessible)',
+        schema: new OA\Schema(type: 'array', items: new OA\Items(type: 'string', format: 'uri'), maxItems: 4)
+    )]
+    #[OA\Parameter(name: 'prompt', in: 'query', required: false, schema: new OA\Schema(type: 'string', maxLength: 2500))]
+    #[OA\Parameter(name: 'negative_prompt', in: 'query', required: false, schema: new OA\Schema(type: 'string', maxLength: 2500))]
+    #[OA\Parameter(name: 'duration', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['5', '10']))]
+    #[OA\Parameter(name: 'aspect_ratio', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['widescreen_16_9', 'social_story_9_16', 'square_1_1']))]
+    #[OA\Parameter(name: 'webhook_url', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'uri'))]
+    #[OA\Response(
+        response: 200,
+        description: 'Video generation task started',
+        content: new OA\JsonContent(
+            example: [
+                'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
+                'status' => 'IN_PROGRESS',
+            ]
+        )
+    )]
+    public function klingElementsVideo(KlingElementsVideoRequest $request): JsonResponse
+    {
+        $data = KlingElementsVideoData::from($request->validated());
+
+        $result = $this->service->klingElementsVideo($data);
+
+        return $this->logAndResponse($result);
+    }
+
+    #[OA\Get(
+        path: '/api/freepik/image_to_video_kling_elements/status/{task_id}',
+        operationId: 'klingElementsVideoStatus',
+        summary: 'Get status of Kling v2.1 video generation task',
+        description: 'Check the current status of a Kling v2.1 Master image-to-video generation task by task ID.',
+        tags: ['Freepik'],
+    )]
+    #[OA\Parameter(
+        name: 'task_id',
+        in: 'path',
+        required: true,
+        description: 'ID of the video generation task',
+        schema: new OA\Schema(type: 'string'),
+        example: '046b6c7f-0b8a-43b9-b35d-6489e6daee91'
+    )]
+    #[OA\QueryParameter(
+        name: 'model',
+        required: true,
+        schema: new OA\Schema(type: 'string', enum: ['kling-elements-pro', 'kling-elements-std']),
+        description: 'Model of the generated video in seconds. Available options: kling-elements-pro,kling-elements-std.',
+        example: 'kling-elements-pro'
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Task status response',
+        content: new OA\JsonContent(
+            type: 'object',
+            example: [
+                'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
+                'status' => 'IN_PROGRESS',
+                'generated' => [
+                    'https://cdn.example.com/video1.mp4',
+                    'https://cdn.example.com/video2.mp4',
+                ],
+            ]
+        )
+    )]
+    public function klingElementsVideoStatus(KlingElementsVideoStatusRequest $request, string $task_id): JsonResponse
+    {
+        $result = $this->service->klingElementsVideoStatus($request->validated()['model'], $task_id);
 
         return $this->logAndResponse($result);
     }
