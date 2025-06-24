@@ -41,6 +41,7 @@ class ServiceProvider extends Model
         'client_secret',
         'redirect_uris',
         'interface',
+        'controller_name',
     ];
 
     /**
