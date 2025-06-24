@@ -14,10 +14,10 @@ class UpdateControllerNamesAndServiceTypeForAmerOwnershipServicesSeeder extends 
      */
     public function run(): void
     {
+        //ffmpeg
         ServiceProvider::query()
             ->where('_id', '67fe35ad3877ee2db4854635')
             ->update(['controller_name' => 'App\Http\Controllers\FFMpegServiceController']);
-
         ServiceType::query()->where('_id', '67fe36023877ee2db485463a')
             ->update([
                 'request_class_name' => 'App\Http\Requests\FFMpeg\VideoProcessingRequest',
@@ -37,6 +37,26 @@ class UpdateControllerNamesAndServiceTypeForAmerOwnershipServicesSeeder extends 
             ->update([
                 'request_class_name' => 'App\Http\Requests\FFMpeg\VideoTrimmingRequest',
                 'function_name' => 'videoTrimming',
+            ]);
+
+        // whishper
+        ServiceProvider::query()
+            ->where('_id', '681a7c2f8ad97b908499d191')
+            ->update(['controller_name' => 'App\Http\Controllers\WhisperController']);
+        ServiceType::query()->where('_id', '681a7c188ad97b908499d18b')
+            ->update([
+                'request_class_name' => 'App\Http\Requests\Whisper\AudioTranscribeRequest',
+                'function_name' => 'audioTranscribe',
+            ]);
+        ServiceType::query()->where('_id', '681a7c188ad97b908499d18d')
+            ->update([
+                'request_class_name' => 'App\Http\Requests\Whisper\AudioTranscribeRequest',
+                'function_name' => 'audioTranscribeTimestamps',
+            ]);
+        ServiceType::query()->where('_id', '681a7c188ad97b908499d18e')
+            ->update([
+                'request_class_name' => 'App\Http\Requests\Whisper\AudioTranscribeRequest',
+                'function_name' => 'audioTranslate',
             ]);
     }
 } 

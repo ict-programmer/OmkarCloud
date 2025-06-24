@@ -132,12 +132,6 @@ Route::prefix('perplexity')->controller(PerplexityController::class)->group(func
     Route::post('code_assistant', 'codeAssistant');
 });
 
-Route::prefix('whisper')->controller(WhisperController::class)->group(function () {
-    Route::post('audio-transcribe', 'audioTranscribe');
-    Route::post('audio-translate', 'audioTranslate');
-    Route::post('audio-transcribe-timestamps', 'audioTranscribeTimestamps');
-});
-
 Route::prefix('placid')->controller(PlacidController::class)->group(function () {
     Route::get('retrieve-template', 'retrieveTemplate');
     Route::post('image-generation', 'imageGeneration');

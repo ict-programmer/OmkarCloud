@@ -13,7 +13,7 @@ class FFmpegServiceProviderSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::connection('mongodb')->collection('service_providers')->insert([
+        DB::connection('mongodb')->table('service_providers')->insert([
             'type' => 'FFmpeg',
             'parameter' => [
                 'binary_path' => '/usr/bin/ffmpeg',
@@ -26,11 +26,11 @@ class FFmpegServiceProviderSeeder extends Seeder
         $connection = DB::connection('mongodb');
 
         $ffmpegProviderId = $connection
-            ->collection('service_providers')
+            ->table('service_providers')
             ->where('type', 'FFmpeg')
             ->value('_id');
 
-        $connection->collection('service_types')->insert([
+        $connection->table('service_types')->insert([
             [
                 'name' => 'Video Processing',
                 'service_provider_id' => $ffmpegProviderId,
