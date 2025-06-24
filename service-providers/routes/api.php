@@ -30,6 +30,8 @@ use App\Http\Controllers\ShutterstockController;
 |--------------------------------------------------------------------------
 */
 
+Route::post('{service_provider_id}/{service_type_id}', \App\Http\Controllers\MainFunctionController::class);
+
 Route::post('/extanal', [ServiceProviderController::class, 'list']);
 
 Route::post('/google_spreadsheet/search', [GoogleSheetsController::class, 'search']);
