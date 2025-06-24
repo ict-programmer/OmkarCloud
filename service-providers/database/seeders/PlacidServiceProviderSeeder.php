@@ -13,7 +13,7 @@ class PlacidServiceProviderSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::connection('mongodb')->collection('service_providers')->insert([
+        DB::connection('mongodb')->table('service_providers')->insert([
             'type' => 'Placid',
             'parameter' => [
                 'api_key' => 'your-api-key',
@@ -26,11 +26,11 @@ class PlacidServiceProviderSeeder extends Seeder
         $connection = DB::connection('mongodb');
 
         $placidProviderId = $connection
-            ->collection('service_providers')
+            ->table('service_providers')
             ->where('type', 'Placid')
             ->value('_id');
 
-        $connection->collection('service_types')->insert([
+        $connection->table('service_types')->insert([
             [
                 'name' => 'Image Generation',
                 'service_provider_id' => $placidProviderId,

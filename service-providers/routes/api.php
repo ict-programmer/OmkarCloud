@@ -30,6 +30,8 @@ use App\Http\Controllers\ShutterstockController;
 |--------------------------------------------------------------------------
 */
 
+Route::post('{service_provider_id}/{service_type_id}', \App\Http\Controllers\MainFunctionController::class);
+
 Route::post('/extanal', [ServiceProviderController::class, 'list']);
 
 Route::post('/google_spreadsheet/search', [GoogleSheetsController::class, 'search']);
@@ -94,13 +96,6 @@ Route::prefix('qwen')->group(function () {
     Route::post('chatbot', [QwenController::class, 'chatbot']);
 });
 
-Route::prefix('ffmpeg')->controller(FFMpegServiceController::class)->group(function () {
-    Route::post('/video_processing', 'videoProcessing');
-    Route::post('/audio_processing', 'audioProcessing');
-    Route::post('/image_processing', 'imageProcessing');
-    Route::post('/video_trimming', 'videoTrimming');
-});
-
 Route::prefix('descriptai')->controller(DescriptAIController::class)->group(function () {
     Route::post('/generate', 'generateAsync');
     Route::get('/generate_async/{id}', 'getGenerateAsync');
@@ -135,12 +130,6 @@ Route::prefix('perplexity')->controller(PerplexityController::class)->group(func
     Route::post('ai_search', 'aiSearch');
     Route::post('academic_research', 'academicResearch');
     Route::post('code_assistant', 'codeAssistant');
-});
-
-Route::prefix('whisper')->controller(WhisperController::class)->group(function () {
-    Route::post('audio-transcribe', 'audioTranscribe');
-    Route::post('audio-translate', 'audioTranslate');
-    Route::post('audio-transcribe-timestamps', 'audioTranscribeTimestamps');
 });
 
 Route::prefix('placid')->controller(PlacidController::class)->group(function () {
