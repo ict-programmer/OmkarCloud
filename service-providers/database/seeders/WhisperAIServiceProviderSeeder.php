@@ -14,7 +14,7 @@ class WhisperAIServiceProviderSeeder extends Seeder
     public function run(): void
     {
         DB::connection('mongodb')
-            ->collection('service_providers')
+            ->table('service_providers')
             ->insert([
                 'type' => 'Whisper AI',
                 'parameter' => [
@@ -24,7 +24,7 @@ class WhisperAIServiceProviderSeeder extends Seeder
             ]);
 
         DB::connection('mongodb')
-            ->collection('service_types')
+            ->table('service_types')
             ->insert([
                 ['name' => 'Audio Transcription'],
                 ['name' => 'Language Detection'],
@@ -34,11 +34,11 @@ class WhisperAIServiceProviderSeeder extends Seeder
 
         $connection = DB::connection('mongodb');
 
-        $providerId = $connection->collection('service_providers')
+        $providerId = $connection->table('service_providers')
             ->where('type', 'Whisper AI')
             ->value('_id');
 
-        $serviceTypes = $connection->collection('service_types')
+        $serviceTypes = $connection->table('service_types')
             ->whereIn('name', [
                 'Audio Transcription',
                 'Language Detection',
@@ -47,7 +47,7 @@ class WhisperAIServiceProviderSeeder extends Seeder
             ])
             ->pluck('_id', 'name');
 
-        $connection->collection('service_providers_types')->insert([
+        $connection->table('service_providers_types')->insert([
             [
                 'service_type_id' => $serviceTypes['Audio Transcription'],
                 'service_provider_id' => $providerId,
