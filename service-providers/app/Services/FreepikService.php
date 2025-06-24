@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Data\Request\Freepik\AiImageClassifierData;
+use App\Data\Request\Freepik\ClassicFastGenerateData;
 use App\Data\Request\Freepik\DownloadResourceFormatData;
 use App\Data\Request\Freepik\IconGenerationData;
 use App\Data\Request\Freepik\KlingElementsVideoData;
@@ -158,6 +159,13 @@ class FreepikService
     public function trainLoraCharacter(LoraCharacterTrainData $data): array
     {
         $response = $this->client->post('ai/loras/characters', array_filter($data->toArray(), fn ($value) => $value !== null));
+
+        return $response->json();
+    }
+
+    public function generateClassicFastImage(ClassicFastGenerateData $data): array
+    {
+        $response = $this->client->post('ai/text-to-image', array_filter($data->toArray(), fn ($value) => $value !== null));
 
         return $response->json();
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Data\Request\Freepik\AiImageClassifierData;
+use App\Data\Request\Freepik\ClassicFastGenerateData;
 use App\Data\Request\Freepik\DownloadResourceFormatData;
 use App\Data\Request\Freepik\IconGenerationData;
 use App\Data\Request\Freepik\KlingElementsVideoData;
@@ -13,6 +14,7 @@ use App\Data\Request\Freepik\LoraStyleTrainData;
 use App\Data\Request\Freepik\MysticGenerateData;
 use App\Data\Request\Freepik\StockContentData;
 use App\Http\Requests\Freepik\AiImageClassifierRequest;
+use App\Http\Requests\Freepik\ClassicFastGenerateRequest;
 use App\Http\Requests\Freepik\DownloadResourceFormatRequest;
 use App\Http\Requests\Freepik\IconGenerationRequest;
 use App\Http\Requests\Freepik\KlingElementsVideoRequest;
@@ -1229,6 +1231,317 @@ class FreepikController extends BaseController
         $result = $this->service->trainLoraCharacter($data);
 
         return $this->logAndResponse($result);
+    }
+
+    #[OA\Post(
+        path: '/api/freepik/text-to-image/classic-fast',
+        operationId: 'generateClassicFastImage',
+        summary: 'Generate image using Freepik Classic Fast',
+        description: 'Convert descriptive text into images using Freepik Classic Fast AI engine.',
+        tags: ['Freepik']
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['prompt'],
+            properties: [
+                new OA\Property(
+                    property: 'prompt',
+                    type: 'string',
+                    minLength: 3,
+                    example: 'Crazy dog flying over the space',
+                    description: 'Text to generate image from'
+                ),
+                new OA\Property(
+                    property: 'negative_prompt',
+                    type: 'string',
+                    minLength: 3,
+                    nullable: true,
+                    example: 'b&w, grayscale, disfigured, bad quality',
+                    description: 'Attributes to avoid in the generated image'
+                ),
+                new OA\Property(
+                    property: 'guidance_scale',
+                    type: 'number',
+                    minimum: 0,
+                    maximum: 2,
+                    default: 1.0,
+                    nullable: true,
+                    example: 2,
+                    description: 'Fidelity to the prompt'
+                ),
+                new OA\Property(
+                    property: 'seed',
+                    type: 'integer',
+                    minimum: 0,
+                    maximum: 1000000,
+                    nullable: true,
+                    example: 123,
+                    description: 'Seed value for image reproducibility'
+                ),
+                new OA\Property(
+                    property: 'num_images',
+                    type: 'integer',
+                    minimum: 1,
+                    maximum: 4,
+                    default: 1,
+                    nullable: true,
+                    example: 1,
+                    description: 'Number of images to generate'
+                ),
+                new OA\Property(
+                    property: 'filter_nsfw',
+                    type: 'boolean',
+                    default: true,
+                    nullable: true,
+                    example: true,
+                    description: 'Filter NSFW content'
+                ),
+                new OA\Property(
+                    property: 'image',
+                    type: 'object',
+                    nullable: true,
+                    properties: [
+                        new OA\Property(
+                            property: 'size',
+                            type: 'string',
+                            enum: [
+                                'square_1_1',
+                                'classic_4_3',
+                                'traditional_3_4',
+                                'widescreen_16_9',
+                                'social_story_9_16',
+                                'smartphone_horizontal_20_9',
+                                'smartphone_vertical_9_20',
+                                'standard_3_2',
+                                'portrait_2_3',
+                                'horizontal_2_1',
+                                'vertical_1_2',
+                                'social_5_4',
+                                'social_post_4_5',
+                            ],
+                            example: 'square_1_1',
+                            description: 'Aspect ratio of the image'
+                        ),
+                    ]
+                ),
+                new OA\Property(
+                    property: 'styling',
+                    type: 'object',
+                    nullable: true,
+                    properties: [
+                        new OA\Property(
+                            property: 'style',
+                            type: 'string',
+                            enum: [
+                                'photo',
+                                'digital-art',
+                                '3d',
+                                'painting',
+                                'low-poly',
+                                'pixel-art',
+                                'anime',
+                                'cyberpunk',
+                                'comic',
+                                'vintage',
+                                'cartoon',
+                                'vector',
+                                'studio-shot',
+                                'dark',
+                                'sketch',
+                                'mockup',
+                                '2000s-pone',
+                                '70s-vibe',
+                                'watercolor',
+                                'art-nouveau',
+                                'origami',
+                                'surreal',
+                                'fantasy',
+                                'traditional-japan',
+                            ],
+                            nullable: true,
+                            example: 'cartoon',
+                            description: 'Style to apply to the image'
+                        ),
+                        new OA\Property(
+                            property: 'effects',
+                            type: 'object',
+                            nullable: true,
+                            properties: [
+                                new OA\Property(
+                                    property: 'color',
+                                    type: 'string',
+                                    nullable: true,
+                                    enum: [
+                                        'b&w',
+                                        'pastel',
+                                        'sepia',
+                                        'dramatic',
+                                        'vibrant',
+                                        'orange&teal',
+                                        'film-filter',
+                                        'split',
+                                        'electric',
+                                        'pastel-pink',
+                                        'gold-glow',
+                                        'autumn',
+                                        'muted-green',
+                                        'deep-teal',
+                                        'duotone',
+                                        'terracotta&teal',
+                                        'red&blue',
+                                        'cold-neon',
+                                        'burgundy&blue',
+                                    ],
+                                    example: 'b&w',
+                                    description: 'Effects - Color to apply'
+                                ),
+                                new OA\Property(
+                                    property: 'lightning',
+                                    type: 'string',
+                                    nullable: true,
+                                    enum: [
+                                        'studio',
+                                        'warm',
+                                        'cinematic',
+                                        'volumetric',
+                                        'golden-hour',
+                                        'long-exposure',
+                                        'cold',
+                                        'iridescent',
+                                        'dramatic',
+                                        'hardlight',
+                                        'redscale',
+                                        'indoor-light',
+                                    ],
+                                    example: 'warm',
+                                    description: 'Effects - Lightning to apply'
+                                ),
+                                new OA\Property(
+                                    property: 'framing',
+                                    type: 'string',
+                                    nullable: true,
+                                    enum: [
+                                        'portrait',
+                                        'macro',
+                                        'panoramic',
+                                        'aerial-view',
+                                        'close-up',
+                                        'cinematic',
+                                        'high-angle',
+                                        'low-angle',
+                                        'symmetry',
+                                        'fish-eye',
+                                        'first-person',
+                                    ],
+                                    example: 'portrait',
+                                    description: 'Effects - Framing to apply'
+                                ),
+                            ]
+                        ),
+                        new OA\Property(
+                            property: 'colors',
+                            type: 'array',
+                            minItems: 1,
+                            maxItems: 5,
+                            items: new OA\Items(
+                                type: 'object',
+                                required: ['color'],
+                                properties: [
+                                    new OA\Property(
+                                        property: 'color',
+                                        type: 'string',
+                                        pattern: '^#([A-Fa-f0-9]{6})$',
+                                        example: '#FF5733',
+                                        description: 'Hex color code'
+                                    ),
+                                    new OA\Property(
+                                        property: 'weight',
+                                        type: 'number',
+                                        minimum: 0.05,
+                                        maximum: 1.0,
+                                        nullable: true,
+                                        example: 0.5,
+                                        description: 'Weight of the color (0.05 - 1.0)'
+                                    ),
+                                ]
+                            )
+                        ),
+                    ]
+                ),
+            ],
+            example: [
+                'prompt' => 'Crazy dog in the space',
+                'negative_prompt' => 'b&w, earth, cartoon, ugly',
+                'guidance_scale' => 2,
+                'seed' => 42,
+                'num_images' => 1,
+                'image' => [
+                    'size' => 'square_1_1',
+                ],
+                'styling' => [
+                    'style' => 'anime',
+                    'effects' => [
+                        'color' => 'pastel',
+                        'lightning' => 'warm',
+                        'framing' => 'portrait',
+                    ],
+                    'colors' => [
+                        [
+                            'color' => '#FF5733',
+                            'weight' => 1,
+                        ],
+                        [
+                            'color' => '#33FF57',
+                            'weight' => 1,
+                        ],
+                    ],
+                ],
+                'filter_nsfw' => true,
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Image(s) generated successfully',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(
+                    property: 'data',
+                    type: 'array',
+                    items: new OA\Items(
+                        type: 'object',
+                        properties: [
+                            new OA\Property(property: 'base64', type: 'string', description: 'Base64 encoded image'),
+                            new OA\Property(property: 'has_nsfw', type: 'boolean'),
+                        ]
+                    )
+                ),
+                new OA\Property(
+                    property: 'meta',
+                    type: 'object',
+                    properties: [
+                        new OA\Property(property: 'image', type: 'object', properties: [
+                            new OA\Property(property: 'size', type: 'string'),
+                            new OA\Property(property: 'width', type: 'integer'),
+                            new OA\Property(property: 'height', type: 'integer'),
+                        ]),
+                        new OA\Property(property: 'seed', type: 'integer'),
+                        new OA\Property(property: 'guidance_scale', type: 'number'),
+                        new OA\Property(property: 'prompt', type: 'string'),
+                        new OA\Property(property: 'num_inference_steps', type: 'integer'),
+                    ]
+                ),
+            ]
+        )
+    )]
+    public function generateClassicFastImage(ClassicFastGenerateRequest $request)
+    {
+        $data = ClassicFastGenerateData::from($request->validated());
+
+        $result = $this->service->generateClassicFastImage($data);
+
+        return response()->json($result);
     }
 
     public function handleWebhook(Request $request)

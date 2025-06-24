@@ -205,6 +205,10 @@ Route::prefix('freepik')->controller(FreepikController::class)->group(function (
             Route::post('characters', 'trainLoraCharacter');
         });
     });
+
+    Route::prefix('text-to-image')->group(function () {
+        Route::post('/classic-fast', 'generateClassicFastImage');
+    });
 });
 
 Route::post('freepik/webhook', [FreepikController::class, 'handleWebhook'])->name('freepik.webhook');
