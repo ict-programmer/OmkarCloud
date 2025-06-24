@@ -221,27 +221,6 @@ Route::prefix('shutterstock')->controller(ShutterstockController::class)->group(
     Route::post('/create_collection', 'createCollection');
     Route::post('/add_to_collection', 'addToCollection');
 
-    Route::prefix('images')->group(function () {
-        Route::post('/search', 'searchImages');
-        Route::post('/get', 'getImage');
-        Route::post('/license', 'licenseImage');
-        Route::post('/download', 'downloadImage');
-    });
-
-    Route::prefix('videos')->group(function () {
-        Route::post('/search', 'searchVideos');
-        Route::post('/get', 'getVideo');
-        Route::post('/license', 'licenseVideo');
-        Route::post('/download', 'downloadVideo');
-    });
-
-    Route::prefix('audio')->group(function () {
-        Route::post('/search', 'searchAudio');
-        Route::post('/get', 'getAudio');
-        Route::post('/license', 'licenseAudio');
-        Route::post('/download', 'downloadAudio');
-    });
-
     Route::prefix('user')->group(function () {
         Route::get('/subscriptions', 'listUserSubscriptions');
     });
