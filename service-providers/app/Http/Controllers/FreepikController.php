@@ -6,6 +6,7 @@ use App\Data\Request\Freepik\AiImageClassifierData;
 use App\Data\Request\Freepik\ClassicFastGenerateData;
 use App\Data\Request\Freepik\DownloadResourceFormatData;
 use App\Data\Request\Freepik\IconGenerationData;
+use App\Data\Request\Freepik\Imagen3GenerateData;
 use App\Data\Request\Freepik\KlingElementsVideoData;
 use App\Data\Request\Freepik\KlingImageToVideoData;
 use App\Data\Request\Freepik\KlingTextToVideoData;
@@ -17,6 +18,7 @@ use App\Http\Requests\Freepik\AiImageClassifierRequest;
 use App\Http\Requests\Freepik\ClassicFastGenerateRequest;
 use App\Http\Requests\Freepik\DownloadResourceFormatRequest;
 use App\Http\Requests\Freepik\IconGenerationRequest;
+use App\Http\Requests\Freepik\Imagen3GenerateRequest;
 use App\Http\Requests\Freepik\KlingElementsVideoRequest;
 use App\Http\Requests\Freepik\KlingElementsVideoStatusRequest;
 use App\Http\Requests\Freepik\KlingImageToVideoRequest;
@@ -1542,6 +1544,232 @@ class FreepikController extends BaseController
         $result = $this->service->generateClassicFastImage($data);
 
         return response()->json($result);
+    }
+
+    #[OA\Post(
+        path: '/api/freepik/text-to-image/imagen3',
+        operationId: 'generateImagen3Image',
+        tags: ['Freepik'],
+        summary: 'Generate image using Google Imagen 3',
+        description: 'Convert descriptive text into images using Google Imagen 3 AI engine.',
+        security: [['bearerAuth' => []]],
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['prompt'],
+            properties: [
+                new OA\Property(property: 'prompt', type: 'string', example: 'A beautiful sunset over a calm ocean'),
+                new OA\Property(property: 'webhook_url', type: 'string', format: 'uri', example: 'https://www.example.com/webhook'),
+                new OA\Property(property: 'num_images', type: 'integer', minimum: 1, maximum: 4, example: 1),
+                new OA\Property(property: 'aspect_ratio', type: 'string', enum: [
+                    'square_1_1',
+                    'social_story_9_16',
+                    'widescreen_16_9',
+                    'traditional_3_4',
+                    'classic_4_3',
+                ], example: 'square_1_1'),
+
+                new OA\Property(property: 'styling', type: 'object', nullable: true, properties: [
+                    new OA\Property(property: 'style', type: 'string', enum: [
+                        'photo',
+                        'digital-art',
+                        '3d',
+                        'painting',
+                        'low-poly',
+                        'pixel-art',
+                        'anime',
+                        'cyberpunk',
+                        'comic',
+                        'vintage',
+                        'cartoon',
+                        'vector',
+                        'studio-shot',
+                        'dark',
+                        'sketch',
+                        'mockup',
+                        '2000s-pone',
+                        '70s-vibe',
+                        'watercolor',
+                        'art-nouveau',
+                        'origami',
+                        'surreal',
+                        'fantasy',
+                        'traditional-japan',
+                    ], example: 'cartoon'),
+
+                    new OA\Property(property: 'effects', type: 'object', nullable: true, properties: [
+                        new OA\Property(property: 'color', type: 'string', enum: [
+                            'b&w',
+                            'pastel',
+                            'sepia',
+                            'dramatic',
+                            'vibrant',
+                            'orange&teal',
+                            'film-filter',
+                            'split',
+                            'electric',
+                            'pastel-pink',
+                            'gold-glow',
+                            'autumn',
+                            'muted-green',
+                            'deep-teal',
+                            'duotone',
+                            'terracotta&teal',
+                            'red&blue',
+                            'cold-neon',
+                            'burgundy&blue',
+                        ], example: 'pastel'),
+
+                        new OA\Property(property: 'lightning', type: 'string', enum: [
+                            'studio',
+                            'warm',
+                            'cinematic',
+                            'volumetric',
+                            'golden-hour',
+                            'long-exposure',
+                            'cold',
+                            'iridescent',
+                            'dramatic',
+                            'hardlight',
+                            'redscale',
+                            'indoor-light',
+                        ], example: 'warm'),
+
+                        new OA\Property(property: 'framing', type: 'string', enum: [
+                            'portrait',
+                            'macro',
+                            'panoramic',
+                            'aerial-view',
+                            'close-up',
+                            'cinematic',
+                            'high-angle',
+                            'low-angle',
+                            'symmetry',
+                            'fish-eye',
+                            'first-person',
+                        ], example: 'portrait'),
+                    ]),
+
+                    new OA\Property(property: 'colors', type: 'array', minItems: 1, maxItems: 5, nullable: true, items: new OA\Items(
+                        type: 'object',
+                        required: ['color', 'weight'],
+                        properties: [
+                            new OA\Property(property: 'color', type: 'string', example: '#FF0000', description: 'Hex color code'),
+                            new OA\Property(property: 'weight', type: 'number', minimum: 0.05, maximum: 1.0, example: 0.5, description: 'Weight of the color (0.05 to 1)'),
+                        ]
+                    )),
+                ]),
+
+                new OA\Property(property: 'person_generation', type: 'string', enum: ['dont_allow', 'allow_adult', 'allow_all'], example: 'allow_all'),
+                new OA\Property(property: 'safety_settings', type: 'string', enum: ['block_low_and_above', 'block_medium_and_above', 'block_only_high', 'block_none'], example: 'block_none'),
+            ],
+            example: [
+                'prompt' => 'Crazy dog in the space',
+                'num_images' => 1,
+                'aspect_ratio' => 'square_1_1',
+                'styling' => [
+                    'style' => 'anime',
+                    'effects' => [
+                        'color' => 'pastel',
+                        'lightning' => 'warm',
+                        'framing' => 'portrait',
+                    ],
+                ],
+                'person_generation' => 'allow_adult',
+                'safety_settings' => 'block_low_and_above',
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Image(s) generated successfully',
+        content: new OA\JsonContent(
+            example: [
+                'generated' => [],
+                'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
+                'task_status' => 'IN_PROGRESS',
+            ]
+        )
+    )]
+    public function generateImagen3(Imagen3GenerateRequest $request)
+    {
+        $data = Imagen3GenerateData::from($request->validated());
+
+        $result = $this->service->generateImagen3Image($data);
+
+        return response()->json($result);
+    }
+
+    #[OA\Get(
+        path: '/api/freepik/text-to-image/imagen3/status/{task_id}',
+        operationId: 'getImagen3TaskStatus',
+        description: 'Get the status of the Imagen3 task',
+        summary: 'Freepik Imagen3 Task Status',
+        tags: ['Freepik'],
+    )]
+    #[OA\Parameter(
+        name: 'task_id',
+        in: 'path',
+        required: true,
+        description: 'ID of the Imagen3 generation task',
+        schema: new OA\Schema(type: 'string', example: '046b6c7f-0b8a-43b9-b35d-6489e6daee91'),
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'The task status and generated images if available',
+        content: new OA\JsonContent(
+            required: ['data'],
+            properties: [
+                new OA\Property(
+                    property: 'data',
+                    type: 'object',
+                    required: ['generated', 'task_id', 'status'],
+                    properties: [
+                        new OA\Property(
+                            property: 'generated',
+                            type: 'array',
+                            description: 'List of generated image URLs',
+                            items: new OA\Items(type: 'string', format: 'uri')
+                        ),
+                        new OA\Property(
+                            property: 'task_id',
+                            type: 'string',
+                            description: 'The task ID'
+                        ),
+                        new OA\Property(
+                            property: 'status',
+                            type: 'string',
+                            description: 'Status of the task',
+                            enum: ['IN_PROGRESS', 'COMPLETED', 'FAILED']
+                        ),
+                        new OA\Property(
+                            property: 'has_nsfw',
+                            type: 'array',
+                            nullable: true,
+                            description: 'List indicating if generated images contain NSFW content',
+                            items: new OA\Items(type: 'boolean')
+                        ),
+                    ]
+                ),
+            ],
+            example: [
+                'data' => [
+                    'generated' => [
+                        'https://ai-statics.freepik.com/completed_task_image.jpg',
+                    ],
+                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
+                    'status' => 'COMPLETED',
+                    'has_nsfw' => [false],
+                ],
+            ]
+        )
+    )]
+    public function getImagen3TaskStatus(string $task_id)
+    {
+        $result = $this->service->getImagen3TaskStatus($task_id);
+
+        return $this->logAndResponse($result);
     }
 
     public function handleWebhook(Request $request)

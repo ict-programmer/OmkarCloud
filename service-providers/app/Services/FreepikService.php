@@ -6,6 +6,7 @@ use App\Data\Request\Freepik\AiImageClassifierData;
 use App\Data\Request\Freepik\ClassicFastGenerateData;
 use App\Data\Request\Freepik\DownloadResourceFormatData;
 use App\Data\Request\Freepik\IconGenerationData;
+use App\Data\Request\Freepik\Imagen3GenerateData;
 use App\Data\Request\Freepik\KlingElementsVideoData;
 use App\Data\Request\Freepik\KlingImageToVideoData;
 use App\Data\Request\Freepik\KlingTextToVideoData;
@@ -166,6 +167,20 @@ class FreepikService
     public function generateClassicFastImage(ClassicFastGenerateData $data): array
     {
         $response = $this->client->post('ai/text-to-image', array_filter($data->toArray(), fn ($value) => $value !== null));
+
+        return $response->json();
+    }
+
+    public function generateImagen3Image(Imagen3GenerateData $data): array
+    {
+        $response = $this->client->post('ai/text-to-image/imagen3', array_filter($data->toArray(), fn ($value) => $value !== null));
+
+        return $response->json();
+    }
+
+    public function getImagen3TaskStatus(string $taskId): array
+    {
+        $response = $this->client->get("ai/text-to-image/imagen3/{$taskId}");
 
         return $response->json();
     }
