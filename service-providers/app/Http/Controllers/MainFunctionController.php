@@ -59,7 +59,7 @@ class MainFunctionController extends Controller
     )]
 
     #[OA\Post(
-        path: '/api/ffmpeg/audio_processing',
+        path: '/api/67cae130b9787c543c0d5a40/681a7dbb8ad97b908499d1a0',
         operationId: 'audioProcessing',
         description: 'Extract and encode audio from a video file.',
         summary: 'Audio Processing',
@@ -108,7 +108,7 @@ class MainFunctionController extends Controller
     )]
 
     #[OA\Post(
-        path: '/api/ffmpeg/image_processing',
+        path: '/api/67cae130b9787c543c0d5a40/681a7dbb8ad97b908499d1a1',
         operationId: 'imageProcessing',
         description: 'Resize an image using FFmpeg.',
         summary: 'Image Processing',
@@ -152,7 +152,7 @@ class MainFunctionController extends Controller
     )]
 
     #[OA\Post(
-        path: '/api/ffmpeg/video_trimming',
+        path: '/api/67cae130b9787c543c0d5a40/681a7dbb8ad97b908499d1a2',
         operationId: 'videoTrimming',
         description: 'Trim a portion of a video file.',
         summary: 'Video Trimming',
