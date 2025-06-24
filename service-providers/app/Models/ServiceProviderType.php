@@ -26,8 +26,12 @@ class ServiceProviderType extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'service_type_id',
         'service_provider_id',
+        'service_type_id',
         'parameter',
+        'created_by',
+        'updated_by',
+        'deleted_by',
+        'seed',
     ];
 }
