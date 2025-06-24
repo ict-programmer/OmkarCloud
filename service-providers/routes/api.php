@@ -96,13 +96,6 @@ Route::prefix('qwen')->group(function () {
     Route::post('chatbot', [QwenController::class, 'chatbot']);
 });
 
-Route::prefix('ffmpeg')->controller(FFMpegServiceController::class)->group(function () {
-    Route::post('/video_processing', 'videoProcessing');
-    Route::post('/audio_processing', 'audioProcessing');
-    Route::post('/image_processing', 'imageProcessing');
-    Route::post('/video_trimming', 'videoTrimming');
-});
-
 Route::prefix('descriptai')->controller(DescriptAIController::class)->group(function () {
     Route::post('/generate', 'generateAsync');
     Route::get('/generate_async/{id}', 'getGenerateAsync');
