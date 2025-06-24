@@ -86,7 +86,11 @@ class DeepSeekController extends BaseController
         description: 'Successful response',
         content: new OA\JsonContent(
             example: [
-                'chat_completion' => 'Once upon a time, in a faraway land...',
+                'status' => 'success',
+                'data' => [
+                    'completion' => 'Once upon a time, in a faraway land...',
+                ],
+                'timestamp' => '2025-05-01T12:45:30+00:00'
             ]
         )
     )]
@@ -260,7 +264,11 @@ class DeepSeekController extends BaseController
         description: 'Successful response',
         content: new OA\JsonContent(
             example: [
-                'document_qa' => 'Once upon a time, in a faraway land...',
+                'status' => 'success',
+                'data' => [
+                    'question' => 'What are the main symptoms of COVID-19?',
+                ],
+                'timestamp' => '2025-05-01T12:45:30+00:00'
             ]
         )
     )]
@@ -343,7 +351,11 @@ class DeepSeekController extends BaseController
         description: 'Successful response',
         content: new OA\JsonContent(
             example: [
-                'mathematical_reason' => 'Once upon a time, in a faraway land...',
+                'status' => 'success',
+                'data' => [
+                    'reasoning' => 'Once upon a time, in a faraway land...',
+                ],
+                'timestamp' => '2025-05-01T12:45:30+00:00'
             ]
         )
     )]
