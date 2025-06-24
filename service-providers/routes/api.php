@@ -194,6 +194,17 @@ Route::prefix('freepik')->controller(FreepikController::class)->group(function (
     Route::get('kling_video_generation/text_to_video/status/{task_id}', 'klingVideoGenerationTextToVideoStatus');
     Route::post('image_to_video_kling_elements', 'klingVideoGenerationTextToVideo');
     Route::get('image_to_video_kling_elements/status/{task_id}', 'klingElementsVideoStatus');
+
+    Route::prefix('mystic')->group(function () {
+        Route::post('/', 'generateMysticImage');
+        Route::get('/status/{task_id}', 'getMysticTaskStatus');
+
+        Route::prefix('loras')->group(function () {
+            Route::get('/', 'getLoras');
+            Route::post('styles', 'createLoraStyle');
+            Route::post('characters', 'trainLoraCharacter');
+        });
+    });
 });
 
 Route::post('freepik/webhook', [FreepikController::class, 'handleWebhook'])->name('freepik.webhook');

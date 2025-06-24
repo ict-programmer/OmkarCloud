@@ -8,6 +8,9 @@ use App\Data\Request\Freepik\IconGenerationData;
 use App\Data\Request\Freepik\KlingElementsVideoData;
 use App\Data\Request\Freepik\KlingImageToVideoData;
 use App\Data\Request\Freepik\KlingTextToVideoData;
+use App\Data\Request\Freepik\LoraCharacterTrainData;
+use App\Data\Request\Freepik\LoraStyleTrainData;
+use App\Data\Request\Freepik\MysticGenerateData;
 use App\Data\Request\Freepik\StockContentData;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Arr;
@@ -120,6 +123,41 @@ class FreepikService
     {
         $response = $this->client
             ->get("ai/image-to-video/{$model}/{$taskId}");
+
+        return $response->json();
+    }
+
+    public function generateMysticImage(MysticGenerateData $data): array
+    {
+        $response = $this->client->post('ai/mystic', array_filter($data->toArray(), fn ($value) => $value !== null));
+
+        return $response->json();
+    }
+
+    public function getMysticTaskStatus(string $taskId): array
+    {
+        $response = $this->client->get("ai/mystic/{$taskId}");
+
+        return $response->json();
+    }
+
+    public function getLoras(): array
+    {
+        $response = $this->client->get('ai/loras');
+
+        return $response->json();
+    }
+
+    public function trainLoraStyle(LoraStyleTrainData $data): array
+    {
+        $response = $this->client->post('ai/loras/styles', array_filter($data->toArray(), fn ($value) => $value !== null));
+
+        return $response->json();
+    }
+
+    public function trainLoraCharacter(LoraCharacterTrainData $data): array
+    {
+        $response = $this->client->post('ai/loras/characters', array_filter($data->toArray(), fn ($value) => $value !== null));
 
         return $response->json();
     }

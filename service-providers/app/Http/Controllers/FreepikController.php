@@ -8,6 +8,9 @@ use App\Data\Request\Freepik\IconGenerationData;
 use App\Data\Request\Freepik\KlingElementsVideoData;
 use App\Data\Request\Freepik\KlingImageToVideoData;
 use App\Data\Request\Freepik\KlingTextToVideoData;
+use App\Data\Request\Freepik\LoraCharacterTrainData;
+use App\Data\Request\Freepik\LoraStyleTrainData;
+use App\Data\Request\Freepik\MysticGenerateData;
 use App\Data\Request\Freepik\StockContentData;
 use App\Http\Requests\Freepik\AiImageClassifierRequest;
 use App\Http\Requests\Freepik\DownloadResourceFormatRequest;
@@ -17,6 +20,9 @@ use App\Http\Requests\Freepik\KlingElementsVideoStatusRequest;
 use App\Http\Requests\Freepik\KlingImageToVideoRequest;
 use App\Http\Requests\Freepik\KlingImageToVideoStatusRequest;
 use App\Http\Requests\Freepik\KlingTextToVideoRequest;
+use App\Http\Requests\Freepik\LoraCharacterTrainRequest;
+use App\Http\Requests\Freepik\LoraStyleTrainRequest;
+use App\Http\Requests\Freepik\MysticGenerateRequest;
 use App\Http\Requests\Freepik\StockContentRequest;
 use App\Services\FreepikService;
 use Illuminate\Http\JsonResponse;
@@ -722,7 +728,6 @@ class FreepikController extends BaseController
     #[OA\Parameter(name: 'negative_prompt', in: 'query', required: false, schema: new OA\Schema(type: 'string', maxLength: 2500))]
     #[OA\Parameter(name: 'duration', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['5', '10']))]
     #[OA\Parameter(name: 'aspect_ratio', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['widescreen_16_9', 'social_story_9_16', 'square_1_1']))]
-    #[OA\Parameter(name: 'webhook_url', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'uri'))]
     #[OA\Response(
         response: 200,
         description: 'Video generation task started',
@@ -782,6 +787,446 @@ class FreepikController extends BaseController
     public function klingElementsVideoStatus(KlingElementsVideoStatusRequest $request, string $task_id): JsonResponse
     {
         $result = $this->service->klingElementsVideoStatus($request->validated()['model'], $task_id);
+
+        return $this->logAndResponse($result);
+    }
+
+    #[OA\Get(
+        path: '/api/freepik/mystic/loras',
+        operationId: 'getLoras',
+        description: 'Get list of LoRAs (custom styles and defaults) for Mystic AI',
+        summary: 'Freepik Mystic LoRAs List',
+        tags: ['Freepik'],
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'List of LoRAs with default and custom styles',
+        content: new OA\JsonContent(
+            required: ['data'],
+            properties: [
+                new OA\Property(
+                    property: 'data',
+                    type: 'object',
+                    properties: [
+                        new OA\Property(
+                            property: 'default',
+                            type: 'array',
+                            description: 'Default LoRA styles available',
+                            items: new OA\Items(
+                                type: 'object',
+                                required: ['id', 'name', 'description', 'category', 'type', 'training'],
+                                properties: [
+                                    new OA\Property(property: 'id', type: 'integer'),
+                                    new OA\Property(property: 'name', type: 'string'),
+                                    new OA\Property(property: 'description', type: 'string'),
+                                    new OA\Property(property: 'category', type: 'string'),
+                                    new OA\Property(property: 'type', type: 'string'),
+                                    new OA\Property(
+                                        property: 'training',
+                                        type: 'object',
+                                        required: ['status', 'defaultScale'],
+                                        properties: [
+                                            new OA\Property(property: 'status', type: 'string'),
+                                            new OA\Property(property: 'defaultScale', type: 'number'),
+                                        ]
+                                    ),
+                                ]
+                            )
+                        ),
+                        new OA\Property(
+                            property: 'customs',
+                            type: 'array',
+                            description: 'Custom LoRA styles created by users',
+                            items: new OA\Items(type: 'object')
+                        ),
+                    ]
+                ),
+            ],
+            example: [
+                'data' => [
+                    'default' => [
+                        [
+                            'id' => 1,
+                            'name' => 'vintage-japanese',
+                            'description' => 'Expect bold red colors and a sense of nostalgia, bringing to life classic Japanese elements.',
+                            'category' => 'illustration',
+                            'type' => 'style',
+                            'training' => [
+                                'status' => 'completed',
+                                'defaultScale' => 1.2,
+                            ],
+                        ],
+                        [
+                            'id' => 2,
+                            'name' => 'sara',
+                            'description' => 'sara',
+                            'category' => 'people',
+                            'type' => 'character',
+                            'training' => [
+                                'status' => 'completed',
+                                'defaultScale' => 1.2,
+                            ],
+                        ],
+                        [
+                            'id' => 3,
+                            'name' => 'glasses',
+                            'description' => 'glasses',
+                            'category' => 'product',
+                            'type' => 'product',
+                            'training' => [
+                                'status' => 'completed',
+                                'defaultScale' => 1.2,
+                            ],
+                        ],
+                    ],
+                    'customs' => [],
+                ],
+            ]
+        )
+    )]
+    public function getLoras()
+    {
+        $result = $this->service->getLoras();
+
+        return $this->logAndResponse($result);
+    }
+
+    #[OA\Post(
+        path: '/api/freepik/mystic',
+        operationId: 'generateMysticImage',
+        description: 'Create ultra-realistic AI images using Mystic from Freepik',
+        summary: 'Freepik Mystic Image Generation',
+        tags: ['Freepik'],
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['prompt'],
+            properties: [
+                new OA\Property(property: 'prompt', type: 'string', description: 'AI Model Prompt Description. The text that describes the image you want to generate.'),
+                new OA\Property(property: 'structure_reference', type: 'string', nullable: true, description: 'Base64 image to use as structure reference to influence the shape.'),
+                new OA\Property(property: 'structure_strength', type: 'integer', minimum: 0, maximum: 100, nullable: true, default: 50, description: 'Strength to maintain the structure of the original image.'),
+                new OA\Property(property: 'style_reference', type: 'string', nullable: true, description: 'Base64 image to use as style reference to influence aesthetics.'),
+                new OA\Property(property: 'adherence', type: 'integer', minimum: 0, maximum: 100, nullable: true, default: 50, description: 'Higher values make the generation more faithful to the prompt.'),
+                new OA\Property(property: 'hdr', type: 'integer', minimum: 0, maximum: 100, nullable: true, default: 50, description: 'Controls image detail and "AI look" tradeoff.'),
+                new OA\Property(property: 'resolution', type: 'string', enum: ['1k', '2k', '4k'], nullable: true, default: '2k', description: 'Resolution of the generated image.'),
+                new OA\Property(property: 'aspect_ratio', type: 'string', enum: [
+                    'square_1_1',
+                    'classic_4_3',
+                    'traditional_3_4',
+                    'widescreen_16_9',
+                    'social_story_9_16',
+                    'smartphone_horizontal_20_9',
+                    'smartphone_vertical_9_20',
+                    'standard_3_2',
+                    'portrait_2_3',
+                    'horizontal_2_1',
+                    'vertical_1_2',
+                    'social_5_4',
+                    'social_post_4_5',
+                ], nullable: true, default: 'square_1_1', description: 'Aspect ratio of the generated image.'),
+                new OA\Property(property: 'model', type: 'string', enum: ['realism', 'fluid', 'zen'], nullable: true, default: 'realism', description: 'Model to use for generation.'),
+                new OA\Property(property: 'creative_detailing', type: 'integer', minimum: 0, maximum: 100, nullable: true, default: 33, description: 'Controls detail per pixel with tradeoff on HDR/artificial look.'),
+                new OA\Property(property: 'engine', type: 'string', enum: ['automatic', 'magnific_illusio', 'magnific_sharpy', 'magnific_sparkle'], nullable: true, default: 'automatic', description: 'Engine choice for the AI model.'),
+                new OA\Property(property: 'fixed_generation', type: 'boolean', nullable: true, default: false, description: 'If true, same input produces the same image (fixed randomness).'),
+                new OA\Property(property: 'filter_nsfw', type: 'boolean', nullable: true, default: true, description: 'When enabled, NSFW images are replaced with a black image.'),
+
+                new OA\Property(
+                    property: 'styling',
+                    type: 'object',
+                    nullable: true,
+                    properties: [
+                        new OA\Property(
+                            property: 'styles',
+                            type: 'array',
+                            maxItems: 1,
+                            items: new OA\Items(
+                                type: 'object',
+                                required: ['name'],
+                                properties: [
+                                    new OA\Property(property: 'name', type: 'string', description: 'Name of the style to apply'),
+                                    new OA\Property(property: 'strength', type: 'number', minimum: 0, maximum: 200, nullable: true, default: 100, description: 'Strength of the style'),
+                                ]
+                            )
+                        ),
+                        new OA\Property(
+                            property: 'characters',
+                            type: 'array',
+                            maxItems: 1,
+                            items: new OA\Items(
+                                type: 'object',
+                                properties: [
+                                    new OA\Property(property: 'id', type: 'string', description: 'ID of the character'),
+                                    new OA\Property(property: 'strength', type: 'number', nullable: true, description: 'Strength of the character'),
+                                ]
+                            )
+                        ),
+                        new OA\Property(
+                            property: 'colors',
+                            type: 'array',
+                            minItems: 1,
+                            maxItems: 5,
+                            items: new OA\Items(
+                                type: 'object',
+                                required: ['color'],
+                                properties: [
+                                    new OA\Property(property: 'color', type: 'string', pattern: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$', description: 'Hex color code, e.g. #FF0000'),
+                                    new OA\Property(property: 'weight', type: 'number', nullable: true, description: 'Weight of the color in the generation'),
+                                ]
+                            )
+                        ),
+                    ],
+                    description: 'Styling options for the image'
+                ),
+            ],
+            example: [
+                'prompt' => '<string>',
+                'structure_reference' => 'aSDinaTvuI8gbWludGxpZnk=',
+                'structure_strength' => 50,
+                'style_reference' => 'aSDinaTvuI8gbWludGxpZnk=',
+                'adherence' => 50,
+                'hdr' => 50,
+                'resolution' => '2k',
+                'aspect_ratio' => 'square_1_1',
+                'model' => 'realism',
+                'creative_detailing' => 33,
+                'engine' => 'automatic',
+                'fixed_generation' => false,
+                'filter_nsfw' => true,
+                'styling' => [
+                    'styles' => [
+                        [
+                            'name' => '<string>',
+                            'strength' => 100,
+                        ],
+                    ],
+                    'characters' => [
+                        [
+                            'id' => '<string>',
+                            'strength' => 100,
+                        ],
+                    ],
+                    'colors' => [
+                        [
+                            'color' => '#FF0000',
+                            'weight' => 0.5,
+                        ],
+                    ],
+                ],
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Mystic image generation task started',
+        content: new OA\JsonContent(
+            example: [
+                'data' => [
+                    'generated' => [
+                        'https://openapi-generator.tech',
+                    ],
+                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
+                    'status' => 'IN_PROGRESS',
+                ],
+            ]
+        )
+    )]
+    public function generateMysticImage(MysticGenerateRequest $request)
+    {
+        $data = MysticGenerateData::from($request->validated());
+
+        $result = $this->service->generateMysticImage($data);
+
+        return $this->logAndResponse($result);
+    }
+
+    #[OA\Get(
+        path: '/api/freepik/mystic/status/{task_id}',
+        operationId: 'getMysticTaskStatus',
+        description: 'Get the status of the Mystic task',
+        summary: 'Freepik Mystic Task Status',
+        tags: ['Freepik'],
+    )]
+    #[OA\Parameter(
+        name: 'task_id',
+        in: 'path',
+        required: true,
+        description: 'ID of the Mystic generation task',
+        schema: new OA\Schema(type: 'string', example: '046b6c7f-0b8a-43b9-b35d-6489e6daee91'),
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'The task status and generated images if available',
+        content: new OA\JsonContent(
+            required: ['data'],
+            properties: [
+                new OA\Property(
+                    property: 'data',
+                    type: 'object',
+                    required: ['generated', 'task_id', 'status'],
+                    properties: [
+                        new OA\Property(
+                            property: 'generated',
+                            type: 'array',
+                            description: 'List of generated image URLs',
+                            items: new OA\Items(type: 'string', format: 'uri')
+                        ),
+                        new OA\Property(
+                            property: 'task_id',
+                            type: 'string',
+                            description: 'The task ID'
+                        ),
+                        new OA\Property(
+                            property: 'status',
+                            type: 'string',
+                            description: 'Status of the task',
+                            enum: ['IN_PROGRESS', 'COMPLETED', 'FAILED']
+                        ),
+                        new OA\Property(
+                            property: 'has_nsfw',
+                            type: 'array',
+                            nullable: true,
+                            description: 'List indicating if generated images contain NSFW content',
+                            items: new OA\Items(type: 'boolean')
+                        ),
+                    ]
+                ),
+            ],
+            example: [
+                'data' => [
+                    'generated' => [
+                        'https://ai-statics.freepik.com/completed_task_image.jpg',
+                    ],
+                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
+                    'status' => 'COMPLETED',
+                    'has_nsfw' => [false],
+                ],
+            ]
+        )
+    )]
+    public function getMysticTaskStatus(string $task_id)
+    {
+        $result = $this->service->getMysticTaskStatus($task_id);
+
+        return $this->logAndResponse($result);
+    }
+
+    #[OA\Post(
+        path: '/api/freepik/mystic/loras/styles',
+        operationId: 'createLoraStyle',
+        description: 'Create your own custom LoRA style by training with images',
+        summary: 'LoRAs Custom Style Training',
+        tags: ['Freepik'],
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['name', 'quality', 'images'],
+            properties: [
+                new OA\Property(property: 'name', type: 'string', description: 'Name of the LoRA style used to identify the style in the system.'),
+                new OA\Property(property: 'quality', type: 'string', enum: ['medium', 'high', 'ultra'], description: 'Quality of the LoRA style.'),
+                new OA\Property(property: 'images', type: 'array', minItems: 6, maxItems: 20, description: 'List of image URLs to train the LoRA style.', items: new OA\Items(type: 'string', format: 'uri')),
+                new OA\Property(property: 'description', type: 'string', nullable: true, description: 'Description of the LoRA style.'),
+            ],
+            example: [
+                'name' => 'my-awesome-style',
+                'description' => 'string',
+                'quality' => 'high',
+                'images' => [
+                    'https://example.com/image1.jpg',
+                    'https://example.com/image2.jpg',
+                    'https://example.com/image3.jpg',
+                    'https://example.com/image4.jpg',
+                    'https://example.com/image5.jpg',
+                    'https://example.com/image6.jpg',
+                ],
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'LoRA style training started and processing',
+        content: new OA\JsonContent(
+            example: [
+                'generated' => [],
+                'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
+                'task_status' => 'IN_PROGRESS',
+            ]
+        )
+    )]
+    public function createLoraStyle(LoraStyleTrainRequest $request)
+    {
+        $data = LoraStyleTrainData::from($request->validated());
+
+        $result = $this->service->trainLoraStyle($data);
+
+        return $this->logAndResponse($result);
+    }
+
+    #[OA\Post(
+        path: '/api/freepik/mystic/loras/characters',
+        operationId: 'trainLoraCharacter',
+        summary: 'Train a custom character using Freepik LoRA',
+        tags: ['Freepik'],
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['name', 'quality', 'gender', 'images'],
+            properties: [
+                new OA\Property(property: 'name', type: 'string'),
+                new OA\Property(
+                    property: 'quality',
+                    type: 'string',
+                    enum: ['medium', 'high', 'ultra'],
+                    description: 'Quality of the LoRA character'
+                ),
+                new OA\Property(
+                    property: 'gender',
+                    type: 'string',
+                    enum: ['male', 'female', 'neutral', 'custom'],
+                    description: 'Gender of the character'
+                ),
+                new OA\Property(property: 'images', type: 'array', minItems: 8, maxItems: 20, items: new OA\Items(type: 'string', format: 'uri')),
+                new OA\Property(property: 'description', type: 'string', nullable: true),
+
+            ],
+            example: [
+                'name' => 'my-awesome-character',
+                'quality' => 'high',
+                'gender' => 'male',
+                'images' => [
+                    'https://example.com/img1.jpg',
+                    'https://example.com/img2.jpg',
+                    'https://example.com/img3.jpg',
+                    'https://example.com/img4.jpg',
+                    'https://example.com/img5.jpg',
+                    'https://example.com/img6.jpg',
+                    'https://example.com/img7.jpg',
+                    'https://example.com/img8.jpg',
+                ],
+                'description' => 'This is a cool character.',
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Character training started',
+        content: new OA\JsonContent(
+            example: [
+                'data' => [
+                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
+                    'status' => 'IN_PROGRESS',
+                    'generated' => [],
+                ],
+            ]
+        )
+    )]
+    public function trainLoraCharacter(LoraCharacterTrainRequest $request)
+    {
+        $data = LoraCharacterTrainData::from($request->validated());
+
+        $result = $this->service->trainLoraCharacter($data);
 
         return $this->logAndResponse($result);
     }
