@@ -19,7 +19,6 @@ class WhisperAIServiceProviderSeeder extends Seeder
                 'type' => 'Whisper AI',
                 'parameter' => [
                     'api_url' => 'https://api.whisper.ai',
-                    'api_key' => 'fqhhdcxhsxjomtkjeigglyydgyjpaepp'
                 ]
             ]);
 
