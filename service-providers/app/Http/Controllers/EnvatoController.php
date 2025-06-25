@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Data\Request\Envato\ItemSearchData;
 use App\Data\Request\Envato\ItemDetailsData;
 use App\Data\Request\Envato\UserAccountDetailsData;
+use App\Data\Request\Envato\UserPurchasesData;
 use App\Http\Requests\Envato\ItemSearchRequest;
 use App\Http\Requests\Envato\ItemDetailsRequest;
 use App\Http\Requests\Envato\UserAccountDetailsRequest;
+use App\Http\Requests\Envato\UserPurchasesRequest;
 use App\Services\EnvatoService;
 use Illuminate\Http\JsonResponse;
 
@@ -47,6 +49,16 @@ class EnvatoController extends BaseController
 
         return $this->logAndResponse([
             'message' => 'User account details retrieved successfully.',
+            'data' => $result,
+        ]);
+    }
+
+    public function userPurchases(): JsonResponse
+    {
+        $result = $this->service->userPurchases();
+
+        return $this->logAndResponse([
+            'message' => 'User purchases retrieved successfully.',
             'data' => $result,
         ]);
     }
