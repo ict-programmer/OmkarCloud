@@ -9,6 +9,7 @@ cd /var/www/html/felidae-network/service-providers && php artisan optimize:clear
 cd /var/www/html/felidae-network/service-providers && php artisan cache:clear
 cd /var/www/html/felidae-network/service-providers && php artisan view:clear
 cd /var/www/html/felidae-network/service-providers && php artisan route:clear
+cd /var/www/html/felidae-network/service-providers && php artisan config:clear
 cd /var/www/html/felidae-network/service-providers && php artisan config:cache
 
 # swagger generation 
