@@ -179,7 +179,7 @@ Route::prefix('pexels')->group(function () {
     Route::get('collections/{id}', [PexelsController::class, 'getCollection']);
 });
 
-// Perplexity
+// Freepik
 Route::prefix('freepik')->controller(FreepikController::class)->group(function () {
     Route::get('stock_content', 'stockContent');
     Route::get('resource_detail/{resource_id}', 'resourceDetail');
@@ -188,12 +188,15 @@ Route::prefix('freepik')->controller(FreepikController::class)->group(function (
     Route::post('ai_image_classifier', 'aiImageClassifier');
     Route::post('icon_generation', 'iconGeneration');
     Route::get('icon_generation/result/{task_id}', 'getIconGenerationResult');
-    Route::post('kling_video_generation/image_to_video', 'klingVideoGenerationImageToVideo');
-    Route::get('kling_video_generation/image_to_video/status/{task_id}', 'klingVideoGenerationImageToVideoStatus');
-    Route::post('kling_video_generation/text_to_video', 'klingVideoGenerationTextToVideo');
-    Route::get('kling_video_generation/text_to_video/status/{task_id}', 'klingVideoGenerationTextToVideoStatus');
-    Route::post('image_to_video_kling_elements', 'klingVideoGenerationTextToVideo');
-    Route::get('image_to_video_kling_elements/status/{task_id}', 'klingElementsVideoStatus');
+
+    Route::prefix('kling_video_generation')->group(function () {
+        Route::post('image_to_video', 'klingVideoGenerationImageToVideo');
+        Route::get('image_to_video/status/{task_id}', 'klingVideoGenerationImageToVideoStatus');
+        Route::post('text_to_video', 'klingVideoGenerationTextToVideo');
+        Route::get('text_to_video/status/{task_id}', 'klingVideoGenerationTextToVideoStatus');
+        Route::post('image_to_video_elements', 'klingVideoGenerationTextToVideo');
+        Route::get('image_to_video_elements/status/{task_id}', 'klingElementsVideoStatus');
+    });
 
     Route::prefix('mystic')->group(function () {
         Route::post('/', 'generateMysticImage');

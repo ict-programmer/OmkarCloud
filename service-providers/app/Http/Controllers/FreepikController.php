@@ -729,7 +729,7 @@ class FreepikController extends BaseController
     }
 
     #[OA\Post(
-        path: '/api/freepik/image_to_video_kling_elements',
+        path: '/api/freepik/kling_video_generation/image_to_video_elements',
         operationId: 'klingElementsVideo',
         summary: 'Generate video using Kling Elements Pro model',
         description: 'Create a video from 1–4 images with optional prompts, duration, aspect ratio, and webhook.',
@@ -766,7 +766,7 @@ class FreepikController extends BaseController
     }
 
     #[OA\Get(
-        path: '/api/freepik/image_to_video_kling_elements/status/{task_id}',
+        path: '/api/freepik/kling_video_generation/image_to_video_elements/status/{task_id}',
         operationId: 'klingElementsVideoStatus',
         summary: 'Get status of Kling v2.1 video generation task',
         description: 'Check the current status of a Kling v2.1 Master image-to-video generation task by task ID.',
@@ -2644,8 +2644,8 @@ class FreepikController extends BaseController
         $computedSignature = base64_encode(hash_hmac('sha256', $content, $secret, true));
 
         $valid = collect(explode(' ', $signatureHeader))
-            ->map(fn($pair) => explode(',', $pair)[1] ?? null)
-            ->contains(fn($sig) => hash_equals($sig, $computedSignature));
+            ->map(fn ($pair) => explode(',', $pair)[1] ?? null)
+            ->contains(fn ($sig) => hash_equals($sig, $computedSignature));
 
         if (!$valid) {
             Log::error('Invalid Freepik webhook signature', ['computed' => $computedSignature]);

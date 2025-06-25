@@ -82,11 +82,13 @@ class FreepikService
             ->post('ai/text-to-icon', [
                 'prompt' => $data->prompt,
                 'webhook_url' => config('services.freepik.webhook_url'),
-            ])->throw();
+            ]);
         $responseJson = $response->json();
 
-        // Set webhook result
-        $this->setWebhookResult($responseJson['data']);
+        if ($response->successful()) {
+            // Set webhook result
+            $this->setWebhookResult($responseJson['data']);
+        }
 
         return $responseJson;
     }
