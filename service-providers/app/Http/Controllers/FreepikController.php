@@ -16,6 +16,7 @@ use App\Data\Request\Freepik\LoraStyleTrainData;
 use App\Data\Request\Freepik\MysticGenerateData;
 use App\Data\Request\Freepik\ReimagineFluxData;
 use App\Data\Request\Freepik\StockContentData;
+use App\Data\Request\Freepik\UpscaleImageData;
 use App\Http\Requests\Freepik\AiImageClassifierRequest;
 use App\Http\Requests\Freepik\ClassicFastGenerateRequest;
 use App\Http\Requests\Freepik\DownloadResourceFormatRequest;
@@ -32,6 +33,7 @@ use App\Http\Requests\Freepik\LoraStyleTrainRequest;
 use App\Http\Requests\Freepik\MysticGenerateRequest;
 use App\Http\Requests\Freepik\ReimagineFluxRequest;
 use App\Http\Requests\Freepik\StockContentRequest;
+use App\Http\Requests\Freepik\UpscaleImageRequest;
 use App\Services\FreepikService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -1983,6 +1985,142 @@ class FreepikController extends BaseController
         $data = ReimagineFluxData::from($request->validated());
 
         $result = $this->service->reimagineFluxImage($data);
+
+        return $this->logAndResponse($result);
+    }
+
+    #[OA\Post(
+        path: '/api/freepik/image-editing/upscaler',
+        operationId: 'upscaleImage',
+        tags: ['Freepik'],
+        summary: 'Upscale an image using Magnific AI',
+        description: 'Upscale an image using Freepik\'s Magnific AI. Accepts a base64 image, aspect ratio, scale factor, optimization and styling preferences.',
+        security: [['bearerAuth' => []]],
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['image'],
+            properties: [
+                new OA\Property(property: 'image', type: 'string', description: 'Base64 encoded image to upscale'),
+                new OA\Property(property: 'scale_factor', type: 'string', enum: ['2x', '4x', '8x', '16x'], example: '2x'),
+                new OA\Property(property: 'optimized_for', type: 'string', enum: [
+                    'standard',
+                    'soft_portraits',
+                    'hard_portraits',
+                    'art_n_illustration',
+                    'videogame_assets',
+                    'nature_n_landscapes',
+                    'films_n_photography',
+                    '3d_renders',
+                    'science_fiction_n_horror',
+                ], example: 'standard'),
+                new OA\Property(property: 'prompt', type: 'string', nullable: true, example: 'A vivid and high-detail fantasy landscape'),
+                new OA\Property(property: 'creativity', type: 'integer', minimum: -10, maximum: 10, example: 5),
+                new OA\Property(property: 'hdr', type: 'integer', minimum: -10, maximum: 10, example: 3),
+                new OA\Property(property: 'resemblance', type: 'integer', minimum: -10, maximum: 10, example: 0),
+                new OA\Property(property: 'fractality', type: 'integer', minimum: -10, maximum: 10, example: -2),
+                new OA\Property(property: 'engine', type: 'string', enum: ['automatic', 'magnific_illusio', 'magnific_sharpy', 'magnific_sparkle'], example: 'automatic'),
+            ],
+            example: [
+                'image' => 'iVBORw0KGgoAAAANSUhEUgAA...',
+                'scale_factor' => '2x',
+                'optimized_for' => 'standard',
+                'prompt' => 'A vivid and high-detail fantasy landscape',
+                'creativity' => 5,
+                'hdr' => 3,
+                'resemblance' => 0,
+                'fractality' => -2,
+                'engine' => 'automatic',
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Upscaling task initiated successfully',
+        content: new OA\JsonContent(
+            required: ['data'],
+            properties: [
+                new OA\Property(property: 'data', type: 'object', required: ['task_id', 'status', 'generated'], properties: [
+                    new OA\Property(property: 'task_id', type: 'string', example: '046b6c7f-0b8a-43b9-b35d-6489e6daee91'),
+                    new OA\Property(property: 'status', type: 'string', enum: ['IN_PROGRESS', 'COMPLETED', 'FAILED'], example: 'IN_PROGRESS'),
+                    new OA\Property(property: 'generated', type: 'array', items: new OA\Items(type: 'string', format: 'uri'), example: [
+                        'https://openapi-generator.tech/image1.jpg',
+                        'https://openapi-generator.tech/image2.jpg',
+                    ]),
+                ]),
+            ]
+        )
+    )]
+    public function upscale(UpscaleImageRequest $request)
+    {
+        $data = UpscaleImageData::from($request->validated());
+
+        $result = $this->service->upscaleImage($data);
+
+        return $this->logAndResponse($result);
+    }
+
+    #[OA\Get(
+        path: '/api/freepik/image-editing/upscaler/status/{task_id}',
+        operationId: 'getUpscalerTaskStatus',
+        description: 'Get the status of the Magnific image upscaling task',
+        summary: 'Check Magnific Upscaler Task Status',
+        tags: ['Freepik'],
+        security: [['bearerAuth' => []]],
+    )]
+    #[OA\Parameter(
+        name: 'task_id',
+        in: 'path',
+        required: true,
+        description: 'ID of the upscaling task',
+        schema: new OA\Schema(type: 'string', example: '046b6c7f-0b8a-43b9-b35d-6489e6daee91'),
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Task status and generated images if available',
+        content: new OA\JsonContent(
+            required: ['data'],
+            properties: [
+                new OA\Property(
+                    property: 'data',
+                    type: 'object',
+                    required: ['generated', 'task_id', 'status'],
+                    properties: [
+                        new OA\Property(
+                            property: 'generated',
+                            type: 'array',
+                            description: 'List of generated image URLs',
+                            items: new OA\Items(type: 'string', format: 'uri')
+                        ),
+                        new OA\Property(
+                            property: 'task_id',
+                            type: 'string',
+                            description: 'The task ID'
+                        ),
+                        new OA\Property(
+                            property: 'status',
+                            type: 'string',
+                            description: 'Status of the task',
+                            enum: ['IN_PROGRESS', 'COMPLETED', 'FAILED']
+                        ),
+                    ]
+                ),
+            ],
+            example: [
+                'data' => [
+                    'generated' => [
+                        'https://ai-statics.freepik.com/completed_task_image.jpg',
+                    ],
+                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
+                    'status' => 'COMPLETED',
+                ],
+            ]
+        )
+    )]
+    public function getUpscalerTaskStatus(string $task_id)
+    {
+        $result = $this->service->getUpscalerTaskStatus($task_id);
 
         return $this->logAndResponse($result);
     }

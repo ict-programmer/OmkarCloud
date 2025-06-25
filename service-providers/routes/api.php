@@ -214,6 +214,11 @@ Route::prefix('freepik')->controller(FreepikController::class)->group(function (
         Route::get('/flux-dev/status/{task_id}', 'getFluxDevTaskStatus');
         Route::post('/reimagine-flux', 'reimagineFlux');
     });
+
+    Route::prefix('image-editing')->group(function () {
+        Route::post('/upscaler', 'upscale');
+        Route::get('/upscaler/status/{task_id}', 'getUpscalerTaskStatus');
+    });
 });
 
 Route::post('freepik/webhook', [FreepikController::class, 'handleWebhook'])->name('freepik.webhook');

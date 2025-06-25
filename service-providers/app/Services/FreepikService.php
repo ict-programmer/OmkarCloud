@@ -16,6 +16,7 @@ use App\Data\Request\Freepik\LoraStyleTrainData;
 use App\Data\Request\Freepik\MysticGenerateData;
 use App\Data\Request\Freepik\ReimagineFluxData;
 use App\Data\Request\Freepik\StockContentData;
+use App\Data\Request\Freepik\UpscaleImageData;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
@@ -204,6 +205,20 @@ class FreepikService
     public function reimagineFluxImage(ReimagineFluxData $data): array
     {
         $response = $this->client->post('ai/beta/text-to-image/reimagine-flux', array_filter($data->toArray(), fn ($value) => $value !== null));
+
+        return $response->json();
+    }
+
+    public function upscaleImage(UpscaleImageData $data): array
+    {
+        $response = $this->client->post('ai/image-upscaler', array_filter($data->toArray(), fn ($value) => $value !== null));
+
+        return $response->json();
+    }
+
+    public function getUpscalerTaskStatus(string $taskId): array
+    {
+        $response = $this->client->get("ai/image-upscaler/{$taskId}");
 
         return $response->json();
     }
