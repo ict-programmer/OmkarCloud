@@ -9,6 +9,7 @@ use App\Data\Request\Envato\DownloadPurchasedItemData;
 use App\Data\Request\Envato\VerifyPurchaseCodeData;
 use App\Data\Request\Envato\UserIdentityData;
 use App\Data\Request\Envato\PopularItemsData;
+use App\Data\Request\Envato\CategoriesBySiteData;
 use Illuminate\Support\Facades\Http;
 
 class EnvatoService
@@ -73,6 +74,13 @@ class EnvatoService
     {
         return $this->callEnvatoAPI(
             endpoint: '/v1/market/popular:' . $data->site . '.json',
+        );
+    }
+
+    public function categoriesBySite(CategoriesBySiteData $data): array
+    {
+        return $this->callEnvatoAPI(
+            endpoint: '/v1/market/categories:' . $data->site . '.json',
         );
     }
 
