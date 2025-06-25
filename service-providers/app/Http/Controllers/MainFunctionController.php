@@ -20,6 +20,9 @@ class MainFunctionController extends Controller
         if (is_null($serviceProvider->controller_name) || is_null($serviceType->function_name))
             return response()->json(['error' => 'Service provider or service type configuration is incomplete'], 404);
 
+        if (!method_exists($serviceProvider->controller_name, $serviceType->function_name))
+            return response()->json(['error' => 'Function not found in controller'], 404);
+
         $controller = app($serviceProvider->controller_name);
 
         if (! is_null($serviceType->request_class_name)){
