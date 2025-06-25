@@ -2,41 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ServiceProvider;
-use App\Models\ServiceType;
+use App\Services\MainService;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
-class MainFunctionController extends Controller
+class MainFunctionController extends BaseController
 {
-    public function __invoke($serviceProviderId, $serviceTypeId, Request $request)
+    public function __construct(protected MainService $service) {}
+
+    public function __invoke(string $serviceProviderId, string $serviceTypeId, Request $request): JsonResponse
     {
-        $serviceProvider = ServiceProvider::query()->find($serviceProviderId);
-        $serviceType = ServiceType::query()->find($serviceTypeId);
-
-        if (!$serviceProvider || !$serviceType)
-            return response()->json(['error' => 'Service provider or service type not found'], 404);
-
-        if (is_null($serviceProvider->controller_name) || is_null($serviceType->function_name))
-            return response()->json(['error' => 'Service provider or service type configuration is incomplete'], 404);
-
-        if (!method_exists($serviceProvider->controller_name, $serviceType->function_name))
-            return response()->json(['error' => 'Function not found in controller'], 404);
-
-        $controller = app($serviceProvider->controller_name);
-
-        if (! is_null($serviceType->request_class_name)){
-
-            $formRequest = app($serviceType->request_class_name);
-
-            $formRequest->replace($request->all());
-            $formRequest->files = $request->files;
-            $formRequest->headers = $request->headers;
-
-            $formRequest->validateResolved();
-        }
-        
-        return app()->call([$controller, $serviceType->function_name], [
-            'request' => $formRequest ?? $request
-        ]);
+        $result = $this->service->executeMainFunction($serviceProviderId, $serviceTypeId, $request);
+        return $this->logAndResponse($result);
     }
 }

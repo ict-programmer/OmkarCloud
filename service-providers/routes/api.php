@@ -13,7 +13,6 @@ use App\Http\Controllers\PexelsController;
 use App\Http\Controllers\PlacidController;
 use App\Http\Controllers\PremierProController;
 use App\Http\Controllers\ReactJsController;
-use App\Http\Controllers\RunwaymlAPIController;
 use App\Http\Controllers\ServiceProviderController;
 use App\Http\Controllers\ShutterstockController;
 use App\Http\Controllers\UserController;
@@ -50,11 +49,6 @@ Route::get('test', function () {
     $cursor = \App\Models\ProjectStructure::all();
 
     return response()->json($cursor);
-});
-
-Route::prefix('runwayml')->controller(RunwaymlAPIController::class)->group(function () {
-    Route::post('video_processing', 'videoProcessing');
-    Route::post('task_management/{id}', 'taskManagement');
 });
 
 Route::prefix('descriptai')->controller(DescriptAIController::class)->group(function () {
@@ -233,4 +227,5 @@ Route::prefix('freepik')->controller(FreepikController::class)->group(function (
 
 Route::post('freepik/webhook', [FreepikController::class, 'handleWebhook'])->name('freepik.webhook');
 
-Route::post('dynamic-services/{service_provider_id}/{service_type_id}', MainFunctionController::class);
+Route::post('dynamic-services/{service_provider_id}/{service_type_id}/{path?}', MainFunctionController::class)
+    ->where('path', '.*');

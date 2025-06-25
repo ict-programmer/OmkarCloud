@@ -8,12 +8,13 @@ use App\Http\Requests\DeepSeek\CodeCompletionRequest;
 use App\Http\Requests\DeepSeek\DocumentQaRequest;
 use App\Http\Requests\DeepSeek\MathematicalReasoningRequest;
 use App\Models\ServiceProvider;
-use App\Models\ServiceType;
-use App\Models\ServiceProviderType;
+use App\Traits\ServiceProviderSeederTrait;
 use Illuminate\Database\Seeder;
 
 class DeepSeekServiceProviderSeeder extends Seeder
 {
+    use ServiceProviderSeederTrait;
+
     /**
      * Run the database seeds.
      * 
@@ -57,6 +58,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
             [
                 'name' => 'Chat Completion',
                 'description' => 'Generate chat completions with conversation history support',
+                'path_parameters' => [],
                 'parameter' => [
                     'model' => [
                         'type' => 'string',
@@ -106,6 +108,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
             [
                 'name' => 'Code Completion',
                 'description' => 'Generate code based on natural language descriptions with file attachments support',
+                'path_parameters' => [],
                 'parameter' => [
                     'model' => [
                         'type' => 'string',
@@ -160,6 +163,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
             [
                 'name' => 'Document Q&A',
                 'description' => 'Answer questions based on provided document text',
+                'path_parameters' => [],
                 'parameter' => [
                     'document_text' => [
                         'type' => 'string',
@@ -186,6 +190,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
             [
                 'name' => 'Mathematical Reasoning',
                 'description' => 'Solve mathematical problems and provide step-by-step reasoning',
+                'path_parameters' => [],
                 'parameter' => [
                     'problem_statement' => [
                         'type' => 'string',
@@ -227,95 +232,12 @@ class DeepSeekServiceProviderSeeder extends Seeder
             ],
         ];
 
-        $existingServiceTypes = ServiceType::whereIn('name', collect($serviceTypes)->pluck('name'))->get();
-        
-        $existingServiceProviderTypes = ServiceProviderType::where('service_provider_id', $serviceProvider->id)
-            ->with('serviceType')
-            ->get()
-            ->keyBy('service_type_id');
+        $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, 'DeepSeek API');
 
-        $keptServiceTypeIds = [];
-
-        foreach ($serviceTypes as $serviceTypeData) {
-            $serviceTypeName = $serviceTypeData['name'];
-            
-            $existingServiceType = $existingServiceTypes->where('name', $serviceTypeName)->first();
-            $existingProviderType = $existingServiceProviderTypes->where('serviceType.name', $serviceTypeName)->first();
-            
-            if ($existingServiceType && !$existingProviderType) {
-                $uniqueName = $serviceTypeName . ' (DeepSeek)';
-                $counter = 1;
-                while (ServiceType::where('name', $uniqueName)->exists()) {
-                    $uniqueName = $serviceTypeName . ' (DeepSeek ' . $counter . ')';
-                    $counter++;
-                }
-                
-                $newServiceType = ServiceType::create([
-                    'name' => $uniqueName,
-                    'description' => $serviceTypeData['description'],
-                    'request_class_name' => $serviceTypeData['request_class_name'],
-                    'function_name' => $serviceTypeData['function_name'],
-                ]);
-                
-                ServiceProviderType::create([
-                    'service_provider_id' => $serviceProvider->id,
-                    'service_type_id' => $newServiceType->id,
-                    'parameter' => $serviceTypeData['parameter'],
-                ]);
-                
-                $keptServiceTypeIds[] = $newServiceType->id;
-                $this->command->info("Created new service type '{$uniqueName}' to avoid conflict with existing '{$serviceTypeName}'");
-                
-            } elseif ($existingProviderType) {
-                $serviceType = $existingProviderType->serviceType;
-                $serviceType->update([
-                    'description' => $serviceTypeData['description'],
-                    'request_class_name' => $serviceTypeData['request_class_name'],
-                    'function_name' => $serviceTypeData['function_name'],
-                ]);
-                
-                $existingProviderType->update([
-                    'parameter' => $serviceTypeData['parameter'],
-                ]);
-                
-                $keptServiceTypeIds[] = $serviceType->id;
-                $this->command->info("Updated existing service type '{$serviceTypeName}' for DeepSeek");
-                
-            } else {
-                $newServiceType = ServiceType::create([
-                    'name' => $serviceTypeName,
-                    'description' => $serviceTypeData['description'],
-                    'request_class_name' => $serviceTypeData['request_class_name'],
-                    'function_name' => $serviceTypeData['function_name'],
-                ]);
-                
-                ServiceProviderType::create([
-                    'service_provider_id' => $serviceProvider->id,
-                    'service_type_id' => $newServiceType->id,
-                    'parameter' => $serviceTypeData['parameter'],
-                ]);
-                
-                $keptServiceTypeIds[] = $newServiceType->id;
-                $this->command->info("Created new service type '{$serviceTypeName}' for DeepSeek");
-            }
-        }
-
-        $serviceTypeIdsToKeep = collect($keptServiceTypeIds)->unique()->toArray();
-        
-        $allDeepSeekServiceProviderTypes = ServiceProviderType::where('service_provider_id', $serviceProvider->id)->get();
-        
-        $serviceProviderTypesToDelete = $allDeepSeekServiceProviderTypes->filter(function ($providerType) use ($serviceTypeIdsToKeep) {
-            return !in_array($providerType->service_type_id, $serviceTypeIdsToKeep);
-        });
-        
-        $deletedProviderTypeCount = 0;
-        foreach ($serviceProviderTypesToDelete as $providerTypeToDelete) {
-            $providerTypeToDelete->delete();
-            $deletedProviderTypeCount++;
-        }
+        $deletedProviderTypeCount = $this->cleanupObsoleteServiceTypes($serviceProvider, $keptServiceTypeIds);
         
         $this->command->info("Cleanup completed:");
         $this->command->info("- Deleted {$deletedProviderTypeCount} obsolete service provider types");
-        $this->command->info("- Kept " . count($keptServiceTypeIds) . " service types for DeepSeek");
+        $this->command->info("- Kept " . count($keptServiceTypeIds) . " service types for DeepSeek API");
     }
 } 

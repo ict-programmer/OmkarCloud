@@ -8,12 +8,13 @@ use App\Http\Requests\Qwen\QwenCodeGenerationRequest;
 use App\Http\Requests\Qwen\QwenNLPRequest;
 use App\Http\Requests\Qwen\QwenTextSummarizationRequest;
 use App\Models\ServiceProvider;
-use App\Models\ServiceType;
-use App\Models\ServiceProviderType;
+use App\Traits\ServiceProviderSeederTrait;
 use Illuminate\Database\Seeder;
 
 class QwenServiceProviderSeeder extends Seeder
 {
+    use ServiceProviderSeederTrait;
+
     /**
      * Run the database seeds.
      * 
@@ -60,6 +61,7 @@ class QwenServiceProviderSeeder extends Seeder
             [
                 'name' => 'NLP',
                 'description' => 'Natural Language Processing for text generation and analysis',
+                'path_parameters' => [],
                 'parameter' => [
                     'model' => [
                         'type' => 'string',
@@ -117,6 +119,7 @@ class QwenServiceProviderSeeder extends Seeder
             [
                 'name' => 'Code Generation',
                 'description' => 'Generate code based on natural language descriptions with file attachments support',
+                'path_parameters' => [],
                 'parameter' => [
                     'model' => [
                         'type' => 'string',
@@ -185,6 +188,7 @@ class QwenServiceProviderSeeder extends Seeder
             [
                 'name' => 'Text Summarization',
                 'description' => 'Summarize long text content into concise versions',
+                'path_parameters' => [],
                 'parameter' => [
                     'model' => [
                         'type' => 'string',
@@ -251,6 +255,7 @@ class QwenServiceProviderSeeder extends Seeder
             [
                 'name' => 'Chatbot',
                 'description' => 'Interactive chatbot with conversation history support',
+                'path_parameters' => [],
                 'parameter' => [
                     'model' => [
                         'type' => 'string',
@@ -314,95 +319,12 @@ class QwenServiceProviderSeeder extends Seeder
             ],
         ];
 
-        $existingServiceTypes = ServiceType::whereIn('name', collect($serviceTypes)->pluck('name'))->get();
-        
-        $existingServiceProviderTypes = ServiceProviderType::where('service_provider_id', $serviceProvider->id)
-            ->with('serviceType')
-            ->get()
-            ->keyBy('service_type_id');
+        $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, 'Qwen');
 
-        $keptServiceTypeIds = [];
-
-        foreach ($serviceTypes as $serviceTypeData) {
-            $serviceTypeName = $serviceTypeData['name'];
-            
-            $existingServiceType = $existingServiceTypes->where('name', $serviceTypeName)->first();
-            $existingProviderType = $existingServiceProviderTypes->where('serviceType.name', $serviceTypeName)->first();
-            
-            if ($existingServiceType && !$existingProviderType) {
-                $uniqueName = $serviceTypeName . ' (Qwen)';
-                $counter = 1;
-                while (ServiceType::where('name', $uniqueName)->exists()) {
-                    $uniqueName = $serviceTypeName . ' (Qwen ' . $counter . ')';
-                    $counter++;
-                }
-                
-                $newServiceType = ServiceType::create([
-                    'name' => $uniqueName,
-                    'description' => $serviceTypeData['description'],
-                    'request_class_name' => $serviceTypeData['request_class_name'],
-                    'function_name' => $serviceTypeData['function_name'],
-                ]);
-                
-                ServiceProviderType::create([
-                    'service_provider_id' => $serviceProvider->id,
-                    'service_type_id' => $newServiceType->id,
-                    'parameter' => $serviceTypeData['parameter'],
-                ]);
-                
-                $keptServiceTypeIds[] = $newServiceType->id;
-                $this->command->info("Created new service type '{$uniqueName}' to avoid conflict with existing '{$serviceTypeName}'");
-                
-            } elseif ($existingProviderType) {
-                $serviceType = $existingProviderType->serviceType;
-                $serviceType->update([
-                    'description' => $serviceTypeData['description'],
-                    'request_class_name' => $serviceTypeData['request_class_name'],
-                    'function_name' => $serviceTypeData['function_name'],
-                ]);
-                
-                $existingProviderType->update([
-                    'parameter' => $serviceTypeData['parameter'],
-                ]);
-                
-                $keptServiceTypeIds[] = $serviceType->id;
-                $this->command->info("Updated existing service type '{$serviceTypeName}' for Qwen");
-                
-            } else {
-                $newServiceType = ServiceType::create([
-                    'name' => $serviceTypeName,
-                    'description' => $serviceTypeData['description'],
-                    'request_class_name' => $serviceTypeData['request_class_name'],
-                    'function_name' => $serviceTypeData['function_name'],
-                ]);
-                
-                ServiceProviderType::create([
-                    'service_provider_id' => $serviceProvider->id,
-                    'service_type_id' => $newServiceType->id,
-                    'parameter' => $serviceTypeData['parameter'],
-                ]);
-                
-                $keptServiceTypeIds[] = $newServiceType->id;
-                $this->command->info("Created new service type '{$serviceTypeName}' for Qwen");
-            }
-        }
-
-        $serviceTypeIdsToKeep = collect($keptServiceTypeIds)->unique()->toArray();
-        
-        $allQwenServiceProviderTypes = ServiceProviderType::where('service_provider_id', $serviceProvider->id)->get();
-        
-        $serviceProviderTypesToDelete = $allQwenServiceProviderTypes->filter(function ($providerType) use ($serviceTypeIdsToKeep) {
-            return !in_array($providerType->service_type_id, $serviceTypeIdsToKeep);
-        });
-        
-        $deletedProviderTypeCount = 0;
-        foreach ($serviceProviderTypesToDelete as $providerTypeToDelete) {
-            $providerTypeToDelete->delete();
-            $deletedProviderTypeCount++;
-        }
+        $deletedProviderTypeCount = $this->cleanupObsoleteServiceTypes($serviceProvider, $keptServiceTypeIds);
         
         $this->command->info("Cleanup completed:");
         $this->command->info("- Deleted {$deletedProviderTypeCount} obsolete service provider types");
-        $this->command->info("- Kept " . count($keptServiceTypeIds) . " service types for Qwen");
+        $this->command->info("- Kept " . count($keptServiceTypeIds) . " service types for Qwen API");
     }
-} 
+}

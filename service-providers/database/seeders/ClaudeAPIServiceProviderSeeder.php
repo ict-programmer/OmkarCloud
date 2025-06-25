@@ -12,12 +12,13 @@ use App\Http\Requests\ClaudeAPI\TextGenerationRequest;
 use App\Http\Requests\ClaudeAPI\TextSummarizeRequest;
 use App\Http\Requests\ClaudeAPI\TextTranslateRequest;
 use App\Models\ServiceProvider;
-use App\Models\ServiceType;
-use App\Models\ServiceProviderType;
+use App\Traits\ServiceProviderSeederTrait;
 use Illuminate\Database\Seeder;
 
 class ClaudeAPIServiceProviderSeeder extends Seeder
 {
+    use ServiceProviderSeederTrait;
+
     /**
      * Run the database seeds.
      * 
@@ -28,7 +29,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
     public function run(): void
     {
         $serviceProvider = ServiceProvider::updateOrCreate(
-            ['type' => 'Claude API'],
+            ['type' => 'Claude'],
             [
                 'parameters' => [
                     'api_key' => 'YOUR_API_KEY',
@@ -68,6 +69,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
             [
                 'name' => 'Text Generation',
                 'description' => 'Generate creative and informative text based on prompts',
+                'path_parameters' => [],
                 'parameter' => [
                     'prompt' => [
                         'type' => 'string',
@@ -94,6 +96,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
             [
                 'name' => 'Text Summarization',
                 'description' => 'Summarize long text content into concise versions',
+                'path_parameters' => [],
                 'parameter' => [
                     'text' => [
                         'type' => 'string',
@@ -119,6 +122,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
             [
                 'name' => 'Question Answering',
                 'description' => 'Answer questions based on provided context information',
+                'path_parameters' => [],
                 'parameter' => [
                     'question' => [
                         'type' => 'string',
@@ -145,6 +149,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
             [
                 'name' => 'Text Classification',
                 'description' => 'Classify text into predefined categories or genres',
+                'path_parameters' => [],
                 'parameter' => [
                     'text' => [
                         'type' => 'string',
@@ -171,6 +176,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
             [
                 'name' => 'Text Translation',
                 'description' => 'Translate text between different languages',
+                'path_parameters' => [],
                 'parameter' => [
                     'text' => [
                         'type' => 'string',
@@ -208,6 +214,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
             [
                 'name' => 'Code Generation',
                 'description' => 'Generate code based on natural language descriptions',
+                'path_parameters' => [],
                 'parameter' => [
                     'description' => [
                         'type' => 'string',
@@ -236,6 +243,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
             [
                 'name' => 'Data Analysis and Insights',
                 'description' => 'Analyze data and provide insights based on specified tasks',
+                'path_parameters' => [],
                 'parameter' => [
                     'data' => [
                         'type' => 'array',
@@ -273,6 +281,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
             [
                 'name' => 'Personalization',
                 'description' => 'Personalize content based on user preferences and characteristics',
+                'path_parameters' => [],
                 'parameter' => [
                     'user_id' => [
                         'type' => 'string',
@@ -303,92 +312,9 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
             ],
         ];
 
-        $existingServiceTypes = ServiceType::whereIn('name', collect($serviceTypes)->pluck('name'))->get();
-        
-        $existingServiceProviderTypes = ServiceProviderType::where('service_provider_id', $serviceProvider->id)
-            ->with('serviceType')
-            ->get()
-            ->keyBy('service_type_id');
+        $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, 'Claude');
 
-        $keptServiceTypeIds = [];
-
-        foreach ($serviceTypes as $serviceTypeData) {
-            $serviceTypeName = $serviceTypeData['name'];
-            
-            $existingServiceType = $existingServiceTypes->where('name', $serviceTypeName)->first();
-            $existingProviderType = $existingServiceProviderTypes->where('serviceType.name', $serviceTypeName)->first();
-            
-            if ($existingServiceType && !$existingProviderType) {
-                $uniqueName = $serviceTypeName . ' (Claude API)';
-                $counter = 1;
-                while (ServiceType::where('name', $uniqueName)->exists()) {
-                    $uniqueName = $serviceTypeName . ' (Claude API ' . $counter . ')';
-                    $counter++;
-                }
-                
-                $newServiceType = ServiceType::create([
-                    'name' => $uniqueName,
-                    'description' => $serviceTypeData['description'],
-                    'request_class_name' => $serviceTypeData['request_class_name'],
-                    'function_name' => $serviceTypeData['function_name'],
-                ]);
-                
-                ServiceProviderType::create([
-                    'service_provider_id' => $serviceProvider->id,
-                    'service_type_id' => $newServiceType->id,
-                    'parameter' => $serviceTypeData['parameter'],
-                ]);
-                
-                $keptServiceTypeIds[] = $newServiceType->id;
-                $this->command->info("Created new service type '{$uniqueName}' to avoid conflict with existing '{$serviceTypeName}'");
-                
-            } elseif ($existingProviderType) {
-                $serviceType = $existingProviderType->serviceType;
-                $serviceType->update([
-                    'description' => $serviceTypeData['description'],
-                    'request_class_name' => $serviceTypeData['request_class_name'],
-                    'function_name' => $serviceTypeData['function_name'],
-                ]);
-                
-                $existingProviderType->update([
-                    'parameter' => $serviceTypeData['parameter'],
-                ]);
-                
-                $keptServiceTypeIds[] = $serviceType->id;
-                $this->command->info("Updated existing service type '{$serviceTypeName}' for Claude API");
-                
-            } else {
-                $newServiceType = ServiceType::create([
-                    'name' => $serviceTypeName,
-                    'description' => $serviceTypeData['description'],
-                    'request_class_name' => $serviceTypeData['request_class_name'],
-                    'function_name' => $serviceTypeData['function_name'],
-                ]);
-                
-                ServiceProviderType::create([
-                    'service_provider_id' => $serviceProvider->id,
-                    'service_type_id' => $newServiceType->id,
-                    'parameter' => $serviceTypeData['parameter'],
-                ]);
-                
-                $keptServiceTypeIds[] = $newServiceType->id;
-                $this->command->info("Created new service type '{$serviceTypeName}' for Claude API");
-            }
-        }
-
-        $serviceTypeIdsToKeep = collect($keptServiceTypeIds)->unique()->toArray();
-        
-        $allClaudeServiceProviderTypes = ServiceProviderType::where('service_provider_id', $serviceProvider->id)->get();
-        
-        $serviceProviderTypesToDelete = $allClaudeServiceProviderTypes->filter(function ($providerType) use ($serviceTypeIdsToKeep) {
-            return !in_array($providerType->service_type_id, $serviceTypeIdsToKeep);
-        });
-        
-        $deletedProviderTypeCount = 0;
-        foreach ($serviceProviderTypesToDelete as $providerTypeToDelete) {
-            $providerTypeToDelete->delete();
-            $deletedProviderTypeCount++;
-        }
+        $deletedProviderTypeCount = $this->cleanupObsoleteServiceTypes($serviceProvider, $keptServiceTypeIds);
         
         $this->command->info("Cleanup completed:");
         $this->command->info("- Deleted {$deletedProviderTypeCount} obsolete service provider types");

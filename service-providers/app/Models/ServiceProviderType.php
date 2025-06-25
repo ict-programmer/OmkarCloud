@@ -30,6 +30,7 @@ class ServiceProviderType extends Model
         'service_provider_id',
         'service_type_id',
         'parameter',
+        'path_parameters',
         'created_by',
         'updated_by',
         'deleted_by',

@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             QwenServiceProviderSeeder::class,
             GeminiServiceProviderSeeder::class,
             DeepSeekServiceProviderSeeder::class,
+            RunwaymlServiceProviderSeeder::class,
         ]);
     }
 }

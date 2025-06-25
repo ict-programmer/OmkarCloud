@@ -8,12 +8,13 @@ use App\Http\Requests\Gemini\DocumentSummarizationRequest;
 use App\Http\Requests\Gemini\ImageAnalysisRequest;
 use App\Http\Requests\Gemini\TextGenerationRequest;
 use App\Models\ServiceProvider;
-use App\Models\ServiceType;
-use App\Models\ServiceProviderType;
+use App\Traits\ServiceProviderSeederTrait;
 use Illuminate\Database\Seeder;
 
 class GeminiServiceProviderSeeder extends Seeder
 {
+    use ServiceProviderSeederTrait;
+
     /**
      * Run the database seeds.
      * 
@@ -61,6 +62,7 @@ class GeminiServiceProviderSeeder extends Seeder
             [
                 'name' => 'Text Generation',
                 'description' => 'Generate creative and informative text based on prompts',
+                'path_parameters' => [],
                 'parameter' => [
                     'model' => [
                         'type' => 'string',
@@ -104,6 +106,7 @@ class GeminiServiceProviderSeeder extends Seeder
             [
                 'name' => 'Code Generation',
                 'description' => 'Generate code based on natural language descriptions with file attachments support',
+                'path_parameters' => [],
                 'parameter' => [
                     'model' => [
                         'type' => 'string',
@@ -158,6 +161,7 @@ class GeminiServiceProviderSeeder extends Seeder
             [
                 'name' => 'Image Analysis',
                 'description' => 'Analyze images and provide detailed descriptions or insights',
+                'path_parameters' => [],
                 'parameter' => [
                     'image_url' => [
                         'type' => 'string',
@@ -183,6 +187,7 @@ class GeminiServiceProviderSeeder extends Seeder
             [
                 'name' => 'Document Summarization',
                 'description' => 'Summarize long document text into concise versions',
+                'path_parameters' => [],
                 'parameter' => [
                     'document_text' => [
                         'type' => 'string',
@@ -216,95 +221,12 @@ class GeminiServiceProviderSeeder extends Seeder
             ],
         ];
 
-        $existingServiceTypes = ServiceType::whereIn('name', collect($serviceTypes)->pluck('name'))->get();
-        
-        $existingServiceProviderTypes = ServiceProviderType::where('service_provider_id', $serviceProvider->id)
-            ->with('serviceType')
-            ->get()
-            ->keyBy('service_type_id');
+        $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, 'Gemini');
 
-        $keptServiceTypeIds = [];
-
-        foreach ($serviceTypes as $serviceTypeData) {
-            $serviceTypeName = $serviceTypeData['name'];
-            
-            $existingServiceType = $existingServiceTypes->where('name', $serviceTypeName)->first();
-            $existingProviderType = $existingServiceProviderTypes->where('serviceType.name', $serviceTypeName)->first();
-            
-            if ($existingServiceType && !$existingProviderType) {
-                $uniqueName = $serviceTypeName . ' (Gemini)';
-                $counter = 1;
-                while (ServiceType::where('name', $uniqueName)->exists()) {
-                    $uniqueName = $serviceTypeName . ' (Gemini ' . $counter . ')';
-                    $counter++;
-                }
-                
-                $newServiceType = ServiceType::create([
-                    'name' => $uniqueName,
-                    'description' => $serviceTypeData['description'],
-                    'request_class_name' => $serviceTypeData['request_class_name'],
-                    'function_name' => $serviceTypeData['function_name'],
-                ]);
-                
-                ServiceProviderType::create([
-                    'service_provider_id' => $serviceProvider->id,
-                    'service_type_id' => $newServiceType->id,
-                    'parameter' => $serviceTypeData['parameter'],
-                ]);
-                
-                $keptServiceTypeIds[] = $newServiceType->id;
-                $this->command->info("Created new service type '{$uniqueName}' to avoid conflict with existing '{$serviceTypeName}'");
-                
-            } elseif ($existingProviderType) {
-                $serviceType = $existingProviderType->serviceType;
-                $serviceType->update([
-                    'description' => $serviceTypeData['description'],
-                    'request_class_name' => $serviceTypeData['request_class_name'],
-                    'function_name' => $serviceTypeData['function_name'],
-                ]);
-                
-                $existingProviderType->update([
-                    'parameter' => $serviceTypeData['parameter'],
-                ]);
-                
-                $keptServiceTypeIds[] = $serviceType->id;
-                $this->command->info("Updated existing service type '{$serviceTypeName}' for Gemini");
-                
-            } else {
-                $newServiceType = ServiceType::create([
-                    'name' => $serviceTypeName,
-                    'description' => $serviceTypeData['description'],
-                    'request_class_name' => $serviceTypeData['request_class_name'],
-                    'function_name' => $serviceTypeData['function_name'],
-                ]);
-                
-                ServiceProviderType::create([
-                    'service_provider_id' => $serviceProvider->id,
-                    'service_type_id' => $newServiceType->id,
-                    'parameter' => $serviceTypeData['parameter'],
-                ]);
-                
-                $keptServiceTypeIds[] = $newServiceType->id;
-                $this->command->info("Created new service type '{$serviceTypeName}' for Gemini");
-            }
-        }
-
-        $serviceTypeIdsToKeep = collect($keptServiceTypeIds)->unique()->toArray();
-        
-        $allGeminiServiceProviderTypes = ServiceProviderType::where('service_provider_id', $serviceProvider->id)->get();
-        
-        $serviceProviderTypesToDelete = $allGeminiServiceProviderTypes->filter(function ($providerType) use ($serviceTypeIdsToKeep) {
-            return !in_array($providerType->service_type_id, $serviceTypeIdsToKeep);
-        });
-        
-        $deletedProviderTypeCount = 0;
-        foreach ($serviceProviderTypesToDelete as $providerTypeToDelete) {
-            $providerTypeToDelete->delete();
-            $deletedProviderTypeCount++;
-        }
+        $deletedProviderTypeCount = $this->cleanupObsoleteServiceTypes($serviceProvider, $keptServiceTypeIds);
         
         $this->command->info("Cleanup completed:");
         $this->command->info("- Deleted {$deletedProviderTypeCount} obsolete service provider types");
-        $this->command->info("- Kept " . count($keptServiceTypeIds) . " service types for Gemini");
+        $this->command->info("- Kept " . count($keptServiceTypeIds) . " service types for Gemini API");
     }
 }
