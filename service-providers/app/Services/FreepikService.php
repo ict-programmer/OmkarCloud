@@ -7,6 +7,7 @@ use App\Data\Request\Freepik\ClassicFastGenerateData;
 use App\Data\Request\Freepik\DownloadResourceFormatData;
 use App\Data\Request\Freepik\FluxDevGenerateData;
 use App\Data\Request\Freepik\IconGenerationData;
+use App\Data\Request\Freepik\ImageExpandFluxProData;
 use App\Data\Request\Freepik\Imagen3GenerateData;
 use App\Data\Request\Freepik\KlingElementsVideoData;
 use App\Data\Request\Freepik\KlingImageToVideoData;
@@ -257,6 +258,20 @@ class FreepikService
     public function removeBackground(RemoveBackgroundData $data): array
     {
         $response = $this->client->post('ai/beta/remove-background', array_filter($data->toArray(), fn ($value) => $value !== null));
+
+        return $response->json();
+    }
+
+    public function imageExpandFluxPro(ImageExpandFluxProData $data): array
+    {
+        $response = $this->client->post('ai/image-expand/flux-pro', array_filter($data->toArray(), fn ($value) => $value !== null));
+
+        return $response->json();
+    }
+
+    public function getImageExpandFluxProTaskStatus(string $taskId): array
+    {
+        $response = $this->client->get("ai/image-expand/flux-pro/{$taskId}");
 
         return $response->json();
     }

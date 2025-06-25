@@ -223,6 +223,8 @@ Route::prefix('freepik')->controller(FreepikController::class)->group(function (
         Route::post('/style-transfer', 'styleTransfer');
         Route::get('/style-transfer/status/{task_id}', 'getStyleTransferTaskStatus');
         Route::post('/remove-background', 'removeBackgroundFromImage');
+        Route::post('/image-expand/flux-pro', 'imageExpandFluxPro');
+        Route::get('/image-expand/flux-pro/status/{task_id}', 'getImageExpandFluxProTaskStatus');
     });
 });
 

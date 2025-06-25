@@ -7,6 +7,7 @@ use App\Data\Request\Freepik\ClassicFastGenerateData;
 use App\Data\Request\Freepik\DownloadResourceFormatData;
 use App\Data\Request\Freepik\FluxDevGenerateData;
 use App\Data\Request\Freepik\IconGenerationData;
+use App\Data\Request\Freepik\ImageExpandFluxProData;
 use App\Data\Request\Freepik\Imagen3GenerateData;
 use App\Data\Request\Freepik\KlingElementsVideoData;
 use App\Data\Request\Freepik\KlingImageToVideoData;
@@ -25,6 +26,7 @@ use App\Http\Requests\Freepik\ClassicFastGenerateRequest;
 use App\Http\Requests\Freepik\DownloadResourceFormatRequest;
 use App\Http\Requests\Freepik\FluxDevGenerateRequest;
 use App\Http\Requests\Freepik\IconGenerationRequest;
+use App\Http\Requests\Freepik\ImageExpandFluxProRequest;
 use App\Http\Requests\Freepik\Imagen3GenerateRequest;
 use App\Http\Requests\Freepik\KlingElementsVideoRequest;
 use App\Http\Requests\Freepik\KlingElementsVideoStatusRequest;
@@ -2498,6 +2500,128 @@ class FreepikController extends BaseController
         $data = RemoveBackgroundData::from($request->validated());
 
         $result = $this->service->removeBackground($data);
+
+        return $this->logAndResponse($result);
+    }
+
+    #[OA\Post(
+        path: '/api/freepik/image-editing/image-expand/flux-pro',
+        operationId: 'imageExpandFluxPro',
+        description: 'Expand an image using AI Flux Pro',
+        summary: 'Image Expand - Flux Pro',
+        tags: ['AI'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['image'],
+                properties: [
+                    new OA\Property(property: 'image', type: 'string', description: 'Base64 image to expand'),
+                    new OA\Property(property: 'webhook_url', type: 'string', nullable: true, description: 'Optional webhook URL for task status notifications'),
+                    new OA\Property(property: 'prompt', type: 'string', nullable: true, description: 'Description to guide expansion'),
+                    new OA\Property(property: 'left', type: 'integer', nullable: true, minimum: 0, maximum: 2048, description: 'Pixels to expand on the left'),
+                    new OA\Property(property: 'right', type: 'integer', nullable: true, minimum: 0, maximum: 2048, description: 'Pixels to expand on the right'),
+                    new OA\Property(property: 'top', type: 'integer', nullable: true, minimum: 0, maximum: 2048, description: 'Pixels to expand on the top'),
+                    new OA\Property(property: 'bottom', type: 'integer', nullable: true, minimum: 0, maximum: 2048, description: 'Pixels to expand on the bottom'),
+                ],
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'The task exists and the status is returned',
+                content: new OA\JsonContent(
+                    required: ['data'],
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            required: ['task_id', 'status', 'generated'],
+                            properties: [
+                                new OA\Property(property: 'task_id', type: 'string', description: 'Task identifier'),
+                                new OA\Property(property: 'status', type: 'string', description: 'Task status', enum: ['IN_PROGRESS', 'COMPLETED', 'FAILED']),
+                                new OA\Property(property: 'generated', type: 'array', description: 'URLs of generated images', items: new OA\Items(type: 'string', format: 'uri')),
+                            ],
+                        ),
+                    ],
+                    example: [
+                        'data' => [
+                            'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
+                            'status' => 'IN_PROGRESS',
+                            'generated' => [],
+                        ],
+                    ]
+                )
+            ),
+        ]
+    )]
+    public function imageExpandFluxPro(ImageExpandFluxProRequest $request)
+    {
+        $data = ImageExpandFluxProData::from($request->validated());
+
+        $result = $this->service->imageExpandFluxPro($data);
+
+        return $this->logAndResponse($result);
+    }
+
+    #[OA\Get(
+        path: '/api/freepik/image-editing/image-expand/flux-pro/status/{task_id}',
+        operationId: 'getImageExpandFluxProTaskStatus',
+        description: 'Get the status of one image expand task',
+        summary: 'Freepik Image Expand Flux Pro Task Status',
+        tags: ['Freepik'],
+    )]
+    #[OA\Parameter(
+        name: 'task_id',
+        in: 'path',
+        required: true,
+        description: 'ID of the image expand task',
+        schema: new OA\Schema(type: 'string', example: '046b6c7f-0b8a-43b9-b35d-6489e6daee91'),
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'The task status and generated images if available',
+        content: new OA\JsonContent(
+            required: ['data'],
+            properties: [
+                new OA\Property(
+                    property: 'data',
+                    type: 'object',
+                    required: ['generated', 'task_id', 'status'],
+                    properties: [
+                        new OA\Property(
+                            property: 'generated',
+                            type: 'array',
+                            description: 'List of generated image URLs',
+                            items: new OA\Items(type: 'string', format: 'uri')
+                        ),
+                        new OA\Property(
+                            property: 'task_id',
+                            type: 'string',
+                            description: 'The task ID'
+                        ),
+                        new OA\Property(
+                            property: 'status',
+                            type: 'string',
+                            description: 'Status of the task',
+                            enum: ['IN_PROGRESS', 'COMPLETED', 'FAILED']
+                        ),
+                    ]
+                ),
+            ],
+            example: [
+                'data' => [
+                    'generated' => [
+                        'https://openapi-generator.tech/completed_task_image.jpg',
+                    ],
+                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
+                    'status' => 'IN_PROGRESS',
+                ],
+            ],
+        )
+    )]
+    public function getImageExpandFluxProTaskStatus(string $task_id): JsonResponse
+    {
+        $result = $this->service->getImageExpandFluxProTaskStatus($task_id);
 
         return $this->logAndResponse($result);
     }
