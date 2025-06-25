@@ -20,7 +20,7 @@ class QwenCodeGenerationRequest extends FormRequest
             'temperature' => 'nullable|numeric',
             'endpoint_interface' => 'nullable|string',
             'attachments' => 'nullable|array',
-            'attachments.*' => 'file',
+            'attachments.*' => 'nullable|file|max:30720' // 30MB
         ];
     }
 

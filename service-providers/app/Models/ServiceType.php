@@ -27,5 +27,7 @@ class ServiceType extends Model
      */
     protected $fillable = [
         'name',
+        'request_class_name',
+        'function_name'
     ];
 }

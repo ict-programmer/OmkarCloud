@@ -9,7 +9,9 @@ use App\Http\Controllers\DescriptAIController;
 use App\Http\Controllers\FFMpegServiceController;
 use App\Http\Controllers\FreepikController;
 use App\Http\Controllers\GeminiController;
+use App\Http\Controllers\GettyimagesController;
 use App\Http\Controllers\GoogleSheetsController;
+use App\Http\Controllers\MainFunctionController;
 use App\Http\Controllers\PerplexityController;
 use App\Http\Controllers\PexelsController;
 use App\Http\Controllers\PlacidController;
@@ -21,6 +23,7 @@ use App\Http\Controllers\ServiceProviderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WhisperController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ShutterstockController;
 
 /*
 |--------------------------------------------------------------------------
@@ -92,13 +95,6 @@ Route::prefix('qwen')->group(function () {
     Route::post('chatbot', [QwenController::class, 'chatbot']);
 });
 
-Route::prefix('ffmpeg')->controller(FFMpegServiceController::class)->group(function () {
-    Route::post('/video_processing', 'videoProcessing');
-    Route::post('/audio_processing', 'audioProcessing');
-    Route::post('/image_processing', 'imageProcessing');
-    Route::post('/video_trimming', 'videoTrimming');
-});
-
 Route::prefix('descriptai')->controller(DescriptAIController::class)->group(function () {
     Route::post('/generate', 'generateAsync');
     Route::get('/generate_async/{id}', 'getGenerateAsync');
@@ -133,12 +129,6 @@ Route::prefix('perplexity')->controller(PerplexityController::class)->group(func
     Route::post('ai_search', 'aiSearch');
     Route::post('academic_research', 'academicResearch');
     Route::post('code_assistant', 'codeAssistant');
-});
-
-Route::prefix('whisper')->controller(WhisperController::class)->group(function () {
-    Route::post('audio-transcribe', 'audioTranscribe');
-    Route::post('audio-translate', 'audioTranslate');
-    Route::post('audio-transcribe-timestamps', 'audioTranscribeTimestamps');
 });
 
 Route::prefix('placid')->controller(PlacidController::class)->group(function () {
@@ -179,56 +169,60 @@ Route::prefix('pexels')->group(function () {
     Route::get('collections/{id}', [PexelsController::class, 'getCollection']);
 });
 
-// Freepik
 Route::prefix('freepik')->controller(FreepikController::class)->group(function () {
     Route::get('stock_content', 'stockContent');
     Route::get('resource_detail/{resource_id}', 'resourceDetail');
     Route::get('download_resource/{resource_id}', 'downloadResource');
     Route::get('download_resource_format', 'downloadResourceFormat');
     Route::post('ai_image_classifier', 'aiImageClassifier');
-    Route::post('icon_generation', 'iconGeneration');
-    Route::get('icon_generation/result/{task_id}', 'getIconGenerationResult');
+});
 
-    Route::prefix('kling_video_generation')->group(function () {
-        Route::post('image_to_video', 'klingVideoGenerationImageToVideo');
-        Route::get('image_to_video/status/{task_id}', 'klingVideoGenerationImageToVideoStatus');
-        Route::post('text_to_video', 'klingVideoGenerationTextToVideo');
-        Route::get('text_to_video/status/{task_id}', 'klingVideoGenerationTextToVideoStatus');
-        Route::post('image_to_video_elements', 'klingVideoGenerationTextToVideo');
-        Route::get('image_to_video_elements/status/{task_id}', 'klingElementsVideoStatus');
+Route::prefix('gettyimages')->group(function () {
+    Route::prefix('image_search')->group(function () {
+        Route::get('', [GettyimagesController::class, 'imageSearch']);
+        Route::get('creative', [GettyimagesController::class, 'imageSearchCreative']);
+        Route::get('creative/by-image', [GettyimagesController::class, 'imageSearchCreativeByImage']);
+        Route::get('editorial', [GettyimagesController::class, 'imageSearchEditorial']);
+        Route::put('by-image/upload', [GettyimagesController::class, 'imageSearchByImageUpload']);
     });
 
-    Route::prefix('mystic')->group(function () {
-        Route::post('/', 'generateMysticImage');
-        Route::get('/status/{task_id}', 'getMysticTaskStatus');
-
-        Route::prefix('loras')->group(function () {
-            Route::get('/', 'getLoras');
-            Route::post('styles', 'createLoraStyle');
-            Route::post('characters', 'trainLoraCharacter');
-        });
+    Route::prefix('video_search')->group(function () {
+        Route::get('creative', [GettyimagesController::class, 'videoSearchCreative']);
+        Route::get('creative/by-image', [GettyimagesController::class, 'videoSearchCreativeByImage']);
+        Route::get('editorial', [GettyimagesController::class, 'videoSearchEditorial']);
     });
 
-    Route::prefix('text-to-image')->group(function () {
-        Route::post('/classic-fast', 'generateClassicFastImage');
-        Route::post('/imagen3', 'generateImagen3');
-        Route::get('/imagen3/status/{task_id}', 'getImagen3TaskStatus');
-        Route::post('/flux-dev', 'generateFluxDevImage');
-        Route::get('/flux-dev/status/{task_id}', 'getFluxDevTaskStatus');
-        Route::post('/reimagine-flux', 'reimagineFlux');
+    Route::prefix('ai_generate/image-generation')->group(function () {
+        Route::post('', [GettyimagesController::class, 'imageGeneration']);
+        Route::get('{generationRequestId}', [GettyimagesController::class, 'imageGeneration']);
+        Route::post('{generationRequestId}/images/{index}/variations', [GettyimagesController::class, 'imageVariations']);
+        Route::post('refine', [GettyimagesController::class, 'refineImage']);
+        Route::post('extend', [GettyimagesController::class, 'extendImage']);
+        Route::post('object-removal', [GettyimagesController::class, 'removeObjectFromImage']);
+        Route::post('background-replacement', [GettyimagesController::class, 'replaceBackground']);
+        Route::post('influence-color-by-image', [GettyimagesController::class, 'influenceColorByImage']);
+        Route::post('influence-composition-by-image', [GettyimagesController::class, 'influenceCompositionByImage']);
+        Route::post('background-generations', [GettyimagesController::class, 'generateBackgrounds']);
+        Route::get('{generationRequestId}/images/{index}/download-sizes', [GettyimagesController::class, 'getDownloadSizes']);
+        Route::put('{generationRequestId}/images/{index}/download', [GettyimagesController::class, 'downloadImageAsync']);
+        Route::get('{generationRequestId}/images/{index}/download', [GettyimagesController::class, 'downloadImage']);
     });
 
-    Route::prefix('image-editing')->group(function () {
-        Route::post('/upscaler', 'upscale');
-        Route::get('/upscaler/status/{task_id}', 'getUpscalerTaskStatus');
-        Route::post('/relight', 'relight');
-        Route::get('/relight/status/{task_id}', 'getRelightTaskStatus');
-        Route::post('/style-transfer', 'styleTransfer');
-        Route::get('/style-transfer/status/{task_id}', 'getStyleTransferTaskStatus');
-        Route::post('/remove-background', 'removeBackgroundFromImage');
-        Route::post('/image-expand/flux-pro', 'imageExpandFluxPro');
-        Route::get('/image-expand/flux-pro/status/{task_id}', 'getImageExpandFluxProTaskStatus');
+    Route::post('remove_background', [GettyimagesController::class, 'removeBackground']);
+    Route::get('image_metadata/{id}', [GettyimagesController::class, 'imageMetadata']);
+    Route::get('video_metadata/{id}', [GettyimagesController::class, 'videoMetadata']);
+    Route::post('image_download/{id}', [GettyimagesController::class, 'imageDownload']);
+    Route::post('video_download/{id}', [GettyimagesController::class, 'videoDownload']);
+    Route::get('affiliate_image_search', [GettyimagesController::class, 'affiliateImageSearch']);
+    Route::get('affiliate_video_search', [GettyimagesController::class, 'affiliateVideoSearch']);
+});
+Route::prefix('shutterstock')->controller(ShutterstockController::class)->group(function () {
+    Route::post('/create_collection', 'createCollection');
+    Route::post('/add_to_collection', 'addToCollection');
+
+    Route::prefix('user')->group(function () {
+        Route::get('/subscriptions', 'listUserSubscriptions');
     });
 });
 
-Route::post('freepik/webhook', [FreepikController::class, 'handleWebhook'])->name('freepik.webhook');
+Route::post('dynamic-services/{service_provider_id}/{service_type_id}', MainFunctionController::class);

@@ -37,15 +37,15 @@ class GeminiController extends BaseController
         description: 'Generate Text using Gemini',
         required: true,
         content: new OA\MediaType(
-            mediaType: 'application/json',
+            mediaType: 'multipart/form-data',
             schema: new OA\Schema(
                 required: ['model', 'prompt', 'max_tokens', 'temperature'],
                 properties: [
                     new OA\Property(
                         property: 'model',
                         type: 'string',
-                        enum: ['gemini-pro', 'gemini-ultra', 'gemini-1.5-pro'],
-                        example: 'gemini-1.5-pro',
+                        enum: ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'],
+                        example: 'gemini-2.5-flash',
                     ),
                     new OA\Property(
                         property: 'prompt',
@@ -75,7 +75,11 @@ class GeminiController extends BaseController
         description: 'Successful response',
         content: new OA\JsonContent(
             example: [
-                'generated_text' => 'Once upon a time, in a faraway land...',
+                'status' => 'success',
+                'data' => [
+                    'text' => 'Once upon a time, in a faraway land...',
+                ],
+                'timestamp' => '2025-05-01T12:45:30+00:00'
             ]
         )
     )]
@@ -98,7 +102,7 @@ class GeminiController extends BaseController
         content: new OA\JsonContent(
             example: [
                 'status' => 'error',
-                'message' => 'An error occurred while processing your request',
+                'message' => 'An error occurred while processing your request.',
             ],
         )
     )]
@@ -133,7 +137,7 @@ class GeminiController extends BaseController
                     new OA\Property(
                         property: 'model',
                         type: 'string',
-                        enum: ['gemini-pro', 'gemini-ultra', 'gemini-1.5-pro'],
+                        enum: ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'],
                         example: 'gemini-1.5-pro',
                     ),
                     new OA\Property(
@@ -227,7 +231,7 @@ class GeminiController extends BaseController
         description: 'Image analysis using Gemini',
         required: true,
         content: new OA\MediaType(
-            mediaType: 'application/json',
+            mediaType: 'multipart/form-data',
             schema: new OA\Schema(
                 required: ['image_url', 'description_required'],
                 properties: [
@@ -251,7 +255,11 @@ class GeminiController extends BaseController
         description: 'Successful response',
         content: new OA\JsonContent(
             example: [
-                'image_analyzed' => 'Image Analyzed',
+                'status' => 'success',
+                'data' => [
+                    'analysis' => 'The image is a painting of a landscape with a mountain in the background and a river flowing through it. The colors are warm and vibrant, and the painting is very detailed and realistic. The image is a beautiful representation of nature.',
+                ],
+                'timestamp' => '2025-05-01T12:45:30+00:00'
             ]
         )
     )]
@@ -302,7 +310,7 @@ class GeminiController extends BaseController
         description: 'Image analysis using Gemini',
         required: true,
         content: new OA\MediaType(
-            mediaType: 'application/json',
+            mediaType: 'multipart/form-data',
             schema: new OA\Schema(
                 required: ['document_text', 'model', 'summary_length'],
                 properties: [
@@ -314,7 +322,7 @@ class GeminiController extends BaseController
                     new OA\Property(
                         property: 'model',
                         type: 'string',
-                        enum: ['gemini-pro', 'gemini-ultra', 'gemini-1.5-pro'],
+                        enum: ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'],
                         example: 'gemini-1.5-pro',
                     ),
                     new OA\Property(
@@ -332,7 +340,11 @@ class GeminiController extends BaseController
         description: 'Successful response',
         content: new OA\JsonContent(
             example: [
-                'document_summarized' => 'Document Summarized',
+                'status' => 'success',
+                'data' => [
+                    'summary' => 'The document is a short story about a young boy who discovers a magical portal to another world. The story is written in a simple and engaging style, and the characters are well-developed and relatable. The summary is a concise summary of the main points and key takeaways from the document.',
+                ],
+                'timestamp' => '2025-05-01T12:45:30+00:00'
             ]
         )
     )]

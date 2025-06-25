@@ -147,10 +147,14 @@ return [
     'pexels' => [
         'api_key' => env('PEXELS_API_KEY'),
     ],
-
+    
     'freepik' => [
         'api_key' => env('FREEPIK_API_KEY'),
         'webhook_secret' => env('FREEPIK_WEBHOOK_SECRET'),
         'webhook_url' => env('FREEPIK_WEBHOOK_URL'),
+    ],
+
+    'gettyimages' => [
+        'api_key' => env('GETTYIMAGES_API_KEY'),
     ],
 ];

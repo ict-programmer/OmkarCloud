@@ -2,8 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Http\Controllers\PerplexityController;
+use App\Http\Requests\Perplexity\AcademicResearchRequest;
+use App\Http\Requests\Perplexity\AiSearchRequest;
+use App\Http\Requests\Perplexity\CodeAssistantRequest;
 use App\Models\ServiceProvider;
-use App\Models\ServiceProviderType;
 use App\Models\ServiceType;
 use Illuminate\Database\Seeder;
 
@@ -35,46 +38,59 @@ class PerplexityServiceProviderSeeder extends Seeder
                     ],
                 ],
                 'is_active' => true,
+                'controller_name' => PerplexityController::class,
             ]
         );
 
-        $typeDefinitions = [
-            'AI Search' => [
-                'model' => 'sonar',
-                'query' => 'search query',
-                'search_type' => 'web',
-                'max_results' => 5,
-                'temperature' => 0.7,
+        $serviceTypes = [
+            [
+                'name' => 'AI Search',
+                'parameter' => [
+                    'model' => 'sonar',
+                    'query' => 'What is AI?',
+                    'search_type' => 'web',
+                    'max_results' => 0,
+                    'temperature' => 0.2,
+                ],
+                'request_class_name' => AiSearchRequest::class,
+                'function_name' => 'aiSearch',
             ],
-            'Academic Research' => [
-                'model' => 'sonar-deep-research',
-                'query' => 'research query',
-                'search_type' => 'academic',
-                'max_results' => 10,
+            [
+                'name' => 'Academic Research',
+                'parameter' => [
+                    'model' => 'sonar-deep-research',
+                    'query' => 'Impact of artificial intelligence on healthcare',
+                    'search_type' => 'academic',
+                    'max_results' => 0,
+                ],
+                'request_class_name' => AcademicResearchRequest::class,
+                'function_name' => 'academicResearch',
             ],
-            'Code Assistant' => [
-                'model' => 'sonar-reasoning',
-                'query' => 'coding question',
-                'programming_language' => 'python',
-                'code_length' => 'medium',
+            [
+                'name' => 'Code Assistant',
+                'parameter' => [
+                    'model' => 'sonar-reasoning',
+                    'query' => 'How to reverse a string in Python?',
+                    'programming_language' => 'python',
+                    'code_length' => 'medium',
+                ],
+                'request_class_name' => CodeAssistantRequest::class,
+                'function_name' => 'codeAssistant',
             ],
         ];
 
-        // Create or retrieve service type IDs
-        $serviceTypeIds = [];
-        foreach (array_keys($typeDefinitions) as $name) {
-            $serviceType = ServiceType::firstOrCreate(['name' => $name]);
-            $serviceTypeIds[$name] = $serviceType->id;
-        }
-
         // Create or update service_provider_types entries
-        foreach ($typeDefinitions as $typeName => $parameters) {
-            ServiceProviderType::updateOrCreate(
+        foreach ($serviceTypes as $serviceType) {
+            ServiceType::updateOrCreate(
                 [
-                    'service_type_id' => $serviceTypeIds[$typeName],
+                    'name' => $serviceType['name'],
                     'service_provider_id' => $serviceProvider->id,
                 ],
-                ['parameter' => $parameters]
+                [
+                    'parameter' => $serviceType['parameter'],
+                    'request_class_name' => $serviceType['request_class_name'],
+                    'function_name' => $serviceType['function_name'],
+                ]
             );
         }
     }
