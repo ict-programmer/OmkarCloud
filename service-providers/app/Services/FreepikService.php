@@ -14,6 +14,7 @@ use App\Data\Request\Freepik\KlingTextToVideoData;
 use App\Data\Request\Freepik\LoraCharacterTrainData;
 use App\Data\Request\Freepik\LoraStyleTrainData;
 use App\Data\Request\Freepik\MysticGenerateData;
+use App\Data\Request\Freepik\ReimagineFluxData;
 use App\Data\Request\Freepik\StockContentData;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Arr;
@@ -196,6 +197,13 @@ class FreepikService
     public function getFluxDevTaskStatus(string $taskId): array
     {
         $response = $this->client->get("ai/text-to-image/flux-dev/{$taskId}");
+
+        return $response->json();
+    }
+
+    public function reimagineFluxImage(ReimagineFluxData $data): array
+    {
+        $response = $this->client->post('ai/beta/text-to-image/reimagine-flux', array_filter($data->toArray(), fn ($value) => $value !== null));
 
         return $response->json();
     }

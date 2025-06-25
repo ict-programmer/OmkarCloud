@@ -14,6 +14,7 @@ use App\Data\Request\Freepik\KlingTextToVideoData;
 use App\Data\Request\Freepik\LoraCharacterTrainData;
 use App\Data\Request\Freepik\LoraStyleTrainData;
 use App\Data\Request\Freepik\MysticGenerateData;
+use App\Data\Request\Freepik\ReimagineFluxData;
 use App\Data\Request\Freepik\StockContentData;
 use App\Http\Requests\Freepik\AiImageClassifierRequest;
 use App\Http\Requests\Freepik\ClassicFastGenerateRequest;
@@ -29,6 +30,7 @@ use App\Http\Requests\Freepik\KlingTextToVideoRequest;
 use App\Http\Requests\Freepik\LoraCharacterTrainRequest;
 use App\Http\Requests\Freepik\LoraStyleTrainRequest;
 use App\Http\Requests\Freepik\MysticGenerateRequest;
+use App\Http\Requests\Freepik\ReimagineFluxRequest;
 use App\Http\Requests\Freepik\StockContentRequest;
 use App\Services\FreepikService;
 use Illuminate\Http\JsonResponse;
@@ -1924,6 +1926,63 @@ class FreepikController extends BaseController
     public function getFluxDevTaskStatus(string $task_id)
     {
         $result = $this->service->getFluxDevTaskStatus($task_id);
+
+        return $this->logAndResponse($result);
+    }
+
+    #[OA\Post(
+        path: '/api/freepik/text-to-image/reimagine-flux',
+        operationId: 'reimagineFluxImage',
+        summary: '(Beta) Reimagine Flux - Generate image from base64 input + prompt',
+        description: 'Reimagine an input image using a text prompt and Freepik’s Flux AI engine.',
+        tags: ['Freepik'],
+        security: [['bearerAuth' => []]],
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['image'],
+            properties: [
+                new OA\Property(property: 'image', type: 'string', format: 'byte', description: 'Base64-encoded input image', example: 'iVBORw0KGgoAAAANSUhEUgAA...'),
+                new OA\Property(property: 'prompt', type: 'string', description: 'Optional prompt for imagination', example: 'A beautiful sunset over a calm ocean'),
+                new OA\Property(property: 'imagination', type: 'string', enum: ['wild', 'subtle', 'vivid'], description: 'Imagination type', example: 'wild'),
+                new OA\Property(property: 'aspect_ratio', type: 'string', enum: [
+                    'original',
+                    'square_1_1',
+                    'classic_4_3',
+                    'traditional_3_4',
+                    'widescreen_16_9',
+                    'social_story_9_16',
+                    'standard_3_2',
+                    'portrait_2_3',
+                    'horizontal_2_1',
+                    'vertical_1_2',
+                    'social_post_4_5',
+                ], description: 'Aspect ratio of the generated image', example: 'square_1_1'),
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Success - Image reimagined and task status returned',
+        content: new OA\JsonContent(
+            required: ['data'],
+            properties: [
+                new OA\Property(property: 'data', type: 'object', required: ['generated', 'task_id', 'status'], properties: [
+                    new OA\Property(property: 'generated', type: 'array', items: new OA\Items(type: 'string', format: 'uri'), example: [
+                        'https://ai-statics.freepik.com/completed_task_image.jpg',
+                    ]),
+                    new OA\Property(property: 'task_id', type: 'string', example: '046b6c7f-0b8a-43b9-b35d-6489e6daee91'),
+                    new OA\Property(property: 'status', type: 'string', enum: ['IN_PROGRESS', 'COMPLETED', 'FAILED'], example: 'COMPLETED'),
+                ]),
+            ]
+        )
+    )]
+    public function reimagineFlux(ReimagineFluxRequest $request)
+    {
+        $data = ReimagineFluxData::from($request->validated());
+
+        $result = $this->service->reimagineFluxImage($data);
 
         return $this->logAndResponse($result);
     }

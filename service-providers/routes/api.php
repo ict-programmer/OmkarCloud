@@ -212,6 +212,7 @@ Route::prefix('freepik')->controller(FreepikController::class)->group(function (
         Route::get('/imagen3/status/{task_id}', 'getImagen3TaskStatus');
         Route::post('/flux-dev', 'generateFluxDevImage');
         Route::get('/flux-dev/status/{task_id}', 'getFluxDevTaskStatus');
+        Route::post('/reimagine-flux', 'reimagineFlux');
     });
 });
 
