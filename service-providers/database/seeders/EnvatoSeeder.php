@@ -2,14 +2,15 @@
 
 namespace Database\Seeders;
 
+use App\Http\Requests\Envato\CategoriesBySiteRequest;
+use App\Http\Requests\Envato\DownloadPurchasedItemRequest;
 use App\Http\Requests\Envato\ItemDetailsRequest;
 use App\Http\Requests\Envato\ItemSearchRequest;
-use App\Http\Requests\Envato\UserAccountDetailsRequest;
-use App\Http\Requests\Envato\DownloadPurchasedItemRequest;
-use App\Http\Requests\Envato\VerifyPurchaseCodeRequest;
 use App\Http\Requests\Envato\PopularItemsRequest;
-use App\Http\Requests\Envato\CategoriesBySiteRequest;
+use App\Http\Requests\Envato\UserAccountDetailsRequest;
+use App\Http\Requests\Envato\VerifyPurchaseCodeRequest;
 use App\Models\ServiceProvider;
+use App\Models\ServiceProviderType;
 use App\Models\ServiceType;
 use Illuminate\Database\Seeder;
 
@@ -78,6 +79,70 @@ class EnvatoSeeder extends Seeder
             'name' => 'Categories By Site',
             'function_name' => 'categoriesBySite',
             'request_class_name' => CategoriesBySiteRequest::class,
+        ]);
+
+        ServiceProviderType::query()->create([
+            'service_type_id' => $itemSearch->id,
+            'service_provider_id' => $serviceProviderId->id,
+            'parameter' => [
+                'site' => 'themeforest.net',
+                'term' => 'portfolio',
+            ],
+        ]);
+
+        ServiceProviderType::query()->create([
+            'service_type_id' => $itemDetails->id,
+            'service_provider_id' => $serviceProviderId->id,
+            'parameter' => [
+                'item_id' => 123456,
+            ],
+        ]);
+
+        ServiceProviderType::query()->create([
+            'service_type_id' => $userAccountDetails->id,
+            'service_provider_id' => $serviceProviderId->id,
+        ]);
+
+        ServiceProviderType::query()->create([
+            'service_type_id' => $userPurchases->id,
+            'service_provider_id' => $serviceProviderId->id,
+        ]);
+
+        ServiceProviderType::query()->create([
+            'service_type_id' => $downloadPurchasedItem->id,
+            'service_provider_id' => $serviceProviderId->id,
+            'parameter' => [
+                'item_id' => 123456,
+            ],
+        ]);
+
+        ServiceProviderType::query()->create([
+            'service_type_id' => $verifyPurchaseCode->id,
+            'service_provider_id' => $serviceProviderId->id,
+            'parameter' => [
+                'purchase_code' => 'abcd-1234-efgh-5678',
+            ],
+        ]);
+
+        ServiceProviderType::query()->create([
+            'service_type_id' => $userIdentity->id,
+            'service_provider_id' => $serviceProviderId->id,
+        ]);
+
+        ServiceProviderType::query()->create([
+            'service_type_id' => $popularItems->id,
+            'service_provider_id' => $serviceProviderId->id,
+            'parameter' => [
+                'site' => 'themeforest.net',
+            ],
+        ]);
+
+        ServiceProviderType::query()->create([
+            'service_type_id' => $categoriesBySite->id,
+            'service_provider_id' => $serviceProviderId->id,
+            'parameter' => [
+                'site' => 'themeforest.net',
+            ],
         ]);
     }
 }
