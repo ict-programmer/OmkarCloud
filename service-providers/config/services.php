@@ -72,7 +72,7 @@ return [
             'design:meta:read',
             'profile:read',
             'folder:write',
-            'folder:read'
+            'folder:read',
         ],
     ],
     'perplexity' => [
@@ -150,6 +150,8 @@ return [
     
     'freepik' => [
         'api_key' => env('FREEPIK_API_KEY'),
+        'webhook_secret' => env('FREEPIK_WEBHOOK_SECRET'),
+        'webhook_url' => env('FREEPIK_WEBHOOK_URL'),
     ],
 
     'gettyimages' => [
