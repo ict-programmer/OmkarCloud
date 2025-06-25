@@ -7,11 +7,13 @@ use App\Data\Request\Envato\ItemDetailsData;
 use App\Data\Request\Envato\UserAccountDetailsData;
 use App\Data\Request\Envato\DownloadPurchasedItemData;
 use App\Data\Request\Envato\VerifyPurchaseCodeData;
+use App\Data\Request\Envato\PopularItemsData;
 use App\Http\Requests\Envato\ItemSearchRequest;
 use App\Http\Requests\Envato\ItemDetailsRequest;
 use App\Http\Requests\Envato\UserAccountDetailsRequest;
 use App\Http\Requests\Envato\DownloadPurchasedItemRequest;
 use App\Http\Requests\Envato\VerifyPurchaseCodeRequest;
+use App\Http\Requests\Envato\PopularItemsRequest;
 use App\Services\EnvatoService;
 use Illuminate\Http\JsonResponse;
 
@@ -95,6 +97,18 @@ class EnvatoController extends BaseController
 
         return $this->logAndResponse([
             'message' => 'User identity retrieved successfully.',
+            'data' => $result,
+        ]);
+    }
+
+    public function popularItems(PopularItemsRequest $request): JsonResponse
+    {
+        $data = PopularItemsData::from($request->validated());
+
+        $result = $this->service->popularItems($data);
+
+        return $this->logAndResponse([
+            'message' => 'Popular items retrieved successfully.',
             'data' => $result,
         ]);
     }

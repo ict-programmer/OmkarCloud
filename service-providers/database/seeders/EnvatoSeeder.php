@@ -7,6 +7,7 @@ use App\Http\Requests\Envato\ItemSearchRequest;
 use App\Http\Requests\Envato\UserAccountDetailsRequest;
 use App\Http\Requests\Envato\DownloadPurchasedItemRequest;
 use App\Http\Requests\Envato\VerifyPurchaseCodeRequest;
+use App\Http\Requests\Envato\PopularItemsRequest;
 use App\Models\ServiceProvider;
 use App\Models\ServiceType;
 use Illuminate\Database\Seeder;
@@ -66,5 +67,10 @@ class EnvatoSeeder extends Seeder
             'function_name' => 'userIdentity',
         ]);
 
+        $popularItems = ServiceType::query()->create([
+            'name' => 'Popular Items',
+            'function_name' => 'popularItems',
+            'request_class_name' => PopularItemsRequest::class,
+        ]);
     }
 }
