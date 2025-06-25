@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Data\Request\Freepik\AiImageClassifierData;
 use App\Data\Request\Freepik\ClassicFastGenerateData;
 use App\Data\Request\Freepik\DownloadResourceFormatData;
+use App\Data\Request\Freepik\FluxDevGenerateData;
 use App\Data\Request\Freepik\IconGenerationData;
 use App\Data\Request\Freepik\Imagen3GenerateData;
 use App\Data\Request\Freepik\KlingElementsVideoData;
@@ -181,6 +182,20 @@ class FreepikService
     public function getImagen3TaskStatus(string $taskId): array
     {
         $response = $this->client->get("ai/text-to-image/imagen3/{$taskId}");
+
+        return $response->json();
+    }
+
+    public function generateFluxDevImage(FluxDevGenerateData $data): array
+    {
+        $response = $this->client->post('ai/text-to-image/flux-dev', array_filter($data->toArray(), fn ($value) => $value !== null));
+
+        return $response->json();
+    }
+
+    public function getFluxDevTaskStatus(string $taskId): array
+    {
+        $response = $this->client->get("ai/text-to-image/flux-dev/{$taskId}");
 
         return $response->json();
     }

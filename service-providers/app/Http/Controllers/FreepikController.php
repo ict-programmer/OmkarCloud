@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Data\Request\Freepik\AiImageClassifierData;
 use App\Data\Request\Freepik\ClassicFastGenerateData;
 use App\Data\Request\Freepik\DownloadResourceFormatData;
+use App\Data\Request\Freepik\FluxDevGenerateData;
 use App\Data\Request\Freepik\IconGenerationData;
 use App\Data\Request\Freepik\Imagen3GenerateData;
 use App\Data\Request\Freepik\KlingElementsVideoData;
@@ -17,6 +18,7 @@ use App\Data\Request\Freepik\StockContentData;
 use App\Http\Requests\Freepik\AiImageClassifierRequest;
 use App\Http\Requests\Freepik\ClassicFastGenerateRequest;
 use App\Http\Requests\Freepik\DownloadResourceFormatRequest;
+use App\Http\Requests\Freepik\FluxDevGenerateRequest;
 use App\Http\Requests\Freepik\IconGenerationRequest;
 use App\Http\Requests\Freepik\Imagen3GenerateRequest;
 use App\Http\Requests\Freepik\KlingElementsVideoRequest;
@@ -1560,7 +1562,6 @@ class FreepikController extends BaseController
             required: ['prompt'],
             properties: [
                 new OA\Property(property: 'prompt', type: 'string', example: 'A beautiful sunset over a calm ocean'),
-                new OA\Property(property: 'webhook_url', type: 'string', format: 'uri', example: 'https://www.example.com/webhook'),
                 new OA\Property(property: 'num_images', type: 'integer', minimum: 1, maximum: 4, example: 1),
                 new OA\Property(property: 'aspect_ratio', type: 'string', enum: [
                     'square_1_1',
@@ -1768,6 +1769,161 @@ class FreepikController extends BaseController
     public function getImagen3TaskStatus(string $task_id)
     {
         $result = $this->service->getImagen3TaskStatus($task_id);
+
+        return $this->logAndResponse($result);
+    }
+
+    #[OA\Post(
+        path: '/api/freepik/text-to-image/flux-dev',
+        operationId: 'generateFluxDevImage',
+        tags: ['Freepik'],
+        summary: 'Generate image using Flux Dev engine',
+        description: 'Convert descriptive text input into images using Freepik Flux Dev AI engine.',
+        security: [['bearerAuth' => []]],
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'prompt', type: 'string', example: 'A futuristic city floating in the sky'),
+                new OA\Property(
+                    property: 'aspect_ratio',
+                    type: 'string',
+                    enum: [
+                        'square_1_1',
+                        'classic_4_3',
+                        'traditional_3_4',
+                        'widescreen_16_9',
+                        'social_story_9_16',
+                        'standard_3_2',
+                        'portrait_2_3',
+                        'horizontal_2_1',
+                        'vertical_1_2',
+                        'social_post_4_5',
+                    ],
+                    example: 'square_1_1'
+                ),
+                new OA\Property(
+                    property: 'styling',
+                    type: 'object',
+                    properties: [
+                        new OA\Property(
+                            property: 'effects',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(property: 'color', type: 'string', enum: ['softhue', 'b&w', 'goldglow', 'vibrant', 'coldneon'], example: 'softhue'),
+                                new OA\Property(property: 'framing', type: 'string', enum: ['portrait', 'lowangle', 'midshot', 'wideshot', 'tiltshot', 'aerial'], example: 'portrait'),
+                                new OA\Property(property: 'lightning', type: 'string', enum: ['iridescent', 'dramatic', 'goldenhour', 'longexposure', 'indorlight', 'flash', 'neon'], example: 'iridescent'),
+                            ]
+                        ),
+                        new OA\Property(
+                            property: 'colors',
+                            type: 'array',
+                            minItems: 1,
+                            maxItems: 5,
+                            items: new OA\Items(
+                                type: 'object',
+                                required: ['color', 'weight'],
+                                properties: [
+                                    new OA\Property(property: 'color', type: 'string', example: '#FF0000'),
+                                    new OA\Property(property: 'weight', type: 'number', minimum: 0.05, maximum: 1.0, example: 0.5),
+                                ]
+                            )
+                        ),
+                    ]
+                ),
+                new OA\Property(property: 'seed', type: 'integer', minimum: 1, maximum: 4294967295, example: 2147483648),
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Task created successfully',
+        content: new OA\JsonContent(
+            required: ['data'],
+            properties: [
+                new OA\Property(
+                    property: 'data',
+                    type: 'object',
+                    required: ['task_id', 'status'],
+                    properties: [
+                        new OA\Property(property: 'task_id', type: 'string', example: '046b6c7f-0b8a-43b9-b35d-6489e6daee91'),
+                        new OA\Property(property: 'status', type: 'string', enum: ['IN_PROGRESS'], example: 'IN_PROGRESS'),
+                    ]
+                ),
+            ]
+        )
+    )]
+    public function generateFluxDevImage(FluxDevGenerateRequest $request)
+    {
+        $data = FluxDevGenerateData::from($request->validated());
+
+        $result = $this->service->generateFluxDevImage($data);
+
+        return $this->logAndResponse($result);
+    }
+
+    #[OA\Get(
+        path: '/api/freepik/text-to-image/flux-dev/status/{task_id}',
+        operationId: 'getFluxDevTaskStatus',
+        description: 'Get the status of the Flux Dev image generation task',
+        summary: 'Freepik Flux Dev Task Status',
+        tags: ['Freepik'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(
+        name: 'task_id',
+        in: 'path',
+        required: true,
+        description: 'ID of the Flux Dev generation task',
+        schema: new OA\Schema(type: 'string', example: '046b6c7f-0b8a-43b9-b35d-6489e6daee91')
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'The task status and generated images if available',
+        content: new OA\JsonContent(
+            required: ['data'],
+            properties: [
+                new OA\Property(
+                    property: 'data',
+                    type: 'object',
+                    required: ['generated', 'task_id', 'status'],
+                    properties: [
+                        new OA\Property(
+                            property: 'generated',
+                            type: 'array',
+                            description: 'List of generated image URLs',
+                            items: new OA\Items(type: 'string', format: 'uri')
+                        ),
+                        new OA\Property(
+                            property: 'task_id',
+                            type: 'string',
+                            description: 'The task ID'
+                        ),
+                        new OA\Property(
+                            property: 'status',
+                            type: 'string',
+                            enum: ['IN_PROGRESS', 'COMPLETED', 'FAILED'],
+                            description: 'Status of the task'
+                        ),
+                    ]
+                ),
+            ],
+            example: [
+                'data' => [
+                    'generated' => [
+                        'https://openapi-generator.tech/image1.jpg',
+                        'https://openapi-generator.tech/image2.jpg',
+                    ],
+                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
+                    'status' => 'IN_PROGRESS',
+                ],
+            ]
+        )
+    )]
+    public function getFluxDevTaskStatus(string $task_id)
+    {
+        $result = $this->service->getFluxDevTaskStatus($task_id);
 
         return $this->logAndResponse($result);
     }

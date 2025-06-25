@@ -210,6 +210,8 @@ Route::prefix('freepik')->controller(FreepikController::class)->group(function (
         Route::post('/classic-fast', 'generateClassicFastImage');
         Route::post('/imagen3', 'generateImagen3');
         Route::get('/imagen3/status/{task_id}', 'getImagen3TaskStatus');
+        Route::post('/flux-dev', 'generateFluxDevImage');
+        Route::get('/flux-dev/status/{task_id}', 'getFluxDevTaskStatus');
     });
 });
 
