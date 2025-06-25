@@ -17,19 +17,24 @@ class MainFunctionController extends Controller
         if (!$serviceProvider || !$serviceType)
             return response()->json(['error' => 'Service provider or service type not found'], 404);
 
-        if (is_null($serviceProvider->controller_name) || is_null($serviceType->request_class_name) || is_null($serviceType->function_name))
+        if (is_null($serviceProvider->controller_name) || is_null($serviceType->function_name))
             return response()->json(['error' => 'Service provider or service type configuration is incomplete'], 404);
 
         $controller = app($serviceProvider->controller_name);
 
-        $formRequest = app($serviceType->request_class_name);
+        if (! is_null($serviceType->request_class_name)){
+
+            $formRequest = app($serviceType->request_class_name);
+
+            $formRequest->replace($request->all());
+            $formRequest->files = $request->files;
+            $formRequest->headers = $request->headers;
+
+            $formRequest->validateResolved();
+        }
         
-        $formRequest->replace($request->all());
-        $formRequest->files = $request->files;
-        $formRequest->headers = $request->headers;
-        
-        $formRequest->validateResolved();
-        
-        return app()->call([$controller, $serviceType->function_name], ['request' => $formRequest]);
+        return app()->call([$controller, $serviceType->function_name], [
+            'request' => $formRequest ?? $request
+        ]);
     }
 }
