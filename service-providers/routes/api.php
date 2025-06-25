@@ -222,6 +222,7 @@ Route::prefix('freepik')->controller(FreepikController::class)->group(function (
         Route::get('/relight/status/{task_id}', 'getRelightTaskStatus');
         Route::post('/style-transfer', 'styleTransfer');
         Route::get('/style-transfer/status/{task_id}', 'getStyleTransferTaskStatus');
+        Route::post('/remove-background', 'removeBackgroundFromImage');
     });
 });
 

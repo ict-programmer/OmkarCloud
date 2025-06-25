@@ -16,6 +16,7 @@ use App\Data\Request\Freepik\LoraStyleTrainData;
 use App\Data\Request\Freepik\MysticGenerateData;
 use App\Data\Request\Freepik\ReimagineFluxData;
 use App\Data\Request\Freepik\RelightImageData;
+use App\Data\Request\Freepik\RemoveBackgroundData;
 use App\Data\Request\Freepik\StockContentData;
 use App\Data\Request\Freepik\StyleTransferData;
 use App\Data\Request\Freepik\UpscaleImageData;
@@ -35,6 +36,7 @@ use App\Http\Requests\Freepik\LoraStyleTrainRequest;
 use App\Http\Requests\Freepik\MysticGenerateRequest;
 use App\Http\Requests\Freepik\ReimagineFluxRequest;
 use App\Http\Requests\Freepik\RelightImageRequest;
+use App\Http\Requests\Freepik\RemoveBackgroundRequest;
 use App\Http\Requests\Freepik\StockContentRequest;
 use App\Http\Requests\Freepik\StyleTransferRequest;
 use App\Http\Requests\Freepik\UpscaleImageRequest;
@@ -2419,6 +2421,83 @@ class FreepikController extends BaseController
     public function getStyleTransferTaskStatus(string $task_id)
     {
         $result = $this->service->getStyleTransferTaskStatus($task_id);
+
+        return $this->logAndResponse($result);
+    }
+
+    #[OA\Post(
+        path: '/api/freepik/image-editing/remove-background',
+        operationId: 'removeImageBackground',
+        description: 'Remove the background of an image via URL',
+        summary: 'Freepik Remove Background',
+        tags: ['Freepik'],
+        security: [['bearerAuth' => []]],
+    )]
+    #[OA\RequestBody(
+        required: true,
+        description: 'Image URL form data',
+        content: new OA\MediaType(
+            mediaType: 'application/x-www-form-urlencoded',
+            schema: new OA\Schema(
+                type: 'object',
+                required: ['image_url'],
+                properties: [
+                    new OA\Property(
+                        property: 'image_url',
+                        type: 'string',
+                        format: 'uri',
+                        description: 'The URL of the image whose background needs to be removed',
+                        example: 'https://img.freepik.com/free-vector/cute-cat-sitting-cartoon-vector-icon-illustration-animal-nature-icon-concept-isolated-premium-vector-flat-cartoon-style_138676-4148.jpg?w=2000&t=st=1725353998~exp=1725357598~hmac=a17f90afeeff454b36c0715f84eed2b388cd9c4a7ce59fcdff075fa41770e469',
+                    ),
+                ]
+            )
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful background removal',
+        content: new OA\JsonContent(
+            type: 'object',
+            required: ['original', 'high_resolution', 'preview', 'url'],
+            properties: [
+                new OA\Property(
+                    property: 'original',
+                    type: 'string',
+                    format: 'uri',
+                    description: 'URL of the original image'
+                ),
+                new OA\Property(
+                    property: 'high_resolution',
+                    type: 'string',
+                    format: 'uri',
+                    description: 'URL of the high-resolution image with background removed'
+                ),
+                new OA\Property(
+                    property: 'preview',
+                    type: 'string',
+                    format: 'uri',
+                    description: 'URL of the preview image'
+                ),
+                new OA\Property(
+                    property: 'url',
+                    type: 'string',
+                    format: 'uri',
+                    description: 'Direct URL to download the high-resolution image'
+                ),
+            ],
+            example: [
+                'original' => 'https://api.freepik.com/v1/ai/beta/images/original/037ea4ea-e8ad84a8c7/thumbnail.jpg',
+                'high_resolution' => 'https://api.freepik.com/v1/ai/beta/images/download/037ead-44cd8ad84a8c7/high.png',
+                'preview' => 'https://api.freepik.com/v1/ai/beta/images/download/037ea4eacad84a8c7/preview.png',
+                'url' => 'https://api.freepik.com/v1/ai/beta/images/download/037ea4ea-720d-411e8ad84a8c7/high.png',
+            ]
+        )
+    )]
+    public function removeBackgroundFromImage(RemoveBackgroundRequest $request)
+    {
+        $data = RemoveBackgroundData::from($request->validated());
+
+        $result = $this->service->removeBackground($data);
 
         return $this->logAndResponse($result);
     }

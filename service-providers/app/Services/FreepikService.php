@@ -16,6 +16,7 @@ use App\Data\Request\Freepik\LoraStyleTrainData;
 use App\Data\Request\Freepik\MysticGenerateData;
 use App\Data\Request\Freepik\ReimagineFluxData;
 use App\Data\Request\Freepik\RelightImageData;
+use App\Data\Request\Freepik\RemoveBackgroundData;
 use App\Data\Request\Freepik\StockContentData;
 use App\Data\Request\Freepik\StyleTransferData;
 use App\Data\Request\Freepik\UpscaleImageData;
@@ -249,6 +250,13 @@ class FreepikService
     public function getStyleTransferTaskStatus(string $taskId): array
     {
         $response = $this->client->get("ai/image-style-transfer/{$taskId}");
+
+        return $response->json();
+    }
+
+    public function removeBackground(RemoveBackgroundData $data): array
+    {
+        $response = $this->client->post('ai/beta/remove-background', array_filter($data->toArray(), fn ($value) => $value !== null));
 
         return $response->json();
     }
