@@ -11,6 +11,7 @@ use App\Http\Controllers\FreepikController;
 use App\Http\Controllers\GeminiController;
 use App\Http\Controllers\GettyimagesController;
 use App\Http\Controllers\GoogleSheetsController;
+use App\Http\Controllers\MainFunctionController;
 use App\Http\Controllers\PerplexityController;
 use App\Http\Controllers\PexelsController;
 use App\Http\Controllers\PlacidController;
@@ -29,8 +30,6 @@ use App\Http\Controllers\ShutterstockController;
 | API Routes
 |--------------------------------------------------------------------------
 */
-
-Route::post('{service_provider_id}/{service_type_id}', \App\Http\Controllers\MainFunctionController::class);
 
 Route::post('/extanal', [ServiceProviderController::class, 'list']);
 
@@ -225,3 +224,5 @@ Route::prefix('shutterstock')->controller(ShutterstockController::class)->group(
         Route::get('/subscriptions', 'listUserSubscriptions');
     });
 });
+
+Route::post('dynamic-services/{service_provider_id}/{service_type_id}', MainFunctionController::class);
