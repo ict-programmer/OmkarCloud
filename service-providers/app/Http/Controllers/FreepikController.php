@@ -15,6 +15,7 @@ use App\Data\Request\Freepik\LoraCharacterTrainData;
 use App\Data\Request\Freepik\LoraStyleTrainData;
 use App\Data\Request\Freepik\MysticGenerateData;
 use App\Data\Request\Freepik\ReimagineFluxData;
+use App\Data\Request\Freepik\RelightImageData;
 use App\Data\Request\Freepik\StockContentData;
 use App\Data\Request\Freepik\UpscaleImageData;
 use App\Http\Requests\Freepik\AiImageClassifierRequest;
@@ -32,6 +33,7 @@ use App\Http\Requests\Freepik\LoraCharacterTrainRequest;
 use App\Http\Requests\Freepik\LoraStyleTrainRequest;
 use App\Http\Requests\Freepik\MysticGenerateRequest;
 use App\Http\Requests\Freepik\ReimagineFluxRequest;
+use App\Http\Requests\Freepik\RelightImageRequest;
 use App\Http\Requests\Freepik\StockContentRequest;
 use App\Http\Requests\Freepik\UpscaleImageRequest;
 use App\Services\FreepikService;
@@ -2121,6 +2123,145 @@ class FreepikController extends BaseController
     public function getUpscalerTaskStatus(string $task_id)
     {
         $result = $this->service->getUpscalerTaskStatus($task_id);
+
+        return $this->logAndResponse($result);
+    }
+
+    #[OA\Post(
+        path: '/api/freepik/image-editing/relight',
+        operationId: 'relightImage',
+        description: 'Relight an image using AI with custom styling, light source, and enhancement parameters.',
+        summary: 'Relight Image via Freepik AI',
+        tags: ['Freepik'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['image'],
+            properties: [
+                new OA\Property(property: 'image', type: 'string', description: 'Base64 image to relight'),
+                new OA\Property(property: 'prompt', type: 'string', example: 'A sunlit forest clearing at golden hour'),
+                new OA\Property(property: 'transfer_light_from_reference_image', type: 'string', nullable: true),
+                new OA\Property(property: 'transfer_light_from_lightmap', type: 'string', nullable: true),
+                new OA\Property(property: 'light_transfer_strength', type: 'integer', minimum: 0, maximum: 100, default: 100),
+                new OA\Property(property: 'interpolate_from_original', type: 'boolean', default: false),
+                new OA\Property(property: 'change_background', type: 'boolean', default: true),
+                new OA\Property(property: 'style', type: 'string', enum: ['standard', 'darker_but_realistic', 'clean', 'smooth', 'brighter', 'contrasted_n_hdr', 'just_composition'], default: 'standard'),
+                new OA\Property(property: 'preserve_details', type: 'boolean', default: true),
+                new OA\Property(
+                    property: 'advanced_settings',
+                    type: 'object',
+                    properties: [
+                        new OA\Property(property: 'whites', type: 'integer', minimum: 0, maximum: 100, default: 50),
+                        new OA\Property(property: 'blacks', type: 'integer', minimum: 0, maximum: 100, default: 50),
+                        new OA\Property(property: 'brightness', type: 'integer', minimum: 0, maximum: 100, default: 50),
+                        new OA\Property(property: 'contrast', type: 'integer', minimum: 0, maximum: 100, default: 50),
+                        new OA\Property(property: 'saturation', type: 'integer', minimum: 0, maximum: 100, default: 50),
+                        new OA\Property(property: 'engine', type: 'string', enum: ['automatic', 'balanced', 'cool', 'real', 'illusio', 'fairy', 'colorful_anime', 'hard_transform', 'softy'], default: 'automatic'),
+                        new OA\Property(property: 'transfer_light_a', type: 'string', enum: ['automatic', 'low', 'medium', 'normal', 'high', 'high_on_faces'], default: 'automatic'),
+                        new OA\Property(property: 'transfer_light_b', type: 'string', enum: ['automatic', 'composition', 'straight', 'smooth_in', 'smooth_out', 'smooth_both', 'reverse_both', 'soft_in', 'soft_out', 'soft_mid', 'strong_mid', 'style_shift', 'strong_shift'], default: 'automatic'),
+                        new OA\Property(property: 'fixed_generation', type: 'boolean', default: false),
+                    ]
+                ),
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'The relight process has started.',
+        content: new OA\JsonContent(
+            required: ['data'],
+            properties: [
+                new OA\Property(
+                    property: 'data',
+                    type: 'object',
+                    required: ['generated', 'task_id', 'status'],
+                    properties: [
+                        new OA\Property(property: 'generated', type: 'array', items: new OA\Items(type: 'string', format: 'uri')),
+                        new OA\Property(property: 'task_id', type: 'string'),
+                        new OA\Property(property: 'status', type: 'string', enum: ['IN_PROGRESS', 'COMPLETED', 'FAILED']),
+                    ]
+                ),
+            ],
+            example: [
+                'data' => [
+                    'generated' => ['https://ai-statics.freepik.com/completed_task_image.jpg'],
+                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
+                    'status' => 'IN_PROGRESS',
+                ],
+            ]
+        )
+    )]
+    public function relight(RelightImageRequest $request)
+    {
+        $data = RelightImageData::from($request->validated());
+
+        $result = $this->service->relightImage($data);
+
+        return $this->logAndResponse($result);
+    }
+
+    #[OA\Get(
+        path: '/api/freepik/image-editing/relight/status/{task_id}',
+        operationId: 'getRelightTaskStatus',
+        description: 'Get the status of the Relight task',
+        summary: 'Freepik Relight Task Status',
+        tags: ['Freepik'],
+        security: [['bearerAuth' => []]],
+    )]
+    #[OA\Parameter(
+        name: 'task_id',
+        in: 'path',
+        required: true,
+        description: 'ID of the Relight task',
+        schema: new OA\Schema(type: 'string', example: '046b6c7f-0b8a-43b9-b35d-6489e6daee91'),
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'The task status and generated images if available',
+        content: new OA\JsonContent(
+            required: ['data'],
+            properties: [
+                new OA\Property(
+                    property: 'data',
+                    type: 'object',
+                    required: ['generated', 'task_id', 'status'],
+                    properties: [
+                        new OA\Property(
+                            property: 'generated',
+                            type: 'array',
+                            description: 'List of generated image URLs',
+                            items: new OA\Items(type: 'string', format: 'uri')
+                        ),
+                        new OA\Property(
+                            property: 'task_id',
+                            type: 'string',
+                            description: 'The task ID'
+                        ),
+                        new OA\Property(
+                            property: 'status',
+                            type: 'string',
+                            description: 'Status of the task',
+                            enum: ['IN_PROGRESS', 'COMPLETED', 'FAILED']
+                        ),
+                    ]
+                ),
+            ],
+            example: [
+                'data' => [
+                    'generated' => [
+                        'https://ai-statics.freepik.com/completed_task_image.jpg',
+                    ],
+                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
+                    'status' => 'IN_PROGRESS',
+                ],
+            ]
+        )
+    )]
+    public function getRelightTaskStatus(string $task_id)
+    {
+        $result = $this->service->getRelightTaskStatus($task_id);
 
         return $this->logAndResponse($result);
     }

@@ -218,6 +218,8 @@ Route::prefix('freepik')->controller(FreepikController::class)->group(function (
     Route::prefix('image-editing')->group(function () {
         Route::post('/upscaler', 'upscale');
         Route::get('/upscaler/status/{task_id}', 'getUpscalerTaskStatus');
+        Route::post('/relight', 'relight');
+        Route::get('/relight/status/{task_id}', 'getRelightTaskStatus');
     });
 });
 

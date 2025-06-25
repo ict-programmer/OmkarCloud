@@ -15,6 +15,7 @@ use App\Data\Request\Freepik\LoraCharacterTrainData;
 use App\Data\Request\Freepik\LoraStyleTrainData;
 use App\Data\Request\Freepik\MysticGenerateData;
 use App\Data\Request\Freepik\ReimagineFluxData;
+use App\Data\Request\Freepik\RelightImageData;
 use App\Data\Request\Freepik\StockContentData;
 use App\Data\Request\Freepik\UpscaleImageData;
 use Illuminate\Http\Client\PendingRequest;
@@ -219,6 +220,20 @@ class FreepikService
     public function getUpscalerTaskStatus(string $taskId): array
     {
         $response = $this->client->get("ai/image-upscaler/{$taskId}");
+
+        return $response->json();
+    }
+
+    public function relightImage(RelightImageData $data): array
+    {
+        $response = $this->client->post('ai/image-relight', array_filter($data->toArray(), fn ($value) => $value !== null));
+
+        return $response->json();
+    }
+
+    public function getRelightTaskStatus(string $taskId): array
+    {
+        $response = $this->client->get("ai/image-relight/{$taskId}");
 
         return $response->json();
     }
