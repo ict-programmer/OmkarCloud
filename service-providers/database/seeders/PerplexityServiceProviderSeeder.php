@@ -38,7 +38,7 @@ class PerplexityServiceProviderSeeder extends Seeder
                     ],
                 ],
                 'is_active' => true,
-                'controller_name' => PerplexityController::class
+                'controller_name' => PerplexityController::class,
             ]
         );
 
@@ -46,11 +46,11 @@ class PerplexityServiceProviderSeeder extends Seeder
             [
                 'name' => 'AI Search',
                 'parameter' => [
-                    "model" => "sonar",
-                    "query" => "What is AI?",
-                    "search_type" => "web",
-                    "max_results" => 0,
-                    "temperature" => 0.2
+                    'model' => 'sonar',
+                    'query' => 'What is AI?',
+                    'search_type' => 'web',
+                    'max_results' => 0,
+                    'temperature' => 0.2,
                 ],
                 'request_class_name' => AiSearchRequest::class,
                 'function_name' => 'aiSearch',
@@ -58,10 +58,10 @@ class PerplexityServiceProviderSeeder extends Seeder
             [
                 'name' => 'Academic Research',
                 'parameter' => [
-                    "model" => "sonar-deep-research",
-                    "query" => "Impact of artificial intelligence on healthcare",
-                    "search_type" => "academic",
-                    "max_results" => 0
+                    'model' => 'sonar-deep-research',
+                    'query' => 'Impact of artificial intelligence on healthcare',
+                    'search_type' => 'academic',
+                    'max_results' => 0,
                 ],
                 'request_class_name' => AcademicResearchRequest::class,
                 'function_name' => 'academicResearch',
@@ -69,16 +69,15 @@ class PerplexityServiceProviderSeeder extends Seeder
             [
                 'name' => 'Code Assistant',
                 'parameter' => [
-                    "model" => "sonar-reasoning",
-                    "query" => "How to reverse a string in Python?",
-                    "programming_language" => "python",
-                    "code_length" => "medium"
+                    'model' => 'sonar-reasoning',
+                    'query' => 'How to reverse a string in Python?',
+                    'programming_language' => 'python',
+                    'code_length' => 'medium',
                 ],
                 'request_class_name' => CodeAssistantRequest::class,
                 'function_name' => 'codeAssistant',
-            ]
+            ],
         ];
-
 
         // Create or update service_provider_types entries
         foreach ($serviceTypes as $serviceType) {
