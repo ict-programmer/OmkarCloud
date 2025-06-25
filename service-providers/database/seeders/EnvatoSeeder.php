@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Http\Requests\Envato\ItemDetailsRequest;
 use App\Http\Requests\Envato\ItemSearchRequest;
 use App\Models\ServiceProvider;
 use App\Models\ServiceType;
@@ -27,6 +28,12 @@ class EnvatoSeeder extends Seeder
             'name' => 'Item Search',
             'function_name' => 'itemSearch',
             'request_class_name' => ItemSearchRequest::class,
+        ]);
+
+        $itemDetails = ServiceType::query()->create([
+            'name' => 'Item Details',
+            'function_name' => 'itemDetails',
+            'request_class_name' => ItemDetailsRequest::class,
         ]);
 
 

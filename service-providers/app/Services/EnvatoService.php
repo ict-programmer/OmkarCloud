@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Data\Request\Envato\ItemSearchData;
+use App\Data\Request\Envato\ItemDetailsData;
 use Illuminate\Support\Facades\Http;
 
 class EnvatoService
@@ -11,17 +12,26 @@ class EnvatoService
     {
         return $this->callEnvatoAPI(
             endpoint: '/v1/discovery/search/search/item',
-            params: [
+            data: [
                 'site' => $data->site,
                 'term' => $data->term,
             ]
         );
     }
 
+    public function itemDetails(ItemDetailsData $data): array
+    {
+        return $this->callEnvatoAPI(
+            endpoint: '/v1/market/catalog/item',
+            data: [
+                'id' => $data->item_id,
+            ],
+        );
+    }
+
     private function callEnvatoAPI(
         string $endpoint,
         string $method = 'GET',
-        array $params = [],
         array $data = []
     ): array|null {
         $url = config('envato.base_url') . $endpoint;
@@ -37,7 +47,7 @@ class EnvatoService
         $httpClient = Http::withHeaders($headers)->withToken(config('envato.api_token'))->timeout(30);
 
         $response = match ($method) {
-            'GET' => $httpClient->get($url, $params),
+            'GET' => $httpClient->get($url, $data),
             'POST' => $httpClient->post($url, $data),
         };
 
