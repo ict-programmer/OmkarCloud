@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Data\Request\Envato\ItemSearchData;
 use App\Data\Request\Envato\ItemDetailsData;
+use App\Data\Request\Envato\UserAccountDetailsData;
 use Illuminate\Support\Facades\Http;
 
 class EnvatoService
@@ -26,6 +27,13 @@ class EnvatoService
             data: [
                 'id' => $data->item_id,
             ],
+        );
+    }
+
+    public function userAccountDetails(UserAccountDetailsData $data): array
+    {
+        return $this->callEnvatoAPI(
+            endpoint: '/v1/market/user:' . $data->username . '.json',
         );
     }
 

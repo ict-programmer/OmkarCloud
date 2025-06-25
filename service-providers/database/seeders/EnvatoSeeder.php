@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Http\Requests\Envato\ItemDetailsRequest;
 use App\Http\Requests\Envato\ItemSearchRequest;
+use App\Http\Requests\Envato\UserAccountDetailsRequest;
 use App\Models\ServiceProvider;
 use App\Models\ServiceType;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -36,6 +37,10 @@ class EnvatoSeeder extends Seeder
             'request_class_name' => ItemDetailsRequest::class,
         ]);
 
-
+        $userAccountDetails = ServiceType::query()->create([
+            'name' => 'User Account Details',
+            'function_name' => 'userAccountDetails',
+            'request_class_name' => UserAccountDetailsRequest::class,
+        ]);
     }
 }

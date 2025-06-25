@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Data\Request\Envato\ItemSearchData;
 use App\Data\Request\Envato\ItemDetailsData;
+use App\Data\Request\Envato\UserAccountDetailsData;
 use App\Http\Requests\Envato\ItemSearchRequest;
 use App\Http\Requests\Envato\ItemDetailsRequest;
+use App\Http\Requests\Envato\UserAccountDetailsRequest;
 use App\Services\EnvatoService;
 use Illuminate\Http\JsonResponse;
 
@@ -33,6 +35,18 @@ class EnvatoController extends BaseController
 
         return $this->logAndResponse([
             'message' => 'Item details retrieved successfully.',
+            'data' => $result,
+        ]);
+    }
+
+    public function userAccountDetails(UserAccountDetailsRequest $request): JsonResponse
+    {
+        $data = UserAccountDetailsData::from($request->validated());
+
+        $result = $this->service->userAccountDetails($data);
+
+        return $this->logAndResponse([
+            'message' => 'User account details retrieved successfully.',
             'data' => $result,
         ]);
     }
