@@ -6,6 +6,7 @@ use App\Http\Requests\Envato\ItemDetailsRequest;
 use App\Http\Requests\Envato\ItemSearchRequest;
 use App\Http\Requests\Envato\UserAccountDetailsRequest;
 use App\Http\Requests\Envato\DownloadPurchasedItemRequest;
+use App\Http\Requests\Envato\VerifyPurchaseCodeRequest;
 use App\Models\ServiceProvider;
 use App\Models\ServiceType;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -53,6 +54,12 @@ class EnvatoSeeder extends Seeder
             'name' => 'Download Purchased Item',
             'function_name' => 'downloadPurchasedItem',
             'request_class_name' => DownloadPurchasedItemRequest::class,
+        ]);
+
+        $verifyPurchaseCode = ServiceType::query()->create([
+            'name' => 'Verify Purchase Code',
+            'function_name' => 'verifyPurchaseCode',
+            'request_class_name' => VerifyPurchaseCodeRequest::class,
         ]);
     }
 }

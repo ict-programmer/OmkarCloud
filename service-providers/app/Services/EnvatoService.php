@@ -6,6 +6,7 @@ use App\Data\Request\Envato\ItemSearchData;
 use App\Data\Request\Envato\ItemDetailsData;
 use App\Data\Request\Envato\UserAccountDetailsData;
 use App\Data\Request\Envato\DownloadPurchasedItemData;
+use App\Data\Request\Envato\VerifyPurchaseCodeData;
 use Illuminate\Support\Facades\Http;
 
 class EnvatoService
@@ -49,6 +50,13 @@ class EnvatoService
     {
         return $this->callEnvatoAPI(
             endpoint: '/v1/market/private/user/download-purchase:' . $data->item_id . '.json',
+        );
+    }
+
+    public function verifyPurchaseCode(VerifyPurchaseCodeData $data): array
+    {
+        return $this->callEnvatoAPI(
+            endpoint: '/v1/market/private/user/verify-purchase:' . $data->purchase_code . '.json',
         );
     }
 

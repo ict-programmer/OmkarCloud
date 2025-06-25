@@ -6,10 +6,12 @@ use App\Data\Request\Envato\ItemSearchData;
 use App\Data\Request\Envato\ItemDetailsData;
 use App\Data\Request\Envato\UserAccountDetailsData;
 use App\Data\Request\Envato\DownloadPurchasedItemData;
+use App\Data\Request\Envato\VerifyPurchaseCodeData;
 use App\Http\Requests\Envato\ItemSearchRequest;
 use App\Http\Requests\Envato\ItemDetailsRequest;
 use App\Http\Requests\Envato\UserAccountDetailsRequest;
 use App\Http\Requests\Envato\DownloadPurchasedItemRequest;
+use App\Http\Requests\Envato\VerifyPurchaseCodeRequest;
 use App\Services\EnvatoService;
 use Illuminate\Http\JsonResponse;
 
@@ -71,6 +73,18 @@ class EnvatoController extends BaseController
 
         return $this->logAndResponse([
             'message' => 'Download link generated successfully.',
+            'data' => $result,
+        ]);
+    }
+
+    public function verifyPurchaseCode(VerifyPurchaseCodeRequest $request): JsonResponse
+    {
+        $data = VerifyPurchaseCodeData::from($request->validated());
+
+        $result = $this->service->verifyPurchaseCode($data);
+
+        return $this->logAndResponse([
+            'message' => 'Purchase code verified successfully.',
             'data' => $result,
         ]);
     }
