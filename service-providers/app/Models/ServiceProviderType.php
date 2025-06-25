@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use MongoDB\Laravel\Eloquent\Model;
+use MongoDB\Laravel\Relations\BelongsTo;
 
 class ServiceProviderType extends Model
 {
@@ -34,4 +35,20 @@ class ServiceProviderType extends Model
         'deleted_by',
         'seed',
     ];
+
+    /**
+     * Get the service type associated with this provider type.
+     */
+    public function serviceType(): BelongsTo
+    {
+        return $this->belongsTo(ServiceType::class, 'service_type_id');
+    }
+
+    /**
+     * Get the service provider associated with this provider type.
+     */
+    public function serviceProvider(): BelongsTo
+    {
+        return $this->belongsTo(ServiceProvider::class, 'service_provider_id');
+    }
 }

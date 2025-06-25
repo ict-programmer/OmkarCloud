@@ -26,7 +26,7 @@ class ImageAnalysisRequest extends FormRequest
     {
         return [
             'image_url' => ['required', 'url'],
-            'description_required' => ['required', 'string'],
+            'description_required' => ['required', 'string', 'min:1', 'max:1000'],
         ];
     }
 
@@ -42,6 +42,8 @@ class ImageAnalysisRequest extends FormRequest
             'image_url.url' => __('The image URL must be a valid URL.'),
             'description_required.required' => __('The description is required.'),
             'description_required.string' => __('The description must be a string.'),
+            'description_required.min' => __('The description must be at least 1 character.'),
+            'description_required.max' => __('The description may not be greater than 1000 characters.'),
         ];
     }
 

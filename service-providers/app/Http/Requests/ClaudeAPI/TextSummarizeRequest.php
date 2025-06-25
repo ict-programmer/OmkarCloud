@@ -24,25 +24,39 @@ class TextSummarizeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'text' => ['required', 'string', 'max:100000'],
-            'summary_length' => ['required', 'string', 'max:20000'],
+            'text' => ['required', 'string', 'min:10', 'max:10000'],
+            'summary_length' => ['required', 'string', 'in:short,medium,long'],
         ];
     }
 
     /**
-     * Get custom messages for validator errors.
+     * Get the error messages for the defined validation rules.
      *
      * @return array<string, string>
      */
     public function messages(): array
     {
         return [
-            'text.required' => __('The text field is required.'),
-            'text.string' => __('The text must be a string.'),
-            'text.max' => __('The text may not be greater than 100,000 characters.'),
-            'summary_length.required' => __('The summary length field is required.'),
-            'summary_length.string' => __('The summary must be string.'),
-            'summary_length.max' => __('The summary length may not be greater than 20,000.'),
+            'text.required' => 'The text field is required to create a summary.',
+            'text.string' => 'The text must be a valid text string.',
+            'text.min' => 'The text must be at least 10 characters long to create a meaningful summary.',
+            'text.max' => 'The text may not be greater than 10,000 characters.',
+            'summary_length.required' => 'The summary_length field is required to specify the desired summary length.',
+            'summary_length.string' => 'The summary_length must be a valid string.',
+            'summary_length.in' => 'The summary_length must be one of: short, medium, or long.',
+        ];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'text' => 'text content',
+            'summary_length' => 'summary length',
         ];
     }
 

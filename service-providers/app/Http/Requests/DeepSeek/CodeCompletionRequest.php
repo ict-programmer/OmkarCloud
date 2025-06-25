@@ -26,9 +26,9 @@ class CodeCompletionRequest extends FormRequest
     {
         return [
             'model' => ['required', 'in:deepseek-chat'],
-            'prompt' => ['required', 'string', 'max:1000'],
+            'prompt' => ['required', 'string', 'min:1', 'max:1000'],
             'max_tokens' => ['required', 'integer', 'min:1', 'max:5000'],
-            'temperature' => ['required', 'numeric', 'between:0,1'],
+            'temperature' => ['required', 'numeric', 'min:0', 'max:1'],
             'attachments' => 'nullable|array',
             'attachments.*' => 'nullable|file|max:30720' // 30MB
         ];
@@ -46,6 +46,7 @@ class CodeCompletionRequest extends FormRequest
             'model.in' => __('The selected model is invalid. Please choose either deepseek-chat.'),
             'prompt.required' => __('The prompt field is required.'),
             'prompt.string' => __('The prompt must be a string.'),
+            'prompt.min' => __('The prompt must be at least 1 character.'),
             'prompt.max' => __('The prompt may not be greater than 1000 characters.'),
             'max_tokens.required' => __('The max_tokens field is required.'),
             'max_tokens.integer' => __('The max_tokens must be an integer.'),
@@ -53,7 +54,8 @@ class CodeCompletionRequest extends FormRequest
             'max_tokens.max' => __('The max_tokens may not be greater than 5000.'),
             'temperature.required' => __('The temperature field is required.'),
             'temperature.numeric' => __('The temperature must be a number.'),
-            'temperature.between' => __('The temperature must be between 0 and 1.'),
+            'temperature.min' => __('The temperature must be at least 0.'),
+            'temperature.max' => __('The temperature may not be greater than 1.'),
             'attachments.array' => __('The attachments field must be an array.'),
             'attachments.*.file' => __('Each attachment must be a valid file.'),
         ];
