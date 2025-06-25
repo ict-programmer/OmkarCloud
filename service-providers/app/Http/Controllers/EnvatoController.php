@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use App\Data\Request\Envato\ItemSearchData;
 use App\Data\Request\Envato\ItemDetailsData;
 use App\Data\Request\Envato\UserAccountDetailsData;
-use App\Data\Request\Envato\UserPurchasesData;
+use App\Data\Request\Envato\DownloadPurchasedItemData;
 use App\Http\Requests\Envato\ItemSearchRequest;
 use App\Http\Requests\Envato\ItemDetailsRequest;
 use App\Http\Requests\Envato\UserAccountDetailsRequest;
-use App\Http\Requests\Envato\UserPurchasesRequest;
+use App\Http\Requests\Envato\DownloadPurchasedItemRequest;
 use App\Services\EnvatoService;
 use Illuminate\Http\JsonResponse;
 
@@ -59,6 +59,18 @@ class EnvatoController extends BaseController
 
         return $this->logAndResponse([
             'message' => 'User purchases retrieved successfully.',
+            'data' => $result,
+        ]);
+    }
+
+    public function downloadPurchasedItem(DownloadPurchasedItemRequest $request): JsonResponse
+    {
+        $data = DownloadPurchasedItemData::from($request->validated());
+
+        $result = $this->service->downloadPurchasedItem($data);
+
+        return $this->logAndResponse([
+            'message' => 'Download link generated successfully.',
             'data' => $result,
         ]);
     }

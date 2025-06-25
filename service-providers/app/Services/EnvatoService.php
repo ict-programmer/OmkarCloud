@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Data\Request\Envato\ItemSearchData;
 use App\Data\Request\Envato\ItemDetailsData;
 use App\Data\Request\Envato\UserAccountDetailsData;
-use App\Data\Request\Envato\UserPurchasesData;
+use App\Data\Request\Envato\DownloadPurchasedItemData;
 use Illuminate\Support\Facades\Http;
 
 class EnvatoService
@@ -42,6 +42,13 @@ class EnvatoService
     {
         return $this->callEnvatoAPI(
             endpoint: '/v1/market/private/user/account.json',
+        );
+    }
+
+    public function downloadPurchasedItem(DownloadPurchasedItemData $data): array
+    {
+        return $this->callEnvatoAPI(
+            endpoint: '/v1/market/private/user/download-purchase:' . $data->item_id . '.json',
         );
     }
 

@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Http\Requests\Envato\ItemDetailsRequest;
 use App\Http\Requests\Envato\ItemSearchRequest;
 use App\Http\Requests\Envato\UserAccountDetailsRequest;
-use App\Http\Requests\Envato\UserPurchasesRequest;
+use App\Http\Requests\Envato\DownloadPurchasedItemRequest;
 use App\Models\ServiceProvider;
 use App\Models\ServiceType;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -47,6 +47,12 @@ class EnvatoSeeder extends Seeder
         $userPurchases = ServiceType::query()->create([
             'name' => 'User Purchases',
             'function_name' => 'userPurchases',
+        ]);
+
+        $downloadPurchasedItem = ServiceType::query()->create([
+            'name' => 'Download Purchased Item',
+            'function_name' => 'downloadPurchasedItem',
+            'request_class_name' => DownloadPurchasedItemRequest::class,
         ]);
     }
 }
