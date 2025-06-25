@@ -88,4 +88,14 @@ class EnvatoController extends BaseController
             'data' => $result,
         ]);
     }
+
+    public function userIdentity(): JsonResponse
+    {
+        $result = $this->service->userIdentity();
+
+        return $this->logAndResponse([
+            'message' => 'User identity retrieved successfully.',
+            'data' => $result,
+        ]);
+    }
 }

@@ -9,7 +9,6 @@ use App\Http\Requests\Envato\DownloadPurchasedItemRequest;
 use App\Http\Requests\Envato\VerifyPurchaseCodeRequest;
 use App\Models\ServiceProvider;
 use App\Models\ServiceType;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class EnvatoSeeder extends Seeder
@@ -61,5 +60,11 @@ class EnvatoSeeder extends Seeder
             'function_name' => 'verifyPurchaseCode',
             'request_class_name' => VerifyPurchaseCodeRequest::class,
         ]);
+
+        $userIdentity = ServiceType::query()->create([
+            'name' => 'User Identity',
+            'function_name' => 'userIdentity',
+        ]);
+
     }
 }
