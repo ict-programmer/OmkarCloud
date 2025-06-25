@@ -220,6 +220,8 @@ Route::prefix('freepik')->controller(FreepikController::class)->group(function (
         Route::get('/upscaler/status/{task_id}', 'getUpscalerTaskStatus');
         Route::post('/relight', 'relight');
         Route::get('/relight/status/{task_id}', 'getRelightTaskStatus');
+        Route::post('/style-transfer', 'styleTransfer');
+        Route::get('/style-transfer/status/{task_id}', 'getStyleTransferTaskStatus');
     });
 });
 

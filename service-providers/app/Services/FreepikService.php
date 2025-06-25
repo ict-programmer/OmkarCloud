@@ -17,6 +17,7 @@ use App\Data\Request\Freepik\MysticGenerateData;
 use App\Data\Request\Freepik\ReimagineFluxData;
 use App\Data\Request\Freepik\RelightImageData;
 use App\Data\Request\Freepik\StockContentData;
+use App\Data\Request\Freepik\StyleTransferData;
 use App\Data\Request\Freepik\UpscaleImageData;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Arr;
@@ -234,6 +235,20 @@ class FreepikService
     public function getRelightTaskStatus(string $taskId): array
     {
         $response = $this->client->get("ai/image-relight/{$taskId}");
+
+        return $response->json();
+    }
+
+    public function styleTransfer(StyleTransferData $data): array
+    {
+        $response = $this->client->post('ai/image-style-transfer', array_filter($data->toArray(), fn ($value) => $value !== null));
+
+        return $response->json();
+    }
+
+    public function getStyleTransferTaskStatus(string $taskId): array
+    {
+        $response = $this->client->get("ai/image-style-transfer/{$taskId}");
 
         return $response->json();
     }

@@ -17,6 +17,7 @@ use App\Data\Request\Freepik\MysticGenerateData;
 use App\Data\Request\Freepik\ReimagineFluxData;
 use App\Data\Request\Freepik\RelightImageData;
 use App\Data\Request\Freepik\StockContentData;
+use App\Data\Request\Freepik\StyleTransferData;
 use App\Data\Request\Freepik\UpscaleImageData;
 use App\Http\Requests\Freepik\AiImageClassifierRequest;
 use App\Http\Requests\Freepik\ClassicFastGenerateRequest;
@@ -35,6 +36,7 @@ use App\Http\Requests\Freepik\MysticGenerateRequest;
 use App\Http\Requests\Freepik\ReimagineFluxRequest;
 use App\Http\Requests\Freepik\RelightImageRequest;
 use App\Http\Requests\Freepik\StockContentRequest;
+use App\Http\Requests\Freepik\StyleTransferRequest;
 use App\Http\Requests\Freepik\UpscaleImageRequest;
 use App\Services\FreepikService;
 use Illuminate\Http\JsonResponse;
@@ -2262,6 +2264,161 @@ class FreepikController extends BaseController
     public function getRelightTaskStatus(string $task_id)
     {
         $result = $this->service->getRelightTaskStatus($task_id);
+
+        return $this->logAndResponse($result);
+    }
+
+    #[OA\Post(
+        path: '/api/freepik/image-editing/style-transfer',
+        operationId: 'createStyleTransfer',
+        description: 'Style transfer an image using AI',
+        summary: 'Freepik Image Style Transfer',
+        tags: ['Freepik'],
+        security: [['bearerAuth' => []]],
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['image', 'reference_image'],
+            properties: [
+                new OA\Property(property: 'image', type: 'string', description: 'Base64 Image to style transfer'),
+                new OA\Property(property: 'reference_image', type: 'string', description: 'Base64 Reference image for style transfer'),
+                new OA\Property(property: 'prompt', type: 'string', nullable: true),
+                new OA\Property(property: 'style_strength', type: 'integer', minimum: 0, maximum: 100, default: 100),
+                new OA\Property(property: 'structure_strength', type: 'integer', minimum: 0, maximum: 100, default: 50),
+                new OA\Property(property: 'is_portrait', type: 'boolean', default: false),
+
+                new OA\Property(
+                    property: 'portrait_style',
+                    type: 'string',
+                    enum: ['standard', 'pop', 'super_pop'],
+                    default: 'standard',
+                    description: 'Portrait style'
+                ),
+                new OA\Property(
+                    property: 'portrait_beautifier',
+                    type: 'string',
+                    enum: ['beautify_face', 'beautify_face_max'],
+                    nullable: true,
+                    description: 'Portrait beautifier'
+                ),
+                new OA\Property(
+                    property: 'flavor',
+                    type: 'string',
+                    enum: ['faithful', 'gen_z', 'psychedelia', 'detaily', 'clear', 'donotstyle', 'donotstyle_sharp'],
+                    default: 'faithful',
+                    description: 'Flavor of the transferring style'
+                ),
+                new OA\Property(
+                    property: 'engine',
+                    type: 'string',
+                    enum: ['balanced', 'definio', 'illusio', '3d_cartoon', 'colorful_anime', 'caricature', 'real', 'super_real', 'softy'],
+                    default: 'balanced',
+                    description: 'Engine for style transfer'
+                ),
+                new OA\Property(property: 'fixed_generation', type: 'boolean', default: false, description: 'Fixed generation flag'),
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'The request has succeeded and the Style Transfer process has started.',
+        content: new OA\JsonContent(
+            required: ['data'],
+            properties: [
+                new OA\Property(
+                    property: 'data',
+                    type: 'object',
+                    required: ['generated', 'task_id', 'task_status'],
+                    properties: [
+                        new OA\Property(property: 'generated', type: 'array', items: new OA\Items(type: 'string', format: 'uri')),
+                        new OA\Property(property: 'task_id', type: 'string'),
+                        new OA\Property(
+                            property: 'task_status',
+                            type: 'string',
+                            enum: ['IN_PROGRESS', 'COMPLETED', 'FAILED']
+                        ),
+                    ],
+                ),
+            ],
+            example: [
+                'data' => [
+                    'generated' => ['https://openapi-generator.tech/completed_task_image.jpg'],
+                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
+                    'task_status' => 'IN_PROGRESS',
+                ],
+            ],
+        ),
+    )]
+    public function styleTransfer(StyleTransferRequest $request)
+    {
+        $data = StyleTransferData::from($request->validated());
+
+        $result = $this->service->styleTransfer($data);
+
+        return $this->logAndResponse($result);
+    }
+
+    #[OA\Get(
+        path: '/api/freepik/image-editing/style-transfer/status/{task_id}',
+        operationId: 'getStyleTransferTaskStatus',
+        description: 'Get the status of the Style Transfer task',
+        summary: 'Freepik Style Transfer Task Status',
+        tags: ['Freepik'],
+        security: [['bearerAuth' => []]],
+    )]
+    #[OA\Parameter(
+        name: 'task_id',
+        in: 'path',
+        required: true,
+        description: 'ID of the Style Transfer task',
+        schema: new OA\Schema(type: 'string', example: '046b6c7f-0b8a-43b9-b35d-6489e6daee91'),
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'The task status and generated images if available',
+        content: new OA\JsonContent(
+            required: ['data'],
+            properties: [
+                new OA\Property(
+                    property: 'data',
+                    type: 'object',
+                    required: ['generated', 'task_id', 'status'],
+                    properties: [
+                        new OA\Property(
+                            property: 'generated',
+                            type: 'array',
+                            description: 'List of generated image URLs',
+                            items: new OA\Items(type: 'string', format: 'uri')
+                        ),
+                        new OA\Property(
+                            property: 'task_id',
+                            type: 'string',
+                            description: 'The task ID'
+                        ),
+                        new OA\Property(
+                            property: 'status',
+                            type: 'string',
+                            description: 'Status of the task',
+                            enum: ['IN_PROGRESS', 'COMPLETED', 'FAILED']
+                        ),
+                    ]
+                ),
+            ],
+            example: [
+                'data' => [
+                    'generated' => [
+                        'https://ai-statics.freepik.com/completed_task_image.jpg',
+                    ],
+                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
+                    'status' => 'COMPLETED',
+                ],
+            ],
+        )
+    )]
+    public function getStyleTransferTaskStatus(string $task_id)
+    {
+        $result = $this->service->getStyleTransferTaskStatus($task_id);
 
         return $this->logAndResponse($result);
     }
