@@ -2509,7 +2509,7 @@ class FreepikController extends BaseController
         operationId: 'imageExpandFluxPro',
         description: 'Expand an image using AI Flux Pro',
         summary: 'Image Expand - Flux Pro',
-        tags: ['AI'],
+        tags: ['Freepik'],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
@@ -2644,8 +2644,8 @@ class FreepikController extends BaseController
         $computedSignature = base64_encode(hash_hmac('sha256', $content, $secret, true));
 
         $valid = collect(explode(' ', $signatureHeader))
-            ->map(fn ($pair) => explode(',', $pair)[1] ?? null)
-            ->contains(fn ($sig) => hash_equals($sig, $computedSignature));
+            ->map(fn($pair) => explode(',', $pair)[1] ?? null)
+            ->contains(fn($sig) => hash_equals($sig, $computedSignature));
 
         if (!$valid) {
             Log::error('Invalid Freepik webhook signature', ['computed' => $computedSignature]);
