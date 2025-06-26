@@ -134,7 +134,7 @@ class RunwaymlServiceProviderSeeder extends Seeder
                 'name' => 'Task Management',
                 'description' => 'Check the status and details of a video generation task',
                 'input_parameters' => [
-                    'id' => [
+                    'task_id' => [
                         'type' => 'string',
                         'required' => true,
                         'description' => 'The ID of the task to check status and retrieve details',

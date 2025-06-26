@@ -225,11 +225,11 @@ class RunwaymlAPIController extends BaseController
     // )]
     public function taskManagement(): JsonResponse
     {
-        $id = (string) request()->input('id');
+        $taskId = (string) request()->input('task_id');
 
-        throw_if(empty($id), new BadRequest(__('Task ID is required')));
+        throw_if(empty($taskId), new BadRequest(__('Task ID is required')));
 
-        $result = $this->service->taskManagement($id);
+        $result = $this->service->taskManagement($taskId);
 
         return $this->logAndResponse($result->data);
     }
