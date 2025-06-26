@@ -62,15 +62,32 @@ class GeminiServiceProviderSeeder extends Seeder
             [
                 'name' => 'Text Generation',
                 'description' => 'Generate creative and informative text based on prompts',
-                'path_parameters' => [],
-                'parameter' => [
+                'input_parameters' => [
                     'model' => [
                         'type' => 'string',
                         'required' => true,
-                        'enum' => ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro', 'gemini-ultra'],
+                        'default' => 'gemini-2.5-flash',
+                        'options' => [
+                            'source' => 'collection',
+                            'collection_name' => 'service_provider_model',
+                            'value_field' => 'model_name',
+                            'label_field' => 'display_name',
+                            'filters' => [
+                                'service_provider_id' => $serviceProvider->id,
+                                'status' => 'active',
+                                'supports_text_generation' => true,
+                            ],
+                            'fallback_options' => [
+                                'gemini-2.5-flash',
+                                'gemini-2.5-pro',
+                                'gemini-2.0-flash',
+                                'gemini-1.5-flash',
+                                'gemini-1.5-pro',
+                                'gemini-pro',
+                                'gemini-ultra',
+                            ],
+                        ],
                         'description' => 'The Gemini model to use for text generation',
-                        'example' => 'gemini-2.5-flash',
-                        'validation' => 'required|string|in:gemini-2.5-flash,gemini-2.5-pro,gemini-2.0-flash,gemini-1.5-flash,gemini-1.5-pro,gemini-pro,gemini-ultra',
                     ],
                     'prompt' => [
                         'type' => 'string',
@@ -91,7 +108,7 @@ class GeminiServiceProviderSeeder extends Seeder
                         'validation' => 'required|integer|min:1|max:5000',
                     ],
                     'temperature' => [
-                        'type' => 'number',
+                        'type' => 'float',
                         'required' => true,
                         'min' => 0,
                         'max' => 1,
@@ -100,21 +117,51 @@ class GeminiServiceProviderSeeder extends Seeder
                         'validation' => 'required|numeric|between:0,1',
                     ],
                 ],
+                'response' => [
+                    'status' => 'success',
+                    'data' => [
+                        'text' => 'Once upon a time, in a faraway land...',
+                    ],
+                    'timestamp' => '2025-05-01T12:45:30+00:00',
+                ],
+                'response_path' => [
+                    'success_indicator' => '$.status',
+                    'main_data' => '$.data',
+                    'final_result' => '$.data.text',
+                    'timestamp' => '$.timestamp',
+                ],
                 'request_class_name' => TextGenerationRequest::class,
                 'function_name' => 'textGeneration',
             ],
             [
                 'name' => 'Code Generation',
                 'description' => 'Generate code based on natural language descriptions with file attachments support',
-                'path_parameters' => [],
-                'parameter' => [
+                'input_parameters' => [
                     'model' => [
                         'type' => 'string',
                         'required' => true,
-                        'enum' => ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro', 'gemini-ultra'],
+                        'default' => 'gemini-1.5-pro',
+                        'options' => [
+                            'source' => 'collection',
+                            'collection_name' => 'service_provider_model',
+                            'value_field' => 'model_name',
+                            'label_field' => 'display_name',
+                            'filters' => [
+                                'service_provider_id' => $serviceProvider->id,
+                                'status' => 'active',
+                                'supports_code_generation' => true,
+                            ],
+                            'fallback_options' => [
+                                'gemini-2.5-flash',
+                                'gemini-2.5-pro',
+                                'gemini-2.0-flash',
+                                'gemini-1.5-flash',
+                                'gemini-1.5-pro',
+                                'gemini-pro',
+                                'gemini-ultra',
+                            ],
+                        ],
                         'description' => 'The Gemini model to use for code generation',
-                        'example' => 'gemini-1.5-pro',
-                        'validation' => 'required|string|in:gemini-2.5-flash,gemini-2.5-pro,gemini-2.0-flash,gemini-1.5-flash,gemini-1.5-pro,gemini-pro,gemini-ultra',
                     ],
                     'prompt' => [
                         'type' => 'string',
@@ -135,7 +182,7 @@ class GeminiServiceProviderSeeder extends Seeder
                         'validation' => 'required|integer|min:1|max:5000',
                     ],
                     'temperature' => [
-                        'type' => 'number',
+                        'type' => 'float',
                         'required' => true,
                         'min' => 0,
                         'max' => 1,
@@ -155,14 +202,26 @@ class GeminiServiceProviderSeeder extends Seeder
                         ],
                     ],
                 ],
+                'response' => [
+                    'status' => 'success',
+                    'data' => [
+                        'code' => 'def factorial(n):\n if n == 0:\n return 1\n else:\n return n * factorial(n-1)',
+                    ],
+                    'timestamp' => '2025-05-01T12:45:30+00:00',
+                ],
+                'response_path' => [
+                    'success_indicator' => '$.status',
+                    'main_data' => '$.data',
+                    'final_result' => '$.data.code',
+                    'timestamp' => '$.timestamp',
+                ],
                 'request_class_name' => CodeGenerationRequest::class,
                 'function_name' => 'codeGeneration',
             ],
             [
                 'name' => 'Image Analysis',
                 'description' => 'Analyze images and provide detailed descriptions or insights',
-                'path_parameters' => [],
-                'parameter' => [
+                'input_parameters' => [
                     'image_url' => [
                         'type' => 'string',
                         'required' => true,
@@ -181,14 +240,26 @@ class GeminiServiceProviderSeeder extends Seeder
                         'validation' => 'required|string|min:1|max:1000',
                     ],
                 ],
+                'response' => [
+                    'status' => 'success',
+                    'data' => [
+                        'analysis' => 'The image is a painting of a landscape with a mountain in the background and a river flowing through it. The colors are warm and vibrant, and the painting is very detailed and realistic. The image is a beautiful representation of nature.',
+                    ],
+                    'timestamp' => '2025-05-01T12:45:30+00:00',
+                ],
+                'response_path' => [
+                    'success_indicator' => '$.status',
+                    'main_data' => '$.data',
+                    'final_result' => '$.data.analysis',
+                    'timestamp' => '$.timestamp',
+                ],
                 'request_class_name' => ImageAnalysisRequest::class,
                 'function_name' => 'imageAnalysis',
             ],
             [
                 'name' => 'Document Summarization',
                 'description' => 'Summarize long document text into concise versions',
-                'path_parameters' => [],
-                'parameter' => [
+                'input_parameters' => [
                     'document_text' => [
                         'type' => 'string',
                         'required' => true,
@@ -201,10 +272,28 @@ class GeminiServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => true,
-                        'enum' => ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro', 'gemini-ultra'],
+                        'default' => 'gemini-1.5-pro',
+                        'options' => [
+                            'source' => 'collection',
+                            'collection_name' => 'service_provider_model',
+                            'value_field' => 'model_name',
+                            'label_field' => 'display_name',
+                            'filters' => [
+                                'service_provider_id' => $serviceProvider->id,
+                                'status' => 'active',
+                                'supports_summarization' => true,
+                            ],
+                            'fallback_options' => [
+                                'gemini-2.5-flash',
+                                'gemini-2.5-pro',
+                                'gemini-2.0-flash',
+                                'gemini-1.5-flash',
+                                'gemini-1.5-pro',
+                                'gemini-pro',
+                                'gemini-ultra',
+                            ],
+                        ],
                         'description' => 'The Gemini model to use for document summarization',
-                        'example' => 'gemini-1.5-pro',
-                        'validation' => 'required|string|in:gemini-2.5-flash,gemini-2.5-pro,gemini-2.0-flash,gemini-1.5-flash,gemini-1.5-pro,gemini-pro,gemini-ultra',
                     ],
                     'summary_length' => [
                         'type' => 'integer',
@@ -215,6 +304,19 @@ class GeminiServiceProviderSeeder extends Seeder
                         'example' => 20,
                         'validation' => 'required|integer|min:1|max:1000',
                     ],
+                ],
+                'response' => [
+                    'status' => 'success',
+                    'data' => [
+                        'summary' => 'The document is a short story about a young boy who discovers a magical portal to another world. The story is written in a simple and engaging style, and the characters are well-developed and relatable. The summary is a concise summary of the main points and key takeaways from the document.',
+                    ],
+                    'timestamp' => '2025-05-01T12:45:30+00:00',
+                ],
+                'response_path' => [
+                    'success_indicator' => '$.status',
+                    'main_data' => '$.data',
+                    'final_result' => '$.data.summary',
+                    'timestamp' => '$.timestamp',
                 ],
                 'request_class_name' => DocumentSummarizationRequest::class,
                 'function_name' => 'documentSummarization',

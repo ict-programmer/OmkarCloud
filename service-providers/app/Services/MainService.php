@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\ServiceProvider;
+use App\Models\ServiceProviderModel;
 use App\Models\ServiceType;
 use App\Models\ServiceProviderType;
 use Illuminate\Http\Request;
@@ -47,12 +48,21 @@ class MainService
         $controller = app($serviceProvider->controller_name);
 
         $pathParameters = $this->extractPathParameters($request);
-        
+
         $pathValidationResult = $this->validatePathParameters($pathParameters, $serviceProviderType);
         if ($pathValidationResult !== true) {
             return $this->response('Path parameter validation failed', $pathValidationResult, 422);
         }
-        
+
+        $model = $request->input('model');
+        if (is_null($model)) {
+            $modelExists = ServiceProviderModel::query()->where('service_provider_id', $serviceProviderId)->where('model_name', $model)->exists();
+
+            if (!$modelExists) {
+                return $this->response('Model not configured for this service provider', null, 404);
+            }
+        }
+
         $formRequest = null;
         if (!is_null($serviceType->request_class_name)) {
             $formRequest = app($serviceType->request_class_name);
@@ -61,9 +71,9 @@ class MainService
             $formRequest->headers = $request->headers;
             $formRequest->validateResolved();
         }
-        
+
         $methodParameters = $this->prepareMethodParameters($pathParameters, $formRequest ?? $request);
-        
+
         return app()->call([$controller, $serviceType->function_name], $methodParameters);
     }
 
@@ -76,33 +86,35 @@ class MainService
     private function extractPathParameters(Request $request): array
     {
         $pathParameters = [];
-        
+
         $routeParameters = $request->route()->parameters();
-        
+
         // Remove the service provider and service type IDs as they're handled separately
         unset($routeParameters['service_provider_id'], $routeParameters['service_type_id']);
-        
+
         // Check if we have a catch-all path parameter
         if (isset($routeParameters['path']) && !empty($routeParameters['path'])) {
             $pathSegments = explode('/', trim($routeParameters['path'], '/'));
-            
+
             // Get the service provider type to know what path parameters are expected
             $serviceProviderId = $request->route('service_provider_id');
             $serviceTypeId = $request->route('service_type_id');
-            
+
             $serviceProviderType = ServiceProviderType::where('service_provider_id', $serviceProviderId)
                 ->where('service_type_id', $serviceTypeId)
                 ->first();
-            
+
             if ($serviceProviderType && !empty($serviceProviderType->path_parameters)) {
                 $expectedPathParams = array_keys($serviceProviderType->path_parameters);
-                
+
                 // Map path segments to expected parameter names in order
                 foreach ($expectedPathParams as $index => $paramName) {
                     if (isset($pathSegments[$index])) {
                         $pathParameters[$paramName] = $pathSegments[$index];
-                    } elseif (isset($serviceProviderType->path_parameters[$paramName]['required']) && 
-                             !$serviceProviderType->path_parameters[$paramName]['required']) {
+                    } elseif (
+                        isset($serviceProviderType->path_parameters[$paramName]['required']) &&
+                        !$serviceProviderType->path_parameters[$paramName]['required']
+                    ) {
                         // Handle nullable parameters
                         $pathParameters[$paramName] = null;
                     }
@@ -119,7 +131,7 @@ class MainService
                 $pathParameters = $routeParameters;
             }
         }
-        
+
         return $pathParameters;
     }
 
@@ -143,7 +155,7 @@ class MainService
             if (isset($paramConfig['validation'])) {
                 $validationRules[$paramName] = $paramConfig['validation'];
             }
-            
+
             if (isset($paramConfig['description'])) {
                 $validationMessages[$paramName . '.required'] = "{$paramConfig['description']} is required.";
                 $validationMessages[$paramName . '.string'] = "{$paramConfig['description']} must be a string.";
@@ -176,13 +188,13 @@ class MainService
     private function prepareMethodParameters(array $pathParameters, mixed $request): array
     {
         $methodParameters = [];
-        
+
         foreach ($pathParameters as $key => $value) {
             $methodParameters[$key] = $value;
         }
-        
+
         $methodParameters['request'] = $request;
-        
+
         return $methodParameters;
     }
 
@@ -193,4 +205,4 @@ class MainService
             'data' => $data,
         ], $status);
     }
-} 
+}

@@ -61,22 +61,28 @@ class QwenServiceProviderSeeder extends Seeder
             [
                 'name' => 'NLP',
                 'description' => 'Natural Language Processing for text generation and analysis',
-                'path_parameters' => [],
-                'parameter' => [
+                'input_parameters' => [
                     'model' => [
                         'type' => 'string',
-                        'required' => true,
-                        'description' => 'The Qwen model to use for processing',
-                        'example' => 'qwen/qwq-32b:free',
-                        'validation' => 'required|string',
-                        'supported_models' => [
-                            'qwen/qwq-32b:free',
-                            'qwen/qwq-72b:free',
-                            'qwen/qwq-110b:free',
-                            'qwen/qwq-32b:paid',
-                            'qwen/qwq-72b:paid',
-                            'qwen/qwq-110b:paid',
+                        'required' => false,
+                        'default' => 'qwen/qwq-32b:free',
+                        'options' => [
+                            'source' => 'collection',
+                            'collection_name' => 'service_provider_model',
+                            'value_field' => 'model_name',
+                            'label_field' => 'display_name',
+                            'filters' => [
+                                'service_provider_id' => $serviceProvider->id,
+                                'status' => 'active',
+                                'supports_code_generation' => true,
+                            ],
+                            'fallback_options' => [
+                                'qwen/qwq-32b:free',
+                                'qwen/qwq-72b:free',
+                                'qwen/qwq-110b:free',
+                            ],
                         ],
+                        'description' => 'Qwen model to use for code generation',
                     ],
                     'prompt' => [
                         'type' => 'string',
@@ -97,7 +103,7 @@ class QwenServiceProviderSeeder extends Seeder
                         'validation' => 'nullable|integer|min:1|max:2000',
                     ],
                     'temperature' => [
-                        'type' => 'number',
+                        'type' => 'float',
                         'required' => false,
                         'min' => 0,
                         'max' => 1,
@@ -113,28 +119,60 @@ class QwenServiceProviderSeeder extends Seeder
                         'validation' => 'nullable|string',
                     ],
                 ],
+                'response' => [
+                    'id' => 'qwen_response_id',
+                    'object' => 'qwen_response_object',
+                    'created' => 1234567890,
+                    'model' => 'qwen/qwq-32b:free',
+                    'choices' => [
+                        [
+                            'index' => 0,
+                            'message' => [
+                                'role' => 'assistant',
+                                'content' => 'The capital of France is Paris.',
+                            ],
+                            'finish_reason' => 'stop',
+                        ],
+                    ],
+                    'usage' => [
+                        'prompt_tokens' => 10,
+                        'completion_tokens' => 20,
+                        'total_tokens' => 30,
+                    ],
+                ],
+                'response_path' => [
+                    'final_result' => '$.choices[0].message.content',
+                    'model_used' => '$.model',
+                    'tokens_used' => '$.usage.total_tokens',
+                    'finish_reason' => '$.choices[0].finish_reason',
+                ],
                 'request_class_name' => QwenNLPRequest::class,
                 'function_name' => 'nlp',
             ],
             [
                 'name' => 'Code Generation',
-                'description' => 'Generate code based on natural language descriptions with file attachments support',
-                'path_parameters' => [],
-                'parameter' => [
+                'input_parameters' => [
                     'model' => [
                         'type' => 'string',
-                        'required' => true,
-                        'description' => 'The Qwen model to use for code generation',
-                        'example' => 'qwen/qwq-32b:free',
-                        'validation' => 'required|string',
-                        'supported_models' => [
-                            'qwen/qwq-32b:free',
-                            'qwen/qwq-72b:free',
-                            'qwen/qwq-110b:free',
-                            'qwen/qwq-32b:paid',
-                            'qwen/qwq-72b:paid',
-                            'qwen/qwq-110b:paid',
+                        'required' => false,
+                        'default' => 'qwen/qwq-32b:free',
+                        'options' => [
+                            'source' => 'collection',
+                            'collection_name' => 'service_provider_model',
+                            'value_field' => 'model_name',
+                            'label_field' => 'display_name',
+                            'filters' => [
+                                'service_provider_id' => $serviceProvider->id,
+                                'status' => 'active',
+                                'supports_code_generation' => true,
+                            ],
+                            'fallback_options' => [
+                                'qwen/qwq-32b:free',
+                                'qwen/qwq-72b:free',
+                                'qwen/qwq-110b:free',
+                            ],
                         ],
+                        'description' => 'Qwen model to use for code generation',
                     ],
                     'prompt' => [
                         'type' => 'string',
@@ -155,7 +193,7 @@ class QwenServiceProviderSeeder extends Seeder
                         'validation' => 'nullable|integer|min:1|max:2000',
                     ],
                     'temperature' => [
-                        'type' => 'number',
+                        'type' => 'float',
                         'required' => false,
                         'min' => 0,
                         'max' => 1,
@@ -182,28 +220,60 @@ class QwenServiceProviderSeeder extends Seeder
                         ],
                     ],
                 ],
+                'response' => [
+                    'id' => 'qwen_response_id',
+                    'object' => 'qwen_response_object',
+                    'created' => 1234567890,
+                    'model' => 'qwen/qwq-32b:free',
+                    'choices' => [
+                        [
+                            'index' => 0,
+                            'message' => [
+                                'role' => 'assistant',
+                                'content' => 'def factorial(n):\n    if n == 0:\n        return 1\n    else:\n        return n * factorial(n-1)',
+                            ],
+                            'finish_reason' => 'stop',
+                        ],
+                    ],
+                    'usage' => [
+                        'prompt_tokens' => 10,
+                        'completion_tokens' => 20,
+                        'total_tokens' => 30,
+                    ],
+                ],
+                'response_path' => [
+                    'final_result' => '$.choices[0].message.content',
+                    'model_used' => '$.model',
+                    'tokens_used' => '$.usage.total_tokens',
+                    'finish_reason' => '$.choices[0].finish_reason',
+                ],
                 'request_class_name' => QwenCodeGenerationRequest::class,
                 'function_name' => 'codeGeneration',
             ],
             [
                 'name' => 'Text Summarization',
-                'description' => 'Summarize long text content into concise versions',
-                'path_parameters' => [],
-                'parameter' => [
+                'input_parameters' => [
                     'model' => [
                         'type' => 'string',
-                        'required' => true,
-                        'description' => 'The Qwen model to use for summarization',
-                        'example' => 'qwen/qwq-32b:free',
-                        'validation' => 'required|string',
-                        'supported_models' => [
-                            'qwen/qwq-32b:free',
-                            'qwen/qwq-72b:free',
-                            'qwen/qwq-110b:free',
-                            'qwen/qwq-32b:paid',
-                            'qwen/qwq-72b:paid',
-                            'qwen/qwq-110b:paid',
+                        'required' => false,
+                        'default' => 'qwen/qwq-32b:free',
+                        'options' => [
+                            'source' => 'collection',
+                            'collection_name' => 'service_provider_model',
+                            'value_field' => 'model_name',
+                            'label_field' => 'display_name',
+                            'filters' => [
+                                'service_provider_id' => $serviceProvider->id,
+                                'status' => 'active',
+                                'supports_summarization' => true,
+                            ],
+                            'fallback_options' => [
+                                'qwen/qwq-32b:free',
+                                'qwen/qwq-72b:free',
+                                'qwen/qwq-110b:free',
+                            ],
                         ],
+                        'description' => 'Qwen model to use for text summarization',
                     ],
                     'text' => [
                         'type' => 'string',
@@ -233,7 +303,7 @@ class QwenServiceProviderSeeder extends Seeder
                         'validation' => 'nullable|integer|min:1|max:2000',
                     ],
                     'temperature' => [
-                        'type' => 'number',
+                        'type' => 'float',
                         'required' => false,
                         'min' => 0,
                         'max' => 1,
@@ -249,28 +319,60 @@ class QwenServiceProviderSeeder extends Seeder
                         'validation' => 'nullable|string',
                     ],
                 ],
+                'response' => [
+                    'id' => 'qwen_response_id',
+                    'object' => 'qwen_response_object',
+                    'created' => 1234567890,
+                    'model' => 'qwen/qwq-32b:free',
+                    'choices' => [
+                        [
+                            'index' => 0,
+                            'message' => [
+                                'role' => 'assistant',
+                                'content' => 'A brave knight named Sir Lancelot saves a village from a dragon, earning the villagers\' gratitude.',
+                            ],
+                            'finish_reason' => 'stop',
+                        ],
+                    ],
+                    'usage' => [
+                        'prompt_tokens' => 10,
+                        'completion_tokens' => 20,
+                        'total_tokens' => 30,
+                    ],
+                ],
+                'response_path' => [
+                    'final_result' => '$.choices[0].message.content',
+                    'model_used' => '$.model',
+                    'tokens_used' => '$.usage.total_tokens',
+                    'finish_reason' => '$.choices[0].finish_reason',
+                ],
                 'request_class_name' => QwenTextSummarizationRequest::class,
                 'function_name' => 'textSummarization',
             ],
             [
                 'name' => 'Chatbot',
-                'description' => 'Interactive chatbot with conversation history support',
-                'path_parameters' => [],
-                'parameter' => [
+                'input_parameters' => [
                     'model' => [
                         'type' => 'string',
-                        'required' => true,
-                        'description' => 'The Qwen model to use for chatbot interactions',
-                        'example' => 'qwen/qwq-32b:free',
-                        'validation' => 'required|string',
-                        'supported_models' => [
-                            'qwen/qwq-32b:free',
-                            'qwen/qwq-72b:free',
-                            'qwen/qwq-110b:free',
-                            'qwen/qwq-32b:paid',
-                            'qwen/qwq-72b:paid',
-                            'qwen/qwq-110b:paid',
+                        'required' => false,
+                        'default' => 'qwen/qwq-32b:free',
+                        'options' => [
+                            'source' => 'collection',
+                            'collection_name' => 'service_provider_model',
+                            'value_field' => 'model_name',
+                            'label_field' => 'display_name',
+                            'filters' => [
+                                'service_provider_id' => $serviceProvider->id,
+                                'status' => 'active',
+                                'supports_chatbot' => true,
+                            ],
+                            'fallback_options' => [
+                                'qwen/qwq-32b:free',
+                                'qwen/qwq-72b:free',
+                                'qwen/qwq-110b:free',
+                            ],
                         ],
+                        'description' => 'Qwen model to use for chatbot interactions',
                     ],
                     'conversation_history' => [
                         'type' => 'array',
@@ -289,7 +391,7 @@ class QwenServiceProviderSeeder extends Seeder
                         ],
                     ],
                     'temperature' => [
-                        'type' => 'number',
+                        'type' => 'float',
                         'required' => false,
                         'min' => 0,
                         'max' => 1,
@@ -313,6 +415,33 @@ class QwenServiceProviderSeeder extends Seeder
                         'example' => 'generate',
                         'validation' => 'nullable|string',
                     ],
+                ],
+                'response' => [
+                    'id' => 'qwen_response_id',
+                    'object' => 'qwen_response_object',
+                    'created' => 1234567890,
+                    'model' => 'qwen/qwq-32b:free',
+                    'choices' => [
+                        [
+                            'index' => 0,
+                            'message' => [
+                                'role' => 'assistant',
+                                'content' => 'Hello! I am doing well, thank you!',
+                            ],
+                            'finish_reason' => 'stop',
+                        ],
+                    ],
+                    'usage' => [
+                        'prompt_tokens' => 10,
+                        'completion_tokens' => 20,
+                        'total_tokens' => 30,
+                    ],
+                ],
+                'response_path' => [
+                    'final_result' => '$.choices[0].message.content',
+                    'model_used' => '$.model',
+                    'tokens_used' => '$.usage.total_tokens',
+                    'finish_reason' => '$.choices[0].finish_reason',
                 ],
                 'request_class_name' => QwenChatbotRequest::class,
                 'function_name' => 'chatbot',

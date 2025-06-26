@@ -64,7 +64,7 @@ class ClaudeAPIService
      */
     protected function initializeService(ServiceTypeEnum $serviceTypeName, ?string $model = null): void
     {
-        $provider = ServiceProvider::where('type', 'Claude API')->first();
+        $provider = ServiceProvider::where('type', 'Claude')->first();
 
         if (
             !$provider ||
