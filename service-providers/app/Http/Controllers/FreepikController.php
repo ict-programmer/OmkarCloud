@@ -381,17 +381,6 @@ class FreepikController extends BaseController
             example: 'Cute robot with camera in flat vector style'
         )
     )]
-    #[OA\Parameter(
-        name: 'wait_for_result',
-        in: 'query',
-        required: false,
-        description: 'Set to 1 to wait for result, or 0 to get task_id only.',
-        schema: new OA\Schema(
-            type: 'integer',
-            enum: [0, 1],
-            example: 1
-        )
-    )]
     #[OA\Response(
         response: 200,
         description: 'Task accepted',
@@ -467,7 +456,7 @@ class FreepikController extends BaseController
                             property: 'model',
                             type: 'string',
                             enum: ['kling-v2-1-master', 'kling-v2-1-pro', 'kling-v2-1-std', 'kling-v2', 'kling-pro', 'kling-std'],
-                            description: 'Model of the generated video in seconds. Available options: kling-v2-1-master,kling-v2-1-pro,kling-v2-1-std,kling-v2,kling-pro,kling-std.',
+                            description: 'Model of the generated video. Available options: kling-v2-1-master, kling-v2-1-pro, kling-v2-1-std, kling-v2, kling-pro, kling-std.',
                             example: 'kling-v2-1-master'
                         ),
                         new OA\Property(
@@ -480,41 +469,41 @@ class FreepikController extends BaseController
                         new OA\Property(
                             property: 'image',
                             type: 'string',
-                            description: 'Reference image. Supports Base64 encoding or URL. Max 10MB, min 300x300px, aspect ratio 1:2.5 to 2.5:1.',
-                            example: 'https://cdn.example.com/image.jpg'
+                            description: 'Reference image. Supports URL. Max 10MB, min 300x300px, aspect ratio 1:2.5 to 2.5:1.',
+                            example: 'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN'
                         ),
                         new OA\Property(
                             property: 'image_tail',
                             type: 'string',
-                            description: "Reference Image - End frame control. Supports Base64 encoding or URL. For URL, must be publicly accessible. Must follow the same format requirements as the 'image' field. (Optional) Not compatible with standard mode.",
-                            example: 'https://cdn.example.com/image.jpg'
+                            description: "Reference Image - End frame control. Supports URL. For URL, must be publicly accessible. Must follow the same format requirements as the 'image' field. (Optional) Not compatible with standard mode.",
+                            example: 'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN'
                         ),
                         new OA\Property(
                             property: 'prompt',
                             type: 'string',
                             description: 'Text prompt describing the desired motion. Required if image is not provided.',
-                            example: 'A mountain range expanding into mist'
+                            example: 'Cinematic view of a mountain range fading into mist, soft lighting, epic atmosphere'
                         ),
                         new OA\Property(
                             property: 'negative_prompt',
                             type: 'string',
                             description: 'Describe what to avoid in the generated video.',
-                            example: 'blurry, distorted'
+                            example: 'blurry, low-quality, distorted, overexposed'
                         ),
                         new OA\Property(
                             property: 'cfg_scale',
                             type: 'number',
                             format: 'float',
                             description: 'Higher = stronger relevance to prompt (0-1). Default is 0.5.',
-                            example: 0.5,
+                            example: 0.3,
                             minimum: 0,
                             maximum: 1
                         ),
                         new OA\Property(
                             property: 'static_mask',
                             type: 'string',
-                            description: 'Static mask image (Base64 or URL). Must match resolution and aspect ratio of input image.',
-                            example: 'https://cdn.example.com/static_mask.png'
+                            description: 'Static mask image URL. Must match resolution and aspect ratio of input image.',
+                            example: 'https://publiish.io/ipfs/Qme7SZ1t9PbGKAesTA24EDu7pEs3J1JkWDt9qwQdaocYRB'
                         ),
                         new OA\Property(
                             property: 'dynamic_masks',
@@ -527,8 +516,8 @@ class FreepikController extends BaseController
                                     new OA\Property(
                                         property: 'mask',
                                         type: 'string',
-                                        description: 'Dynamic mask image (Base64 or URL)',
-                                        example: 'https://cdn.example.com/dynamic_mask.jpg'
+                                        description: 'Dynamic mask image URL',
+                                        example: 'https://publiish.io/ipfs/QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf'
                                     ),
                                     new OA\Property(
                                         property: 'trajectories',
@@ -537,39 +526,14 @@ class FreepikController extends BaseController
                                             type: 'object',
                                             required: ['x', 'y'],
                                             properties: [
-                                                new OA\Property(property: 'x', type: 'integer', example: 100),
-                                                new OA\Property(property: 'y', type: 'integer', example: 150),
+                                                new OA\Property(property: 'x', type: 'integer', example: 120),
+                                                new OA\Property(property: 'y', type: 'integer', example: 200),
                                             ]
                                         )
                                     ),
                                 ]
                             )
                         ),
-                    ],
-                    example: [
-                        'model' => 'kling-v2-1-master',
-                        'duration' => '10',
-                        'image' => 'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN',
-                        'image_tail' => 'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN',
-                        'prompt' => 'Cinematic view of a mountain range fading into mist, soft lighting, epic atmosphere',
-                        'negative_prompt' => 'blurry, low-quality, distorted, overexposed',
-                        'cfg_scale' => 0.3,
-                        'static_mask' => 'https://publiish.io/ipfs/Qme7SZ1t9PbGKAesTA24EDu7pEs3J1JkWDt9qwQdaocYRB',
-                        'dynamic_masks' => [
-                            [
-                                'mask' => 'https://publiish.io/ipfs/QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf',
-                                'trajectories' => [
-                                    [
-                                        'x' => 120,
-                                        'y' => 200,
-                                    ],
-                                    [
-                                        'x' => 150,
-                                        'y' => 250,
-                                    ],
-                                ],
-                            ],
-                        ],
                     ]
                 )
             ),
@@ -1170,23 +1134,42 @@ class FreepikController extends BaseController
         content: new OA\JsonContent(
             required: ['name', 'quality', 'images'],
             properties: [
-                new OA\Property(property: 'name', type: 'string', description: 'Name of the LoRA style used to identify the style in the system.'),
-                new OA\Property(property: 'quality', type: 'string', enum: ['medium', 'high', 'ultra'], description: 'Quality of the LoRA style.'),
-                new OA\Property(property: 'images', type: 'array', minItems: 6, maxItems: 20, description: 'List of image URLs to train the LoRA style.', items: new OA\Items(type: 'string', format: 'uri')),
-                new OA\Property(property: 'description', type: 'string', nullable: true, description: 'Description of the LoRA style.'),
-            ],
-            example: [
-                'name' => 'neon-cyberpunk-style',
-                'description' => 'A high-quality cyberpunk visual style with neon lights, futuristic elements, and strong contrast. Inspired by sci-fi films and urban night scenes.',
-                'quality' => 'high',
-                'images' => [
-                    'https://publiish.io/ipfs/QmRBe3ZDEBDH18JEgDuFdTShzw3Xy1s94bY6dtcBAnH4tu',
-                    'https://publiish.io/ipfs/QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf',
-                    'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN',
-                    'https://publiish.io/ipfs/QmPnAKihJS1shKqnA4UqQ6bvkw29j8yFW4MJTb6KZA1e6Q',
-                    'https://publiish.io/ipfs/QmdHRXQ8sX2d648gnCa2CXUjeJmreS8654vqwd9JS6m8GN',
-                    'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
-                ],
+                new OA\Property(
+                    property: 'name',
+                    type: 'string',
+                    description: 'Name of the LoRA style used to identify the style in the system.',
+                    example: 'neon-cyberpunk-style'
+                ),
+                new OA\Property(
+                    property: 'quality',
+                    type: 'string',
+                    enum: ['medium', 'high', 'ultra'],
+                    description: 'Quality of the LoRA style.',
+                    example: 'high'
+                ),
+                new OA\Property(
+                    property: 'images',
+                    type: 'array',
+                    minItems: 6,
+                    maxItems: 20,
+                    description: 'List of image URLs to train the LoRA style.',
+                    items: new OA\Items(type: 'string', format: 'uri'),
+                    example: [
+                        'https://publiish.io/ipfs/QmRBe3ZDEBDH18JEgDuFdTShzw3Xy1s94bY6dtcBAnH4tu',
+                        'https://publiish.io/ipfs/QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf',
+                        'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN',
+                        'https://publiish.io/ipfs/QmPnAKihJS1shKqnA4UqQ6bvkw29j8yFW4MJTb6KZA1e6Q',
+                        'https://publiish.io/ipfs/QmdHRXQ8sX2d648gnCa2CXUjeJmreS8654vqwd9JS6m8GN',
+                        'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
+                    ]
+                ),
+                new OA\Property(
+                    property: 'description',
+                    type: 'string',
+                    nullable: true,
+                    description: 'Description of the LoRA style.',
+                    example: 'A high-quality cyberpunk visual style with neon lights, futuristic elements, and strong contrast. Inspired by sci-fi films and urban night scenes.'
+                ),
             ]
         )
     )]
@@ -1221,38 +1204,48 @@ class FreepikController extends BaseController
         content: new OA\JsonContent(
             required: ['name', 'quality', 'gender', 'images'],
             properties: [
-                new OA\Property(property: 'name', type: 'string'),
+                new OA\Property(
+                    property: 'name',
+                    type: 'string',
+                    example: 'cyber_hero_neo'
+                ),
                 new OA\Property(
                     property: 'quality',
                     type: 'string',
                     enum: ['medium', 'high', 'ultra'],
-                    description: 'Quality of the LoRA character'
+                    description: 'Quality of the LoRA character',
+                    example: 'high'
                 ),
                 new OA\Property(
                     property: 'gender',
                     type: 'string',
                     enum: ['male', 'female', 'neutral', 'custom'],
-                    description: 'Gender of the character'
+                    description: 'Gender of the character',
+                    example: 'male'
                 ),
-                new OA\Property(property: 'images', type: 'array', minItems: 8, maxItems: 20, items: new OA\Items(type: 'string', format: 'uri')),
-                new OA\Property(property: 'description', type: 'string', nullable: true),
-
-            ],
-            example: [
-                'name' => 'cyber_hero_neo',
-                'quality' => 'high',
-                'gender' => 'male',
-                'images' => [
-                    'https://publiish.io/ipfs/QmRBe3ZDEBDH18JEgDuFdTShzw3Xy1s94bY6dtcBAnH4tu',
-                    'https://publiish.io/ipfs/QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf',
-                    'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN',
-                    'https://publiish.io/ipfs/QmPnAKihJS1shKqnA4UqQ6bvkw29j8yFW4MJTb6KZA1e6Q',
-                    'https://publiish.io/ipfs/QmdHRXQ8sX2d648gnCa2CXUjeJmreS8654vqwd9JS6m8GN',
-                    'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
-                    'https://publiish.io/ipfs/QmRTn93jATdpcpCg1nRfAExc8shh9Hmhbd8PHnXBrLJYAa',
-                    'https://publiish.io/ipfs/QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV',
-                ],
-                'description' => 'A futuristic male character with a bold cyberpunk aesthetic, glowing eyes, and advanced tech gear. Suitable for sci-fi narratives, stylized storytelling, and visual AI applications.',
+                new OA\Property(
+                    property: 'images',
+                    type: 'array',
+                    minItems: 8,
+                    maxItems: 20,
+                    items: new OA\Items(type: 'string', format: 'uri'),
+                    example: [
+                        'https://publiish.io/ipfs/QmRBe3ZDEBDH18JEgDuFdTShzw3Xy1s94bY6dtcBAnH4tu',
+                        'https://publiish.io/ipfs/QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf',
+                        'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN',
+                        'https://publiish.io/ipfs/QmPnAKihJS1shKqnA4UqQ6bvkw29j8yFW4MJTb6KZA1e6Q',
+                        'https://publiish.io/ipfs/QmdHRXQ8sX2d648gnCa2CXUjeJmreS8654vqwd9JS6m8GN',
+                        'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
+                        'https://publiish.io/ipfs/QmRTn93jATdpcpCg1nRfAExc8shh9Hmhbd8PHnXBrLJYAa',
+                        'https://publiish.io/ipfs/QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV',
+                    ]
+                ),
+                new OA\Property(
+                    property: 'description',
+                    type: 'string',
+                    nullable: true,
+                    example: 'A futuristic male character with a bold cyberpunk aesthetic, glowing eyes, and advanced tech gear. Suitable for sci-fi narratives, stylized storytelling, and visual AI applications.'
+                ),
             ]
         )
     )]
@@ -1294,7 +1287,7 @@ class FreepikController extends BaseController
                     property: 'prompt',
                     type: 'string',
                     minLength: 3,
-                    example: 'Crazy dog flying over the space',
+                    example: 'Crazy dog in the space',
                     description: 'Text to generate image from'
                 ),
                 new OA\Property(
@@ -1302,7 +1295,7 @@ class FreepikController extends BaseController
                     type: 'string',
                     minLength: 3,
                     nullable: true,
-                    example: 'b&w, grayscale, disfigured, bad quality',
+                    example: 'b&w, earth, cartoon, ugly',
                     description: 'Attributes to avoid in the generated image'
                 ),
                 new OA\Property(
@@ -1321,7 +1314,7 @@ class FreepikController extends BaseController
                     minimum: 0,
                     maximum: 1000000,
                     nullable: true,
-                    example: 123,
+                    example: 42,
                     description: 'Seed value for image reproducibility'
                 ),
                 new OA\Property(
@@ -1378,6 +1371,7 @@ class FreepikController extends BaseController
                         new OA\Property(
                             property: 'style',
                             type: 'string',
+                            nullable: true,
                             enum: [
                                 'photo',
                                 'digital-art',
@@ -1404,8 +1398,7 @@ class FreepikController extends BaseController
                                 'fantasy',
                                 'traditional-japan',
                             ],
-                            nullable: true,
-                            example: 'cartoon',
+                            example: 'anime',
                             description: 'Style to apply to the image'
                         ),
                         new OA\Property(
@@ -1438,7 +1431,7 @@ class FreepikController extends BaseController
                                         'cold-neon',
                                         'burgundy&blue',
                                     ],
-                                    example: 'b&w',
+                                    example: 'pastel',
                                     description: 'Effects - Color to apply'
                                 ),
                                 new OA\Property(
@@ -1506,7 +1499,7 @@ class FreepikController extends BaseController
                                         minimum: 0.05,
                                         maximum: 1.0,
                                         nullable: true,
-                                        example: 0.5,
+                                        example: 1,
                                         description: 'Weight of the color (0.05 - 1.0)'
                                     ),
                                 ]
@@ -1514,35 +1507,6 @@ class FreepikController extends BaseController
                         ),
                     ]
                 ),
-            ],
-            example: [
-                'prompt' => 'Crazy dog in the space',
-                'negative_prompt' => 'b&w, earth, cartoon, ugly',
-                'guidance_scale' => 2,
-                'seed' => 42,
-                'num_images' => 1,
-                'image' => [
-                    'size' => 'square_1_1',
-                ],
-                'styling' => [
-                    'style' => 'anime',
-                    'effects' => [
-                        'color' => 'pastel',
-                        'lightning' => 'warm',
-                        'framing' => 'portrait',
-                    ],
-                    'colors' => [
-                        [
-                            'color' => '#FF5733',
-                            'weight' => 1,
-                        ],
-                        [
-                            'color' => '#33FF57',
-                            'weight' => 1,
-                        ],
-                    ],
-                ],
-                'filter_nsfw' => true,
             ]
         )
     )]
@@ -1602,124 +1566,167 @@ class FreepikController extends BaseController
         content: new OA\JsonContent(
             required: ['prompt'],
             properties: [
-                new OA\Property(property: 'prompt', type: 'string', example: 'A beautiful sunset over a calm ocean'),
+                new OA\Property(property: 'prompt', type: 'string', example: 'Crazy dog in the space'),
                 new OA\Property(property: 'num_images', type: 'integer', minimum: 1, maximum: 4, example: 1),
-                new OA\Property(property: 'aspect_ratio', type: 'string', enum: [
-                    'square_1_1',
-                    'social_story_9_16',
-                    'widescreen_16_9',
-                    'traditional_3_4',
-                    'classic_4_3',
-                ], example: 'square_1_1'),
-
-                new OA\Property(property: 'styling', type: 'object', nullable: true, properties: [
-                    new OA\Property(property: 'style', type: 'string', enum: [
-                        'photo',
-                        'digital-art',
-                        '3d',
-                        'painting',
-                        'low-poly',
-                        'pixel-art',
-                        'anime',
-                        'cyberpunk',
-                        'comic',
-                        'vintage',
-                        'cartoon',
-                        'vector',
-                        'studio-shot',
-                        'dark',
-                        'sketch',
-                        'mockup',
-                        '2000s-pone',
-                        '70s-vibe',
-                        'watercolor',
-                        'art-nouveau',
-                        'origami',
-                        'surreal',
-                        'fantasy',
-                        'traditional-japan',
-                    ], example: 'cartoon'),
-
-                    new OA\Property(property: 'effects', type: 'object', nullable: true, properties: [
-                        new OA\Property(property: 'color', type: 'string', enum: [
-                            'b&w',
-                            'pastel',
-                            'sepia',
-                            'dramatic',
-                            'vibrant',
-                            'orange&teal',
-                            'film-filter',
-                            'split',
-                            'electric',
-                            'pastel-pink',
-                            'gold-glow',
-                            'autumn',
-                            'muted-green',
-                            'deep-teal',
-                            'duotone',
-                            'terracotta&teal',
-                            'red&blue',
-                            'cold-neon',
-                            'burgundy&blue',
-                        ], example: 'pastel'),
-
-                        new OA\Property(property: 'lightning', type: 'string', enum: [
-                            'studio',
-                            'warm',
-                            'cinematic',
-                            'volumetric',
-                            'golden-hour',
-                            'long-exposure',
-                            'cold',
-                            'iridescent',
-                            'dramatic',
-                            'hardlight',
-                            'redscale',
-                            'indoor-light',
-                        ], example: 'warm'),
-
-                        new OA\Property(property: 'framing', type: 'string', enum: [
-                            'portrait',
-                            'macro',
-                            'panoramic',
-                            'aerial-view',
-                            'close-up',
-                            'cinematic',
-                            'high-angle',
-                            'low-angle',
-                            'symmetry',
-                            'fish-eye',
-                            'first-person',
-                        ], example: 'portrait'),
-                    ]),
-
-                    new OA\Property(property: 'colors', type: 'array', minItems: 1, maxItems: 5, nullable: true, items: new OA\Items(
-                        type: 'object',
-                        required: ['color', 'weight'],
-                        properties: [
-                            new OA\Property(property: 'color', type: 'string', example: '#FF0000', description: 'Hex color code'),
-                            new OA\Property(property: 'weight', type: 'number', minimum: 0.05, maximum: 1.0, example: 0.5, description: 'Weight of the color (0.05 to 1)'),
-                        ]
-                    )),
-                ]),
-
-                new OA\Property(property: 'person_generation', type: 'string', enum: ['dont_allow', 'allow_adult', 'allow_all'], example: 'allow_all'),
-                new OA\Property(property: 'safety_settings', type: 'string', enum: ['block_low_and_above', 'block_medium_and_above', 'block_only_high', 'block_none'], example: 'block_none'),
-            ],
-            example: [
-                'prompt' => 'Crazy dog in the space',
-                'num_images' => 1,
-                'aspect_ratio' => 'square_1_1',
-                'styling' => [
-                    'style' => 'anime',
-                    'effects' => [
-                        'color' => 'pastel',
-                        'lightning' => 'warm',
-                        'framing' => 'portrait',
+                new OA\Property(
+                    property: 'aspect_ratio',
+                    type: 'string',
+                    enum: [
+                        'square_1_1',
+                        'social_story_9_16',
+                        'widescreen_16_9',
+                        'traditional_3_4',
+                        'classic_4_3',
                     ],
-                ],
-                'person_generation' => 'allow_adult',
-                'safety_settings' => 'block_low_and_above',
+                    example: 'square_1_1'
+                ),
+                new OA\Property(
+                    property: 'styling',
+                    type: 'object',
+                    nullable: true,
+                    properties: [
+                        new OA\Property(
+                            property: 'style',
+                            type: 'string',
+                            enum: [
+                                'photo',
+                                'digital-art',
+                                '3d',
+                                'painting',
+                                'low-poly',
+                                'pixel-art',
+                                'anime',
+                                'cyberpunk',
+                                'comic',
+                                'vintage',
+                                'cartoon',
+                                'vector',
+                                'studio-shot',
+                                'dark',
+                                'sketch',
+                                'mockup',
+                                '2000s-pone',
+                                '70s-vibe',
+                                'watercolor',
+                                'art-nouveau',
+                                'origami',
+                                'surreal',
+                                'fantasy',
+                                'traditional-japan',
+                            ],
+                            example: 'anime'
+                        ),
+                        new OA\Property(
+                            property: 'effects',
+                            type: 'object',
+                            nullable: true,
+                            properties: [
+                                new OA\Property(
+                                    property: 'color',
+                                    type: 'string',
+                                    enum: [
+                                        'b&w',
+                                        'pastel',
+                                        'sepia',
+                                        'dramatic',
+                                        'vibrant',
+                                        'orange&teal',
+                                        'film-filter',
+                                        'split',
+                                        'electric',
+                                        'pastel-pink',
+                                        'gold-glow',
+                                        'autumn',
+                                        'muted-green',
+                                        'deep-teal',
+                                        'duotone',
+                                        'terracotta&teal',
+                                        'red&blue',
+                                        'cold-neon',
+                                        'burgundy&blue',
+                                    ],
+                                    example: 'pastel'
+                                ),
+                                new OA\Property(
+                                    property: 'lightning',
+                                    type: 'string',
+                                    enum: [
+                                        'studio',
+                                        'warm',
+                                        'cinematic',
+                                        'volumetric',
+                                        'golden-hour',
+                                        'long-exposure',
+                                        'cold',
+                                        'iridescent',
+                                        'dramatic',
+                                        'hardlight',
+                                        'redscale',
+                                        'indoor-light',
+                                    ],
+                                    example: 'warm'
+                                ),
+                                new OA\Property(
+                                    property: 'framing',
+                                    type: 'string',
+                                    enum: [
+                                        'portrait',
+                                        'macro',
+                                        'panoramic',
+                                        'aerial-view',
+                                        'close-up',
+                                        'cinematic',
+                                        'high-angle',
+                                        'low-angle',
+                                        'symmetry',
+                                        'fish-eye',
+                                        'first-person',
+                                    ],
+                                    example: 'portrait'
+                                ),
+                            ]
+                        ),
+                        new OA\Property(
+                            property: 'colors',
+                            type: 'array',
+                            minItems: 1,
+                            maxItems: 5,
+                            nullable: true,
+                            items: new OA\Items(
+                                type: 'object',
+                                required: ['color', 'weight'],
+                                properties: [
+                                    new OA\Property(
+                                        property: 'color',
+                                        type: 'string',
+                                        example: '#FF0000',
+                                        description: 'Hex color code'
+                                    ),
+                                    new OA\Property(
+                                        property: 'weight',
+                                        type: 'number',
+                                        minimum: 0.05,
+                                        maximum: 1.0,
+                                        example: 0.5,
+                                        description: 'Weight of the color (0.05 to 1)'
+                                    ),
+                                ]
+                            )
+                        ),
+                    ]
+                ),
+                new OA\Property(
+                    property: 'person_generation',
+                    type: 'string',
+                    enum: ['dont_allow', 'allow_adult', 'allow_all'],
+                    example: 'allow_adult'
+                ),
+                new OA\Property(
+                    property: 'safety_settings',
+                    type: 'string',
+                    enum: ['block_low_and_above', 'block_medium_and_above', 'block_only_high', 'block_none'],
+                    example: 'block_low_and_above'
+                ),
             ]
         )
     )]
@@ -2039,37 +2046,75 @@ class FreepikController extends BaseController
         content: new OA\JsonContent(
             required: ['image'],
             properties: [
-                new OA\Property(property: 'image', type: 'string', description: 'Base64 encoded image to upscale'),
-                new OA\Property(property: 'scale_factor', type: 'string', enum: ['2x', '4x', '8x', '16x'], example: '2x'),
-                new OA\Property(property: 'optimized_for', type: 'string', enum: [
-                    'standard',
-                    'soft_portraits',
-                    'hard_portraits',
-                    'art_n_illustration',
-                    'videogame_assets',
-                    'nature_n_landscapes',
-                    'films_n_photography',
-                    '3d_renders',
-                    'science_fiction_n_horror',
-                ], example: 'standard'),
-                new OA\Property(property: 'prompt', type: 'string', nullable: true, example: 'A vivid and high-detail fantasy landscape'),
-                new OA\Property(property: 'creativity', type: 'integer', minimum: -10, maximum: 10, example: 5),
-                new OA\Property(property: 'hdr', type: 'integer', minimum: -10, maximum: 10, example: 3),
-                new OA\Property(property: 'resemblance', type: 'integer', minimum: -10, maximum: 10, example: 0),
-                new OA\Property(property: 'fractality', type: 'integer', minimum: -10, maximum: 10, example: -2),
-                new OA\Property(property: 'engine', type: 'string', enum: ['automatic', 'magnific_illusio', 'magnific_sharpy', 'magnific_sparkle'], example: 'automatic'),
+                new OA\Property(
+                    property: 'image',
+                    type: 'string',
+                    description: 'URL of the image to upscale',
+                    example: 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'
+                ),
+                new OA\Property(
+                    property: 'scale_factor',
+                    type: 'string',
+                    enum: ['2x', '4x', '8x', '16x'],
+                    example: '2x'
+                ),
+                new OA\Property(
+                    property: 'optimized_for',
+                    type: 'string',
+                    enum: [
+                        'standard',
+                        'soft_portraits',
+                        'hard_portraits',
+                        'art_n_illustration',
+                        'videogame_assets',
+                        'nature_n_landscapes',
+                        'films_n_photography',
+                        '3d_renders',
+                        'science_fiction_n_horror',
+                    ],
+                    example: 'standard'
+                ),
+                new OA\Property(
+                    property: 'prompt',
+                    type: 'string',
+                    nullable: true,
+                    example: 'A vivid and high-detail fantasy landscape with towering crystal mountains, glowing waterfalls, and enchanted forests under a twilight sky'
+                ),
+                new OA\Property(
+                    property: 'creativity',
+                    type: 'integer',
+                    minimum: -10,
+                    maximum: 10,
+                    example: 5
+                ),
+                new OA\Property(
+                    property: 'hdr',
+                    type: 'integer',
+                    minimum: -10,
+                    maximum: 10,
+                    example: 3
+                ),
+                new OA\Property(
+                    property: 'resemblance',
+                    type: 'integer',
+                    minimum: -10,
+                    maximum: 10,
+                    example: 0
+                ),
+                new OA\Property(
+                    property: 'fractality',
+                    type: 'integer',
+                    minimum: -10,
+                    maximum: 10,
+                    example: -2
+                ),
+                new OA\Property(
+                    property: 'engine',
+                    type: 'string',
+                    enum: ['automatic', 'magnific_illusio', 'magnific_sharpy', 'magnific_sparkle'],
+                    example: 'automatic'
+                ),
             ],
-            example: [
-                'image' => 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
-                'scale_factor' => '2x',
-                'optimized_for' => 'standard',
-                'prompt' => 'A vivid and high-detail fantasy landscape with towering crystal mountains, glowing waterfalls, and enchanted forests under a twilight sky',
-                'creativity' => 5,
-                'hdr' => 3,
-                'resemblance' => 0,
-                'fractality' => -2,
-                'engine' => 'automatic',
-            ]
         )
     )]
     #[OA\Response(
@@ -2175,53 +2220,136 @@ class FreepikController extends BaseController
         content: new OA\JsonContent(
             required: ['image'],
             properties: [
-                new OA\Property(property: 'image', type: 'string', description: 'Base64 image to relight'),
-                new OA\Property(property: 'prompt', type: 'string', example: 'A sunlit forest clearing at golden hour'),
-                new OA\Property(property: 'transfer_light_from_reference_image', type: 'string', nullable: true),
-                new OA\Property(property: 'transfer_light_from_lightmap', type: 'string', nullable: true),
-                new OA\Property(property: 'light_transfer_strength', type: 'integer', minimum: 0, maximum: 100, default: 100),
-                new OA\Property(property: 'interpolate_from_original', type: 'boolean', default: false),
-                new OA\Property(property: 'change_background', type: 'boolean', default: true),
-                new OA\Property(property: 'style', type: 'string', enum: ['standard', 'darker_but_realistic', 'clean', 'smooth', 'brighter', 'contrasted_n_hdr', 'just_composition'], default: 'standard'),
-                new OA\Property(property: 'preserve_details', type: 'boolean', default: true),
+                new OA\Property(
+                    property: 'image',
+                    type: 'string',
+                    description: 'Base64 image to relight',
+                    example: 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'
+                ),
+                new OA\Property(
+                    property: 'prompt',
+                    type: 'string',
+                    example: 'A sunlit forest clearing at golden hour with rays piercing through the trees'
+                ),
+                new OA\Property(
+                    property: 'transfer_light_from_reference_image',
+                    type: 'string',
+                    nullable: true,
+                    example: 'https://publiish.io/ipfs/QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV'
+                ),
+                new OA\Property(
+                    property: 'transfer_light_from_lightmap',
+                    type: 'string',
+                    nullable: true,
+                    example: 'https://publiish.io/ipfs/QmPnAKihJS1shKqnA4UqQ6bvkw29j8yFW4MJTb6KZA1e6Q'
+                ),
+                new OA\Property(
+                    property: 'light_transfer_strength',
+                    type: 'integer',
+                    minimum: 0,
+                    maximum: 100,
+                    default: 100,
+                    example: 100
+                ),
+                new OA\Property(
+                    property: 'interpolate_from_original',
+                    type: 'boolean',
+                    default: false,
+                    example: false
+                ),
+                new OA\Property(
+                    property: 'change_background',
+                    type: 'boolean',
+                    default: true,
+                    example: true
+                ),
+                new OA\Property(
+                    property: 'style',
+                    type: 'string',
+                    enum: ['standard', 'darker_but_realistic', 'clean', 'smooth', 'brighter', 'contrasted_n_hdr', 'just_composition'],
+                    default: 'standard',
+                    example: 'standard'
+                ),
+                new OA\Property(
+                    property: 'preserve_details',
+                    type: 'boolean',
+                    default: true,
+                    example: true
+                ),
                 new OA\Property(
                     property: 'advanced_settings',
                     type: 'object',
                     properties: [
-                        new OA\Property(property: 'whites', type: 'integer', minimum: 0, maximum: 100, default: 50),
-                        new OA\Property(property: 'blacks', type: 'integer', minimum: 0, maximum: 100, default: 50),
-                        new OA\Property(property: 'brightness', type: 'integer', minimum: 0, maximum: 100, default: 50),
-                        new OA\Property(property: 'contrast', type: 'integer', minimum: 0, maximum: 100, default: 50),
-                        new OA\Property(property: 'saturation', type: 'integer', minimum: 0, maximum: 100, default: 50),
-                        new OA\Property(property: 'engine', type: 'string', enum: ['automatic', 'balanced', 'cool', 'real', 'illusio', 'fairy', 'colorful_anime', 'hard_transform', 'softy'], default: 'automatic'),
-                        new OA\Property(property: 'transfer_light_a', type: 'string', enum: ['automatic', 'low', 'medium', 'normal', 'high', 'high_on_faces'], default: 'automatic'),
-                        new OA\Property(property: 'transfer_light_b', type: 'string', enum: ['automatic', 'composition', 'straight', 'smooth_in', 'smooth_out', 'smooth_both', 'reverse_both', 'soft_in', 'soft_out', 'soft_mid', 'strong_mid', 'style_shift', 'strong_shift'], default: 'automatic'),
-                        new OA\Property(property: 'fixed_generation', type: 'boolean', default: false),
-                    ]
+                        new OA\Property(
+                            property: 'whites',
+                            type: 'integer',
+                            minimum: 0,
+                            maximum: 100,
+                            default: 50,
+                            example: 50
+                        ),
+                        new OA\Property(
+                            property: 'blacks',
+                            type: 'integer',
+                            minimum: 0,
+                            maximum: 100,
+                            default: 50,
+                            example: 50
+                        ),
+                        new OA\Property(
+                            property: 'brightness',
+                            type: 'integer',
+                            minimum: 0,
+                            maximum: 100,
+                            default: 50,
+                            example: 50
+                        ),
+                        new OA\Property(
+                            property: 'contrast',
+                            type: 'integer',
+                            minimum: 0,
+                            maximum: 100,
+                            default: 50,
+                            example: 50
+                        ),
+                        new OA\Property(
+                            property: 'saturation',
+                            type: 'integer',
+                            minimum: 0,
+                            maximum: 100,
+                            default: 50,
+                            example: 50
+                        ),
+                        new OA\Property(
+                            property: 'engine',
+                            type: 'string',
+                            enum: ['automatic', 'balanced', 'cool', 'real', 'illusio', 'fairy', 'colorful_anime', 'hard_transform', 'softy'],
+                            default: 'automatic',
+                            example: 'automatic'
+                        ),
+                        new OA\Property(
+                            property: 'transfer_light_a',
+                            type: 'string',
+                            enum: ['automatic', 'low', 'medium', 'normal', 'high', 'high_on_faces'],
+                            default: 'automatic',
+                            example: 'automatic'
+                        ),
+                        new OA\Property(
+                            property: 'transfer_light_b',
+                            type: 'string',
+                            enum: ['automatic', 'composition', 'straight', 'smooth_in', 'smooth_out', 'smooth_both', 'reverse_both', 'soft_in', 'soft_out', 'soft_mid', 'strong_mid', 'style_shift', 'strong_shift'],
+                            default: 'automatic',
+                            example: 'automatic'
+                        ),
+                        new OA\Property(
+                            property: 'fixed_generation',
+                            type: 'boolean',
+                            default: false,
+                            example: false
+                        ),
+                    ],
                 ),
             ],
-            example: [
-                'image' => 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
-                'prompt' => 'A sunlit forest clearing at golden hour with rays piercing through the trees',
-                'transfer_light_from_reference_image' => 'https://publiish.io/ipfs/QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV',
-                'transfer_light_from_lightmap' => 'https://publiish.io/ipfs/QmPnAKihJS1shKqnA4UqQ6bvkw29j8yFW4MJTb6KZA1e6Q',
-                'light_transfer_strength' => 100,
-                'interpolate_from_original' => false,
-                'change_background' => true,
-                'style' => 'standard',
-                'preserve_details' => true,
-                'advanced_settings' => [
-                    'whites' => 50,
-                    'blacks' => 50,
-                    'brightness' => 50,
-                    'contrast' => 50,
-                    'saturation' => 50,
-                    'engine' => 'automatic',
-                    'transfer_light_a' => 'automatic',
-                    'transfer_light_b' => 'automatic',
-                    'fixed_generation' => false,
-                ],
-            ]
         )
     )]
     #[OA\Response(
@@ -2336,56 +2464,86 @@ class FreepikController extends BaseController
         content: new OA\JsonContent(
             required: ['image', 'reference_image'],
             properties: [
-                new OA\Property(property: 'image', type: 'string', description: 'Base64 Image to style transfer'),
-                new OA\Property(property: 'reference_image', type: 'string', description: 'Base64 Reference image for style transfer'),
-                new OA\Property(property: 'prompt', type: 'string', nullable: true),
-                new OA\Property(property: 'style_strength', type: 'integer', minimum: 0, maximum: 100, default: 100),
-                new OA\Property(property: 'structure_strength', type: 'integer', minimum: 0, maximum: 100, default: 50),
-                new OA\Property(property: 'is_portrait', type: 'boolean', default: false),
-
+                new OA\Property(
+                    property: 'image',
+                    type: 'string',
+                    description: 'Base64 Image to style transfer',
+                    example: 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'
+                ),
+                new OA\Property(
+                    property: 'reference_image',
+                    type: 'string',
+                    description: 'Base64 Reference image for style transfer',
+                    example: 'https://publiish.io/ipfs/QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV'
+                ),
+                new OA\Property(
+                    property: 'prompt',
+                    type: 'string',
+                    nullable: true,
+                    example: 'A peaceful mountain cabin at sunrise, surrounded by pine trees and light morning mist'
+                ),
+                new OA\Property(
+                    property: 'style_strength',
+                    type: 'integer',
+                    minimum: 0,
+                    maximum: 100,
+                    default: 100,
+                    example: 100
+                ),
+                new OA\Property(
+                    property: 'structure_strength',
+                    type: 'integer',
+                    minimum: 0,
+                    maximum: 100,
+                    default: 50,
+                    example: 50
+                ),
+                new OA\Property(
+                    property: 'is_portrait',
+                    type: 'boolean',
+                    default: false,
+                    example: false
+                ),
                 new OA\Property(
                     property: 'portrait_style',
                     type: 'string',
                     enum: ['standard', 'pop', 'super_pop'],
                     default: 'standard',
-                    description: 'Portrait style'
+                    description: 'Portrait style',
+                    example: 'standard'
                 ),
                 new OA\Property(
                     property: 'portrait_beautifier',
                     type: 'string',
                     enum: ['beautify_face', 'beautify_face_max'],
                     nullable: true,
-                    description: 'Portrait beautifier'
+                    description: 'Portrait beautifier',
+                    example: 'beautify_face'
                 ),
                 new OA\Property(
                     property: 'flavor',
                     type: 'string',
                     enum: ['faithful', 'gen_z', 'psychedelia', 'detaily', 'clear', 'donotstyle', 'donotstyle_sharp'],
                     default: 'faithful',
-                    description: 'Flavor of the transferring style'
+                    description: 'Flavor of the transferring style',
+                    example: 'faithful'
                 ),
                 new OA\Property(
                     property: 'engine',
                     type: 'string',
                     enum: ['balanced', 'definio', 'illusio', '3d_cartoon', 'colorful_anime', 'caricature', 'real', 'super_real', 'softy'],
                     default: 'balanced',
-                    description: 'Engine for style transfer'
+                    description: 'Engine for style transfer',
+                    example: 'balanced'
                 ),
-                new OA\Property(property: 'fixed_generation', type: 'boolean', default: false, description: 'Fixed generation flag'),
+                new OA\Property(
+                    property: 'fixed_generation',
+                    type: 'boolean',
+                    default: false,
+                    description: 'Fixed generation flag',
+                    example: false
+                ),
             ],
-            example: [
-                'image' => 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
-                'reference_image' => 'https://publiish.io/ipfs/QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV',
-                'prompt' => 'A peaceful mountain cabin at sunrise, surrounded by pine trees and light morning mist',
-                'style_strength' => 100,
-                'structure_strength' => 50,
-                'is_portrait' => false,
-                'portrait_style' => 'standard',
-                'portrait_beautifier' => 'beautify_face',
-                'flavor' => 'faithful',
-                'engine' => 'balanced',
-                'fixed_generation' => false,
-            ]
         )
     )]
     #[OA\Response(
@@ -2579,20 +2737,55 @@ class FreepikController extends BaseController
             content: new OA\JsonContent(
                 required: ['image'],
                 properties: [
-                    new OA\Property(property: 'image', type: 'string', description: 'Base64 image to expand'),
-                    new OA\Property(property: 'prompt', type: 'string', nullable: true, description: 'Description to guide expansion'),
-                    new OA\Property(property: 'left', type: 'integer', nullable: true, minimum: 0, maximum: 2048, description: 'Pixels to expand on the left'),
-                    new OA\Property(property: 'right', type: 'integer', nullable: true, minimum: 0, maximum: 2048, description: 'Pixels to expand on the right'),
-                    new OA\Property(property: 'top', type: 'integer', nullable: true, minimum: 0, maximum: 2048, description: 'Pixels to expand on the top'),
-                    new OA\Property(property: 'bottom', type: 'integer', nullable: true, minimum: 0, maximum: 2048, description: 'Pixels to expand on the bottom'),
-                ],
-                example: [
-                    'image' => 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
-                    'prompt' => 'A panoramic view of a serene beach with gentle waves, golden sand, and a vibrant sunset sky extending beyond the frame',
-                    'left' => 2048,
-                    'right' => 2048,
-                    'top' => 2048,
-                    'bottom' => 2048,
+                    new OA\Property(
+                        property: 'image',
+                        type: 'string',
+                        description: 'Base64 image to expand',
+                        example: 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'
+                    ),
+                    new OA\Property(
+                        property: 'prompt',
+                        type: 'string',
+                        nullable: true,
+                        description: 'Description to guide expansion',
+                        example: 'A panoramic view of a serene beach with gentle waves, golden sand, and a vibrant sunset sky extending beyond the frame'
+                    ),
+                    new OA\Property(
+                        property: 'left',
+                        type: 'integer',
+                        nullable: true,
+                        minimum: 0,
+                        maximum: 2048,
+                        description: 'Pixels to expand on the left',
+                        example: 2048
+                    ),
+                    new OA\Property(
+                        property: 'right',
+                        type: 'integer',
+                        nullable: true,
+                        minimum: 0,
+                        maximum: 2048,
+                        description: 'Pixels to expand on the right',
+                        example: 2048
+                    ),
+                    new OA\Property(
+                        property: 'top',
+                        type: 'integer',
+                        nullable: true,
+                        minimum: 0,
+                        maximum: 2048,
+                        description: 'Pixels to expand on the top',
+                        example: 2048
+                    ),
+                    new OA\Property(
+                        property: 'bottom',
+                        type: 'integer',
+                        nullable: true,
+                        minimum: 0,
+                        maximum: 2048,
+                        description: 'Pixels to expand on the bottom',
+                        example: 2048
+                    ),
                 ]
             )
         ),
