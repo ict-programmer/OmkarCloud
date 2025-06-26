@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Data\Runwayml\VideoProcessingData;
+use App\Http\Exceptions\BadRequest;
 use App\Http\Requests\Runwayml\VideoProcessingRequest;
-use App\Http\Resources\Runwayml\VideoProcessingResource;
 use App\Services\RunwaymlService;
 use Illuminate\Http\JsonResponse;
 use OpenApi\Attributes as OA;
@@ -223,8 +223,12 @@ class RunwaymlAPIController extends BaseController
     //         ],
     //     )
     // )]
-    public function taskManagement(string $id): JsonResponse
+    public function taskManagement(): JsonResponse
     {
+        $id = (string) request()->input('id');
+
+        throw_if(empty($id), new BadRequest(__('ID is required')));
+
         $result = $this->service->taskManagement($id);
 
         return $this->logAndResponse($result->data);
