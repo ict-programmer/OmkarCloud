@@ -40,7 +40,7 @@ class RunwaymlService
 
         if (
             !$provider ||
-            !isset($provider->parameter['base_url'], $provider->parameter['version'])
+            !isset($provider->parameters['base_url'], $provider->parameters['version'])
         ) {
             throw new NotFound('RunwayML API service provider not found.');
         }
@@ -49,7 +49,7 @@ class RunwaymlService
 
         throw_if(empty($apiKey), new NotFound('RunwayML API key not configured.'));
 
-        $this->apiUrl = "{$provider->parameter['base_url']}/{$provider->parameter['version']}";
+        $this->apiUrl = "{$provider->parameters['base_url']}/{$provider->parameters['version']}";
 
         $this->client = Http::withToken($apiKey)
             ->withHeader('X-Runway-Version', $this->RUNWWAYML_API_VERSION_HEADER)

@@ -22,10 +22,15 @@ class MainService
     public function executeMainFunction(string $serviceProviderId, string $serviceTypeId, Request $request): mixed
     {
         $serviceProvider = ServiceProvider::query()->find($serviceProviderId);
+        
+        if (is_null($serviceProvider)) {
+            return $this->response('Service provider not found', null, 404);
+        }
+
         $serviceType = ServiceType::query()->find($serviceTypeId);
 
-        if (is_null($serviceProvider) || is_null($serviceType)) {
-            return $this->response('Service provider or service type not found', null, 404);
+        if (is_null($serviceType)) {
+            return $this->response('Service type not found', null, 404);
         }
 
         $serviceProviderType = ServiceProviderType::where('service_provider_id', $serviceProviderId)
@@ -48,7 +53,7 @@ class MainService
 
         $model = $request->input('model');
 
-        if (is_null($model)) {
+        if (!is_null($model)) {
             $modelExists = ServiceProviderModel::query()->where('service_provider_id', $serviceProviderId)->where('model_name', $model)->exists();
 
             if (!$modelExists) {

@@ -69,7 +69,7 @@ class ClaudeAPIService
 
         if (
             !$provider ||
-            !isset($provider->parameter['base_url'], $provider->parameter['version'])
+            !isset($provider->parameters['base_url'], $provider->parameters['version'])
         ) {
             throw new NotFound('Claude API service provider not found.');
         }
@@ -90,7 +90,7 @@ class ClaudeAPIService
             ['service_type_id', $serviceType->id],
         ])->first();
 
-        if (!$providerType || !isset($providerType->parameter['max_tokens'])) {
+        if (!$providerType || !isset($providerType->parameters['max_tokens'])) {
             throw new NotFound('Claude API provider type configuration missing.');
         }
 
@@ -108,8 +108,8 @@ class ClaudeAPIService
             $this->CLAUDE_API_MODEL = $model;
         }
 
-        $this->apiUrl = "{$provider->parameter['base_url']}/{$provider->parameter['version']}/messages";
-        $this->maxTokens = $providerType->parameter['max_tokens'];
+        $this->apiUrl = "{$provider->parameters['base_url']}/{$provider->parameters['version']}/messages";
+        $this->maxTokens = $providerType->parameters['max_tokens'];
         $this->tools = json_encode($providerType->tools) ?? [];
 
         $this->client = Http::withHeaders([

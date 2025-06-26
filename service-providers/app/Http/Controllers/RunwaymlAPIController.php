@@ -227,7 +227,7 @@ class RunwaymlAPIController extends BaseController
     {
         $id = (string) request()->input('id');
 
-        throw_if(empty($id), new BadRequest(__('ID is required')));
+        throw_if(empty($id), new BadRequest(__('Task ID is required')));
 
         $result = $this->service->taskManagement($id);
 

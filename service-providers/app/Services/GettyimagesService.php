@@ -65,7 +65,7 @@ class GettyimagesService
 
     if (
       !$provider ||
-      !isset($provider->parameter['base_url'], $provider->parameter['version'])
+      !isset($provider->parameters['base_url'], $provider->parameters['version'])
     ) {
       throw new NotFound('Getty Images API service provider not found.');
     }
@@ -76,7 +76,7 @@ class GettyimagesService
 
     $this->apiKey = $apiKey;
 
-    $this->apiUrl = "{$provider->parameter['base_url']}/{$provider->parameter['version']}";
+    $this->apiUrl = "{$provider->parameters['base_url']}/{$provider->parameters['version']}";
 
     $this->client = Http::withHeaders([
       'Accept' => 'application/json',

@@ -71,7 +71,7 @@ class GeminiService
         throw_if(empty($apiKey), new NotFound('Gemini key not configured.'));
 
         $this->apiKey = $apiKey;
-        $this->maxTokens = $provider->parameter['max_tokens'];
+        $this->maxTokens = $provider->parameters['max_tokens'];
 
         $this->client = Http::withHeaders(['Content-Type' => 'application/json'])
             ->timeout(0)
