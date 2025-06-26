@@ -26,7 +26,7 @@ class UpscaleImageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image' => ['required', 'string'],
+            'image' => ['required', 'string', 'url'],
             'scale_factor' => ['nullable', Rule::in(ScaleFactorEnum::getValuesInArray())],
             'optimized_for' => ['nullable', Rule::in(OptimizedForEnum::getValuesInArray())],
             'prompt' => ['nullable', 'string'],

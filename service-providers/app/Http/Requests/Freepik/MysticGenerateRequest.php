@@ -28,9 +28,9 @@ class MysticGenerateRequest extends FormRequest
     {
         return [
             'prompt' => 'required|string',
-            'structure_reference' => 'nullable|string',
+            'structure_reference' => 'nullable|string|url',
             'structure_strength' => 'nullable|integer|min:0|max:100',
-            'style_reference' => 'nullable|string',
+            'style_reference' => 'nullable|string|url',
             'adherence' => 'nullable|integer|min:0|max:100',
             'hdr' => 'nullable|integer|min:0|max:100',
             'resolution' => ['nullable', Rule::in(ResolutionEnum::getValuesInArray())],

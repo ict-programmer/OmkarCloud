@@ -545,6 +545,31 @@ class FreepikController extends BaseController
                                 ]
                             )
                         ),
+                    ],
+                    example: [
+                        'model' => 'kling-v2-1-master',
+                        'duration' => '10',
+                        'image' => 'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN',
+                        'image_tail' => 'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN',
+                        'prompt' => 'Cinematic view of a mountain range fading into mist, soft lighting, epic atmosphere',
+                        'negative_prompt' => 'blurry, low-quality, distorted, overexposed',
+                        'cfg_scale' => 0.3,
+                        'static_mask' => 'https://publiish.io/ipfs/Qme7SZ1t9PbGKAesTA24EDu7pEs3J1JkWDt9qwQdaocYRB',
+                        'dynamic_masks' => [
+                            [
+                                'mask' => 'https://publiish.io/ipfs/QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf',
+                                'trajectories' => [
+                                    [
+                                        'x' => 120,
+                                        'y' => 200,
+                                    ],
+                                    [
+                                        'x' => 150,
+                                        'y' => 250,
+                                    ],
+                                ],
+                            ],
+                        ],
                     ]
                 )
             ),
@@ -740,11 +765,11 @@ class FreepikController extends BaseController
         in: 'query',
         required: true,
         description: 'Array of up to 4 image URLs (publicly accessible)',
-        schema: new OA\Schema(type: 'array', items: new OA\Items(type: 'string', format: 'uri'), maxItems: 4)
+        schema: new OA\Schema(type: 'array', items: new OA\Items(type: 'string', format: 'uri'), maxItems: 4, example: ['https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN', 'https://publiish.io/ipfs/QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf'])
     )]
     #[OA\Parameter(name: 'prompt', in: 'query', required: false, schema: new OA\Schema(type: 'string', maxLength: 2500))]
     #[OA\Parameter(name: 'negative_prompt', in: 'query', required: false, schema: new OA\Schema(type: 'string', maxLength: 2500))]
-    #[OA\Parameter(name: 'duration', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['5', '10']))]
+    #[OA\Parameter(name: 'duration', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['5', '10'], example: '5'))]
     #[OA\Parameter(name: 'aspect_ratio', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['widescreen_16_9', 'social_story_9_16', 'square_1_1']))]
     #[OA\Response(
         response: 200,
@@ -998,36 +1023,40 @@ class FreepikController extends BaseController
                 ),
             ],
             example: [
-                'prompt' => '<string>',
-                'structure_reference' => 'aSDinaTvuI8gbWludGxpZnk=',
-                'structure_strength' => 50,
-                'style_reference' => 'aSDinaTvuI8gbWludGxpZnk=',
-                'adherence' => 50,
-                'hdr' => 50,
+                'prompt' => 'A futuristic cityscape at sunset, flying cars, glowing neon lights, cyberpunk vibe',
+                'structure_reference' => 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
+                'structure_strength' => 60,
+                'style_reference' => 'https://publiish.io/ipfs/QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV',
+                'adherence' => 70,
+                'hdr' => 80,
                 'resolution' => '2k',
                 'aspect_ratio' => 'square_1_1',
                 'model' => 'realism',
-                'creative_detailing' => 33,
+                'creative_detailing' => 45,
                 'engine' => 'automatic',
                 'fixed_generation' => false,
                 'filter_nsfw' => true,
                 'styling' => [
                     'styles' => [
                         [
-                            'name' => '<string>',
+                            'name' => 'cyberpunk',
                             'strength' => 100,
                         ],
                     ],
                     'characters' => [
                         [
-                            'id' => '<string>',
+                            'id' => '110',
                             'strength' => 100,
                         ],
                     ],
                     'colors' => [
                         [
-                            'color' => '#FF0000',
-                            'weight' => 0.5,
+                            'color' => '#00FFFF',
+                            'weight' => 0.6,
+                        ],
+                        [
+                            'color' => '#FF69B4',
+                            'weight' => 0.4,
                         ],
                     ],
                 ],
@@ -1147,16 +1176,16 @@ class FreepikController extends BaseController
                 new OA\Property(property: 'description', type: 'string', nullable: true, description: 'Description of the LoRA style.'),
             ],
             example: [
-                'name' => 'my-awesome-style',
-                'description' => 'string',
+                'name' => 'neon-cyberpunk-style',
+                'description' => 'A high-quality cyberpunk visual style with neon lights, futuristic elements, and strong contrast. Inspired by sci-fi films and urban night scenes.',
                 'quality' => 'high',
                 'images' => [
-                    'https://example.com/image1.jpg',
-                    'https://example.com/image2.jpg',
-                    'https://example.com/image3.jpg',
-                    'https://example.com/image4.jpg',
-                    'https://example.com/image5.jpg',
-                    'https://example.com/image6.jpg',
+                    'https://publiish.io/ipfs/QmRBe3ZDEBDH18JEgDuFdTShzw3Xy1s94bY6dtcBAnH4tu',
+                    'https://publiish.io/ipfs/QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf',
+                    'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN',
+                    'https://publiish.io/ipfs/QmPnAKihJS1shKqnA4UqQ6bvkw29j8yFW4MJTb6KZA1e6Q',
+                    'https://publiish.io/ipfs/QmdHRXQ8sX2d648gnCa2CXUjeJmreS8654vqwd9JS6m8GN',
+                    'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
                 ],
             ]
         )
@@ -1210,20 +1239,20 @@ class FreepikController extends BaseController
 
             ],
             example: [
-                'name' => 'my-awesome-character',
+                'name' => 'cyber_hero_neo',
                 'quality' => 'high',
                 'gender' => 'male',
                 'images' => [
-                    'https://example.com/img1.jpg',
-                    'https://example.com/img2.jpg',
-                    'https://example.com/img3.jpg',
-                    'https://example.com/img4.jpg',
-                    'https://example.com/img5.jpg',
-                    'https://example.com/img6.jpg',
-                    'https://example.com/img7.jpg',
-                    'https://example.com/img8.jpg',
+                    'https://publiish.io/ipfs/QmRBe3ZDEBDH18JEgDuFdTShzw3Xy1s94bY6dtcBAnH4tu',
+                    'https://publiish.io/ipfs/QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf',
+                    'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN',
+                    'https://publiish.io/ipfs/QmPnAKihJS1shKqnA4UqQ6bvkw29j8yFW4MJTb6KZA1e6Q',
+                    'https://publiish.io/ipfs/QmdHRXQ8sX2d648gnCa2CXUjeJmreS8654vqwd9JS6m8GN',
+                    'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
+                    'https://publiish.io/ipfs/QmRTn93jATdpcpCg1nRfAExc8shh9Hmhbd8PHnXBrLJYAa',
+                    'https://publiish.io/ipfs/QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV',
                 ],
-                'description' => 'This is a cool character.',
+                'description' => 'A futuristic male character with a bold cyberpunk aesthetic, glowing eyes, and advanced tech gear. Suitable for sci-fi narratives, stylized storytelling, and visual AI applications.',
             ]
         )
     )]
@@ -1953,7 +1982,7 @@ class FreepikController extends BaseController
         content: new OA\JsonContent(
             required: ['image'],
             properties: [
-                new OA\Property(property: 'image', type: 'string', format: 'byte', description: 'Base64-encoded input image', example: 'iVBORw0KGgoAAAANSUhEUgAA...'),
+                new OA\Property(property: 'image', type: 'string', format: 'byte', description: 'Base64-encoded input image', example: 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'),
                 new OA\Property(property: 'prompt', type: 'string', description: 'Optional prompt for imagination', example: 'A beautiful sunset over a calm ocean'),
                 new OA\Property(property: 'imagination', type: 'string', enum: ['wild', 'subtle', 'vivid'], description: 'Imagination type', example: 'wild'),
                 new OA\Property(property: 'aspect_ratio', type: 'string', enum: [
@@ -2031,10 +2060,10 @@ class FreepikController extends BaseController
                 new OA\Property(property: 'engine', type: 'string', enum: ['automatic', 'magnific_illusio', 'magnific_sharpy', 'magnific_sparkle'], example: 'automatic'),
             ],
             example: [
-                'image' => 'iVBORw0KGgoAAAANSUhEUgAA...',
+                'image' => 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
                 'scale_factor' => '2x',
                 'optimized_for' => 'standard',
-                'prompt' => 'A vivid and high-detail fantasy landscape',
+                'prompt' => 'A vivid and high-detail fantasy landscape with towering crystal mountains, glowing waterfalls, and enchanted forests under a twilight sky',
                 'creativity' => 5,
                 'hdr' => 3,
                 'resemblance' => 0,
@@ -2170,6 +2199,28 @@ class FreepikController extends BaseController
                         new OA\Property(property: 'fixed_generation', type: 'boolean', default: false),
                     ]
                 ),
+            ],
+            example: [
+                'image' => 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
+                'prompt' => 'A sunlit forest clearing at golden hour with rays piercing through the trees',
+                'transfer_light_from_reference_image' => 'https://publiish.io/ipfs/QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV',
+                'transfer_light_from_lightmap' => 'https://publiish.io/ipfs/QmPnAKihJS1shKqnA4UqQ6bvkw29j8yFW4MJTb6KZA1e6Q',
+                'light_transfer_strength' => 100,
+                'interpolate_from_original' => false,
+                'change_background' => true,
+                'style' => 'standard',
+                'preserve_details' => true,
+                'advanced_settings' => [
+                    'whites' => 50,
+                    'blacks' => 50,
+                    'brightness' => 50,
+                    'contrast' => 50,
+                    'saturation' => 50,
+                    'engine' => 'automatic',
+                    'transfer_light_a' => 'automatic',
+                    'transfer_light_b' => 'automatic',
+                    'fixed_generation' => false,
+                ],
             ]
         )
     )]
@@ -2321,6 +2372,19 @@ class FreepikController extends BaseController
                     description: 'Engine for style transfer'
                 ),
                 new OA\Property(property: 'fixed_generation', type: 'boolean', default: false, description: 'Fixed generation flag'),
+            ],
+            example: [
+                'image' => 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
+                'reference_image' => 'https://publiish.io/ipfs/QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV',
+                'prompt' => 'A peaceful mountain cabin at sunrise, surrounded by pine trees and light morning mist',
+                'style_strength' => 100,
+                'structure_strength' => 50,
+                'is_portrait' => false,
+                'portrait_style' => 'standard',
+                'portrait_beautifier' => 'beautify_face',
+                'flavor' => 'faithful',
+                'engine' => 'balanced',
+                'fixed_generation' => false,
             ]
         )
     )]
@@ -2449,7 +2513,7 @@ class FreepikController extends BaseController
                         type: 'string',
                         format: 'uri',
                         description: 'The URL of the image whose background needs to be removed',
-                        example: 'https://img.freepik.com/free-vector/cute-cat-sitting-cartoon-vector-icon-illustration-animal-nature-icon-concept-isolated-premium-vector-flat-cartoon-style_138676-4148.jpg?w=2000&t=st=1725353998~exp=1725357598~hmac=a17f90afeeff454b36c0715f84eed2b388cd9c4a7ce59fcdff075fa41770e469',
+                        example: 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
                     ),
                 ]
             )
@@ -2516,13 +2580,20 @@ class FreepikController extends BaseController
                 required: ['image'],
                 properties: [
                     new OA\Property(property: 'image', type: 'string', description: 'Base64 image to expand'),
-                    new OA\Property(property: 'webhook_url', type: 'string', nullable: true, description: 'Optional webhook URL for task status notifications'),
                     new OA\Property(property: 'prompt', type: 'string', nullable: true, description: 'Description to guide expansion'),
                     new OA\Property(property: 'left', type: 'integer', nullable: true, minimum: 0, maximum: 2048, description: 'Pixels to expand on the left'),
                     new OA\Property(property: 'right', type: 'integer', nullable: true, minimum: 0, maximum: 2048, description: 'Pixels to expand on the right'),
                     new OA\Property(property: 'top', type: 'integer', nullable: true, minimum: 0, maximum: 2048, description: 'Pixels to expand on the top'),
                     new OA\Property(property: 'bottom', type: 'integer', nullable: true, minimum: 0, maximum: 2048, description: 'Pixels to expand on the bottom'),
                 ],
+                example: [
+                    'image' => 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
+                    'prompt' => 'A panoramic view of a serene beach with gentle waves, golden sand, and a vibrant sunset sky extending beyond the frame',
+                    'left' => 2048,
+                    'right' => 2048,
+                    'top' => 2048,
+                    'bottom' => 2048,
+                ]
             )
         ),
         responses: [

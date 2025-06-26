@@ -21,6 +21,7 @@ use App\Data\Request\Freepik\RemoveBackgroundData;
 use App\Data\Request\Freepik\StockContentData;
 use App\Data\Request\Freepik\StyleTransferData;
 use App\Data\Request\Freepik\UpscaleImageData;
+use App\Helpers\ImageToBase64Converter;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
@@ -140,6 +141,14 @@ class FreepikService
 
     public function generateMysticImage(MysticGenerateData $data): array
     {
+        if (!empty($data->structure_reference)) {
+            $data->structure_reference = ImageToBase64Converter::imageUrlToBase64($data->structure_reference, false);
+        }
+
+        if (!empty($data->style_reference)) {
+            $data->style_reference = ImageToBase64Converter::imageUrlToBase64($data->style_reference, false);
+        }
+
         $response = $this->client->post('ai/mystic', array_filter($data->toArray(), fn ($value) => $value !== null));
 
         return $response->json();
@@ -210,6 +219,9 @@ class FreepikService
 
     public function reimagineFluxImage(ReimagineFluxData $data): array
     {
+        if (!empty($data->image)) {
+            $data->image = ImageToBase64Converter::imageUrlToBase64($data->image, false);
+        }
         $response = $this->client->post('ai/beta/text-to-image/reimagine-flux', array_filter($data->toArray(), fn ($value) => $value !== null));
 
         return $response->json();
@@ -217,6 +229,10 @@ class FreepikService
 
     public function upscaleImage(UpscaleImageData $data): array
     {
+        if (!empty($data->image)) {
+            $data->image = ImageToBase64Converter::imageUrlToBase64($data->image, false);
+        }
+
         $response = $this->client->post('ai/image-upscaler', array_filter($data->toArray(), fn ($value) => $value !== null));
 
         return $response->json();
@@ -231,6 +247,16 @@ class FreepikService
 
     public function relightImage(RelightImageData $data): array
     {
+        if (!empty($data->image)) {
+            $data->image = ImageToBase64Converter::imageUrlToBase64($data->image, false);
+        }
+        if (!empty($data->transfer_light_from_reference_image)) {
+            $data->transfer_light_from_reference_image = ImageToBase64Converter::imageUrlToBase64($data->transfer_light_from_reference_image, false);
+        }
+        if (!empty($data->transfer_light_from_lightmap)) {
+            $data->transfer_light_from_lightmap = ImageToBase64Converter::imageUrlToBase64($data->transfer_light_from_lightmap, false);
+        }
+
         $response = $this->client->post('ai/image-relight', array_filter($data->toArray(), fn ($value) => $value !== null));
 
         return $response->json();
@@ -245,6 +271,13 @@ class FreepikService
 
     public function styleTransfer(StyleTransferData $data): array
     {
+        if (!empty($data->image)) {
+            $data->image = ImageToBase64Converter::imageUrlToBase64($data->image, false);
+        }
+        if (!empty($data->reference_image)) {
+            $data->reference_image = ImageToBase64Converter::imageUrlToBase64($data->reference_image, false);
+        }
+
         $response = $this->client->post('ai/image-style-transfer', array_filter($data->toArray(), fn ($value) => $value !== null));
 
         return $response->json();
@@ -266,6 +299,10 @@ class FreepikService
 
     public function imageExpandFluxPro(ImageExpandFluxProData $data): array
     {
+        if (!empty($data->image)) {
+            $data->image = ImageToBase64Converter::imageUrlToBase64($data->image, false);
+        }
+
         $response = $this->client->post('ai/image-expand/flux-pro', array_filter($data->toArray(), fn ($value) => $value !== null));
 
         return $response->json();

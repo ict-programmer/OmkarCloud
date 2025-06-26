@@ -22,7 +22,7 @@ class ImageExpandFluxProRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image' => ['required', 'string'], // Base64 image string
+            'image' => ['required', 'string', 'url'],
             'prompt' => ['nullable', 'string'],
             'left' => ['nullable', 'integer', 'min:0', 'max:2048'],
             'right' => ['nullable', 'integer', 'min:0', 'max:2048'],

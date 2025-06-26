@@ -25,7 +25,7 @@ class ReimagineFluxRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image' => ['required', 'string', 'regex:/^data:image\/(png|jpeg|jpg|webp);base64,[A-Za-z0-9+\/=]+$/'],
+            'image' => ['required', 'string', 'url'],
             'prompt' => ['nullable', 'string'],
             'imagination' => [
                 'nullable',
