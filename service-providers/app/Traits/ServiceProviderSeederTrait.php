@@ -99,8 +99,6 @@ trait ServiceProviderSeederTrait
                             'service_type_id' => $serviceTypeId,
                         ],
                         [
-                            'display_name' => $model,
-                            'model_name' => $model,
                             'status' => 'active',
                         ]
                     );
