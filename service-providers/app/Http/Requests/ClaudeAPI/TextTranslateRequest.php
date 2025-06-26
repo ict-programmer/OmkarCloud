@@ -27,6 +27,7 @@ class TextTranslateRequest extends FormRequest
             'text' => ['required', 'string', 'min:1', 'max:5000'],
             'source_language' => ['required', 'string', 'size:2', 'regex:/^[a-z]{2}$/'],
             'target_language' => ['required', 'string', 'size:2', 'regex:/^[a-z]{2}$/'],
+            'model' => ['nullable', 'string'],
         ];
     }
 
@@ -50,6 +51,7 @@ class TextTranslateRequest extends FormRequest
             'target_language.string' => 'The target_language must be a valid string.',
             'target_language.size' => 'The target_language must be exactly 2 characters (ISO 639-1 format).',
             'target_language.regex' => 'The target_language must be a valid 2-letter language code (e.g., en, es, fr).',
+            'model.string' => 'The model must be a valid string.',
         ];
     }
 

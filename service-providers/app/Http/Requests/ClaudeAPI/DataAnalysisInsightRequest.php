@@ -26,7 +26,7 @@ class DataAnalysisInsightRequest extends FormRequest
             'data' => ['required', 'array', 'min:1', 'max:1000'],
             'data.*' => ['required', 'array'],
             'task' => ['required', 'string', 'min:3', 'max:100'],
-            'model' => ['required', 'string'],
+            'model' => ['nullable', 'string'],
         ];
     }
 
@@ -48,7 +48,6 @@ class DataAnalysisInsightRequest extends FormRequest
             'task.string' => 'The task must be a valid string.',
             'task.min' => 'The task must be at least 3 characters long.',
             'task.max' => 'The task may not be greater than 100 characters.',
-            'model.required' => 'The model field is required to specify the model to use.',
             'model.string' => 'The model must be a valid string.',
         ];
     }

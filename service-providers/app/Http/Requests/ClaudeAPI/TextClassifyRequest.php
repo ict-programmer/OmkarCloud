@@ -26,6 +26,7 @@ class TextClassifyRequest extends FormRequest
         return [
             'text' => ['required', 'string', 'min:5', 'max:5000'],
             'categories' => ['required', 'string', 'min:3', 'max:500'],
+            'model' => ['nullable', 'string'],
         ];
     }
 
@@ -45,6 +46,7 @@ class TextClassifyRequest extends FormRequest
             'categories.string' => 'The categories must be a valid string.',
             'categories.min' => 'The categories must be at least 3 characters long.',
             'categories.max' => 'The categories may not be greater than 500 characters.',
+            'model.string' => 'The model must be a valid string.',
         ];
     }
 

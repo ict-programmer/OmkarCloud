@@ -26,6 +26,7 @@ class CodegenRequest extends FormRequest
             'description' => ['required', 'string', 'min:5', 'max:2000'],
             'attachments' => ['nullable', 'array'],
             'attachments.*' => ['nullable', 'file', 'max:30720'], // 30MB
+            'model' => ['nullable', 'string'],
         ];
     }
 
@@ -44,6 +45,7 @@ class CodegenRequest extends FormRequest
             'attachments.array' => 'The attachments field must be an array of files.',
             'attachments.*.file' => 'Each attachment must be a valid file.',
             'attachments.*.max' => 'Each attachment may not be larger than 30MB.',
+            'model.string' => 'The model must be a valid string.',
         ];
     }
 
