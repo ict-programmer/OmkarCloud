@@ -32,14 +32,14 @@ class KlingImageToVideoRequest extends FormRequest
             $model = KlingModelEnum::from($model);
 
             if ($model->supportsImageTail()) {
-                $rules['image_tail'] = ['nullable', 'string'];
+                $rules['image_tail'] = ['nullable', 'string', 'url'];
             }
 
             if ($model->supportsMasking()) {
                 $rules = array_merge($rules, [
-                    'static_mask' => ['nullable', 'string'], // base64 or url
+                    'static_mask' => ['nullable', 'string', 'url'],
                     'dynamic_masks' => ['nullable', 'array'],
-                    'dynamic_masks.*.mask' => ['required_with:dynamic_masks', 'string'],
+                    'dynamic_masks.*.mask' => ['required_with:dynamic_masks', 'string', 'url'],
                     'dynamic_masks.*.trajectories' => ['required_with:dynamic_masks', 'array'],
                     'dynamic_masks.*.trajectories.*.x' => ['required_with:dynamic_masks', 'integer'],
                     'dynamic_masks.*.trajectories.*.y' => ['required_with:dynamic_masks', 'integer'],
@@ -50,7 +50,7 @@ class KlingImageToVideoRequest extends FormRequest
         return array_merge($rules, [
             'model' => ['required', Rule::in(KlingModelEnum::getValuesInArray())],
             'duration' => ['required', Rule::in(KlingVideoDurationEnum::getValuesInArray())],
-            'image' => ['nullable', 'string'], // base64 or url
+            'image' => ['nullable', 'string', 'url'],
             'prompt' => ['nullable', 'string', 'max:2500'],
             'negative_prompt' => ['nullable', 'string', 'max:2500'],
             'cfg_scale' => ['nullable', 'numeric', 'between:0,1'],

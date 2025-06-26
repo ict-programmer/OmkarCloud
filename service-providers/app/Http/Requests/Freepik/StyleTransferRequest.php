@@ -27,8 +27,8 @@ class StyleTransferRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image' => ['required', 'string'],
-            'reference_image' => ['required', 'string'],
+            'image' => ['required', 'string', 'url'],
+            'reference_image' => ['required', 'string', 'url'],
             'prompt' => ['nullable', 'string'],
             'style_strength' => ['nullable', 'integer', 'between:0,100'],
             'structure_strength' => ['nullable', 'integer', 'between:0,100'],

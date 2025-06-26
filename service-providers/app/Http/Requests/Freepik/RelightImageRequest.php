@@ -27,10 +27,10 @@ class RelightImageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image' => ['required', 'string'],
+            'image' => ['required', 'string', 'url'],
             'prompt' => ['nullable', 'string'],
-            'transfer_light_from_reference_image' => ['nullable', 'string'],
-            'transfer_light_from_lightmap' => ['nullable', 'string'],
+            'transfer_light_from_reference_image' => ['nullable', 'string', 'url'],
+            'transfer_light_from_lightmap' => ['nullable', 'string', 'url'],
             'light_transfer_strength' => ['nullable', 'integer', 'between:0,100'],
             'interpolate_from_original' => ['nullable', 'boolean'],
             'change_background' => ['nullable', 'boolean'],
