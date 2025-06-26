@@ -10,6 +10,7 @@ use App\Data\Request\Claude\QuestionAnswerData;
 use App\Data\Request\Claude\TextClassifyData;
 use App\Data\Request\Claude\TextGenerationData;
 use App\Data\Request\Claude\TextSummarizeData;
+use App\Enums\common\ServiceProviderEnum;
 use App\Enums\common\ServiceTypeEnum;
 use App\Http\Exceptions\BadRequest;
 use App\Http\Exceptions\Forbidden;
@@ -64,7 +65,7 @@ class ClaudeAPIService
      */
     protected function initializeService(ServiceTypeEnum $serviceTypeName, ?string $model = null): void
     {
-        $provider = ServiceProvider::where('type', 'Claude')->first();
+        $provider = ServiceProvider::where('type', ServiceProviderEnum::CLAUDE->value)->first();
 
         if (
             !$provider ||

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Data\Request\DescriptAI\GenerateAsyncData;
+use App\Enums\common\ServiceProviderEnum;
 use App\Http\Exceptions\Forbidden;
 use App\Http\Exceptions\NotFound;
 use App\Http\Resources\DescriptAI\GenerateAsyncResource;
@@ -40,7 +41,7 @@ class DescriptAIService
    */
   protected function initializeService(): void
   {
-    $provider = ServiceProvider::where('type', 'DescriptAI')->first();
+    $provider = ServiceProvider::where('type', ServiceProviderEnum::DESCRIPT_AI->value)->first();
 
     if (
       !$provider ||

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\common\ServiceProviderEnum;
 use App\Http\Controllers\RunwaymlAPIController;
 use App\Http\Requests\Runwayml\VideoProcessingRequest;
 use App\Models\ServiceProvider;
@@ -22,7 +23,7 @@ class RunwaymlServiceProviderSeeder extends Seeder
     public function run(): void
     {
         $serviceProvider = ServiceProvider::updateOrCreate(
-            ['type' => 'RunwayML'],
+            ['type' => ServiceProviderEnum::RUNWAY_ML->value],
             [
                 'parameters' => [
                     'api_key' => 'YOUR_API_KEY',
@@ -175,7 +176,7 @@ class RunwaymlServiceProviderSeeder extends Seeder
             ],
         ];
 
-        $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, 'RunwayML');
+        $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, ServiceProviderEnum::RUNWAY_ML->value);
 
         $deletedProviderTypeCount = $this->cleanupObsoleteServiceTypes($serviceProvider, $keptServiceTypeIds);
         

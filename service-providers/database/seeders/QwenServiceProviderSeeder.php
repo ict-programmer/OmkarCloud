@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\common\ServiceProviderEnum;
 use App\Http\Controllers\QwenController;
 use App\Http\Requests\Qwen\QwenChatbotRequest;
 use App\Http\Requests\Qwen\QwenCodeGenerationRequest;
@@ -25,7 +26,7 @@ class QwenServiceProviderSeeder extends Seeder
     public function run(): void
     {
         $serviceProvider = ServiceProvider::updateOrCreate(
-            ['type' => 'Qwen'],
+            ['type' => ServiceProviderEnum::QWEN->value],
             [
                 'parameters' => [
                     'api_key' => 'YOUR_API_KEY',
@@ -448,7 +449,7 @@ class QwenServiceProviderSeeder extends Seeder
             ],
         ];
 
-        $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, 'Qwen');
+        $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, ServiceProviderEnum::QWEN->value);
 
         $deletedProviderTypeCount = $this->cleanupObsoleteServiceTypes($serviceProvider, $keptServiceTypeIds);
         

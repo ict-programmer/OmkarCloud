@@ -7,6 +7,7 @@ use App\Data\Request\DeepSeek\CodeCompletionData;
 use App\Data\Request\DeepSeek\DocumentQaData;
 use App\Data\Request\DeepSeek\mathematicalReasoningData;
 use App\Http\Exceptions\Forbidden;
+use App\Http\Exceptions\NotFound;
 use App\Http\Resources\Deepseek\ChatCompletionResource;
 use App\Http\Resources\DeepSeek\CodeCompletionResource;
 use App\Http\Resources\Deepseek\DocumentQAResource;

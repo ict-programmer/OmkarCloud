@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\common\ServiceProviderEnum;
 use App\Http\Controllers\GeminiController;
 use App\Http\Requests\Gemini\CodeGenerationRequest;
 use App\Http\Requests\Gemini\DocumentSummarizationRequest;
@@ -25,7 +26,7 @@ class GeminiServiceProviderSeeder extends Seeder
     public function run(): void
     {
         $serviceProvider = ServiceProvider::updateOrCreate(
-            ['type' => 'Gemini'],
+            ['type' => ServiceProviderEnum::GEMINI->value],
             [
                 'parameters' => [
                     'api_key' => 'YOUR_API_KEY',
@@ -323,7 +324,7 @@ class GeminiServiceProviderSeeder extends Seeder
             ],
         ];
 
-        $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, 'Gemini');
+        $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, ServiceProviderEnum::GEMINI->value);
 
         $deletedProviderTypeCount = $this->cleanupObsoleteServiceTypes($serviceProvider, $keptServiceTypeIds);
         

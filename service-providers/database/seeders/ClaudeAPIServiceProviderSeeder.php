@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\common\ServiceProviderEnum;
 use App\Enums\common\ServiceTypeEnum;
 use App\Http\Controllers\ClaudeAPIController;
 use App\Http\Requests\ClaudeAPI\CodegenRequest;
@@ -30,7 +31,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
     public function run(): void
     {
         $serviceProvider = ServiceProvider::updateOrCreate(
-            ['type' => 'Claude'],
+            ['type' => ServiceProviderEnum::CLAUDE->value],
             [
                 'parameters' => [
                     'api_key' => 'YOUR_API_KEY',
@@ -610,7 +611,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
             ],
         ];
 
-        $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, 'Claude');
+        $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, ServiceProviderEnum::CLAUDE->value);
 
         $deletedProviderTypeCount = $this->cleanupObsoleteServiceTypes($serviceProvider, $keptServiceTypeIds);
         

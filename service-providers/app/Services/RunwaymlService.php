@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Data\Runwayml\TaskManagementData;
 use App\Data\Runwayml\VideoProcessingData;
+use App\Enums\common\ServiceProviderEnum;
 use App\Http\Exceptions\Forbidden;
 use App\Http\Exceptions\NotFound;
 use App\Http\Resources\Runwayml\TaskManagementResource;
@@ -35,7 +36,7 @@ class RunwaymlService
      */
     protected function initializeService(): void
     {
-        $provider = ServiceProvider::where('type', 'RunwayML')->first();
+        $provider = ServiceProvider::where('type', ServiceProviderEnum::RUNWAY_ML->value)->first();
 
         if (
             !$provider ||

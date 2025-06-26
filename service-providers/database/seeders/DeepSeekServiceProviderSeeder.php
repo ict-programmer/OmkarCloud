@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\common\ServiceProviderEnum;
 use App\Http\Controllers\DeepSeekController;
 use App\Http\Requests\DeepSeek\ChatCompletionRequest;
 use App\Http\Requests\DeepSeek\CodeCompletionRequest;
@@ -25,7 +26,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
     public function run(): void
     {
         $serviceProvider = ServiceProvider::updateOrCreate(
-            ['type' => 'DeepSeek'],
+            ['type' => ServiceProviderEnum::DEEPSEEK->value],
             [
                 'parameters' => [
                     'api_key' => 'YOUR_API_KEY',
@@ -327,7 +328,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
             ],
         ];
 
-        $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, 'DeepSeek');
+        $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, ServiceProviderEnum::DEEPSEEK->value);
 
         $deletedProviderTypeCount = $this->cleanupObsoleteServiceTypes($serviceProvider, $keptServiceTypeIds);
         

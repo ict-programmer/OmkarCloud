@@ -6,6 +6,7 @@ use App\Data\Request\Gemini\CodeGenerationData;
 use App\Data\Request\Gemini\DocumentSummarizationData;
 use App\Data\Request\Gemini\ImageAnalysisData;
 use App\Data\Request\Gemini\TextGenerationData;
+use App\Enums\common\ServiceProviderEnum;
 use App\Enums\common\ServiceTypeEnum;
 use App\Http\Exceptions\Forbidden;
 use App\Http\Exceptions\NotFound;
@@ -46,7 +47,7 @@ class GeminiService
      */
     protected function initializeService(string $serviceTypeName): void
     {
-        $provider = ServiceProvider::where('type', 'Gemini')->first();
+        $provider = ServiceProvider::where('type', ServiceProviderEnum::GEMINI->value)->first();
 
         if (!$provider) {
             throw new NotFound('Gemini service provider not found.');
