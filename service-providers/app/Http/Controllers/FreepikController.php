@@ -381,17 +381,6 @@ class FreepikController extends BaseController
             example: 'Cute robot with camera in flat vector style'
         )
     )]
-    #[OA\Parameter(
-        name: 'wait_for_result',
-        in: 'query',
-        required: false,
-        description: 'Set to 1 to wait for result, or 0 to get task_id only.',
-        schema: new OA\Schema(
-            type: 'integer',
-            enum: [0, 1],
-            example: 1
-        )
-    )]
     #[OA\Response(
         response: 200,
         description: 'Task accepted',

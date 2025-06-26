@@ -23,7 +23,6 @@ class IconGenerationRequest extends FormRequest
     {
         return [
             'prompt' => 'required|string',
-            'wait_for_result' => 'sometimes|boolean',
         ];
     }
 }

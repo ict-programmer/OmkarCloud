@@ -8,6 +8,5 @@ class IconGenerationData extends Data
 {
     public function __construct(
         public string $prompt,
-        public ?bool $wait_for_result = true
     ) {}
 }
