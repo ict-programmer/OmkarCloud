@@ -30,7 +30,7 @@ class QwenServiceProviderSeeder extends Seeder
             [
                 'parameters' => [
                     'api_key' => 'YOUR_API_KEY',
-                    'base_url' => 'https://dashscope.aliyuncs.com',
+                    'base_url' => 'https://openrouter.ai/api/v1',
                     'version' => 'v1',
                     'models_supported' => [
                         'qwen/qwq-32b:free',

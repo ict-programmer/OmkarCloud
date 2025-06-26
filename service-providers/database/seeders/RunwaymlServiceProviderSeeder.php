@@ -27,7 +27,7 @@ class RunwaymlServiceProviderSeeder extends Seeder
             [
                 'parameters' => [
                     'api_key' => 'YOUR_API_KEY',
-                    'base_url' => 'https://api.runwayml.com',
+                    'base_url' => 'https://api.dev.runwayml.com',
                     'version' => 'v1',
                     'models_supported' => [
                         'gen4_turbo',
