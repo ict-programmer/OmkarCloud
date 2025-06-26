@@ -5,6 +5,7 @@ namespace App\Traits;
 use App\Models\ServiceProvider;
 use App\Models\ServiceType;
 use App\Models\ServiceProviderType;
+use App\Models\ServiceProviderModel;
 
 trait ServiceProviderSeederTrait
 {
@@ -25,7 +26,6 @@ trait ServiceProviderSeederTrait
         foreach ($serviceTypes as $serviceTypeData) {
             $serviceTypeName = $serviceTypeData['name'];
             
-            // First, check if we already have a service type for this provider with the exact name
             $existingProviderType = $existingServiceProviderTypes->first(function ($providerType) use ($serviceTypeName) {
                 return $providerType->serviceType->name === $serviceTypeName;
             });
@@ -34,14 +34,11 @@ trait ServiceProviderSeederTrait
                 // Update existing service type and provider type
                 $serviceType = $existingProviderType->serviceType;
                 $serviceType->update([
-                    'description' => $serviceTypeData['description'],
+                    'input_parameters' => $serviceTypeData['input_parameters'],
                     'request_class_name' => $serviceTypeData['request_class_name'],
                     'function_name' => $serviceTypeData['function_name'],
-                ]);
-                
-                $existingProviderType->update([
-                    'parameter' => $serviceTypeData['parameter'],
-                    'path_parameters' => $serviceTypeData['path_parameters'] ?? [],
+                    'response' => $serviceTypeData['response'] ?? null,
+                    'response_path' => $serviceTypeData['response_path'] ?? null,
                 ]);
                 
                 $keptServiceTypeIds[] = $serviceType->id;
@@ -62,16 +59,12 @@ trait ServiceProviderSeederTrait
                     
                     $newServiceType = ServiceType::create([
                         'name' => $uniqueName,
-                        'description' => $serviceTypeData['description'],
+                        'service_provider_id' => $serviceProvider->id,
+                        'input_parameters' => $serviceTypeData['input_parameters'],
                         'request_class_name' => $serviceTypeData['request_class_name'],
                         'function_name' => $serviceTypeData['function_name'],
-                    ]);
-                    
-                    ServiceProviderType::create([
-                        'service_provider_id' => $serviceProvider->id,
-                        'service_type_id' => $newServiceType->id,
-                        'parameter' => $serviceTypeData['parameter'],
-                        'path_parameters' => $serviceTypeData['path_parameters'] ?? [],
+                        'response' => $serviceTypeData['response'] ?? null,
+                        'response_path' => $serviceTypeData['response_path'] ?? null,
                     ]);
                     
                     $keptServiceTypeIds[] = $newServiceType->id;
@@ -81,20 +74,36 @@ trait ServiceProviderSeederTrait
                     // Create new service type with original name
                     $newServiceType = ServiceType::create([
                         'name' => $serviceTypeName,
-                        'description' => $serviceTypeData['description'],
+                        'service_provider_id' => $serviceProvider->id,
+                        'input_parameters' => $serviceTypeData['input_parameters'],
                         'request_class_name' => $serviceTypeData['request_class_name'],
                         'function_name' => $serviceTypeData['function_name'],
-                    ]);
-                    
-                    ServiceProviderType::create([
-                        'service_provider_id' => $serviceProvider->id,
-                        'service_type_id' => $newServiceType->id,
-                        'parameter' => $serviceTypeData['parameter'],
-                        'path_parameters' => $serviceTypeData['path_parameters'] ?? [],
+                        'response' => $serviceTypeData['response'] ?? null,
+                        'response_path' => $serviceTypeData['response_path'] ?? null,
                     ]);
                     
                     $keptServiceTypeIds[] = $newServiceType->id;
                     $this->command->info("Created new service type '{$serviceTypeName}' for {$providerName}");
+                }
+            }
+
+            // Handle model creation for service types that have model options
+            if (isset($serviceTypeData['input_parameters']['model']['options']['fallback_options'])) {
+                $serviceTypeId = $existingProviderType ? $existingProviderType->serviceType->id : $newServiceType->id;
+                
+                foreach ($serviceTypeData['input_parameters']['model']['options']['fallback_options'] as $model) {
+                    ServiceProviderModel::updateOrCreate(
+                        [
+                            'name' => $model,
+                            'service_provider_id' => $serviceProvider->id,
+                            'service_type_id' => $serviceTypeId,
+                        ],
+                        [
+                            'display_name' => $model,
+                            'model_name' => $model,
+                            'status' => 'active',
+                        ]
+                    );
                 }
             }
         }

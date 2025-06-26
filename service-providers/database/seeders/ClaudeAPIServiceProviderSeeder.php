@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\common\ServiceTypeEnum;
 use App\Http\Controllers\ClaudeAPIController;
 use App\Http\Requests\ClaudeAPI\CodegenRequest;
 use App\Http\Requests\ClaudeAPI\DataAnalysisInsightRequest;
@@ -67,10 +68,30 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
 
         $serviceTypes = [
             [
-                'name' => 'Text Generation',
-                'description' => 'Generate creative and informative text based on prompts',
-                'path_parameters' => [],
-                'parameter' => [
+                'name' => ServiceTypeEnum::TEXT_GENERATION_SERVICE->value,
+                'input_parameters' => [
+                    'model' => [
+                        'type' => 'string',
+                        'required' => false,
+                        'default' => 'claude-3-5-haiku-20241022',
+                        'options' => [
+                            'source' => 'collection',
+                            'collection_name' => 'service_provider_model',
+                            'value_field' => 'model_name',
+                            'label_field' => 'display_name',
+                            'filters' => [
+                                'service_provider_id' => $serviceProvider->id,
+                                'status' => 'active',
+                                'supports_text_generation' => true,
+                            ],
+                            'fallback_options' => [
+                                'claude-3-5-haiku-20241022',
+                                'claude-3-5-sonnet-20241022',
+                                'claude-3-5-opus-20241022',
+                            ],
+                        ],
+                        'description' => 'Claude model to use for text generation',
+                    ],
                     'prompt' => [
                         'type' => 'string',
                         'required' => true,
@@ -90,14 +111,48 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                         'validation' => 'required|integer|min:1|max:5000',
                     ],
                 ],
+                'response' => [
+                    'status' => true,
+                    'data' => [
+                        'response' => 'Once upon a time, in a faraway land, there lived a brave knight named Sir Lancelot. He was known throughout the kingdom for his courage and strength. One day, a terrible dragon appeared and began terrorizing the nearby village. The villagers were frightened and begged Sir Lancelot to help them. Without hesitation, he donned his armor and set off to confront the dragon. After a fierce battle, Sir Lancelot emerged victorious, saving the village and earning the gratitude of its people.',
+                        'model' => 'claude-3-5-haiku-20241022',
+                        'tokens_used' => 150,
+                        'error' => null,
+                    ],
+                ],
+                'response_path' => [
+                    'final_result' => '$.data.response',
+                    'model_used' => '$.data.model',
+                    'tokens_used' => '$.data.tokens_used',
+                    'error_message' => '$.data.error',
+                ],
                 'request_class_name' => TextGenerationRequest::class,
                 'function_name' => 'textGeneration',
             ],
             [
-                'name' => 'Text Summarization',
-                'description' => 'Summarize long text content into concise versions',
-                'path_parameters' => [],
-                'parameter' => [
+                'name' => ServiceTypeEnum::TEXT_SUMMARIZATION_SERVICE->value,
+                'input_parameters' => [
+                    'model' => [
+                        'type' => 'string',
+                        'required' => false,
+                        'default' => 'claude-3-5-haiku-20241022',
+                        'options' => [
+                            'source' => 'collection',
+                            'collection_name' => 'service_provider_model',
+                            'value_field' => 'model_name',
+                            'label_field' => 'display_name',
+                            'filters' => [
+                                'service_provider_id' => $serviceProvider->id,
+                                'status' => 'active',
+                                'supports_summarization' => true,
+                            ],
+                            'fallback_options' => [
+                                'claude-3-5-haiku-20241022',
+                                'claude-3-5-sonnet-20241022',
+                            ],
+                        ],
+                        'description' => 'Claude model to use for text summarization',
+                    ],
                     'text' => [
                         'type' => 'string',
                         'required' => true,
@@ -110,20 +165,57 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'summary_length' => [
                         'type' => 'string',
                         'required' => true,
-                        'enum' => ['short', 'medium', 'long'],
+                        'default' => 'short',
+                        'options' => ['short', 'medium', 'long'],
                         'description' => 'Desired length of the summary',
                         'example' => 'short',
                         'validation' => 'required|string|in:short,medium,long',
                     ],
                 ],
+                'response' => [
+                    'status' => true,
+                    'data' => [
+                        'text' => 'Once upon a time, in a faraway land, there lived a brave knight named Sir Lancelot. He was known throughout the kingdom for his courage and strength. One day, a terrible dragon appeared and began terrorizing the nearby village. The villagers were frightened and begged Sir Lancelot to help them. Without hesitation, he donned his armor and set off to confront the dragon. After a fierce battle, Sir Lancelot emerged victorious, saving the village and earning the gratitude of its people.',
+                        'summary_length' => 'short',
+                        'summary' => 'A brave knight named Sir Lancelot saves a village from a dragon, earning the villagers\' gratitude.',
+                        'model' => 'claude-3-5-haiku-20241022',
+                        'error' => null,
+                    ],
+                ],
+                'response_path' => [
+                    'final_result' => '$.data.summary',
+                    'original_text' => '$.data.text',
+                    'summary_length' => '$.data.summary_length',
+                    'model_used' => '$.data.model',
+                    'error_message' => '$.data.error',
+                ],
                 'request_class_name' => TextSummarizeRequest::class,
                 'function_name' => 'textSummarize',
             ],
             [
-                'name' => 'Question Answering',
-                'description' => 'Answer questions based on provided context information',
-                'path_parameters' => [],
-                'parameter' => [
+                'name' => ServiceTypeEnum::QUESTION_ANSWERING_SERVICE->value,
+                'input_parameters' => [
+                    'model' => [
+                        'type' => 'string',
+                        'required' => false,
+                        'default' => 'claude-3-5-sonnet-20241022',
+                        'options' => [
+                            'source' => 'collection',
+                            'collection_name' => 'service_provider_model',
+                            'value_field' => 'model_name',
+                            'label_field' => 'display_name',
+                            'filters' => [
+                                'service_provider_id' => $serviceProvider->id,
+                                'status' => 'active',
+                                'supports_question_answering' => true,
+                            ],
+                            'fallback_options' => [
+                                'claude-3-5-sonnet-20241022',
+                                'claude-3-5-opus-20241022',
+                            ],
+                        ],
+                        'description' => 'Claude model to use for question answering',
+                    ],
                     'question' => [
                         'type' => 'string',
                         'required' => true,
@@ -143,14 +235,50 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                         'validation' => 'required|string|min:10|max:10000',
                     ],
                 ],
+                'response' => [
+                    'status' => true,
+                    'data' => [
+                        'answer' => 'The moral of the story is that courage and selflessness can overcome even the greatest challenges. Sir Lancelot\'s bravery in facing the dragon and his willingness to help the villagers demonstrate the importance of standing up for others in times of need.',
+                        'question' => 'What is the moral of this story?',
+                        'context' => 'Once upon a time, in a faraway land, there lived a brave knight named Sir Lancelot...',
+                        'model' => 'claude-3-5-sonnet-20241022',
+                        'error' => null,
+                    ],
+                ],
+                'response_path' => [
+                    'final_result' => '$.data.answer',
+                    'question' => '$.data.question',
+                    'context' => '$.data.context',
+                    'model_used' => '$.data.model',
+                    'error_message' => '$.data.error',
+                ],
                 'request_class_name' => QuestionAnswerRequest::class,
                 'function_name' => 'questionAnswer',
             ],
             [
-                'name' => 'Text Classification',
-                'description' => 'Classify text into predefined categories or genres',
-                'path_parameters' => [],
-                'parameter' => [
+                'name' => ServiceTypeEnum::TEXT_CLASSIFICATION_SERVICE->value,
+                'input_parameters' => [
+                    'model' => [
+                        'type' => 'string',
+                        'required' => false,
+                        'default' => 'claude-3-5-haiku-20241022',
+                        'options' => [
+                            'source' => 'collection',
+                            'collection_name' => 'service_provider_model',
+                            'value_field' => 'model_name',
+                            'label_field' => 'display_name',
+                            'filters' => [
+                                'service_provider_id' => $serviceProvider->id,
+                                'status' => 'active',
+                                'supports_classification' => true,
+                            ],
+                            'fallback_options' => [
+                                'claude-3-5-haiku-20241022',
+                                'claude-3-5-sonnet-20241022',
+                            ],
+                        ],
+                        'description' => 'Claude model to use for text classification',
+                    ],
                     'text' => [
                         'type' => 'string',
                         'required' => true,
@@ -170,14 +298,52 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                         'validation' => 'required|string|min:3|max:500',
                     ],
                 ],
+                'response' => [
+                    'status' => true,
+                    'data' => [
+                        'sentiment' => 'positive',
+                        'category' => 'Adventure',
+                        'text' => 'This is a story about a brave knight who saved a village from a dragon.',
+                        'categories' => 'Adventure, Fantasy, Drama',
+                        'model' => 'claude-3-5-haiku-20241022',
+                        'error' => null,
+                    ],
+                ],
+                'response_path' => [
+                    'final_result' => '$.data.category',
+                    'sentiment' => '$.data.sentiment',
+                    'text' => '$.data.text',
+                    'categories' => '$.data.categories',
+                    'model_used' => '$.data.model',
+                    'error_message' => '$.data.error',
+                ],
                 'request_class_name' => TextClassifyRequest::class,
                 'function_name' => 'textClassify',
             ],
             [
-                'name' => 'Text Translation',
-                'description' => 'Translate text between different languages',
-                'path_parameters' => [],
-                'parameter' => [
+                'name' => ServiceTypeEnum::TEXT_TRANSLATION_SERVICE->value,
+                'input_parameters' => [
+                    'model' => [
+                        'type' => 'string',
+                        'required' => false,
+                        'default' => 'claude-3-5-haiku-20241022',
+                        'options' => [
+                            'source' => 'collection',
+                            'collection_name' => 'service_provider_model',
+                            'value_field' => 'model_name',
+                            'label_field' => 'display_name',
+                            'filters' => [
+                                'service_provider_id' => $serviceProvider->id,
+                                'status' => 'active',
+                                'supports_translation' => true,
+                            ],
+                            'fallback_options' => [
+                                'claude-3-5-haiku-20241022',
+                                'claude-3-5-sonnet-20241022',
+                            ],
+                        ],
+                        'description' => 'Claude model to use for text translation',
+                    ],
                     'text' => [
                         'type' => 'string',
                         'required' => true,
@@ -208,14 +374,52 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                         'supported_languages' => ['en', 'es', 'fr', 'de', 'it', 'pt', 'ja', 'ko', 'zh', 'ar', 'hi', 'ru'],
                     ],
                 ],
+                'response' => [
+                    'status' => true,
+                    'data' => [
+                        'translated_text' => 'Hola, ¿cómo estás?',
+                        'text' => 'Hello, how are you?',
+                        'source_language' => 'en',
+                        'target_language' => 'es',
+                        'model' => 'claude-3-5-haiku-20241022',
+                        'error' => null,
+                    ],
+                ],
+                'response_path' => [
+                    'final_result' => '$.data.translated_text',
+                    'original_text' => '$.data.text',
+                    'source_language' => '$.data.source_language',
+                    'target_language' => '$.data.target_language',
+                    'model_used' => '$.data.model',
+                    'error_message' => '$.data.error',
+                ],
                 'request_class_name' => TextTranslateRequest::class,
                 'function_name' => 'textTranslate',
             ],
             [
-                'name' => 'Code Generation',
-                'description' => 'Generate code based on natural language descriptions',
-                'path_parameters' => [],
-                'parameter' => [
+                'name' => ServiceTypeEnum::CODE_GENERATION_SERVICE->value,
+                'input_parameters' => [
+                    'model' => [
+                        'type' => 'string',
+                        'required' => false,
+                        'default' => 'claude-3-5-sonnet-20241022',
+                        'options' => [
+                            'source' => 'collection',
+                            'collection_name' => 'service_provider_model',
+                            'value_field' => 'model_name',
+                            'label_field' => 'display_name',
+                            'filters' => [
+                                'service_provider_id' => $serviceProvider->id,
+                                'status' => 'active',
+                                'supports_code_generation' => true,
+                            ],
+                            'fallback_options' => [
+                                'claude-3-5-sonnet-20241022',
+                                'claude-3-5-opus-20241022',
+                            ],
+                        ],
+                        'description' => 'Claude model to use for code generation',
+                    ],
                     'description' => [
                         'type' => 'string',
                         'required' => true,
@@ -237,14 +441,50 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                         ],
                     ],
                 ],
+                'response' => [
+                    'status' => true,
+                    'data' => [
+                        'code' => 'def factorial(n):\n    if n == 0:\n        return 1\n    else:\n        return n * factorial(n-1)',
+                        'description' => 'Write a Python function to calculate the factorial of a number.',
+                        'language' => 'python',
+                        'model' => 'claude-3-5-sonnet-20241022',
+                        'error' => null,
+                    ],
+                ],
+                'response_path' => [
+                    'final_result' => '$.data.code',
+                    'description' => '$.data.description',
+                    'language' => '$.data.language',
+                    'model_used' => '$.data.model',
+                    'error_message' => '$.data.error',
+                ],
                 'request_class_name' => CodegenRequest::class,
                 'function_name' => 'codegen',
             ],
             [
-                'name' => 'Data Analysis and Insights',
-                'description' => 'Analyze data and provide insights based on specified tasks',
-                'path_parameters' => [],
-                'parameter' => [
+                'name' => ServiceTypeEnum::DATA_ANALYSIS_AND_INSIGHT_SERVICE->value,
+                'input_parameters' => [
+                    'model' => [
+                        'type' => 'string',
+                        'required' => false,
+                        'default' => 'claude-3-5-sonnet-20241022',
+                        'options' => [
+                            'source' => 'collection',
+                            'collection_name' => 'service_provider_model',
+                            'value_field' => 'model_name',
+                            'label_field' => 'display_name',
+                            'filters' => [
+                                'service_provider_id' => $serviceProvider->id,
+                                'status' => 'active',
+                                'supports_data_analysis' => true,
+                            ],
+                            'fallback_options' => [
+                                'claude-3-5-sonnet-20241022',
+                                'claude-3-5-opus-20241022',
+                            ],
+                        ],
+                        'description' => 'Claude model to use for data analysis',
+                    ],
                     'data' => [
                         'type' => 'array',
                         'required' => true,
@@ -275,14 +515,55 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                         ],
                     ],
                 ],
+                'response' => [
+                    'status' => true,
+                    'data' => [
+                        'average_score' => 87.5,
+                        'data' => [
+                            ['name' => 'Alice', 'age' => 30, 'score' => 85],
+                            ['name' => 'Bob', 'age' => 25, 'score' => 90],
+                        ],
+                        'task' => 'average_score',
+                        'insights' => 'The average score is 87.5, indicating good performance across the dataset.',
+                        'model' => 'claude-3-5-sonnet-20241022',
+                        'error' => null,
+                    ],
+                ],
+                'response_path' => [
+                    'final_result' => '$.data.insights',
+                    'average_score' => '$.data.average_score',
+                    'data' => '$.data.data',
+                    'task' => '$.data.task',
+                    'model_used' => '$.data.model',
+                    'error_message' => '$.data.error',
+                ],
                 'request_class_name' => DataAnalysisInsightRequest::class,
                 'function_name' => 'dataAnalysisAndInsight',
             ],
             [
-                'name' => 'Personalization',
-                'description' => 'Personalize content based on user preferences and characteristics',
-                'path_parameters' => [],
-                'parameter' => [
+                'name' => ServiceTypeEnum::PERSONALIZATION_SERVICE->value,
+                'input_parameters' => [
+                    'model' => [
+                        'type' => 'string',
+                        'required' => false,
+                        'default' => 'claude-3-5-haiku-20241022',
+                        'options' => [
+                            'source' => 'collection',
+                            'collection_name' => 'service_provider_model',
+                            'value_field' => 'model_name',
+                            'label_field' => 'display_name',
+                            'filters' => [
+                                'service_provider_id' => $serviceProvider->id,
+                                'status' => 'active',
+                                'supports_personalization' => true,
+                            ],
+                            'fallback_options' => [
+                                'claude-3-5-haiku-20241022',
+                                'claude-3-5-sonnet-20241022',
+                            ],
+                        ],
+                        'description' => 'Claude model to use for personalization',
+                    ],
                     'user_id' => [
                         'type' => 'string',
                         'required' => true,
@@ -306,6 +587,23 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                             'literature', 'travel', 'food', 'fitness', 'business',
                         ],
                     ],
+                ],
+                'response' => [
+                    'status' => true,
+                    'data' => [
+                        'personalized_content' => 'I am a software engineer with a strong interest in technology and science. I enjoy working on projects that involve complex algorithms and data analysis.',
+                        'user_id' => '12345',
+                        'preferences' => ['technology', 'science'],
+                        'model' => 'claude-3-5-haiku-20241022',
+                        'error' => null,
+                    ],
+                ],
+                'response_path' => [
+                    'final_result' => '$.data.personalized_content',
+                    'user_id' => '$.data.user_id',
+                    'preferences' => '$.data.preferences',
+                    'model_used' => '$.data.model',
+                    'error_message' => '$.data.error',
                 ],
                 'request_class_name' => PersonalizationRequest::class,
                 'function_name' => 'personalize',

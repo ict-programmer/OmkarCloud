@@ -9,5 +9,6 @@ class TextGenerationData extends Data
     public function __construct(
         public string $prompt,
         public int $max_tokens,
+        public ?string $model = null
     ) {}
 }

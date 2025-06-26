@@ -9,5 +9,6 @@ class TextClassifyData extends Data
     public function __construct(
         public string $text,
         public string $categories,
+        public ?string $model = null
     ) {}
 }

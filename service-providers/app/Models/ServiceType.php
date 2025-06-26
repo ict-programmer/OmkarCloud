@@ -29,6 +29,9 @@ class ServiceType extends Model
         'name',
         'description',
         'request_class_name',
-        'function_name'
+        'function_name',
+        'input_parameters',
+        'response',
+        'response_path'
     ];
 }
