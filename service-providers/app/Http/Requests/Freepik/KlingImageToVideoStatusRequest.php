@@ -24,6 +24,7 @@ class KlingImageToVideoStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'task_id' => ['required', 'string'],
             'model' => ['required', Rule::in(KlingModelEnum::getValuesInArray())],
         ];
     }

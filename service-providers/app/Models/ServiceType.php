@@ -28,11 +28,5 @@ class ServiceType extends Model
     protected $fillable = [
         'name',
         'description',
-        'request_class_name',
-        'function_name',
-        'path_parameters',
-        'input_parameters',
-        'response',
-        'response_path',
     ];
 }

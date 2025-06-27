@@ -11,7 +11,6 @@ use App\Http\Requests\Freepik\IconGenerationRequest;
 use App\Http\Requests\Freepik\ImageExpandFluxProRequest;
 use App\Http\Requests\Freepik\Imagen3GenerateRequest;
 use App\Http\Requests\Freepik\KlingElementsVideoRequest;
-use App\Http\Requests\Freepik\KlingElementsVideoStatusRequest;
 use App\Http\Requests\Freepik\KlingImageToVideoRequest;
 use App\Http\Requests\Freepik\KlingImageToVideoStatusRequest;
 use App\Http\Requests\Freepik\KlingTextToVideoRequest;
@@ -25,12 +24,13 @@ use App\Http\Requests\Freepik\StockContentRequest;
 use App\Http\Requests\Freepik\StyleTransferRequest;
 use App\Http\Requests\Freepik\UpscaleImageRequest;
 use App\Models\ServiceProvider;
-use App\Models\ServiceProviderModel;
-use App\Models\ServiceType;
+use App\Traits\ServiceProviderSeederTrait;
 use Illuminate\Database\Seeder;
 
 class FreepikServiceProviderSeeder extends Seeder
 {
+    use ServiceProviderSeederTrait;
+
     /**
      * Run the database seeds.
      */
@@ -309,7 +309,7 @@ class FreepikServiceProviderSeeder extends Seeder
             ],
             [
                 'name' => 'Resource Detail',
-                'path_parameters' => [
+                'input_parameters' => [
                     'resource_id' => ['type' => 'string', 'required' => true, 'description' => 'The ID of the Freepik resource.', 'example' => '7663349'],
                 ],
                 'response' => [
@@ -353,7 +353,7 @@ class FreepikServiceProviderSeeder extends Seeder
             ],
             [
                 'name' => 'Download resource',
-                'path_parameters' => [
+                'input_parameters' => [
                     'resource_id' => ['type' => 'string', 'required' => true, 'description' => 'The ID of the resource to download.', 'example' => '7663349'],
                 ],
                 'response' => [
@@ -417,7 +417,7 @@ class FreepikServiceProviderSeeder extends Seeder
             ],
             [
                 'name' => 'Icon Generation Task Status',
-                'path_parameters' => [
+                'input_parameters' => [
                     'task_id' => ['type' => 'string', 'required' => true, 'description' => 'The task_id received from the iconGeneration endpoint.', 'example' => '796dd3c1-c50b-42bc-a9e2-a892eef53438'],
                 ],
                 'response' => [
@@ -495,10 +495,8 @@ class FreepikServiceProviderSeeder extends Seeder
             ],
             [
                 'name' => 'Video Generation Image to Video Task Status',
-                'path_parameters' => [
-                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the video generation task', 'example' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
-                ],
                 'input_parameters' => [
+                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the video generation task', 'example' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
                     'model' => [
                         'type' => 'string',
                         'required' => true,
@@ -552,7 +550,7 @@ class FreepikServiceProviderSeeder extends Seeder
             ],
             [
                 'name' => 'Video Generation Text to Video Task Status',
-                'path_parameters' => [
+                'input_parameters' => [
                     'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the video generation task', 'example' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
                 ],
                 'response' => [
@@ -607,7 +605,7 @@ class FreepikServiceProviderSeeder extends Seeder
             ],
             [
                 'name' => 'Video Generation Elements Task Status',
-                'path_parameters' => [
+                'input_parameters' => [
                     'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the video generation task', 'example' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
                 ],
                 'response' => [
@@ -618,7 +616,7 @@ class FreepikServiceProviderSeeder extends Seeder
                     ],
                 ],
                 'response_path' => ['final_result' => '$.data'],
-                'request_class_name' => KlingElementsVideoStatusRequest::class,
+                'request_class_name' => null,
                 'function_name' => 'klingElementsVideoStatus',
             ],
             [
@@ -678,7 +676,7 @@ class FreepikServiceProviderSeeder extends Seeder
             ],
             [
                 'name' => 'Mystic Image Generation Task Status',
-                'path_parameters' => [
+                'input_parameters' => [
                     'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the Mystic generation task', 'example' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
                 ],
                 'response' => [
@@ -837,7 +835,7 @@ class FreepikServiceProviderSeeder extends Seeder
             ],
             [
                 'name' => 'Google Imagen 3 Image Generation Task Status',
-                'path_parameters' => [
+                'input_parameters' => [
                     'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the Imagen3 generation task', 'example' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
                 ],
                 'response' => [
@@ -899,7 +897,7 @@ class FreepikServiceProviderSeeder extends Seeder
             ],
             [
                 'name' => 'Freepik Flux Dev Task Statu',
-                'path_parameters' => [
+                'input_parameters' => [
                     'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the Flux Dev generation task', 'example' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
                 ],
                 'response' => [
@@ -958,7 +956,7 @@ class FreepikServiceProviderSeeder extends Seeder
             ],
             [
                 'name' => 'Upscale Image Editing Task Status',
-                'path_parameters' => [
+                'input_parameters' => [
                     'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the upscaling task', 'example' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
                 ],
                 'response' => [
@@ -1013,7 +1011,7 @@ class FreepikServiceProviderSeeder extends Seeder
             ],
             [
                 'name' => 'Relight Image Editing Task Status',
-                'path_parameters' => [
+                'input_parameters' => [
                     'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the Relight task', 'example' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
                 ],
                 'response' => [
@@ -1055,7 +1053,7 @@ class FreepikServiceProviderSeeder extends Seeder
             ],
             [
                 'name' => 'Style Transfer Image Editing Task Status',
-                'path_parameters' => [
+                'input_parameters' => [
                     'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the Style Transfer task', 'example' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
                 ],
                 'response' => [
@@ -1107,7 +1105,7 @@ class FreepikServiceProviderSeeder extends Seeder
             ],
             [
                 'name' => 'Expand Image Editing Task Status',
-                'path_parameters' => [
+                'input_parameters' => [
                     'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the image expand task', 'example' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
                 ],
                 'response' => [
@@ -1123,33 +1121,12 @@ class FreepikServiceProviderSeeder extends Seeder
             ],
         ];
 
-        foreach ($serviceTypes as $serviceType) {
-            $serviceType = ServiceType::updateOrCreate(
-                [
-                    'name' => $serviceType['name'],
-                    'service_provider_id' => $serviceProvider->id,
-                ],
-                [
-                    'input_parameters' => $serviceType['input_parameters'] ?? null,
-                    'path_parameters' => $serviceType['path_parameters'] ?? null,
-                    'request_class_name' => $serviceType['request_class_name'],
-                    'function_name' => $serviceType['function_name'],
-                    'response' => $serviceType['response'],
-                    'response_path' => $serviceType['response_path'],
-                ]
-            );
+        $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, 'Freepik');
 
-            if (!empty($serviceType['input_parameters']['model']['options']['fallback_options'])) {
-                foreach ($serviceType['input_parameters']['model']['options']['fallback_options'] as $model) {
-                    ServiceProviderModel::updateOrCreate(
-                        [
-                            'name' => $model,
-                            'service_provider_id' => $serviceProvider->id,
-                            'service_type_id' => $serviceType->id,
-                        ]
-                    );
-                }
-            }
-        }
+        $deletedProviderTypeCount = $this->cleanupObsoleteServiceTypes($serviceProvider, $keptServiceTypeIds);
+
+        $this->command->info('Cleanup completed:');
+        $this->command->info("- Deleted {$deletedProviderTypeCount} obsolete service provider types");
+        $this->command->info('- Kept ' . count($keptServiceTypeIds) . ' service types for Freepik');
     }
 }

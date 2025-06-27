@@ -46,6 +46,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 
 class FreepikController extends BaseController
@@ -843,8 +844,18 @@ class FreepikController extends BaseController
             ]
         )
     )]
-    public function resourceDetail(string $resource_id): JsonResponse
+    public function resourceDetail(?string $resource_id = null): JsonResponse
     {
+        $resource_id = $resource_id ?? request()->input('resource_id');
+
+        $validator = Validator::make(['resource_id' => $resource_id], [
+            'resource_id' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
         $result = $this->service->resourceDetail($resource_id);
 
         return $this->logAndResponse($result);
@@ -875,8 +886,18 @@ class FreepikController extends BaseController
             ]
         )
     )]
-    public function downloadResource(string $resource_id): JsonResponse
+    public function downloadResource(?string $resource_id = null): JsonResponse
     {
+        $resource_id = $resource_id ?? request()->input('resource_id');
+
+        $validator = Validator::make(['resource_id' => $resource_id], [
+            'resource_id' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
         $result = $this->service->downloadResource($resource_id);
 
         return $this->logAndResponse($result);
@@ -1033,8 +1054,18 @@ class FreepikController extends BaseController
             ]
         )
     )]
-    public function getIconGenerationResult(string $taskId): JsonResponse
+    public function getIconGenerationResult(?string $task_id = null): JsonResponse
     {
+        $taskId = $task_id ?? request()->input('task_id');
+
+        $validator = Validator::make(['task_id' => $taskId], [
+            'task_id' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
         $result = $this->service->getWebhookResult($taskId);
 
         return $this->logAndResponse($result);
@@ -1168,15 +1199,14 @@ class FreepikController extends BaseController
     }
 
     #[OA\Get(
-        path: '/api/freepik/kling_video_generation/image_to_video/status/{task_id}',
+        path: '/api/freepik/kling_video_generation/image_to_video/status',
         operationId: 'klingVideoGenerationImageToVideoStatus',
         summary: 'Get status of Kling v2.1 video generation task',
         description: 'Check the current status of a Kling v2.1 Master image-to-video generation task by task ID.',
         tags: ['Freepik'],
     )]
-    #[OA\Parameter(
+    #[OA\QueryParameter(
         name: 'task_id',
-        in: 'path',
         required: true,
         description: 'ID of the video generation task',
         schema: new OA\Schema(type: 'string'),
@@ -1205,9 +1235,11 @@ class FreepikController extends BaseController
             ]
         )
     )]
-    public function klingVideoGenerationImageToVideoStatus(KlingImageToVideoStatusRequest $request, string $task_id): JsonResponse
+    public function klingVideoGenerationImageToVideoStatus(KlingImageToVideoStatusRequest $request): JsonResponse
     {
-        $result = $this->service->klingImageToVideoStatus($request->validated()['model'], $task_id);
+        $data = $request->validated();
+
+        $result = $this->service->klingImageToVideoStatus($data['model'], $data['task_id']);
 
         return $this->logAndResponse($result);
     }
@@ -1323,9 +1355,19 @@ class FreepikController extends BaseController
             ]
         )
     )]
-    public function klingVideoGenerationTextToVideoStatus(string $task_id): JsonResponse
+    public function klingVideoGenerationTextToVideoStatus(?string $task_id = null): JsonResponse
     {
-        $result = $this->service->klingTextToVideoStatus($task_id);
+        $taskId = $task_id ?? request()->input('task_id');
+
+        $validator = Validator::make(['task_id' => $taskId], [
+            'task_id' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $result = $this->service->klingTextToVideoStatus($taskId);
 
         return $this->logAndResponse($result);
     }
@@ -1408,9 +1450,19 @@ class FreepikController extends BaseController
             ]
         )
     )]
-    public function klingElementsVideoStatus(string $task_id): JsonResponse
+    public function klingElementsVideoStatus(?string $task_id = null): JsonResponse
     {
-        $result = $this->service->klingElementsVideoStatus($task_id);
+        $taskId = $task_id ?? request()->input('task_id');
+
+        $validator = Validator::make(['task_id' => $taskId], [
+            'task_id' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $result = $this->service->klingElementsVideoStatus($taskId);
 
         return $this->logAndResponse($result);
     }
@@ -1732,9 +1784,19 @@ class FreepikController extends BaseController
             ]
         )
     )]
-    public function getMysticTaskStatus(string $task_id)
+    public function getMysticTaskStatus(?string $task_id = null)
     {
-        $result = $this->service->getMysticTaskStatus($task_id);
+        $taskId = $task_id ?? request()->input('task_id');
+
+        $validator = Validator::make(['task_id' => $taskId], [
+            'task_id' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $result = $this->service->getMysticTaskStatus($taskId);
 
         return $this->logAndResponse($result);
     }
@@ -2425,9 +2487,19 @@ class FreepikController extends BaseController
             ]
         )
     )]
-    public function getImagen3TaskStatus(string $task_id)
+    public function getImagen3TaskStatus(?string $task_id = null)
     {
-        $result = $this->service->getImagen3TaskStatus($task_id);
+        $taskId = $task_id ?? request()->input('task_id');
+
+        $validator = Validator::make(['task_id' => $taskId], [
+            'task_id' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $result = $this->service->getImagen3TaskStatus($taskId);
 
         return $this->logAndResponse($result);
     }
@@ -2574,9 +2646,19 @@ class FreepikController extends BaseController
             ]
         )
     )]
-    public function getFluxDevTaskStatus(string $task_id)
+    public function getFluxDevTaskStatus(?string $task_id = null)
     {
-        $result = $this->service->getFluxDevTaskStatus($task_id);
+        $taskId = $task_id ?? request()->input('task_id');
+
+        $validator = Validator::make(['task_id' => $taskId], [
+            'task_id' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $result = $this->service->getFluxDevTaskStatus($taskId);
 
         return $this->logAndResponse($result);
     }
@@ -2773,9 +2855,19 @@ class FreepikController extends BaseController
             ]
         )
     )]
-    public function getUpscalerTaskStatus(string $task_id)
+    public function getUpscalerTaskStatus(?string $task_id = null)
     {
-        $result = $this->service->getUpscalerTaskStatus($task_id);
+        $taskId = $task_id ?? request()->input('task_id');
+
+        $validator = Validator::make(['task_id' => $taskId], [
+            'task_id' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $result = $this->service->getUpscalerTaskStatus($taskId);
 
         return $this->logAndResponse($result);
     }
@@ -2977,9 +3069,19 @@ class FreepikController extends BaseController
             ]
         )
     )]
-    public function getRelightTaskStatus(string $task_id)
+    public function getRelightTaskStatus(?string $task_id = null)
     {
-        $result = $this->service->getRelightTaskStatus($task_id);
+        $taskId = $task_id ?? request()->input('task_id');
+
+        $validator = Validator::make(['task_id' => $taskId], [
+            'task_id' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $result = $this->service->getRelightTaskStatus($taskId);
 
         return $this->logAndResponse($result);
     }
@@ -3131,9 +3233,19 @@ class FreepikController extends BaseController
             ]
         )
     )]
-    public function getStyleTransferTaskStatus(string $task_id)
+    public function getStyleTransferTaskStatus(?string $task_id = null)
     {
-        $result = $this->service->getStyleTransferTaskStatus($task_id);
+        $taskId = $task_id ?? request()->input('task_id');
+
+        $validator = Validator::make(['task_id' => $taskId], [
+            'task_id' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $result = $this->service->getStyleTransferTaskStatus($taskId);
 
         return $this->logAndResponse($result);
     }
@@ -3332,9 +3444,20 @@ class FreepikController extends BaseController
             ]
         )
     )]
-    public function getImageExpandFluxProTaskStatus(string $task_id): JsonResponse
+    public function getImageExpandFluxProTaskStatus(?string $task_id = null): JsonResponse
     {
-        $result = $this->service->getImageExpandFluxProTaskStatus($task_id);
+
+        $taskId = $task_id ?? request()->input('task_id');
+
+        $validator = Validator::make(['task_id' => $taskId], [
+            'task_id' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $result = $this->service->getImageExpandFluxProTaskStatus($taskId);
 
         return $this->logAndResponse($result);
     }
