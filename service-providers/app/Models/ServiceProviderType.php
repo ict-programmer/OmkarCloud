@@ -29,7 +29,11 @@ class ServiceProviderType extends Model
     protected $fillable = [
         'service_provider_id',
         'service_type_id',
-        'parameter',
+        'request_class_name',
+        'function_name',
+        'input_parameters',
+        'response',
+        'response_path',
         'created_by',
         'updated_by',
         'deleted_by',

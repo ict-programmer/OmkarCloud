@@ -41,11 +41,11 @@ class MainService
             return $this->response('Service provider type configuration not found', null, 404);
         }
 
-        if (is_null($serviceProvider->controller_name) || is_null($serviceType->function_name)) {
+        if (is_null($serviceProvider->controller_name) || is_null($serviceProviderType->function_name)) {
             return $this->response('Service provider or service type configuration is incomplete', null, 404);
         }
 
-        if (!method_exists($serviceProvider->controller_name, $serviceType->function_name)) {
+        if (!method_exists($serviceProvider->controller_name, $serviceProviderType->function_name)) {
             return $this->response('Function not found in controller', null, 404);
         }
 
@@ -62,15 +62,15 @@ class MainService
         }
 
         $formRequest = null;
-        if (!is_null($serviceType->request_class_name)) {
-            $formRequest = app($serviceType->request_class_name);
+        if (!is_null($serviceProviderType->request_class_name)) {
+            $formRequest = app($serviceProviderType->request_class_name);
             $formRequest->replace($request->all());
             $formRequest->files = $request->files;
             $formRequest->headers = $request->headers;
             $formRequest->validateResolved();
         }
 
-        return app()->call([$controller, $serviceType->function_name]);
+        return app()->call([$controller, $serviceProviderType->function_name]);
     }
 
     private function response(string $message, mixed $data, int $status = 200): JsonResponse
