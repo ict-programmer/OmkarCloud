@@ -54,7 +54,7 @@ class MainService
         $model = $request->input('model');
 
         if (!is_null($model)) {
-            $modelExists = ServiceProviderModel::query()->where('service_provider_id', $serviceProviderId)->where('model_name', $model)->exists();
+            $modelExists = ServiceProviderModel::query()->where('service_provider_id', $serviceProviderId)->where('name', $model)->exists();
 
             if (!$modelExists) {
                 return $this->response('Model not configured for this service provider', null, 404);
