@@ -27,16 +27,13 @@ trait ServiceProviderSeederTrait
             
             if ($existingServiceProviderType) {
                 $serviceType = $existingServiceProviderType->serviceType;
-                $serviceType->update([
+                
+                $existingServiceProviderType->update([
                     'input_parameters' => $serviceTypeData['input_parameters'],
                     'request_class_name' => $serviceTypeData['request_class_name'],
                     'function_name' => $serviceTypeData['function_name'],
                     'response' => $serviceTypeData['response'],
                     'response_path' => $serviceTypeData['response_path'],
-                ]);
-                
-                $existingServiceProviderType->update([
-                    'parameter' => $serviceTypeData['input_parameters'],
                 ]);
                 
                 $keptServiceTypeIds[] = $serviceType->id;
@@ -45,17 +42,17 @@ trait ServiceProviderSeederTrait
             } else {
                 $serviceType = ServiceType::create([
                     'name' => $serviceTypeName,
-                    'input_parameters' => $serviceTypeData['input_parameters'],
-                    'request_class_name' => $serviceTypeData['request_class_name'],
-                    'function_name' => $serviceTypeData['function_name'],
-                    'response' => $serviceTypeData['response'],
-                    'response_path' => $serviceTypeData['response_path'],
+                    
                 ]);
                 
                 ServiceProviderType::create([
                     'service_provider_id' => $serviceProvider->id,
                     'service_type_id' => $serviceType->id,
-                    'parameter' => $serviceTypeData['input_parameters'],
+                    'input_parameters' => $serviceTypeData['input_parameters'],
+                    'request_class_name' => $serviceTypeData['request_class_name'],
+                    'function_name' => $serviceTypeData['function_name'],
+                    'response' => $serviceTypeData['response'],
+                    'response_path' => $serviceTypeData['response_path'],
                 ]);
                 
                 $keptServiceTypeIds[] = $serviceType->id;
