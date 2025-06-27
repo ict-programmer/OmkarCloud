@@ -28,4 +28,16 @@ class CodeAssistantRequest extends FormRequest
             'code_length' => ['nullable', 'string', 'in:short,medium,long'],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'model.in' => __('The selected model is invalid. Valid values: :values', [
+                'values' => 'sonar-reasoning,sonar-reasoning-pro',
+            ]),
+            'code_length.in' => __('The selected code length is invalid. Valid values: :values', [
+                'values' => 'short,medium,long',
+            ]),
+        ];
+    }
 }
