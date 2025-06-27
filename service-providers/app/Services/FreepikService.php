@@ -292,7 +292,9 @@ class FreepikService
 
     public function removeBackground(RemoveBackgroundData $data): array
     {
-        $response = $this->client->post('ai/beta/remove-background', array_filter($data->toArray(), fn ($value) => $value !== null));
+        $response = $this->client
+            ->asMultipart()
+            ->post('ai/beta/remove-background', array_filter($data->toArray(), fn ($value) => $value !== null));
 
         return $response->json();
     }

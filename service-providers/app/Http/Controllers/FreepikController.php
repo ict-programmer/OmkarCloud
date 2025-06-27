@@ -227,10 +227,619 @@ class FreepikController extends BaseController
         description: 'Successful response',
         content: new OA\JsonContent(
             example: [
-                'preview' => [
-                    'width' => 300,
-                    'url' => 'https://www.freepik.com/free-ai-image/surreal-landscape_41357833.htm',
-                    'height' => 500,
+                'data' => [
+                    'id' => 7663349,
+                    'name' => 'father\'s day event hand drawn style',
+                    'slug' => 'father-s-day-event-hand-drawn-style',
+                    'type' => 'vector',
+                    'premium' => false,
+                    'url' => 'https://www.freepik.com/free-vector/father-s-day-event-hand-drawn-style_7663349.htm',
+                    'created' => '2020-04-15T17:50:35Z',
+                    'new' => false,
+                    'download_size' => 1740322,
+                    'author' => [
+                        'id' => 23,
+                        'name' => 'freepik',
+                        'avatar' => 'https://avatar.cdnpk.net/23.jpg',
+                        'assets' => 6404687,
+                        'slug' => 'freepik',
+                    ],
+                    'preview' => [
+                        'url' => 'https://img.b2bpic.net/free-vector/father-s-day-event-hand-drawn-style_23-2148507324.jpg',
+                        'width' => 626,
+                        'height' => 626,
+                    ],
+                    'license' => 'https://www.freepik.com/profile/license/pdf/7663349?lang=en',
+                    'available_formats' => [
+                        'ai' => [
+                            'total' => 1,
+                            'items' => [
+                                [
+                                    'id' => 567457,
+                                    'colorspace' => 'RGB',
+                                    'name' => '7663349_3725127',
+                                    'size' => 340222,
+                                ],
+                            ],
+                        ],
+                        'eps' => [
+                            'total' => 1,
+                            'items' => [
+                                [
+                                    'id' => 567458,
+                                    'colorspace' => 'RGB',
+                                    'name' => '7663349_3725128',
+                                    'size' => 1323126,
+                                ],
+                            ],
+                        ],
+                        'jpg' => [
+                            'total' => 1,
+                            'items' => [
+                                [
+                                    'id' => 567459,
+                                    'colorspace' => 'UNKNOWN',
+                                    'name' => '7663349_3699294',
+                                    'size' => 1131441,
+                                ],
+                            ],
+                        ],
+                        'fonts' => [
+                            'total' => 1,
+                            'items' => [
+                                [
+                                    'id' => 567460,
+                                    'colorspace' => 'UNKNOWN',
+                                    'name' => '7663349_Fonts',
+                                    'size' => 203,
+                                ],
+                            ],
+                        ],
+                    ],
+                    'related_resources' => [
+                        'suggested' => [],
+                        'same_series' => null,
+                        'same_collection' => null,
+                        'same_author' => [],
+                        'related_cross_sell' => [],
+                        'related_videos' => [
+                            [
+                                'id' => 3663569,
+                                'url' => 'https://www.freepik.com/premium-video/happy-fathers-day-lettering-with-shirt-necktie_3663569',
+                                'name' => 'happy fathers day lettering with shirt and necktie',
+                                'aspect_ratio' => '16:9',
+                                'created' => '2024-12-05 21:59:51',
+                                'code' => 'happy-fathers-day-lettering-with-shirt-and-necktie',
+                                'quality' => '4k',
+                                'premium' => 1,
+                                'duration' => '00:00:11',
+                                'author' => [
+                                    'id' => 6145869,
+                                    'name' => 'djvstock',
+                                    'code' => 'djvstock',
+                                    'avatar' => 'https://profile.freepik.com/accounts/avatar/default_04.png',
+                                    'metas' => [
+                                        'downloads' => 118776,
+                                        'assets' => 1960859,
+                                    ],
+                                    'slug' => 'djvstock',
+                                ],
+                                'thumbnails' => [
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/5c13e196-74a7-5901-9feb-2c48c85ab1c2/horizontal/thumbnails/small.jpg',
+                                        'width' => 460,
+                                        'height' => 264,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                ],
+                                'previews' => [
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/5c13e196-74a7-5901-9feb-2c48c85ab1c2/horizontal/previews/watermarked/small.mp4',
+                                        'width' => 455,
+                                        'height' => 235,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/5c13e196-74a7-5901-9feb-2c48c85ab1c2/horizontal/previews/watermarked/large.mp4',
+                                        'width' => 1364,
+                                        'height' => 720,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                ],
+                                'active' => true,
+                                'is_ai_generated' => false,
+                            ],
+                            [
+                                'id' => 3663567,
+                                'url' => 'https://www.freepik.com/premium-video/happy-fathers-day-lettering-with-mustache_3663567',
+                                'name' => 'happy fathers day lettering with mustache',
+                                'aspect_ratio' => '16:9',
+                                'created' => '2024-12-05 21:59:51',
+                                'code' => 'happy-fathers-day-lettering-with-mustache',
+                                'quality' => '4k',
+                                'premium' => 1,
+                                'duration' => '00:00:11',
+                                'author' => [
+                                    'id' => 6145869,
+                                    'name' => 'djvstock',
+                                    'code' => 'djvstock',
+                                    'avatar' => 'https://profile.freepik.com/accounts/avatar/default_04.png',
+                                    'metas' => [
+                                        'downloads' => 118776,
+                                        'assets' => 1960859,
+                                    ],
+                                    'slug' => 'djvstock',
+                                ],
+                                'thumbnails' => [
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/708f61d9-6f97-58a1-b33e-4e12e48b3288/horizontal/thumbnails/small.jpg',
+                                        'width' => 460,
+                                        'height' => 264,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                ],
+                                'previews' => [
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/708f61d9-6f97-58a1-b33e-4e12e48b3288/horizontal/previews/watermarked/small.mp4',
+                                        'width' => 455,
+                                        'height' => 235,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/708f61d9-6f97-58a1-b33e-4e12e48b3288/horizontal/previews/watermarked/large.mp4',
+                                        'width' => 1364,
+                                        'height' => 720,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                ],
+                                'active' => true,
+                                'is_ai_generated' => false,
+                            ],
+                            [
+                                'id' => 3663592,
+                                'url' => 'https://www.freepik.com/premium-video/happy-fathers-day-lettering-with-glasses-mustache-elegant-suit_3663592',
+                                'name' => 'happy fathers day lettering with glasses and mustache in elegant suit',
+                                'aspect_ratio' => '16:9',
+                                'created' => '2024-12-05 22:00:11',
+                                'code' => 'happy-fathers-day-lettering-with-glasses-and-mustache-in-elegant-suit',
+                                'quality' => '4k',
+                                'premium' => 1,
+                                'duration' => '00:00:12',
+                                'author' => [
+                                    'id' => 6145869,
+                                    'name' => 'djvstock',
+                                    'code' => 'djvstock',
+                                    'avatar' => 'https://profile.freepik.com/accounts/avatar/default_04.png',
+                                    'metas' => [
+                                        'downloads' => 118776,
+                                        'assets' => 1960859,
+                                    ],
+                                    'slug' => 'djvstock',
+                                ],
+                                'thumbnails' => [
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/70047e77-5b27-5957-8a93-6d26401ccd1d/horizontal/thumbnails/small.jpg',
+                                        'width' => 460,
+                                        'height' => 264,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                ],
+                                'previews' => [
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/70047e77-5b27-5957-8a93-6d26401ccd1d/horizontal/previews/watermarked/small.mp4',
+                                        'width' => 455,
+                                        'height' => 235,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/70047e77-5b27-5957-8a93-6d26401ccd1d/horizontal/previews/watermarked/large.mp4',
+                                        'width' => 1364,
+                                        'height' => 720,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                ],
+                                'active' => true,
+                                'is_ai_generated' => false,
+                            ],
+                            [
+                                'id' => 3663582,
+                                'url' => 'https://www.freepik.com/premium-video/happy-fathers-day-lettering-with-mustache-glasses_3663582',
+                                'name' => 'happy fathers day lettering with mustache and glasses',
+                                'aspect_ratio' => '16:9',
+                                'created' => '2024-12-05 22:00:06',
+                                'code' => 'happy-fathers-day-lettering-with-mustache-and-glasses',
+                                'quality' => '4k',
+                                'premium' => 1,
+                                'duration' => '00:00:11',
+                                'author' => [
+                                    'id' => 6145869,
+                                    'name' => 'djvstock',
+                                    'code' => 'djvstock',
+                                    'avatar' => 'https://profile.freepik.com/accounts/avatar/default_04.png',
+                                    'metas' => [
+                                        'downloads' => 118776,
+                                        'assets' => 1960859,
+                                    ],
+                                    'slug' => 'djvstock',
+                                ],
+                                'thumbnails' => [
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/b00d6e7c-9ff7-59c1-86e1-a853e9dd898f/horizontal/thumbnails/small.jpg',
+                                        'width' => 460,
+                                        'height' => 264,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                ],
+                                'previews' => [
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/b00d6e7c-9ff7-59c1-86e1-a853e9dd898f/horizontal/previews/watermarked/small.mp4',
+                                        'width' => 455,
+                                        'height' => 235,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/b00d6e7c-9ff7-59c1-86e1-a853e9dd898f/horizontal/previews/watermarked/large.mp4',
+                                        'width' => 1364,
+                                        'height' => 720,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                ],
+                                'active' => true,
+                                'is_ai_generated' => false,
+                            ],
+                            [
+                                'id' => 3663842,
+                                'url' => 'https://www.freepik.com/premium-video/happy-fathers-day-lettering-with-elegant-tie_3663842',
+                                'name' => 'happy fathers day lettering with elegant tie',
+                                'aspect_ratio' => '16:9',
+                                'created' => '2024-12-05 22:02:39',
+                                'code' => 'happy-fathers-day-lettering-with-elegant-tie',
+                                'quality' => '4k',
+                                'premium' => 1,
+                                'duration' => '00:00:11',
+                                'author' => [
+                                    'id' => 6145869,
+                                    'name' => 'djvstock',
+                                    'code' => 'djvstock',
+                                    'avatar' => 'https://profile.freepik.com/accounts/avatar/default_04.png',
+                                    'metas' => [
+                                        'downloads' => 118776,
+                                        'assets' => 1960859,
+                                    ],
+                                    'slug' => 'djvstock',
+                                ],
+                                'thumbnails' => [
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/6fb36dca-8b47-5f78-be9e-509680e37bdf/horizontal/thumbnails/small.jpg',
+                                        'width' => 460,
+                                        'height' => 264,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                ],
+                                'previews' => [
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/6fb36dca-8b47-5f78-be9e-509680e37bdf/horizontal/previews/watermarked/small.mp4',
+                                        'width' => 455,
+                                        'height' => 235,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/6fb36dca-8b47-5f78-be9e-509680e37bdf/horizontal/previews/watermarked/large.mp4',
+                                        'width' => 1364,
+                                        'height' => 720,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                ],
+                                'active' => true,
+                                'is_ai_generated' => false,
+                            ],
+                            [
+                                'id' => 4913634,
+                                'url' => 'https://www.freepik.com/premium-video/happy-fathers-day-lettering-card-with-elegant-hat-bowtie_4913634',
+                                'name' => 'happy fathers day lettering card with elegant hat and bowtie',
+                                'aspect_ratio' => '16:9',
+                                'created' => '2025-03-19 02:12:03',
+                                'code' => 'happy-fathers-day-lettering-card-with-elegant-hat-and-bowtie',
+                                'quality' => '4k',
+                                'premium' => 1,
+                                'duration' => '00:00:10',
+                                'author' => [
+                                    'id' => 6145869,
+                                    'name' => 'djvstock',
+                                    'code' => 'djvstock',
+                                    'avatar' => 'https://profile.freepik.com/accounts/avatar/default_04.png',
+                                    'metas' => [
+                                        'downloads' => 118776,
+                                        'assets' => 1960859,
+                                    ],
+                                    'slug' => 'djvstock',
+                                ],
+                                'thumbnails' => [
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/43dc5448-bcd1-5cd4-837f-2b6d84fd971f/horizontal/thumbnails/small.jpg',
+                                        'width' => 460,
+                                        'height' => 264,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                ],
+                                'previews' => [
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/43dc5448-bcd1-5cd4-837f-2b6d84fd971f/horizontal/previews/watermarked/small.mp4',
+                                        'width' => 455,
+                                        'height' => 235,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/43dc5448-bcd1-5cd4-837f-2b6d84fd971f/horizontal/previews/watermarked/large.mp4',
+                                        'width' => 1364,
+                                        'height' => 720,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                ],
+                                'active' => true,
+                                'is_ai_generated' => false,
+                            ],
+                            [
+                                'id' => 3663588,
+                                'url' => 'https://www.freepik.com/premium-video/happy-fathers-day-lettering-with-necktie-mustache_3663588',
+                                'name' => 'happy fathers day lettering with necktie and mustache',
+                                'aspect_ratio' => '16:9',
+                                'created' => '2024-12-05 22:00:10',
+                                'code' => 'happy-fathers-day-lettering-with-necktie-and-mustache',
+                                'quality' => '4k',
+                                'premium' => 1,
+                                'duration' => '00:00:11',
+                                'author' => [
+                                    'id' => 6145869,
+                                    'name' => 'djvstock',
+                                    'code' => 'djvstock',
+                                    'avatar' => 'https://profile.freepik.com/accounts/avatar/default_04.png',
+                                    'metas' => [
+                                        'downloads' => 118776,
+                                        'assets' => 1960859,
+                                    ],
+                                    'slug' => 'djvstock',
+                                ],
+                                'thumbnails' => [
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/b6158b1e-0d00-5a8e-a7cc-98cc21eb2107/horizontal/thumbnails/small.jpg',
+                                        'width' => 460,
+                                        'height' => 264,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                ],
+                                'previews' => [
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/b6158b1e-0d00-5a8e-a7cc-98cc21eb2107/horizontal/previews/watermarked/small.mp4',
+                                        'width' => 455,
+                                        'height' => 235,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/b6158b1e-0d00-5a8e-a7cc-98cc21eb2107/horizontal/previews/watermarked/large.mp4',
+                                        'width' => 1364,
+                                        'height' => 720,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                ],
+                                'active' => true,
+                                'is_ai_generated' => false,
+                            ],
+                            [
+                                'id' => 4914071,
+                                'url' => 'https://www.freepik.com/premium-video/happy-fathers-day-lettering-card-with-mustache_4914071',
+                                'name' => 'happy fathers day lettering card with mustache',
+                                'aspect_ratio' => '16:9',
+                                'created' => '2025-03-19 02:16:23',
+                                'code' => 'happy-fathers-day-lettering-card-with-mustache',
+                                'quality' => '4k',
+                                'premium' => 1,
+                                'duration' => '00:00:10',
+                                'author' => [
+                                    'id' => 6145869,
+                                    'name' => 'djvstock',
+                                    'code' => 'djvstock',
+                                    'avatar' => 'https://profile.freepik.com/accounts/avatar/default_04.png',
+                                    'metas' => [
+                                        'downloads' => 118776,
+                                        'assets' => 1960859,
+                                    ],
+                                    'slug' => 'djvstock',
+                                ],
+                                'thumbnails' => [
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/d08d8399-9370-5072-841d-a66ded99a8a4/horizontal/thumbnails/small.jpg',
+                                        'width' => 460,
+                                        'height' => 264,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                ],
+                                'previews' => [
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/d08d8399-9370-5072-841d-a66ded99a8a4/horizontal/previews/watermarked/small.mp4',
+                                        'width' => 455,
+                                        'height' => 235,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/d08d8399-9370-5072-841d-a66ded99a8a4/horizontal/previews/watermarked/large.mp4',
+                                        'width' => 1364,
+                                        'height' => 720,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                ],
+                                'active' => true,
+                                'is_ai_generated' => false,
+                            ],
+                            [
+                                'id' => 3663855,
+                                'url' => 'https://www.freepik.com/premium-video/happy-fathers-day-lettering-with-elegant-suit-bowtie_3663855',
+                                'name' => 'happy fathers day lettering with elegant suit and bowtie',
+                                'aspect_ratio' => '16:9',
+                                'created' => '2024-12-05 22:02:46',
+                                'code' => 'happy-fathers-day-lettering-with-elegant-suit-and-bowtie',
+                                'quality' => '4k',
+                                'premium' => 1,
+                                'duration' => '00:00:11',
+                                'author' => [
+                                    'id' => 6145869,
+                                    'name' => 'djvstock',
+                                    'code' => 'djvstock',
+                                    'avatar' => 'https://profile.freepik.com/accounts/avatar/default_04.png',
+                                    'metas' => [
+                                        'downloads' => 118776,
+                                        'assets' => 1960859,
+                                    ],
+                                    'slug' => 'djvstock',
+                                ],
+                                'thumbnails' => [
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/195a58de-e5da-5af0-8039-a3a9cec1c546/horizontal/thumbnails/small.jpg',
+                                        'width' => 460,
+                                        'height' => 264,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                ],
+                                'previews' => [
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/195a58de-e5da-5af0-8039-a3a9cec1c546/horizontal/previews/watermarked/small.mp4',
+                                        'width' => 455,
+                                        'height' => 235,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/195a58de-e5da-5af0-8039-a3a9cec1c546/horizontal/previews/watermarked/large.mp4',
+                                        'width' => 1364,
+                                        'height' => 720,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                ],
+                                'active' => true,
+                                'is_ai_generated' => false,
+                            ],
+                            [
+                                'id' => 4913933,
+                                'url' => 'https://www.freepik.com/premium-video/happy-fathers-day-lettering-card-with-accessories_4913933',
+                                'name' => 'happy fathers day lettering card with accessories',
+                                'aspect_ratio' => '16:9',
+                                'created' => '2025-03-19 02:15:22',
+                                'code' => 'happy-fathers-day-lettering-card-with-accessories',
+                                'quality' => '4k',
+                                'premium' => 1,
+                                'duration' => '00:00:10',
+                                'author' => [
+                                    'id' => 6145869,
+                                    'name' => 'djvstock',
+                                    'code' => 'djvstock',
+                                    'avatar' => 'https://profile.freepik.com/accounts/avatar/default_04.png',
+                                    'metas' => [
+                                        'downloads' => 118776,
+                                        'assets' => 1960859,
+                                    ],
+                                    'slug' => 'djvstock',
+                                ],
+                                'thumbnails' => [
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/40bbcb0f-c1c6-5f82-8781-4f9cda8b8d75/horizontal/thumbnails/small.jpg',
+                                        'width' => 460,
+                                        'height' => 264,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                ],
+                                'previews' => [
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/40bbcb0f-c1c6-5f82-8781-4f9cda8b8d75/horizontal/previews/watermarked/small.mp4',
+                                        'width' => 455,
+                                        'height' => 235,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                    [
+                                        'url' => 'https://videocdn.cdnpk.net/videos/40bbcb0f-c1c6-5f82-8781-4f9cda8b8d75/horizontal/previews/watermarked/large.mp4',
+                                        'width' => 1364,
+                                        'height' => 720,
+                                        'aspect_ratio' => '16:9',
+                                    ],
+                                ],
+                                'active' => true,
+                                'is_ai_generated' => false,
+                            ],
+                        ],
+                        'related_psds' => [],
+                        'related_vectors' => [],
+                        'related_icons' => [],
+                    ],
+                    'related_tags' => [
+                        [
+                            'slug' => 'dad',
+                            'name' => 'dad',
+                        ],
+                        [
+                            'slug' => 'father',
+                            'name' => 'father',
+                        ],
+                        [
+                            'slug' => 'family-illustration',
+                            'name' => 'family illustration',
+                        ],
+                        [
+                            'slug' => 'family-love',
+                            'name' => 'family love',
+                        ],
+                        [
+                            'slug' => 'parenting',
+                            'name' => 'parenting',
+                        ],
+                        [
+                            'slug' => 'family',
+                            'name' => 'family',
+                        ],
+                        [
+                            'slug' => 'family-happy',
+                            'name' => 'family happy',
+                        ],
+                        [
+                            'slug' => 'celebration',
+                            'name' => 'celebration',
+                        ],
+                        [
+                            'slug' => 'lovely',
+                            'name' => 'lovely',
+                        ],
+                        [
+                            'slug' => 'greeting',
+                            'name' => 'greeting',
+                        ],
+                        [
+                            'slug' => 'illustrations',
+                            'name' => 'illustrations',
+                        ],
+                        [
+                            'slug' => 'event',
+                            'name' => 'event',
+                        ],
+                        [
+                            'slug' => 'relationship',
+                            'name' => 'relationship',
+                        ],
+                        [
+                            'slug' => 'design-illustration',
+                            'name' => 'design illustration',
+                        ],
+                        [
+                            'slug' => 'day',
+                            'name' => 'day',
+                        ],
+                        [
+                            'slug' => 'design',
+                            'name' => 'design',
+                        ],
+                    ],
+                    'is_ai_generated' => false,
+                    'has_prompt' => false,
+                    'dimensions' => [
+                        'width' => 626,
+                        'height' => 626,
+                    ],
                 ],
             ]
         )
@@ -261,8 +870,8 @@ class FreepikController extends BaseController
         content: new OA\JsonContent(
             example: [
                 'data' => [
-                    'filename' => 'Mother-and-daughter.zip',
-                    'url' => 'https://downloadscdn5.freepik.com/d/999999/23/99999/8888888/mother-and-daughter.zip?token=exp=1689689298~hmac=1234567890abcde',
+                    'filename' => 'father-s-day-event-hand-drawn-style.zip',
+                    'url' => 'https://downloadscdn5.freepik.com/d/7663349/23/2148508/2148507324/father-s-day-event-hand-drawn-style.zip?token=exp=1751005689~hmac=5e439aed0f35b50349bdecfaf8ce2856',
                 ],
             ]
         )
@@ -304,14 +913,8 @@ class FreepikController extends BaseController
             example: [
                 'data' => [
                     [
-                        'signed_url' => 'https://img.freepik.com/premium-photo/close-up-cat-resting_1048944-9269194.jpg?t=st=1725276607~exp=1725280207~hmac=1538f1b294fc3a19a19e9f02ceeb6594a9a1e36a900de85d47bbd386e27dddbe',
-                        'filename' => 'blackboard-template.zip',
-                        'url' => 'https://downloadscdn5.freepik.com/d/1137445/blackboard-template.zip',
-                    ],
-                    [
-                        'signed_url' => 'https://img.freepik.com/premium-photo/close-up-cat-resting_1048944-9269194.jpg?t=st=1725276607~exp=1725280207~hmac=1538f1b294fc3a19a19e9f02ceeb6594a9a1e36a900de85d47bbd386e27dddbe',
-                        'filename' => 'blackboard-template.zip',
-                        'url' => 'https://downloadscdn5.freepik.com/d/1137445/blackboard-template.zip',
+                        'filename' => '150898146_10483448.psd',
+                        'url' => 'https://downloadscdn5.freepik.com/download_psd/psd/0/23/150/150898/150898146_10483448.psd?token=exp=1751005736~hmac=cfeb79bd582be116da3ba87b72a27b2f',
                     ],
                 ],
             ]
@@ -386,9 +989,11 @@ class FreepikController extends BaseController
         description: 'Task accepted',
         content: new OA\JsonContent(
             example: [
-                'generated' => [],
-                'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
-                'task_status' => 'IN_PROGRESS',
+                'data' => [
+                    'task_id' => 'd1686bd7-ffeb-4914-bffe-5a8db018ac3b',
+                    'status' => 'CREATED',
+                    'generated' => [],
+                ],
             ]
         )
     )]
@@ -419,11 +1024,12 @@ class FreepikController extends BaseController
         description: 'Result of icon generation task',
         content: new OA\JsonContent(
             example: [
-                'status' => 'COMPLETED',
-                'request_id' => '796dd3c1-c50b-42bc-a9e2-a892eef53438',
-                'task_id' => '796dd3c1-c50b-42bc-a9e2-a892eef53438',
-                'generated' => [
-                    'https://cdn-magnific.freepik.com/796dd3c1-c50b-42bc-a9e2-a892eef53438.png?token=exp=1750667013~hmac=262c8162c696d586a84155664318b75313d40cbf7dc67c70f8c8709dfa522cfd',
+                'data' => [
+                    'task_id' => 'd20eeb40-11fc-4402-a9da-d06eb9c66f23',
+                    'status' => 'COMPLETED',
+                    'generated' => [
+                        'https://cdn-magnific.freepik.com/imagen3_d20eeb40-11fc-4402-a9da-d06eb9c66f23_0.png?token=exp=1751007773~hmac=0efd3dde93656145f6b951922491d150e3e4a1cb8aba2ab06144d3629060215d',
+                    ],
                 ],
             ]
         )
@@ -545,8 +1151,11 @@ class FreepikController extends BaseController
         content: new OA\JsonContent(
             type: 'object',
             example: [
-                'task_id' => '123e4567-e89b-12d3-a456-426614174000',
-                'status' => 'IN_PROGRESS',
+                'data' => [
+                    'task_id' => 'd1686bd7-ffeb-4914-bffe-5a8db018ac3b',
+                    'status' => 'CREATED',
+                    'generated' => [],
+                ],
             ]
         )
     )]
@@ -587,11 +1196,12 @@ class FreepikController extends BaseController
         content: new OA\JsonContent(
             type: 'object',
             example: [
-                'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
-                'status' => 'IN_PROGRESS',
-                'generated' => [
-                    'https://cdn.example.com/video1.mp4',
-                    'https://cdn.example.com/video2.mp4',
+                'data' => [
+                    'task_id' => '14eb9004-41ef-4a16-97f2-a558aab35578',
+                    'status' => 'COMPLETED',
+                    'generated' => [
+                        'https://ai-statics.freepik.com/content/mg-upscaler/syn56t4xlfgodjvkhlksx2t3be/output.png?token=exp=1751090771~hmac=8a99cf9fcbbecb72e35d8a6ddfea4b2d',
+                    ],
                 ],
             ]
         )
@@ -666,8 +1276,11 @@ class FreepikController extends BaseController
         content: new OA\JsonContent(
             type: 'object',
             example: [
-                'task_id' => '123e4567-e89b-12d3-a456-426614174000',
-                'status' => 'IN_PROGRESS',
+                'data' => [
+                    'task_id' => 'd1686bd7-ffeb-4914-bffe-5a8db018ac3b',
+                    'status' => 'CREATED',
+                    'generated' => [],
+                ],
             ]
         )
     )]
@@ -701,11 +1314,12 @@ class FreepikController extends BaseController
         content: new OA\JsonContent(
             type: 'object',
             example: [
-                'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
-                'status' => 'IN_PROGRESS',
-                'generated' => [
-                    'https://cdn.example.com/video1.mp4',
-                    'https://cdn.example.com/video2.mp4',
+                'data' => [
+                    'task_id' => '14eb9004-41ef-4a16-97f2-a558aab35578',
+                    'status' => 'COMPLETED',
+                    'generated' => [
+                        'https://ai-statics.freepik.com/content/mg-upscaler/syn56t4xlfgodjvkhlksx2t3be/output.png?token=exp=1751090771~hmac=8a99cf9fcbbecb72e35d8a6ddfea4b2d',
+                    ],
                 ],
             ]
         )
@@ -740,8 +1354,11 @@ class FreepikController extends BaseController
         description: 'Video generation task started',
         content: new OA\JsonContent(
             example: [
-                'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
-                'status' => 'IN_PROGRESS',
+                'data' => [
+                    'task_id' => 'd1686bd7-ffeb-4914-bffe-5a8db018ac3b',
+                    'status' => 'CREATED',
+                    'generated' => [],
+                ],
             ]
         )
     )]
@@ -782,11 +1399,12 @@ class FreepikController extends BaseController
         content: new OA\JsonContent(
             type: 'object',
             example: [
-                'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
-                'status' => 'IN_PROGRESS',
-                'generated' => [
-                    'https://cdn.example.com/video1.mp4',
-                    'https://cdn.example.com/video2.mp4',
+                'data' => [
+                    'task_id' => '14eb9004-41ef-4a16-97f2-a558aab35578',
+                    'status' => 'COMPLETED',
+                    'generated' => [
+                        'https://ai-statics.freepik.com/content/mg-upscaler/syn56t4xlfgodjvkhlksx2t3be/output.png?token=exp=1751090771~hmac=8a99cf9fcbbecb72e35d8a6ddfea4b2d',
+                    ],
                 ],
             ]
         )
@@ -1033,11 +1651,9 @@ class FreepikController extends BaseController
         content: new OA\JsonContent(
             example: [
                 'data' => [
-                    'generated' => [
-                        'https://openapi-generator.tech',
-                    ],
-                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
-                    'status' => 'IN_PROGRESS',
+                    'task_id' => 'd1686bd7-ffeb-4914-bffe-5a8db018ac3b',
+                    'status' => 'CREATED',
+                    'generated' => [],
                 ],
             ]
         )
@@ -1105,12 +1721,14 @@ class FreepikController extends BaseController
             ],
             example: [
                 'data' => [
-                    'generated' => [
-                        'https://ai-statics.freepik.com/completed_task_image.jpg',
-                    ],
-                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
+                    'task_id' => 'd1686bd7-ffeb-4914-bffe-5a8db018ac3b',
                     'status' => 'COMPLETED',
-                    'has_nsfw' => [false],
+                    'generated' => [
+                        'https://ai-statics.freepik.com/content/mg-upscaler/hg37oeqmzjb2vng25rpj4gosxm/output.png?token=exp=1751089803~hmac=e733128992a3814c0dc28a8cc3f1ac64',
+                    ],
+                    'has_nsfw' => [
+                        false,
+                    ],
                 ],
             ]
         )
@@ -1178,9 +1796,11 @@ class FreepikController extends BaseController
         description: 'LoRA style training started and processing',
         content: new OA\JsonContent(
             example: [
-                'generated' => [],
-                'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
-                'task_status' => 'IN_PROGRESS',
+                'data' => [
+                    'task_id' => 'abe2666f-3977-4420-b591-082ba0b54790',
+                    'status' => 'CREATED',
+                    'generated' => [],
+                ],
             ]
         )
     )]
@@ -1255,8 +1875,8 @@ class FreepikController extends BaseController
         content: new OA\JsonContent(
             example: [
                 'data' => [
-                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
-                    'status' => 'IN_PROGRESS',
+                    'task_id' => 'abe2666f-3977-4420-b591-082ba0b54790',
+                    'status' => 'CREATED',
                     'generated' => [],
                 ],
             ]
@@ -1514,33 +2134,24 @@ class FreepikController extends BaseController
         response: 200,
         description: 'Image(s) generated successfully',
         content: new OA\JsonContent(
-            properties: [
-                new OA\Property(
-                    property: 'data',
-                    type: 'array',
-                    items: new OA\Items(
-                        type: 'object',
-                        properties: [
-                            new OA\Property(property: 'base64', type: 'string', description: 'Base64 encoded image'),
-                            new OA\Property(property: 'has_nsfw', type: 'boolean'),
-                        ]
-                    )
-                ),
-                new OA\Property(
-                    property: 'meta',
-                    type: 'object',
-                    properties: [
-                        new OA\Property(property: 'image', type: 'object', properties: [
-                            new OA\Property(property: 'size', type: 'string'),
-                            new OA\Property(property: 'width', type: 'integer'),
-                            new OA\Property(property: 'height', type: 'integer'),
-                        ]),
-                        new OA\Property(property: 'seed', type: 'integer'),
-                        new OA\Property(property: 'guidance_scale', type: 'number'),
-                        new OA\Property(property: 'prompt', type: 'string'),
-                        new OA\Property(property: 'num_inference_steps', type: 'integer'),
-                    ]
-                ),
+            example: [
+                'data' => [
+                    [
+                        'base64' => '4AAQSkZJRgABAQAAAQABAAD00rU5WmFaCGQEUhFTFaTZQFj/2Q==',
+                        'has_nsfw' => false,
+                    ],
+                ],
+                'meta' => [
+                    'prompt' => 'Crazy dog in the space',
+                    'seed' => 42,
+                    'image' => [
+                        'size' => 'square_1_1',
+                        'width' => 1024,
+                        'height' => 1024,
+                    ],
+                    'num_inference_steps' => 8,
+                    'guidance_scale' => 2,
+                ],
             ]
         )
     )]
@@ -1735,9 +2346,11 @@ class FreepikController extends BaseController
         description: 'Image(s) generated successfully',
         content: new OA\JsonContent(
             example: [
-                'generated' => [],
-                'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
-                'task_status' => 'IN_PROGRESS',
+                'data' => [
+                    'task_id' => 'd1686bd7-ffeb-4914-bffe-5a8db018ac3b',
+                    'status' => 'CREATED',
+                    'generated' => [],
+                ],
             ]
         )
     )]
@@ -1804,12 +2417,11 @@ class FreepikController extends BaseController
             ],
             example: [
                 'data' => [
-                    'generated' => [
-                        'https://ai-statics.freepik.com/completed_task_image.jpg',
-                    ],
-                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
+                    'task_id' => 'd20eeb40-11fc-4402-a9da-d06eb9c66f23',
                     'status' => 'COMPLETED',
-                    'has_nsfw' => [false],
+                    'generated' => [
+                        'https://cdn-magnific.freepik.com/imagen3_d20eeb40-11fc-4402-a9da-d06eb9c66f23_0.png?token=exp=1751007773~hmac=0efd3dde93656145f6b951922491d150e3e4a1cb8aba2ab06144d3629060215d',
+                    ],
                 ],
             ]
         )
@@ -1888,17 +2500,12 @@ class FreepikController extends BaseController
         response: 200,
         description: 'Task created successfully',
         content: new OA\JsonContent(
-            required: ['data'],
-            properties: [
-                new OA\Property(
-                    property: 'data',
-                    type: 'object',
-                    required: ['task_id', 'status'],
-                    properties: [
-                        new OA\Property(property: 'task_id', type: 'string', example: '046b6c7f-0b8a-43b9-b35d-6489e6daee91'),
-                        new OA\Property(property: 'status', type: 'string', enum: ['IN_PROGRESS'], example: 'IN_PROGRESS'),
-                    ]
-                ),
+            example: [
+                'data' => [
+                    'task_id' => 'd1686bd7-ffeb-4914-bffe-5a8db018ac3b',
+                    'status' => 'CREATED',
+                    'generated' => [],
+                ],
             ]
         )
     )]
@@ -1959,12 +2566,11 @@ class FreepikController extends BaseController
             ],
             example: [
                 'data' => [
+                    'task_id' => 'd20eeb40-11fc-4402-a9da-d06eb9c66f23',
+                    'status' => 'COMPLETED',
                     'generated' => [
-                        'https://openapi-generator.tech/image1.jpg',
-                        'https://openapi-generator.tech/image2.jpg',
+                        'https://cdn-magnific.freepik.com/imagen3_d20eeb40-11fc-4402-a9da-d06eb9c66f23_0.png?token=exp=1751007773~hmac=0efd3dde93656145f6b951922491d150e3e4a1cb8aba2ab06144d3629060215d',
                     ],
-                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
-                    'status' => 'IN_PROGRESS',
                 ],
             ]
         )
@@ -2012,15 +2618,14 @@ class FreepikController extends BaseController
         response: 200,
         description: 'Success - Image reimagined and task status returned',
         content: new OA\JsonContent(
-            required: ['data'],
-            properties: [
-                new OA\Property(property: 'data', type: 'object', required: ['generated', 'task_id', 'status'], properties: [
-                    new OA\Property(property: 'generated', type: 'array', items: new OA\Items(type: 'string', format: 'uri'), example: [
-                        'https://ai-statics.freepik.com/completed_task_image.jpg',
-                    ]),
-                    new OA\Property(property: 'task_id', type: 'string', example: '046b6c7f-0b8a-43b9-b35d-6489e6daee91'),
-                    new OA\Property(property: 'status', type: 'string', enum: ['IN_PROGRESS', 'COMPLETED', 'FAILED'], example: 'COMPLETED'),
-                ]),
+            example: [
+                'data' => [
+                    'task_id' => 'a44b311d-7bb4-4ebe-8150-ae01947162c0',
+                    'status' => 'COMPLETED',
+                    'generated' => [
+                        'https://storage.googleapis.com/fc-magnific/a44b311d-7bb4-4ebe-8150-ae01947162c0.jpeg?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=magnific-ai-api-sa%40fc-gke-pro-rev1.iam.gserviceaccount.com%2F20250627%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250627T060456Z&X-Goog-Expires=604800&X-Goog-SignedHeaders=host&X-Goog-Signature=80f8a54465c7f939d645f2a95e86533aeff4cb3fdc2f63955e31b163ad8adb5fe6b0ac8be9ea5772f4abc06a8ec0a8e1a47b0dac3096caf6cd526523f0346a1c70cef2620c22cb71d375c57b8656e66f29b16f023db3f42a3c8967e9fb75a51e14d7d31f8c56f39a2c0ef08064fdb914b6779510a65347044fd69ca61e12903019a4f5c29b27906e62de430d6898cee00f1c21768235890c954f26931b1ce32840d4b138acdb29afe337db5ba243b34352e3df8599b27af2109bca9f84eac636865ea571e4ac75d36cac4661db5b879fab1095fcf3840f80525bd5d92418c0755d1d4031ed0e9a62f7aff8581016c241a7cafa5c074c49c741330cff34f08633',
+                    ],
+                ],
             ]
         )
     )]
@@ -2121,16 +2726,12 @@ class FreepikController extends BaseController
         response: 200,
         description: 'Upscaling task initiated successfully',
         content: new OA\JsonContent(
-            required: ['data'],
-            properties: [
-                new OA\Property(property: 'data', type: 'object', required: ['task_id', 'status', 'generated'], properties: [
-                    new OA\Property(property: 'task_id', type: 'string', example: '046b6c7f-0b8a-43b9-b35d-6489e6daee91'),
-                    new OA\Property(property: 'status', type: 'string', enum: ['IN_PROGRESS', 'COMPLETED', 'FAILED'], example: 'IN_PROGRESS'),
-                    new OA\Property(property: 'generated', type: 'array', items: new OA\Items(type: 'string', format: 'uri'), example: [
-                        'https://openapi-generator.tech/image1.jpg',
-                        'https://openapi-generator.tech/image2.jpg',
-                    ]),
-                ]),
+            example: [
+                'data' => [
+                    'task_id' => '14eb9004-41ef-4a16-97f2-a558aab35578',
+                    'status' => 'CREATED',
+                    'generated' => [],
+                ],
             ]
         )
     )]
@@ -2162,40 +2763,13 @@ class FreepikController extends BaseController
         response: 200,
         description: 'Task status and generated images if available',
         content: new OA\JsonContent(
-            required: ['data'],
-            properties: [
-                new OA\Property(
-                    property: 'data',
-                    type: 'object',
-                    required: ['generated', 'task_id', 'status'],
-                    properties: [
-                        new OA\Property(
-                            property: 'generated',
-                            type: 'array',
-                            description: 'List of generated image URLs',
-                            items: new OA\Items(type: 'string', format: 'uri')
-                        ),
-                        new OA\Property(
-                            property: 'task_id',
-                            type: 'string',
-                            description: 'The task ID'
-                        ),
-                        new OA\Property(
-                            property: 'status',
-                            type: 'string',
-                            description: 'Status of the task',
-                            enum: ['IN_PROGRESS', 'COMPLETED', 'FAILED']
-                        ),
-                    ]
-                ),
-            ],
             example: [
                 'data' => [
-                    'generated' => [
-                        'https://ai-statics.freepik.com/completed_task_image.jpg',
-                    ],
-                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
+                    'task_id' => '14eb9004-41ef-4a16-97f2-a558aab35578',
                     'status' => 'COMPLETED',
+                    'generated' => [
+                        'https://ai-statics.freepik.com/content/mg-upscaler/syn56t4xlfgodjvkhlksx2t3be/output.png?token=exp=1751090771~hmac=8a99cf9fcbbecb72e35d8a6ddfea4b2d',
+                    ],
                 ],
             ]
         )
@@ -2356,24 +2930,11 @@ class FreepikController extends BaseController
         response: 200,
         description: 'The relight process has started.',
         content: new OA\JsonContent(
-            required: ['data'],
-            properties: [
-                new OA\Property(
-                    property: 'data',
-                    type: 'object',
-                    required: ['generated', 'task_id', 'status'],
-                    properties: [
-                        new OA\Property(property: 'generated', type: 'array', items: new OA\Items(type: 'string', format: 'uri')),
-                        new OA\Property(property: 'task_id', type: 'string'),
-                        new OA\Property(property: 'status', type: 'string', enum: ['IN_PROGRESS', 'COMPLETED', 'FAILED']),
-                    ]
-                ),
-            ],
             example: [
                 'data' => [
-                    'generated' => ['https://ai-statics.freepik.com/completed_task_image.jpg'],
-                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
-                    'status' => 'IN_PROGRESS',
+                    'task_id' => 'd1686bd7-ffeb-4914-bffe-5a8db018ac3b',
+                    'status' => 'CREATED',
+                    'generated' => [],
                 ],
             ]
         )
@@ -2406,40 +2967,13 @@ class FreepikController extends BaseController
         response: 200,
         description: 'The task status and generated images if available',
         content: new OA\JsonContent(
-            required: ['data'],
-            properties: [
-                new OA\Property(
-                    property: 'data',
-                    type: 'object',
-                    required: ['generated', 'task_id', 'status'],
-                    properties: [
-                        new OA\Property(
-                            property: 'generated',
-                            type: 'array',
-                            description: 'List of generated image URLs',
-                            items: new OA\Items(type: 'string', format: 'uri')
-                        ),
-                        new OA\Property(
-                            property: 'task_id',
-                            type: 'string',
-                            description: 'The task ID'
-                        ),
-                        new OA\Property(
-                            property: 'status',
-                            type: 'string',
-                            description: 'Status of the task',
-                            enum: ['IN_PROGRESS', 'COMPLETED', 'FAILED']
-                        ),
-                    ]
-                ),
-            ],
             example: [
                 'data' => [
+                    'task_id' => '14eb9004-41ef-4a16-97f2-a558aab35578',
+                    'status' => 'COMPLETED',
                     'generated' => [
-                        'https://ai-statics.freepik.com/completed_task_image.jpg',
+                        'https://ai-statics.freepik.com/content/mg-upscaler/syn56t4xlfgodjvkhlksx2t3be/output.png?token=exp=1751090771~hmac=8a99cf9fcbbecb72e35d8a6ddfea4b2d',
                     ],
-                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
-                    'status' => 'IN_PROGRESS',
                 ],
             ]
         )
@@ -2550,30 +3084,13 @@ class FreepikController extends BaseController
         response: 200,
         description: 'The request has succeeded and the Style Transfer process has started.',
         content: new OA\JsonContent(
-            required: ['data'],
-            properties: [
-                new OA\Property(
-                    property: 'data',
-                    type: 'object',
-                    required: ['generated', 'task_id', 'task_status'],
-                    properties: [
-                        new OA\Property(property: 'generated', type: 'array', items: new OA\Items(type: 'string', format: 'uri')),
-                        new OA\Property(property: 'task_id', type: 'string'),
-                        new OA\Property(
-                            property: 'task_status',
-                            type: 'string',
-                            enum: ['IN_PROGRESS', 'COMPLETED', 'FAILED']
-                        ),
-                    ],
-                ),
-            ],
             example: [
                 'data' => [
-                    'generated' => ['https://openapi-generator.tech/completed_task_image.jpg'],
-                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
-                    'task_status' => 'IN_PROGRESS',
+                    'task_id' => 'd1686bd7-ffeb-4914-bffe-5a8db018ac3b',
+                    'status' => 'CREATED',
+                    'generated' => [],
                 ],
-            ],
+            ]
         ),
     )]
     public function styleTransfer(StyleTransferRequest $request)
@@ -2604,42 +3121,15 @@ class FreepikController extends BaseController
         response: 200,
         description: 'The task status and generated images if available',
         content: new OA\JsonContent(
-            required: ['data'],
-            properties: [
-                new OA\Property(
-                    property: 'data',
-                    type: 'object',
-                    required: ['generated', 'task_id', 'status'],
-                    properties: [
-                        new OA\Property(
-                            property: 'generated',
-                            type: 'array',
-                            description: 'List of generated image URLs',
-                            items: new OA\Items(type: 'string', format: 'uri')
-                        ),
-                        new OA\Property(
-                            property: 'task_id',
-                            type: 'string',
-                            description: 'The task ID'
-                        ),
-                        new OA\Property(
-                            property: 'status',
-                            type: 'string',
-                            description: 'Status of the task',
-                            enum: ['IN_PROGRESS', 'COMPLETED', 'FAILED']
-                        ),
-                    ]
-                ),
-            ],
             example: [
                 'data' => [
-                    'generated' => [
-                        'https://ai-statics.freepik.com/completed_task_image.jpg',
-                    ],
-                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
+                    'task_id' => '14eb9004-41ef-4a16-97f2-a558aab35578',
                     'status' => 'COMPLETED',
+                    'generated' => [
+                        'https://ai-statics.freepik.com/content/mg-upscaler/syn56t4xlfgodjvkhlksx2t3be/output.png?token=exp=1751090771~hmac=8a99cf9fcbbecb72e35d8a6ddfea4b2d',
+                    ],
                 ],
-            ],
+            ]
         )
     )]
     public function getStyleTransferTaskStatus(string $task_id)
@@ -2710,10 +3200,10 @@ class FreepikController extends BaseController
                 ),
             ],
             example: [
-                'original' => 'https://api.freepik.com/v1/ai/beta/images/original/037ea4ea-e8ad84a8c7/thumbnail.jpg',
-                'high_resolution' => 'https://api.freepik.com/v1/ai/beta/images/download/037ead-44cd8ad84a8c7/high.png',
-                'preview' => 'https://api.freepik.com/v1/ai/beta/images/download/037ea4eacad84a8c7/preview.png',
-                'url' => 'https://api.freepik.com/v1/ai/beta/images/download/037ea4ea-720d-411e8ad84a8c7/high.png',
+                'original' => 'https://api.freepik.com/v1/ai/beta/images/original/f6ff89df-f14e-4eca-936a-308ef404cfa8/thumbnail.jpg',
+                'high_resolution' => 'https://api.freepik.com/v1/ai/beta/images/download/f6ff89df-f14e-4eca-936a-308ef404cfa8/high.png',
+                'preview' => 'https://api.freepik.com/v1/ai/beta/images/download/f6ff89df-f14e-4eca-936a-308ef404cfa8/preview.png',
+                'url' => 'https://api.freepik.com/v1/ai/beta/images/download/f6ff89df-f14e-4eca-936a-308ef404cfa8/high.png',
             ]
         )
     )]
@@ -2794,23 +3284,10 @@ class FreepikController extends BaseController
                 response: 200,
                 description: 'The task exists and the status is returned',
                 content: new OA\JsonContent(
-                    required: ['data'],
-                    properties: [
-                        new OA\Property(
-                            property: 'data',
-                            type: 'object',
-                            required: ['task_id', 'status', 'generated'],
-                            properties: [
-                                new OA\Property(property: 'task_id', type: 'string', description: 'Task identifier'),
-                                new OA\Property(property: 'status', type: 'string', description: 'Task status', enum: ['IN_PROGRESS', 'COMPLETED', 'FAILED']),
-                                new OA\Property(property: 'generated', type: 'array', description: 'URLs of generated images', items: new OA\Items(type: 'string', format: 'uri')),
-                            ],
-                        ),
-                    ],
                     example: [
                         'data' => [
-                            'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
-                            'status' => 'IN_PROGRESS',
+                            'task_id' => 'd1686bd7-ffeb-4914-bffe-5a8db018ac3b',
+                            'status' => 'CREATED',
                             'generated' => [],
                         ],
                     ]
@@ -2845,42 +3322,15 @@ class FreepikController extends BaseController
         response: 200,
         description: 'The task status and generated images if available',
         content: new OA\JsonContent(
-            required: ['data'],
-            properties: [
-                new OA\Property(
-                    property: 'data',
-                    type: 'object',
-                    required: ['generated', 'task_id', 'status'],
-                    properties: [
-                        new OA\Property(
-                            property: 'generated',
-                            type: 'array',
-                            description: 'List of generated image URLs',
-                            items: new OA\Items(type: 'string', format: 'uri')
-                        ),
-                        new OA\Property(
-                            property: 'task_id',
-                            type: 'string',
-                            description: 'The task ID'
-                        ),
-                        new OA\Property(
-                            property: 'status',
-                            type: 'string',
-                            description: 'Status of the task',
-                            enum: ['IN_PROGRESS', 'COMPLETED', 'FAILED']
-                        ),
-                    ]
-                ),
-            ],
             example: [
                 'data' => [
+                    'task_id' => '14eb9004-41ef-4a16-97f2-a558aab35578',
+                    'status' => 'COMPLETED',
                     'generated' => [
-                        'https://openapi-generator.tech/completed_task_image.jpg',
+                        'https://ai-statics.freepik.com/content/mg-upscaler/syn56t4xlfgodjvkhlksx2t3be/output.png?token=exp=1751090771~hmac=8a99cf9fcbbecb72e35d8a6ddfea4b2d',
                     ],
-                    'task_id' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91',
-                    'status' => 'IN_PROGRESS',
                 ],
-            ],
+            ]
         )
     )]
     public function getImageExpandFluxProTaskStatus(string $task_id): JsonResponse
