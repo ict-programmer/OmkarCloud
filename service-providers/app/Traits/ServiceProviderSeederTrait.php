@@ -41,7 +41,6 @@ trait ServiceProviderSeederTrait
             } else {
                 $serviceType = ServiceType::create([
                     'name' => $serviceTypeName,
-                    'service_provider_id' => $serviceProvider->id,
                 ]);
 
                 ServiceProviderType::create([
