@@ -26,6 +26,7 @@ class DataAnalysisInsightRequest extends FormRequest
             'data' => ['required', 'array', 'min:1', 'max:1000'],
             'data.*' => ['required', 'array'],
             'task' => ['required', 'string', 'min:3', 'max:100'],
+            'max_tokens' => ['required', 'integer', 'min:1', 'max:5000'],
             'model' => ['nullable', 'string'],
         ];
     }
@@ -48,6 +49,10 @@ class DataAnalysisInsightRequest extends FormRequest
             'task.string' => 'The task must be a valid string.',
             'task.min' => 'The task must be at least 3 characters long.',
             'task.max' => 'The task may not be greater than 100 characters.',
+            'max_tokens.required' => 'The max_tokens field is required to specify response length.',
+            'max_tokens.integer' => 'The max_tokens must be a whole number.',
+            'max_tokens.min' => 'The max_tokens must be at least 1 token.',
+            'max_tokens.max' => 'The max_tokens may not be greater than 5000 tokens.',
             'model.string' => 'The model must be a valid string.',
         ];
     }
@@ -62,6 +67,7 @@ class DataAnalysisInsightRequest extends FormRequest
         return [
             'data' => 'data array',
             'task' => 'analysis task',
+            'max_tokens' => 'maximum tokens',
         ];
     }
 

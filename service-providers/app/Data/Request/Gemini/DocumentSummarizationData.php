@@ -10,5 +10,6 @@ class DocumentSummarizationData extends Data
         public string $document_text,
         public string $model,
         public int $summary_length,
+        public int $max_tokens
     ) {}
 }

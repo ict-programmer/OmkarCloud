@@ -15,7 +15,6 @@ use App\Http\Resources\Gemini\DocumentSummarizationResource;
 use App\Http\Resources\Gemini\ImageAnalysisResource;
 use App\Http\Resources\Gemini\TextGenerationResource;
 use App\Models\ServiceProvider;
-use App\Models\ServiceProviderType;
 use App\Models\ServiceType;
 use App\Traits\GeminiTrait;
 use Exception;
@@ -37,8 +36,6 @@ class GeminiService
 
     protected string $apiKey;
 
-    protected int $maxTokens;
-
     protected PendingRequest $client;
 
     /**
@@ -53,25 +50,18 @@ class GeminiService
             throw new NotFound('Gemini service provider not found.');
         }
 
-        $serviceType = ServiceType::where('name', $serviceTypeName)->first();
+        $serviceType = ServiceType::where('service_provider_id', $provider->id)
+            ->where('name', $serviceTypeName)
+            ->first();
+            
         if (!$serviceType) {
             throw new NotFound('Gemini service type not found.');
-        }
-
-        $providerType = ServiceProviderType::where([
-            ['service_provider_id', $provider->id],
-            ['service_type_id', $serviceType->id],
-        ])->first();
-
-        if (!$providerType) {
-            throw new NotFound('Gemini provider type configuration missing.');
         }
 
         $apiKey = config('services.gemini.api_key');
         throw_if(empty($apiKey), new NotFound('Gemini key not configured.'));
 
         $this->apiKey = $apiKey;
-        $this->maxTokens = $provider->parameters['max_tokens'];
 
         $this->client = Http::withHeaders(['Content-Type' => 'application/json'])
             ->timeout(0)
@@ -113,7 +103,7 @@ class GeminiService
                         ],
                     ],
                     'generationConfig' => [
-                        'maxOutputTokens' => $this->maxTokens,
+                        'maxOutputTokens' => $data->max_tokens,
                     ],
                 ]
             );
@@ -170,7 +160,7 @@ class GeminiService
                 ],
                 'contents' => $messages,
                 'generation_config' => [
-                    'max_output_tokens' => $this->maxTokens,
+                    'max_output_tokens' => $data->max_tokens,
                     'temperature' => $data->temperature,
                 ],
             ];
@@ -233,6 +223,9 @@ class GeminiService
                             ],
                         ],
                     ],
+                    'generationConfig' => [
+                        'maxOutputTokens' => $data->max_tokens,
+                    ],
                 ]
             );
         } catch (ConnectionException | Exception | ErrorException $e) {
@@ -280,7 +273,7 @@ class GeminiService
                         ],
                     ],
                     'generationConfig' => [
-                        'maxOutputTokens' => $data->summary_length + 100,
+                        'maxOutputTokens' => $data->max_tokens,
                     ],
                 ]
             );

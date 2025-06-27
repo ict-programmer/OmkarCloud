@@ -27,6 +27,7 @@ class TextTranslateRequest extends FormRequest
             'text' => ['required', 'string', 'min:1', 'max:5000'],
             'source_language' => ['required', 'string', 'size:2', 'regex:/^[a-z]{2}$/'],
             'target_language' => ['required', 'string', 'size:2', 'regex:/^[a-z]{2}$/'],
+            'max_tokens' => ['required', 'integer', 'min:1', 'max:5000'],
             'model' => ['nullable', 'string'],
         ];
     }
@@ -51,6 +52,10 @@ class TextTranslateRequest extends FormRequest
             'target_language.string' => 'The target_language must be a valid string.',
             'target_language.size' => 'The target_language must be exactly 2 characters (ISO 639-1 format).',
             'target_language.regex' => 'The target_language must be a valid 2-letter language code (e.g., en, es, fr).',
+            'max_tokens.required' => 'The max_tokens field is required to specify response length.',
+            'max_tokens.integer' => 'The max_tokens must be a whole number.',
+            'max_tokens.min' => 'The max_tokens must be at least 1 token.',
+            'max_tokens.max' => 'The max_tokens may not be greater than 5000 tokens.',
             'model.string' => 'The model must be a valid string.',
         ];
     }
@@ -66,6 +71,7 @@ class TextTranslateRequest extends FormRequest
             'text' => 'text to translate',
             'source_language' => 'source language',
             'target_language' => 'target language',
+            'max_tokens' => 'maximum tokens',
         ];
     }
 

@@ -240,6 +240,15 @@ class GeminiServiceProviderSeeder extends Seeder
                         'example' => 'give me the content of the image',
                         'validation' => 'required|string|min:1|max:1000',
                     ],
+                    'max_tokens' => [
+                        'type' => 'integer',
+                        'required' => true,
+                        'min' => 1,
+                        'max' => 5000,
+                        'description' => 'Maximum number of tokens to generate in the response',
+                        'example' => 200,
+                        'validation' => 'required|integer|min:1|max:5000',
+                    ],
                 ],
                 'response' => [
                     'status' => 'success',
@@ -304,6 +313,15 @@ class GeminiServiceProviderSeeder extends Seeder
                         'description' => 'Desired length of the summary in sentences',
                         'example' => 20,
                         'validation' => 'required|integer|min:1|max:1000',
+                    ],
+                    'max_tokens' => [
+                        'type' => 'integer',
+                        'required' => true,
+                        'min' => 1,
+                        'max' => 5000,
+                        'description' => 'Maximum number of tokens to generate in the response',
+                        'example' => 200,
+                        'validation' => 'required|integer|min:1|max:5000',
                     ],
                 ],
                 'response' => [
