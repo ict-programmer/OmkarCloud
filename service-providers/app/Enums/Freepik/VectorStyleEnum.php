@@ -2,8 +2,12 @@
 
 namespace App\Enums\Freepik;
 
+use App\Traits\BaseEnumTrait;
+
 enum VectorStyleEnum: string
 {
+    use BaseEnumTrait;
+
     case WATERCOLOR = 'watercolor';
     case FLAT = 'flat';
     case CARTOON = 'cartoon';

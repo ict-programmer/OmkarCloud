@@ -2,8 +2,12 @@
 
 namespace App\Enums\Freepik;
 
+use App\Traits\BaseEnumTrait;
+
 enum ResourceFormatEnum: string
 {
+    use BaseEnumTrait;
+
     case PSD = 'psd';
     case AI = 'ai';
     case EPS = 'eps';
