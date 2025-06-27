@@ -8,6 +8,7 @@ class PersonalizationData extends Data
 {
     public function __construct(
         public string $user_id,
-        public array $preferences
+        public array $preferences,
+        public ?string $model = null
     ) {}
 }

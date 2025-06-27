@@ -5,7 +5,7 @@ namespace App\Enums\common;
 enum ServiceTypeEnum: string
 {
     case TEXT_GENERATION_SERVICE = 'Text Generation Service';
-    case TEXT_SUMMERIZATION_SERVICE = 'Text Summarization Service';
+    case TEXT_SUMMARIZATION_SERVICE = 'Text Summarization Service';
     case QUESTION_ANSWERING_SERVICE = 'Question Answering Service';
     case TEXT_CLASSIFICATION_SERVICE = 'Text Classification Service';
     case TEXT_TRANSLATION_SERVICE = 'Text Translation Service';

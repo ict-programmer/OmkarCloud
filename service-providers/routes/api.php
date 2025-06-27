@@ -227,5 +227,4 @@ Route::prefix('freepik')->controller(FreepikController::class)->group(function (
 
 Route::post('freepik/webhook', [FreepikController::class, 'handleWebhook'])->name('freepik.webhook');
 
-Route::post('dynamic-services/{service_provider_id}/{service_type_id}/{path?}', MainFunctionController::class)
-    ->where('path', '.*');
+Route::post('services/{service_provider_id}/{service_type_id}', MainFunctionController::class);

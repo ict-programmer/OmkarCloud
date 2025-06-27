@@ -10,6 +10,7 @@ use App\Data\Request\Claude\QuestionAnswerData;
 use App\Data\Request\Claude\TextClassifyData;
 use App\Data\Request\Claude\TextGenerationData;
 use App\Data\Request\Claude\TextSummarizeData;
+use App\Enums\common\ServiceProviderEnum;
 use App\Enums\common\ServiceTypeEnum;
 use App\Http\Exceptions\BadRequest;
 use App\Http\Exceptions\Forbidden;
@@ -23,6 +24,7 @@ use App\Http\Resources\ClaudeAPI\TextGenerationResource;
 use App\Http\Resources\ClaudeAPI\TextSummarizeResource;
 use App\Http\Resources\ClaudeAPI\TextTranslateResource;
 use App\Models\ServiceProvider;
+use App\Models\ServiceProviderModel;
 use App\Models\ServiceProviderType;
 use App\Models\ServiceType;
 use App\Traits\ClaudeAITrait;
@@ -61,13 +63,13 @@ class ClaudeAPIService
      * interacting with the external Claude API service. The service provides
      * methods to handle API requests and responses for integration purposes.
      */
-    protected function initializeService(ServiceTypeEnum $serviceTypeName): void
+    protected function initializeService(ServiceTypeEnum $serviceTypeName, ?string $model = null): void
     {
-        $provider = ServiceProvider::where('type', 'Claude API')->first();
+        $provider = ServiceProvider::where('type', ServiceProviderEnum::CLAUDE->value)->first();
 
         if (
             !$provider ||
-            !isset($provider->parameter['base_url'], $provider->parameter['version'])
+            !isset($provider->parameters['base_url'], $provider->parameters['version'])
         ) {
             throw new NotFound('Claude API service provider not found.');
         }
@@ -88,12 +90,26 @@ class ClaudeAPIService
             ['service_type_id', $serviceType->id],
         ])->first();
 
-        if (!$providerType || !isset($providerType->parameter['max_tokens'])) {
+        if (!$providerType || !isset($providerType->parameters['max_tokens'])) {
             throw new NotFound('Claude API provider type configuration missing.');
         }
 
-        $this->apiUrl = "{$provider->parameter['base_url']}/{$provider->parameter['version']}/messages";
-        $this->maxTokens = $providerType->parameter['max_tokens'];
+        if (!is_null($model)) {
+
+            $modelExists = ServiceProviderModel::where([
+                ['service_provider_id', $provider->id],
+                ['name', $model],
+            ])->exists();
+
+            if (!$modelExists) {
+                throw new NotFound('Claude API model not found.');
+            }
+
+            $this->CLAUDE_API_MODEL = $model;
+        }
+
+        $this->apiUrl = "{$provider->parameters['base_url']}/{$provider->parameters['version']}/messages";
+        $this->maxTokens = $providerType->parameters['max_tokens'];
         $this->tools = json_encode($providerType->tools) ?? [];
 
         $this->client = Http::withHeaders([
@@ -110,12 +126,12 @@ class ClaudeAPIService
      */
     public function textGeneration(TextGenerationData $data): TextGenerationResource
     {
-        $this->initializeService(ServiceTypeEnum::TEXT_GENERATION_SERVICE);
+        $this->initializeService(ServiceTypeEnum::TEXT_GENERATION_SERVICE, $data->model);
 
         try {
             $response = $this->client->post($this->apiUrl, [
                 'model' => $this->CLAUDE_API_MODEL,
-                'max_tokens' => $this->maxTokens,
+                'max_tokens' => $data->max_tokens ?? $this->maxTokens,
                 'system' => config('claudeAPI.system_prompts.text_generation'),
                 'messages' => [
                     [
@@ -144,7 +160,7 @@ class ClaudeAPIService
      */
     public function textSummarize(TextSummarizeData $data): TextSummarizeResource
     {
-        $this->initializeService(ServiceTypeEnum::TEXT_SUMMERIZATION_SERVICE);
+        $this->initializeService(ServiceTypeEnum::TEXT_SUMMARIZATION_SERVICE, $data->model);
 
         try {
             $response = $this->client->post($this->apiUrl, [
@@ -179,7 +195,7 @@ class ClaudeAPIService
      */
     public function questionAnswer(QuestionAnswerData $data): QuestionAnswerResource
     {
-        $this->initializeService(ServiceTypeEnum::QUESTION_ANSWERING_SERVICE);
+        $this->initializeService(ServiceTypeEnum::QUESTION_ANSWERING_SERVICE, $data->model);
 
         try {
             $response = $this->client->post($this->apiUrl, [
@@ -213,7 +229,7 @@ class ClaudeAPIService
      */
     public function textClassify(TextClassifyData $data): TextClassifyResource
     {
-        $this->initializeService(ServiceTypeEnum::TEXT_CLASSIFICATION_SERVICE);
+        $this->initializeService(ServiceTypeEnum::TEXT_CLASSIFICATION_SERVICE, $data->model);
 
         try {
             $response = $this->client->post($this->apiUrl, [
@@ -258,7 +274,7 @@ class ClaudeAPIService
      */
     public function textTranslate(TextTranslateData $data): TextTranslateResource
     {
-        $this->initializeService(ServiceTypeEnum::TEXT_TRANSLATION_SERVICE);
+        $this->initializeService(ServiceTypeEnum::TEXT_TRANSLATION_SERVICE, $data->model);
 
         try {
             $response = $this->client->post($this->apiUrl, [
@@ -293,7 +309,7 @@ class ClaudeAPIService
      */
     public function codegen(CodegenData $data): CodegenResource
     {
-        $this->initializeService(ServiceTypeEnum::CODE_GENERATION_SERVICE);
+        $this->initializeService(ServiceTypeEnum::CODE_GENERATION_SERVICE, $data->model);
 
         try {
             $messages = [
@@ -339,7 +355,7 @@ class ClaudeAPIService
      */
     public function dataAnalysisAndInsight(DataAnalysisInsightData $data): DataAnalysisInsightResource
     {
-        $this->initializeService(ServiceTypeEnum::DATA_ANALYSIS_AND_INSIGHT_SERVICE);
+        $this->initializeService(ServiceTypeEnum::DATA_ANALYSIS_AND_INSIGHT_SERVICE, $data->model ?? null);
 
         try {
             $response = $this->client->post($this->apiUrl, [
@@ -373,7 +389,7 @@ class ClaudeAPIService
      */
     public function personalize(PersonalizationData $data): PersonalizationResource
     {
-        $this->initializeService(ServiceTypeEnum::PERSONALIZATION_SERVICE);
+        $this->initializeService(ServiceTypeEnum::PERSONALIZATION_SERVICE, $data->model ?? null);
 
         try {
             $response = $this->client->post($this->apiUrl, [

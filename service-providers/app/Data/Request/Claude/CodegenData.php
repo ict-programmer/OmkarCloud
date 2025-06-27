@@ -14,6 +14,8 @@ class CodegenData extends Data
 {
     public function __construct(
         public string $description,
-        public ?array $attachments
+        public ?array $attachments,
+        public ?string $model = null,
+        public ?string $version = null,
     ) {}
 }

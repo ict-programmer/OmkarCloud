@@ -26,6 +26,7 @@ class QuestionAnswerRequest extends FormRequest
         return [
             'question' => ['required', 'string', 'min:3', 'max:1000'],
             'context' => ['required', 'string', 'min:10', 'max:10000'],
+            'model' => ['nullable', 'string'],
         ];
     }
 
@@ -45,6 +46,7 @@ class QuestionAnswerRequest extends FormRequest
             'context.string' => 'The context must be a valid text string.',
             'context.min' => 'The context must be at least 10 characters long to provide meaningful information.',
             'context.max' => 'The context may not be greater than 10,000 characters.',
+            'model.string' => 'The model must be a valid string.',
         ];
     }
 

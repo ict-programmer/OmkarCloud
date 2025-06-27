@@ -119,14 +119,14 @@ class CanvaService
 
     if (
       !$provider ||
-      !isset($provider->parameter['base_url'], $provider->parameter['version'])
+      !isset($provider->parameters['base_url'], $provider->parameters['version'])
     ) {
       throw new NotFound('Canva service provider not found.');
     }
 
     $token = $this->getAccessToken();
 
-    $this->apiUrl = "{$provider->parameter['base_url']}/rest/{$provider->parameter['version']}";
+    $this->apiUrl = "{$provider->parameters['base_url']}/rest/{$provider->parameters['version']}";
     $this->client = Http::withHeaders([
       'Authorization' => 'Bearer ' . $token,
     ])

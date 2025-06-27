@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Data\Request\DescriptAI\GenerateAsyncData;
+use App\Enums\common\ServiceProviderEnum;
 use App\Http\Exceptions\Forbidden;
 use App\Http\Exceptions\NotFound;
 use App\Http\Resources\DescriptAI\GenerateAsyncResource;
@@ -40,11 +41,11 @@ class DescriptAIService
    */
   protected function initializeService(): void
   {
-    $provider = ServiceProvider::where('type', 'DescriptAI')->first();
+    $provider = ServiceProvider::where('type', ServiceProviderEnum::DESCRIPT_AI->value)->first();
 
     if (
       !$provider ||
-      !isset($provider->parameter['base_url'], $provider->parameter['version'])
+      !isset($provider->parameters['base_url'], $provider->parameters['version'])
     ) {
       throw new NotFound('Descript AI service provider not found.');
     }
@@ -53,7 +54,7 @@ class DescriptAIService
 
     throw_if(empty($apiKey), new NotFound('Descript AI key not configured.'));
 
-    $this->apiUrl = "{$provider->parameter['base_url']}/overdub";
+    $this->apiUrl = "{$provider->parameters['base_url']}/overdub";
 
     $this->client = Http::withToken($apiKey)
       ->withHeader('Authorization', "Bearer {$apiKey}")

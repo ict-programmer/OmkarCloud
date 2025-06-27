@@ -9,6 +9,7 @@ class TextTranslateData extends Data
     public function __construct(
         public string $text,
         public string $source_language,
-        public string $target_language
+        public string $target_language,
+        public ?string $model = null
     ) {}
 }

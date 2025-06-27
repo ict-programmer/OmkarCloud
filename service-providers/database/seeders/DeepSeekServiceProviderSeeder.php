@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\common\ServiceProviderEnum;
 use App\Http\Controllers\DeepSeekController;
 use App\Http\Requests\DeepSeek\ChatCompletionRequest;
 use App\Http\Requests\DeepSeek\CodeCompletionRequest;
@@ -25,7 +26,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
     public function run(): void
     {
         $serviceProvider = ServiceProvider::updateOrCreate(
-            ['type' => 'DeepSeek'],
+            ['type' => ServiceProviderEnum::DEEPSEEK->value],
             [
                 'parameters' => [
                     'api_key' => 'YOUR_API_KEY',
@@ -58,12 +59,25 @@ class DeepSeekServiceProviderSeeder extends Seeder
             [
                 'name' => 'Chat Completion',
                 'description' => 'Generate chat completions with conversation history support',
-                'path_parameters' => [],
-                'parameter' => [
+                'input_parameters' => [
                     'model' => [
                         'type' => 'string',
                         'required' => true,
-                        'enum' => ['deepseek-chat'],
+                        'default' => 'deepseek-chat',
+                        'options' => [
+                            'source' => 'collection',
+                            'collection_name' => 'service_provider_model',
+                            'value_field' => 'model_name',
+                            'label_field' => 'display_name',
+                            'filters' => [
+                                'service_provider_id' => $serviceProvider->id,
+                                'status' => 'active',
+                                'supports_chat_completion' => true,
+                            ],
+                            'fallback_options' => [
+                                'deepseek-chat',
+                            ],
+                        ],
                         'description' => 'The DeepSeek model to use for chat completion',
                         'example' => 'deepseek-chat',
                         'validation' => 'required|string|in:deepseek-chat',
@@ -72,12 +86,13 @@ class DeepSeekServiceProviderSeeder extends Seeder
                         'type' => 'array',
                         'required' => true,
                         'min_items' => 1,
+                        'max_items' => 50,
                         'description' => 'Array of conversation messages with role and content',
                         'example' => [
                             ['role' => 'user', 'content' => 'Hello, how are you?'],
                             ['role' => 'assistant', 'content' => 'I am doing well, thank you!'],
                         ],
-                        'validation' => 'required|array|min:1',
+                        'validation' => 'required|array|min:1|max:50',
                         'structure' => [
                             'role' => 'string (system, user, assistant)',
                             'content' => 'string (message content)',
@@ -87,20 +102,33 @@ class DeepSeekServiceProviderSeeder extends Seeder
                         'type' => 'integer',
                         'required' => true,
                         'min' => 1,
-                        'max' => 5000,
+                        'max' => 4000,
                         'description' => 'Maximum number of tokens to generate in the response',
                         'example' => 4000,
-                        'validation' => 'required|integer|min:1|max:5000',
+                        'validation' => 'required|integer|min:1|max:4000',
                     ],
                     'temperature' => [
-                        'type' => 'number',
+                        'type' => 'float',
                         'required' => true,
                         'min' => 0,
                         'max' => 1,
                         'description' => 'Controls randomness in the response generation',
                         'example' => 0.7,
-                        'validation' => 'required|numeric|between:0,1',
+                        'validation' => 'required|numeric|min:0|max:1',
                     ],
+                ],
+                'response' => [
+                    'status' => 'success',
+                    'data' => [
+                        'completion' => 'Once upon a time, in a faraway land...',
+                    ],
+                    'timestamp' => '2025-05-01T12:45:30+00:00',
+                ],
+                'response_path' => [
+                    'success_indicator' => '$.status',
+                    'main_data' => '$.data',
+                    'final_result' => '$.data.completion',
+                    'timestamp' => '$.timestamp',
                 ],
                 'request_class_name' => ChatCompletionRequest::class,
                 'function_name' => 'chatCompletion',
@@ -108,12 +136,25 @@ class DeepSeekServiceProviderSeeder extends Seeder
             [
                 'name' => 'Code Completion',
                 'description' => 'Generate code based on natural language descriptions with file attachments support',
-                'path_parameters' => [],
-                'parameter' => [
+                'input_parameters' => [
                     'model' => [
                         'type' => 'string',
                         'required' => true,
-                        'enum' => ['deepseek-chat'],
+                        'default' => 'deepseek-chat',
+                        'options' => [
+                            'source' => 'collection',
+                            'collection_name' => 'service_provider_model',
+                            'value_field' => 'model_name',
+                            'label_field' => 'display_name',
+                            'filters' => [
+                                'service_provider_id' => $serviceProvider->id,
+                                'status' => 'active',
+                                'supports_code_generation' => true,
+                            ],
+                            'fallback_options' => [
+                                'deepseek-chat',
+                            ],
+                        ],
                         'description' => 'The DeepSeek model to use for code completion',
                         'example' => 'deepseek-chat',
                         'validation' => 'required|string|in:deepseek-chat',
@@ -137,13 +178,13 @@ class DeepSeekServiceProviderSeeder extends Seeder
                         'validation' => 'required|integer|min:1|max:5000',
                     ],
                     'temperature' => [
-                        'type' => 'number',
+                        'type' => 'float',
                         'required' => true,
                         'min' => 0,
                         'max' => 1,
                         'description' => 'Controls randomness in the response generation',
                         'example' => 0.7,
-                        'validation' => 'required|numeric|between:0,1',
+                        'validation' => 'required|numeric|min:0|max:1',
                     ],
                     'attachments' => [
                         'type' => 'array',
@@ -157,14 +198,26 @@ class DeepSeekServiceProviderSeeder extends Seeder
                         ],
                     ],
                 ],
+                'response' => [
+                    'status' => 'success',
+                    'data' => [
+                        'code' => 'def factorial(n):\n if n == 0:\n return 1\n else:\n return n * factorial(n-1)',
+                    ],
+                    'timestamp' => '2025-05-01T12:45:30+00:00',
+                ],
+                'response_path' => [
+                    'success_indicator' => '$.status',
+                    'main_data' => '$.data',
+                    'final_result' => '$.data.code',
+                    'timestamp' => '$.timestamp',
+                ],
                 'request_class_name' => CodeCompletionRequest::class,
                 'function_name' => 'codeCompletion',
             ],
             [
                 'name' => 'Document Q&A',
                 'description' => 'Answer questions based on provided document text',
-                'path_parameters' => [],
-                'parameter' => [
+                'input_parameters' => [
                     'document_text' => [
                         'type' => 'string',
                         'required' => true,
@@ -184,14 +237,28 @@ class DeepSeekServiceProviderSeeder extends Seeder
                         'validation' => 'required|string|min:1|max:100000',
                     ],
                 ],
+                'response' => [
+                    'status' => 'success',
+                    'data' => [
+                        'question' => 'What are the main symptoms of COVID-19?',
+                        'answer' => 'The main symptoms of COVID-19 include fever, dry cough, and fatigue. Less common symptoms may include loss of taste or smell, aches and pains, headache, sore throat, nasal congestion, red eyes, diarrhea, or a skin rash.',
+                    ],
+                    'timestamp' => '2025-05-01T12:45:30+00:00',
+                ],
+                'response_path' => [
+                    'success_indicator' => '$.status',
+                    'main_data' => '$.data',
+                    'final_result' => '$.data.answer',
+                    'question' => '$.data.question',
+                    'timestamp' => '$.timestamp',
+                ],
                 'request_class_name' => DocumentQaRequest::class,
                 'function_name' => 'documentQa',
             ],
             [
                 'name' => 'Mathematical Reasoning',
                 'description' => 'Solve mathematical problems and provide step-by-step reasoning',
-                'path_parameters' => [],
-                'parameter' => [
+                'input_parameters' => [
                     'problem_statement' => [
                         'type' => 'string',
                         'required' => true,
@@ -212,7 +279,21 @@ class DeepSeekServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => true,
-                        'enum' => ['deepseek-chat'],
+                        'default' => 'deepseek-chat',
+                        'options' => [
+                            'source' => 'collection',
+                            'collection_name' => 'service_provider_model',
+                            'value_field' => 'model_name',
+                            'label_field' => 'display_name',
+                            'filters' => [
+                                'service_provider_id' => $serviceProvider->id,
+                                'status' => 'active',
+                                'supports_mathematical_reasoning' => true,
+                            ],
+                            'fallback_options' => [
+                                'deepseek-chat',
+                            ],
+                        ],
                         'description' => 'The DeepSeek model to use for mathematical reasoning',
                         'example' => 'deepseek-chat',
                         'validation' => 'required|string|in:deepseek-chat',
@@ -227,12 +308,27 @@ class DeepSeekServiceProviderSeeder extends Seeder
                         'validation' => 'required|integer|min:1|max:5000',
                     ],
                 ],
+                'response' => [
+                    'status' => 'success',
+                    'data' => [
+                        'reasoning' => 'To find the average speed, I need to divide the total distance by the total time. Distance = 60 miles, Time = 1.5 hours. Average speed = 60 miles ÷ 1.5 hours = 40 miles per hour.',
+                        'answer' => '40 miles per hour',
+                    ],
+                    'timestamp' => '2025-05-01T12:45:30+00:00',
+                ],
+                'response_path' => [
+                    'success_indicator' => '$.status',
+                    'main_data' => '$.data',
+                    'final_result' => '$.data.reasoning',
+                    'answer' => '$.data.answer',
+                    'timestamp' => '$.timestamp',
+                ],
                 'request_class_name' => MathematicalReasoningRequest::class,
                 'function_name' => 'mathematicalReasoning',
             ],
         ];
 
-        $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, 'DeepSeek API');
+        $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, ServiceProviderEnum::DEEPSEEK->value);
 
         $deletedProviderTypeCount = $this->cleanupObsoleteServiceTypes($serviceProvider, $keptServiceTypeIds);
         

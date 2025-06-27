@@ -9,5 +9,6 @@ class QuestionAnswerData extends Data
     public function __construct(
         public string $question,
         public string $context,
+        public ?string $model = null
     ) {}
 }

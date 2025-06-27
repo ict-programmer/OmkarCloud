@@ -26,6 +26,7 @@ class TextGenerationRequest extends FormRequest
         return [
             'prompt' => ['required', 'string', 'max:1000', 'min:1'],
             'max_tokens' => ['required', 'integer', 'min:1', 'max:5000'],
+            'model' => ['nullable', 'string'],
         ];
     }
 
@@ -45,6 +46,7 @@ class TextGenerationRequest extends FormRequest
             'max_tokens.integer' => 'The max_tokens must be a whole number.',
             'max_tokens.min' => 'The max_tokens must be at least 1 token.',
             'max_tokens.max' => 'The max_tokens may not be greater than 5000 tokens.',
+            'model.string' => 'The model must be a valid string.',
         ];
     }
 

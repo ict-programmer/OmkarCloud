@@ -26,6 +26,7 @@ class TextSummarizeRequest extends FormRequest
         return [
             'text' => ['required', 'string', 'min:10', 'max:10000'],
             'summary_length' => ['required', 'string', 'in:short,medium,long'],
+            'model' => ['nullable', 'string'],
         ];
     }
 
@@ -44,6 +45,7 @@ class TextSummarizeRequest extends FormRequest
             'summary_length.required' => 'The summary_length field is required to specify the desired summary length.',
             'summary_length.string' => 'The summary_length must be a valid string.',
             'summary_length.in' => 'The summary_length must be one of: short, medium, or long.',
+            'model.string' => 'The model must be a valid string.',
         ];
     }
 

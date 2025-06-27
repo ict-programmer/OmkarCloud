@@ -24,6 +24,7 @@ use App\Data\GettyImages\VideoSearchCreativeByImageData;
 use App\Data\GettyImages\VideoSearchCreativeData;
 use App\Data\GettyImages\VideoSearchData;
 use App\Data\GettyImages\VideoSearchEditorialData;
+use App\Enums\common\ServiceProviderEnum;
 use App\Http\Exceptions\Forbidden;
 use App\Http\Exceptions\NotFound;
 use App\Http\Resources\GettyImages\AffiliateImageSearchResource;
@@ -60,11 +61,11 @@ class GettyimagesService
    */
   protected function initializeService(): void
   {
-    $provider = ServiceProvider::where('type', 'Getty Images')->first();
+    $provider = ServiceProvider::where('type', ServiceProviderEnum::GETTY_IMAGES->value)->first();
 
     if (
       !$provider ||
-      !isset($provider->parameter['base_url'], $provider->parameter['version'])
+      !isset($provider->parameters['base_url'], $provider->parameters['version'])
     ) {
       throw new NotFound('Getty Images API service provider not found.');
     }
@@ -75,7 +76,7 @@ class GettyimagesService
 
     $this->apiKey = $apiKey;
 
-    $this->apiUrl = "{$provider->parameter['base_url']}/{$provider->parameter['version']}";
+    $this->apiUrl = "{$provider->parameters['base_url']}/{$provider->parameters['version']}";
 
     $this->client = Http::withHeaders([
       'Accept' => 'application/json',

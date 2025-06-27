@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\common\ServiceProviderEnum;
 use App\Http\Controllers\RunwaymlAPIController;
 use App\Http\Requests\Runwayml\VideoProcessingRequest;
 use App\Models\ServiceProvider;
@@ -15,17 +16,18 @@ class RunwaymlServiceProviderSeeder extends Seeder
     /**
      * Run the database seeds.
      * 
-     * This seeder creates a RunwayML service provider configuration
-     * with service types that demonstrate both POST parameters and path parameters.
+     * This seeder creates a comprehensive RunwayML service provider configuration
+     * with all available service types, including detailed parameter specifications,
+     * data types, validation rules, and examples for each service.
      */
     public function run(): void
     {
         $serviceProvider = ServiceProvider::updateOrCreate(
-            ['type' => 'RunwayML'],
+            ['type' => ServiceProviderEnum::RUNWAY_ML->value],
             [
                 'parameters' => [
                     'api_key' => 'YOUR_API_KEY',
-                    'base_url' => 'https://api.runwayml.com',
+                    'base_url' => 'https://api.dev.runwayml.com',
                     'version' => 'v1',
                     'models_supported' => [
                         'gen4_turbo',
@@ -36,7 +38,7 @@ class RunwaymlServiceProviderSeeder extends Seeder
                         'task_management',
                     ],
                     'documentation' => [
-                        'description' => 'RunwayML API provides advanced video generation and processing capabilities',
+                        'description' => 'RunwayML API provides advanced video generation and processing capabilities using AI models',
                         'api_documentation' => 'https://docs.runwayml.com',
                         'rate_limits' => 'Varies by plan',
                         'authentication' => 'API Key required in headers',
@@ -50,26 +52,19 @@ class RunwaymlServiceProviderSeeder extends Seeder
         $serviceTypes = [
             [
                 'name' => 'Video Processing',
-                'description' => 'Generate videos using RunwayML AI models',
-                'parameter' => [
-                    'model' => [
-                        'type' => 'string',
-                        'required' => true,
-                        'enum' => ['gen4_turbo', 'gen3a_turbo'],
-                        'description' => 'The model to use for video generation',
-                        'example' => 'gen4_turbo',
-                        'validation' => 'required|string|in:gen4_turbo,gen3a_turbo',
-                    ],
+                'description' => 'Generate videos using RunwayML AI models with image and text prompts',
+                'input_parameters' => [
                     'prompt_image' => [
                         'type' => 'string',
                         'required' => true,
-                        'description' => 'The URL of the prompt image',
+                        'description' => 'The URL of the prompt image for video generation',
                         'example' => 'https://example.com/image.png',
                         'validation' => 'required|string|url',
                     ],
                     'prompt_text' => [
                         'type' => 'string',
                         'required' => true,
+                        'min_length' => 1,
                         'max_length' => 1000,
                         'description' => 'The text prompt for video generation',
                         'example' => 'A beautiful sunset over the mountains',
@@ -78,14 +73,15 @@ class RunwaymlServiceProviderSeeder extends Seeder
                     'seed' => [
                         'type' => 'integer',
                         'required' => true,
-                        'description' => 'The seed value for randomization',
+                        'description' => 'The seed value for randomization to ensure consistent results',
                         'example' => 12345,
                         'validation' => 'required|integer',
                     ],
                     'duration' => [
                         'type' => 'integer',
                         'required' => true,
-                        'enum' => [5, 10],
+                        'default' => 5,
+                        'options' => [5, 10],
                         'description' => 'The duration of the generated video in seconds',
                         'example' => 5,
                         'validation' => 'required|integer|in:5,10',
@@ -93,44 +89,94 @@ class RunwaymlServiceProviderSeeder extends Seeder
                     'width' => [
                         'type' => 'integer',
                         'required' => true,
-                        'enum' => [1280, 720, 1104, 832, 960, 1584, 768],
-                        'description' => 'The width of the generated video',
+                        'default' => 1280,
+                        'options' => [1280, 720, 1104, 832, 960, 1584, 768],
+                        'description' => 'The width of the generated video in pixels',
                         'example' => 1280,
                         'validation' => 'required|integer|in:1280,720,1104,832,960,1584,768',
                     ],
                     'height' => [
                         'type' => 'integer',
                         'required' => true,
-                        'enum' => [720, 1280, 832, 1104, 960, 672, 768],
-                        'description' => 'The height of the generated video',
+                        'default' => 720,
+                        'options' => [720, 1280, 832, 1104, 960, 672, 768],
+                        'description' => 'The height of the generated video in pixels',
                         'example' => 720,
                         'validation' => 'required|integer|in:720,1280,832,1104,960,672,768',
                     ],
                 ],
-                'path_parameters' => [], // No path parameters for this endpoint
+                'response' => [
+                    'status' => true,
+                    'message' => 'Video processing task created successfully',
+                    'data' => [
+                        'id' => '17f20503-6c24-4c16-946b-35dbbce2af2f',
+                        'status' => 'PENDING',
+                        'createdAt' => '2024-06-27T19:49:32.334Z',
+                        'model' => 'gen4_turbo',
+                        'prompt_text' => 'A beautiful sunset over the mountains',
+                        'duration' => 5,
+                        'width' => 1280,
+                        'height' => 720,
+                    ],
+                ],
+                'response_path' => [
+                    'success_indicator' => '$.status',
+                    'main_data' => '$.data',
+                    'task_id' => '$.data.id',
+                    'task_status' => '$.data.status',
+                    'created_at' => '$.data.createdAt',
+                    'message' => '$.message',
+                ],
                 'request_class_name' => VideoProcessingRequest::class,
                 'function_name' => 'videoProcessing',
             ],
             [
                 'name' => 'Task Management',
-                'description' => 'Check the status of a video generation task',
-                'parameter' => [], // No POST parameters for this endpoint
-                'path_parameters' => [
-                    'id' => [
+                'description' => 'Check the status and details of a video generation task',
+                'input_parameters' => [
+                    'task_id' => [
                         'type' => 'string',
                         'required' => true,
-                        'description' => 'The ID of the task to check',
+                        'description' => 'The ID of the task to check status and retrieve details',
                         'example' => '17f20503-6c24-4c16-946b-35dbbce2af2f',
                         'validation' => 'required|string|uuid',
                         'pattern' => '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i',
-                    ]
+                    ],
+                ],
+                'response' => [
+                    'id' => '17f20503-6c24-4c16-946b-35dbbce2af2f',
+                    'status' => 'COMPLETED',
+                    'createdAt' => '2024-06-27T19:49:32.334Z',
+                    'updatedAt' => '2024-06-27T19:52:15.123Z',
+                    'result' => [
+                        'video_url' => 'https://api.runwayml.com/videos/17f20503-6c24-4c16-946b-35dbbce2af2f.mp4',
+                        'thumbnail_url' => 'https://api.runwayml.com/thumbnails/17f20503-6c24-4c16-946b-35dbbce2af2f.jpg',
+                        'duration' => 5.0,
+                        'width' => 1280,
+                        'height' => 720,
+                        'file_size' => 2048576,
+                    ],
+                    'error' => null,
+                ],
+                'response_path' => [
+                    'task_id' => '$.id',
+                    'task_status' => '$.status',
+                    'created_at' => '$.createdAt',
+                    'updated_at' => '$.updatedAt',
+                    'video_url' => '$.result.video_url',
+                    'thumbnail_url' => '$.result.thumbnail_url',
+                    'duration' => '$.result.duration',
+                    'width' => '$.result.width',
+                    'height' => '$.result.height',
+                    'file_size' => '$.result.file_size',
+                    'error_message' => '$.error',
                 ],
                 'request_class_name' => null, // No form request needed for path-only parameters
                 'function_name' => 'taskManagement',
             ],
         ];
 
-        $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, 'RunwayML');
+        $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, ServiceProviderEnum::RUNWAY_ML->value);
 
         $deletedProviderTypeCount = $this->cleanupObsoleteServiceTypes($serviceProvider, $keptServiceTypeIds);
         
