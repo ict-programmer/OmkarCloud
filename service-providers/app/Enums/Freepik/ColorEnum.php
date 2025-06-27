@@ -2,8 +2,12 @@
 
 namespace App\Enums\Freepik;
 
+use App\Traits\BaseEnumTrait;
+
 enum ColorEnum: string
 {
+    use BaseEnumTrait;
+
     case BLACK = 'black';
     case BLUE = 'blue';
     case GRAY = 'gray';

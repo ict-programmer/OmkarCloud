@@ -2,8 +2,12 @@
 
 namespace App\Enums\Freepik;
 
+use App\Traits\BaseEnumTrait;
+
 enum PeopleAgeEnum: string
 {
+    use BaseEnumTrait;
+
     case INFANT = 'infant';
     case CHILD = 'child';
     case TEEN = 'teen';
