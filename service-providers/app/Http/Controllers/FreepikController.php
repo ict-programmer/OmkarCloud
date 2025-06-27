@@ -29,7 +29,6 @@ use App\Http\Requests\Freepik\IconGenerationRequest;
 use App\Http\Requests\Freepik\ImageExpandFluxProRequest;
 use App\Http\Requests\Freepik\Imagen3GenerateRequest;
 use App\Http\Requests\Freepik\KlingElementsVideoRequest;
-use App\Http\Requests\Freepik\KlingElementsVideoStatusRequest;
 use App\Http\Requests\Freepik\KlingImageToVideoRequest;
 use App\Http\Requests\Freepik\KlingImageToVideoStatusRequest;
 use App\Http\Requests\Freepik\KlingTextToVideoRequest;
@@ -1306,7 +1305,7 @@ class FreepikController extends BaseController
         required: true,
         description: 'ID of the video generation task',
         schema: new OA\Schema(type: 'string'),
-        example: '046b6c7f-0b8a-43b9-b35d-6489e6daee91'
+        example: '6546ca62-0ac4-464d-bfc9-5644be643f34'
     )]
     #[OA\Response(
         response: 200,
@@ -1337,6 +1336,13 @@ class FreepikController extends BaseController
         summary: 'Generate video using Kling Elements Pro model',
         description: 'Create a video from 1–4 images with optional prompts, duration, aspect ratio, and webhook.',
         tags: ['Freepik'],
+    )]
+    #[OA\QueryParameter(
+        name: 'model',
+        required: true,
+        schema: new OA\Schema(type: 'string', enum: ['kling-elements-pro', 'kling-elements-std']),
+        description: 'Model of the generated video in seconds. Available options: kling-elements-pro,kling-elements-std.',
+        example: 'kling-elements-pro'
     )]
     #[OA\Parameter(
         name: 'images[]',
@@ -1384,14 +1390,7 @@ class FreepikController extends BaseController
         required: true,
         description: 'ID of the video generation task',
         schema: new OA\Schema(type: 'string'),
-        example: '046b6c7f-0b8a-43b9-b35d-6489e6daee91'
-    )]
-    #[OA\QueryParameter(
-        name: 'model',
-        required: true,
-        schema: new OA\Schema(type: 'string', enum: ['kling-elements-pro', 'kling-elements-std']),
-        description: 'Model of the generated video in seconds. Available options: kling-elements-pro,kling-elements-std.',
-        example: 'kling-elements-pro'
+        example: '19a82de5-7bb9-4c88-a122-5c2b14571cac'
     )]
     #[OA\Response(
         response: 200,
@@ -1409,9 +1408,9 @@ class FreepikController extends BaseController
             ]
         )
     )]
-    public function klingElementsVideoStatus(KlingElementsVideoStatusRequest $request, string $task_id): JsonResponse
+    public function klingElementsVideoStatus(string $task_id): JsonResponse
     {
-        $result = $this->service->klingElementsVideoStatus($request->validated()['model'], $task_id);
+        $result = $this->service->klingElementsVideoStatus($task_id);
 
         return $this->logAndResponse($result);
     }

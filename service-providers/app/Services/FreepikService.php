@@ -21,6 +21,7 @@ use App\Data\Request\Freepik\RemoveBackgroundData;
 use App\Data\Request\Freepik\StockContentData;
 use App\Data\Request\Freepik\StyleTransferData;
 use App\Data\Request\Freepik\UpscaleImageData;
+use App\Enums\Freepik\KlingModelEnum;
 use App\Helpers\ImageToBase64Converter;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Arr;
@@ -103,8 +104,10 @@ class FreepikService
 
     public function klingImageToVideoStatus(string $model, string $taskId): array
     {
+        $model = KlingModelEnum::from($model);
+
         $response = $this->client
-            ->get("ai/image-to-video/{$model}/{$taskId}");
+            ->get("ai/image-to-video/{$model->getStatusModel()}/{$taskId}");
 
         return $response->json();
     }
@@ -131,10 +134,10 @@ class FreepikService
         return $response->json();
     }
 
-    public function klingElementsVideoStatus(string $model, string $taskId): array
+    public function klingElementsVideoStatus(string $taskId): array
     {
         $response = $this->client
-            ->get("ai/image-to-video/{$model}/{$taskId}");
+            ->get("ai/image-to-video/kling-elements/{$taskId}");
 
         return $response->json();
     }
