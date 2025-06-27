@@ -16,4 +16,13 @@ enum ServiceTypeEnum: string
     case CODE_GENERATION = 'Code Generation';
     case IMAGE_ANALYSIS = 'Image Analysis';
     case DOCUMENT_SUMMARIZATION = 'Document Summarization';
+    case SEARCH_PHOTOS = 'search photos';
+    case GET_CURATED_PHOTOS = 'get curated photos';
+    case GET_PHOTO = 'get photo';
+    case SEARCH_VIDEOS = 'search videos';
+    case GET_POPULAR_VIDEOS = 'get popular videos';
+    case GET_VIDEO = 'get video';
+    case GET_FEATURED_COLLECTIONS = 'get featured collections';
+    case GET_COLLECTIONS = 'get collections';
+    case GET_COLLECTION = 'get collection';
 }
