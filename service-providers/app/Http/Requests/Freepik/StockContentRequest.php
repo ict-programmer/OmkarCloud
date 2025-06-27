@@ -12,7 +12,7 @@ use App\Enums\Freepik\PsdTypeEnum;
 use App\Enums\Freepik\VectorStyleEnum;
 use App\Enums\Freepik\VectorTypeEnum;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\Rule;
 
 class StockContentRequest extends FormRequest
 {
@@ -56,14 +56,13 @@ class StockContentRequest extends FormRequest
             // People filters
             'filters.people.include' => ['sometimes', 'in:0,1'],
             'filters.people.exclude' => ['sometimes', 'in:0,1'],
-            'filters.people.number' => ['sometimes', 'string', new Enum(PeopleNumberEnum::class)],
-            'filters.people.age' => ['sometimes', 'string', new Enum(PeopleAgeEnum::class)],
-            'filters.people.gender' => ['sometimes', 'string', new Enum(PeopleGenderEnum::class)],
-            'filters.people.ethnicity' => ['sometimes', 'string', new Enum(PeopleEthnicityEnum::class)],
+            'filters.people.number' => ['sometimes', 'string', Rule::in(PeopleNumberEnum::getValuesInArray())],
+            'filters.people.age' => ['sometimes', 'string', Rule::in(PeopleAgeEnum::getValuesInArray())],
+            'filters.people.gender' => ['sometimes', 'string', Rule::in(PeopleGenderEnum::getValuesInArray())],
+            'filters.people.ethnicity' => ['sometimes', 'string', Rule::in(PeopleEthnicityEnum::getValuesInArray())],
 
-            // Period, color, author
-            'filters.period' => ['sometimes', 'string', new Enum(PeriodEnum::class)],
-            'filters.color' => ['sometimes', 'string', new Enum(ColorEnum::class)],
+            'filters.period' => ['sometimes', 'string', Rule::in(PeriodEnum::getValuesInArray())],
+            'filters.color' => ['sometimes', 'string', Rule::in(ColorEnum::getValuesInArray())],
             'filters.author' => ['sometimes', 'integer', 'min:1'],
 
             // AI-generated flags
@@ -71,12 +70,48 @@ class StockContentRequest extends FormRequest
             'filters.ai-generated.only' => ['sometimes', 'in:0,1'],
 
             // Vector & PSD
-            'filters.vector.type' => ['sometimes', 'string', new Enum(VectorTypeEnum::class)],
-            'filters.vector.style' => ['sometimes', 'string', new Enum(VectorStyleEnum::class)],
-            'filters.psd.type' => ['sometimes', 'string', new Enum(PsdTypeEnum::class)],
+            'filters.vector.type' => ['sometimes', 'string', Rule::in(VectorTypeEnum::getValuesInArray())],
+            'filters.vector.style' => ['sometimes', 'string', Rule::in(VectorStyleEnum::getValuesInArray())],
+            'filters.psd.type' => ['sometimes', 'string', Rule::in(PsdTypeEnum::getValuesInArray())],
 
             // ID filter
             'filters.ids' => ['sometimes', 'string'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'order.in' => __('The selected order is invalid. Valid values: :values', [
+                'values' => 'relevance,recent',
+            ]),
+            'filters.people.number.in' => __('The selected people number is invalid. Valid values: :values', [
+                'values' => PeopleNumberEnum::getValuesInString(),
+            ]),
+            'filters.people.age.in' => __('The selected people age is invalid. Valid values: :values', [
+                'values' => PeopleAgeEnum::getValuesInString(),
+            ]),
+            'filters.people.gender.in' => __('The selected people gender is invalid. Valid values: :values', [
+                'values' => PeopleGenderEnum::getValuesInString(),
+            ]),
+            'filters.people.ethnicity.in' => __('The selected people ethnicity is invalid. Valid values: :values', [
+                'values' => PeopleEthnicityEnum::getValuesInString(),
+            ]),
+            'filters.period.in' => __('The selected period is invalid. Valid values: :values', [
+                'values' => PeriodEnum::getValuesInString(),
+            ]),
+            'filters.color.in' => __('The selected color is invalid. Valid values: :values', [
+                'values' => ColorEnum::getValuesInString(),
+            ]),
+            'filters.vector.type.in' => __('The selected vector type is invalid. Valid values: :values', [
+                'values' => VectorTypeEnum::getValuesInString(),
+            ]),
+            'filters.vector.style.in' => __('The selected vector style is invalid. Valid values: :values', [
+                'values' => VectorStyleEnum::getValuesInString(),
+            ]),
+            'filters.psd.type.in' => __('The selected PSD type is invalid. Valid values: :values', [
+                'values' => PsdTypeEnum::getValuesInString(),
+            ]),
         ];
     }
 }

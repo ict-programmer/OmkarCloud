@@ -30,4 +30,16 @@ enum KlingModelEnum: string
             default => false,
         };
     }
+
+    public function getStatusModel(): string
+    {
+        return match ($this) {
+            self::V2_1_MASTER => 'kling-v2-1-master',
+            self::V2_1_PRO => 'kling-v2-1',
+            self::V2_1_STD => 'kling-v2-1',
+            self::V2 => 'kling-v2',
+            self::PRO => 'kling',
+            self::STD => 'kling',
+        };
+    }
 }

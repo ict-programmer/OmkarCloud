@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use MongoDB\Laravel\Eloquent\Model;
 
 class ServiceProvider extends Model
@@ -54,6 +55,14 @@ class ServiceProvider extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    /**
+     * Get the service types for this service provider.
+     */
+    public function serviceTypes(): HasMany
+    {
+        return $this->hasMany(ServiceType::class);
+    }
 
     /**
      * Get the service provider's parameters formatted for Google API.

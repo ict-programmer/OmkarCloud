@@ -185,10 +185,10 @@ Route::prefix('freepik')->controller(FreepikController::class)->group(function (
 
     Route::prefix('kling_video_generation')->group(function () {
         Route::post('image_to_video', 'klingVideoGenerationImageToVideo');
-        Route::get('image_to_video/status/{task_id}', 'klingVideoGenerationImageToVideoStatus');
+        Route::get('image_to_video/status', 'klingVideoGenerationImageToVideoStatus');
         Route::post('text_to_video', 'klingVideoGenerationTextToVideo');
         Route::get('text_to_video/status/{task_id}', 'klingVideoGenerationTextToVideoStatus');
-        Route::post('image_to_video_elements', 'klingVideoGenerationTextToVideo');
+        Route::post('image_to_video_elements', 'klingElementsVideo');
         Route::get('image_to_video_elements/status/{task_id}', 'klingElementsVideoStatus');
     });
 

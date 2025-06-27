@@ -2,8 +2,12 @@
 
 namespace App\Enums\Freepik;
 
+use App\Traits\BaseEnumTrait;
+
 enum PeopleEthnicityEnum: string
 {
+    use BaseEnumTrait;
+
     case SOUTH_ASIAN = 'south-asian';
     case MIDDLE_EASTERN = 'middle-eastern';
     case EAST_ASIAN = 'east-asian';

@@ -4,7 +4,7 @@ namespace App\Http\Requests\Freepik;
 
 use App\Enums\Freepik\ResourceFormatEnum;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\Rule;
 
 class DownloadResourceFormatRequest extends FormRequest
 {
@@ -25,7 +25,16 @@ class DownloadResourceFormatRequest extends FormRequest
     {
         return [
             'resource_id' => ['required', 'string'],
-            'format' => ['required', 'string', new Enum(ResourceFormatEnum::class)],
+            'format' => ['required', 'string', Rule::in(ResourceFormatEnum::getValuesInArray())],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'format.in' => __('The selected format is invalid. Valid values: :values', [
+                'values' => ResourceFormatEnum::getValuesInString(),
+            ]),
         ];
     }
 }

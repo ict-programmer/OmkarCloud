@@ -28,6 +28,7 @@ class DocumentSummarizationRequest extends FormRequest
             'document_text' => ['required', 'string', 'min:10', 'max:100000'],
             'model' => ['required', 'in:gemini-2.5-flash,gemini-2.5-pro,gemini-2.0-flash,gemini-1.5-flash,gemini-1.5-pro,gemini-pro,gemini-ultra'],
             'summary_length' => ['required', 'integer', 'min:1', 'max:1000'],
+            'max_tokens' => ['required', 'integer', 'min:1', 'max:5000'],
         ];
     }
 
@@ -49,6 +50,10 @@ class DocumentSummarizationRequest extends FormRequest
             'summary_length.integer' => __('The summary length must be an integer.'),
             'summary_length.min' => __('The summary length must be at least 1.'),
             'summary_length.max' => __('The summary length may not be greater than 1000.'),
+            'max_tokens.required' => __('The max tokens field is required.'),
+            'max_tokens.integer' => __('The max tokens must be an integer.'),
+            'max_tokens.min' => __('The max tokens must be at least 1.'),
+            'max_tokens.max' => __('The max tokens may not be greater than 5000.'),
         ];
     }
 

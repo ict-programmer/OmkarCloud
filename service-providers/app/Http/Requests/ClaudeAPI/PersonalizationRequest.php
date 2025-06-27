@@ -26,6 +26,7 @@ class PersonalizationRequest extends FormRequest
             'user_id' => ['required', 'string', 'min:1', 'max:100'],
             'preferences' => ['required', 'array', 'min:1', 'max:20'],
             'preferences.*' => ['required', 'string', 'min:2', 'max:50'],
+            'max_tokens' => ['required', 'integer', 'min:1', 'max:5000'],
             'model' => ['nullable', 'string'],
         ];
     }
@@ -50,6 +51,10 @@ class PersonalizationRequest extends FormRequest
             'preferences.*.string' => 'Each preference must be a valid string.',
             'preferences.*.min' => 'Each preference must be at least 2 characters long.',
             'preferences.*.max' => 'Each preference may not be greater than 50 characters.',
+            'max_tokens.required' => 'The max_tokens field is required to specify response length.',
+            'max_tokens.integer' => 'The max_tokens must be a whole number.',
+            'max_tokens.min' => 'The max_tokens must be at least 1 token.',
+            'max_tokens.max' => 'The max_tokens may not be greater than 5000 tokens.',
             'model.string' => 'The model must be a valid string.',
         ];
     }
@@ -64,6 +69,7 @@ class PersonalizationRequest extends FormRequest
         return [
             'user_id' => 'user identifier',
             'preferences' => 'user preferences',
+            'max_tokens' => 'maximum tokens',
         ];
     }
 

@@ -7,12 +7,13 @@ use App\Http\Requests\Perplexity\AcademicResearchRequest;
 use App\Http\Requests\Perplexity\AiSearchRequest;
 use App\Http\Requests\Perplexity\CodeAssistantRequest;
 use App\Models\ServiceProvider;
-use App\Models\ServiceProviderModel;
-use App\Models\ServiceType;
+use App\Traits\ServiceProviderSeederTrait;
 use Illuminate\Database\Seeder;
 
 class PerplexityServiceProviderSeeder extends Seeder
 {
+    use ServiceProviderSeederTrait;
+
     /**
      * Run the database seeds.
      */
@@ -470,33 +471,12 @@ Slicing (`[::-1]`) is the fastest method due to underlying optimizations, making
             ],
         ];
 
-        // Create or update service_provider_types entries
-        foreach ($serviceTypes as $serviceType) {
-            $serviceType = ServiceType::updateOrCreate(
-                [
-                    'name' => $serviceType['name'],
-                    'service_provider_id' => $serviceProvider->id,
-                ],
-                [
-                    'input_parameters' => $serviceType['input_parameters'],
-                    'request_class_name' => $serviceType['request_class_name'],
-                    'function_name' => $serviceType['function_name'],
-                    'response' => $serviceType['response'],
-                    'response_path' => $serviceType['response_path'],
-                ]
-            );
+        $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, 'Perplexity');
 
-            if (!empty($serviceType['input_parameters']['model']['options']['fallback_options'])) {
-                foreach ($serviceType['input_parameters']['model']['options']['fallback_options'] as $model) {
-                    ServiceProviderModel::updateOrCreate(
-                        [
-                            'name' => $model,
-                            'service_provider_id' => $serviceProvider->id,
-                            'service_type_id' => $serviceType->id,
-                        ]
-                    );
-                }
-            }
-        }
+        $deletedProviderTypeCount = $this->cleanupObsoleteServiceTypes($serviceProvider, $keptServiceTypeIds);
+
+        $this->command->info('Cleanup completed:');
+        $this->command->info("- Deleted {$deletedProviderTypeCount} obsolete service provider types");
+        $this->command->info('- Kept ' . count($keptServiceTypeIds) . ' service types for Perplexity');
     }
 }
