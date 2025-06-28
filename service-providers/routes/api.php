@@ -173,6 +173,14 @@ Route::prefix('shutterstock')->controller(ShutterstockController::class)->group(
     });
 });
 
+// Midjourney
+Route::prefix('midjourney')->controller(\App\Http\Controllers\MidjourneyController::class)->group(function () {
+    Route::post('image_generation', 'imageGeneration');
+    Route::post('image_generation_async', 'imageGenerationAsync');
+    Route::post('image_variation', 'imageVariation');
+    Route::post('task', 'getTask');
+});
+
 // Freepik
 Route::prefix('freepik')->controller(FreepikController::class)->group(function () {
     Route::get('stock_content', 'stockContent');
