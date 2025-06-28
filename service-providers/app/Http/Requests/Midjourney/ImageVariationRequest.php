@@ -22,10 +22,9 @@ class ImageVariationRequest extends BaseFormRequest
     public function rules(): array
     {
         return [
-            'input_image' => 'required|string|url',
-            'variation_strength' => 'required|numeric|between:0.0,1.0',
-            'count' => 'required|integer|between:1,4',
-            'guidance_scale' => 'nullable|numeric|between:1.0,20.0',
+            'origin_task_id' => 'required|string|uuid',
+            'index' => 'required|string|in:1,2,3,4,high_variation,low_variation',
+            'prompt' => 'required|string|min:1|max:4000',
         ];
     }
 
@@ -37,13 +36,13 @@ class ImageVariationRequest extends BaseFormRequest
     public function messages(): array
     {
         return [
-            'input_image.required' => 'An input image URL is required for generating variations.',
-            'input_image.url' => 'The input image must be a valid URL.',
-            'variation_strength.required' => 'Variation strength is required.',
-            'variation_strength.between' => 'Variation strength must be between 0.0 and 1.0.',
-            'count.required' => 'The number of variations to generate is required.',
-            'count.between' => 'You can generate between 1 and 4 variations.',
-            'guidance_scale.between' => 'Guidance scale must be between 1.0 and 20.0.',
+            'origin_task_id.required' => 'The parent task ID is required for generating variations.',
+            'origin_task_id.uuid' => 'The origin task ID must be a valid UUID format.',
+            'index.required' => 'Image index is required to specify which image to vary.',
+            'index.in' => 'Index must be one of: 1, 2, 3, 4, high_variation, low_variation.',
+            'prompt.required' => 'A prompt is required for the variation operation.',
+            'prompt.min' => 'The prompt must be at least 1 character long.',
+            'prompt.max' => 'The prompt cannot exceed 4000 characters.',
         ];
     }
 } 

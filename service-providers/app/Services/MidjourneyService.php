@@ -34,14 +34,25 @@ class MidjourneyService
 
     public function imageVariation(ImageVariationData $data): array
     {
-        // This would be implemented based on specific variation requirements
-        // For now, returning a placeholder structure
-        return [
-            'task_id' => 'variation-' . uniqid(),
-            'status' => 'processing',
-            'variations' => [],
-            'progress' => 0,
+        $requestBody = [
+            'model' => 'midjourney',
+            'task_type' => 'variation',
+            'input' => [
+                'origin_task_id' => $data->origin_task_id,
+                'index' => $data->index,
+                'prompt' => $data->prompt,
+            ]
         ];
+
+        $initialResponse = $this->callMidjourneyAPI($requestBody);
+
+        $taskId = $initialResponse['data']['task_id'] ?? null;
+        
+        if (!$taskId) {
+            return $initialResponse;
+        }
+
+        return $this->pollTaskUntilCompleted($taskId);
     }
 
     public function getTask(GetTaskData $data): array
