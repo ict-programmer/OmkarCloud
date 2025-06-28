@@ -38,10 +38,7 @@ Route::prefix('reactjs')->group(function () {
 
 // chatgpt
 Route::prefix('chatgpt')->controller(ChatGPTController::class)->group(function () {
-    Route::post('chat_completion', 'chatCompletion');
-    Route::post('code_generation', 'codeCompletion');
     Route::post('image_generation', 'imageGeneration');
-    Route::post('text_embedding', 'textEmbedding');
     Route::post('ui_field_extraction', 'uiFieldExtraction');
 });
 
@@ -85,15 +82,6 @@ Route::prefix('perplexity')->controller(PerplexityController::class)->group(func
     Route::post('ai_search', 'aiSearch');
     Route::post('academic_research', 'academicResearch');
     Route::post('code_assistant', 'codeAssistant');
-});
-
-Route::prefix('placid')->controller(PlacidController::class)->group(function () {
-    Route::get('retrieve-template', 'retrieveTemplate');
-    Route::post('image-generation', 'imageGeneration');
-    Route::post('pdf-generation', 'pdfGeneration');
-    Route::get('retrieve-pdf', 'retrievePdf');
-    Route::post('video-generation', 'videoGeneration');
-    Route::get('retrieve-video', 'retrieveVideo');
 });
 
 Route::prefix('premierpro')->group(function () {
@@ -163,21 +151,6 @@ Route::prefix('gettyimages')->group(function () {
     Route::post('video_download/{id}', [GettyimagesController::class, 'videoDownload']);
     Route::get('affiliate_image_search', [GettyimagesController::class, 'affiliateImageSearch']);
     Route::get('affiliate_video_search', [GettyimagesController::class, 'affiliateVideoSearch']);
-});
-Route::prefix('shutterstock')->controller(ShutterstockController::class)->group(function () {
-    Route::post('/create_collection', 'createCollection');
-    Route::post('/add_to_collection', 'addToCollection');
-
-    Route::prefix('user')->group(function () {
-        Route::get('/subscriptions', 'listUserSubscriptions');
-    });
-});
-
-// Midjourney
-Route::prefix('midjourney')->controller(\App\Http\Controllers\MidjourneyController::class)->group(function () {
-    Route::post('image_generation', 'imageGeneration');
-    Route::post('image_variation', 'imageVariation');
-    Route::post('task', 'getTask');
 });
 
 // Freepik
