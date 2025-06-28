@@ -26,6 +26,7 @@ class CodegenRequest extends FormRequest
             'description' => ['required', 'string', 'min:5', 'max:2000'],
             'attachments' => ['nullable', 'array'],
             'attachments.*' => ['nullable', 'file', 'max:30720'], // 30MB
+            'max_tokens' => ['required', 'integer', 'min:1', 'max:5000'],
             'model' => ['nullable', 'string'],
         ];
     }
@@ -45,6 +46,10 @@ class CodegenRequest extends FormRequest
             'attachments.array' => 'The attachments field must be an array of files.',
             'attachments.*.file' => 'Each attachment must be a valid file.',
             'attachments.*.max' => 'Each attachment may not be larger than 30MB.',
+            'max_tokens.required' => 'The max_tokens field is required to specify response length.',
+            'max_tokens.integer' => 'The max_tokens must be a whole number.',
+            'max_tokens.min' => 'The max_tokens must be at least 1 token.',
+            'max_tokens.max' => 'The max_tokens may not be greater than 5000 tokens.',
             'model.string' => 'The model must be a valid string.',
         ];
     }
@@ -59,6 +64,7 @@ class CodegenRequest extends FormRequest
         return [
             'description' => 'code description',
             'attachments' => 'file attachments',
+            'max_tokens' => 'maximum tokens',
         ];
     }
 

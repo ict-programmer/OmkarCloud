@@ -27,6 +27,7 @@ class ImageAnalysisRequest extends FormRequest
         return [
             'image_url' => ['required', 'url'],
             'description_required' => ['required', 'string', 'min:1', 'max:1000'],
+            'max_tokens' => ['required', 'integer', 'min:1', 'max:5000'],
         ];
     }
 
@@ -44,6 +45,10 @@ class ImageAnalysisRequest extends FormRequest
             'description_required.string' => __('The description must be a string.'),
             'description_required.min' => __('The description must be at least 1 character.'),
             'description_required.max' => __('The description may not be greater than 1000 characters.'),
+            'max_tokens.required' => __('The max tokens field is required.'),
+            'max_tokens.integer' => __('The max tokens must be an integer.'),
+            'max_tokens.min' => __('The max tokens must be at least 1.'),
+            'max_tokens.max' => __('The max tokens may not be greater than 5000.'),
         ];
     }
 

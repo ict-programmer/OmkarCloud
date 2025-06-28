@@ -4,7 +4,6 @@ namespace App\Traits;
 
 use App\Models\ServiceProvider;
 use App\Models\ServiceType;
-use App\Models\ServiceProviderType;
 use App\Models\ServiceProviderModel;
 
 trait ServiceProviderSeederTrait
@@ -19,16 +18,14 @@ trait ServiceProviderSeederTrait
         foreach ($serviceTypes as $serviceTypeData) {
             $serviceTypeName = $serviceTypeData['name'];
 
-            $existingServiceProviderType = ServiceProviderType::where('service_provider_id', $serviceProvider->id)
-                ->whereHas('serviceType', function ($query) use ($serviceTypeName) {
-                    $query->where('name', $serviceTypeName);
-                })
+            $existingServiceType = ServiceType::where('service_provider_id', $serviceProvider->id)
+                ->where('name', $serviceTypeName)
                 ->first();
 
-            if ($existingServiceProviderType) {
-                $serviceType = $existingServiceProviderType->serviceType;
+            $currentServiceType = null;
 
-                $existingServiceProviderType->update([
+            if ($existingServiceType) {
+                $existingServiceType->update([
                     'input_parameters' => $serviceTypeData['input_parameters'],
                     'request_class_name' => $serviceTypeData['request_class_name'],
                     'function_name' => $serviceTypeData['function_name'],
@@ -36,16 +33,13 @@ trait ServiceProviderSeederTrait
                     'response_path' => $serviceTypeData['response_path'],
                 ]);
 
-                $keptServiceTypeIds[] = $serviceType->id;
-                $this->command->info("Updated existing service provider type relationship for '{$serviceTypeName}' in {$providerName}");
+                $currentServiceType = $existingServiceType;
+                $keptServiceTypeIds[] = $existingServiceType->id;
+                $this->command->info("Updated existing service type '{$serviceTypeName}' in {$providerName}");
             } else {
                 $serviceType = ServiceType::create([
                     'name' => $serviceTypeName,
-                ]);
-
-                ServiceProviderType::create([
                     'service_provider_id' => $serviceProvider->id,
-                    'service_type_id' => $serviceType->id,
                     'input_parameters' => $serviceTypeData['input_parameters'],
                     'request_class_name' => $serviceTypeData['request_class_name'],
                     'function_name' => $serviceTypeData['function_name'],
@@ -53,8 +47,9 @@ trait ServiceProviderSeederTrait
                     'response_path' => $serviceTypeData['response_path'],
                 ]);
 
+                $currentServiceType = $serviceType;
                 $keptServiceTypeIds[] = $serviceType->id;
-                $this->command->info("Created new service provider type relationship for '{$serviceTypeName}' in {$providerName}");
+                $this->command->info("Created new service type '{$serviceTypeName}' in {$providerName}");
             }
 
             if (isset($serviceTypeData['input_parameters']['model']['options']['fallback_options'])) {
@@ -63,7 +58,7 @@ trait ServiceProviderSeederTrait
                         [
                             'name' => $model,
                             'service_provider_id' => $serviceProvider->id,
-                            'service_type_id' => $serviceType->id,
+                            'service_type_id' => $currentServiceType->id,
                         ],
                         [
                             'status' => 'active',
@@ -77,22 +72,22 @@ trait ServiceProviderSeederTrait
     }
 
     /**
-     * Clean up obsolete service provider types.
+     * Clean up obsolete service types.
      */
     protected function cleanupObsoleteServiceTypes(ServiceProvider $serviceProvider, array $keptServiceTypeIds): int
     {
-        $allServiceProviderTypes = ServiceProviderType::where('service_provider_id', $serviceProvider->id)->get();
+        $allServiceTypes = ServiceType::where('service_provider_id', $serviceProvider->id)->get();
 
-        $serviceProviderTypesToDelete = $allServiceProviderTypes->filter(function ($providerType) use ($keptServiceTypeIds) {
-            return !in_array($providerType->service_type_id, $keptServiceTypeIds);
+        $serviceTypesToDelete = $allServiceTypes->filter(function ($serviceType) use ($keptServiceTypeIds) {
+            return !in_array($serviceType->id, $keptServiceTypeIds);
         });
 
-        $deletedProviderTypeCount = 0;
-        foreach ($serviceProviderTypesToDelete as $providerTypeToDelete) {
-            $providerTypeToDelete->delete();
-            $deletedProviderTypeCount++;
+        $deletedServiceTypeCount = 0;
+        foreach ($serviceTypesToDelete as $serviceTypeToDelete) {
+            $serviceTypeToDelete->delete();
+            $deletedServiceTypeCount++;
         }
 
-        return $deletedProviderTypeCount;
+        return $deletedServiceTypeCount;
     }
 }

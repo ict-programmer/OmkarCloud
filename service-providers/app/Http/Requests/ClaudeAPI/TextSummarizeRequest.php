@@ -26,6 +26,7 @@ class TextSummarizeRequest extends FormRequest
         return [
             'text' => ['required', 'string', 'min:10', 'max:10000'],
             'summary_length' => ['required', 'string', 'in:short,medium,long'],
+            'max_tokens' => ['required', 'integer', 'min:1', 'max:5000'],
             'model' => ['nullable', 'string'],
         ];
     }
@@ -45,6 +46,10 @@ class TextSummarizeRequest extends FormRequest
             'summary_length.required' => 'The summary_length field is required to specify the desired summary length.',
             'summary_length.string' => 'The summary_length must be a valid string.',
             'summary_length.in' => 'The summary_length must be one of: short, medium, or long.',
+            'max_tokens.required' => 'The max_tokens field is required to specify response length.',
+            'max_tokens.integer' => 'The max_tokens must be a whole number.',
+            'max_tokens.min' => 'The max_tokens must be at least 1 token.',
+            'max_tokens.max' => 'The max_tokens may not be greater than 5000 tokens.',
             'model.string' => 'The model must be a valid string.',
         ];
     }
@@ -59,6 +64,7 @@ class TextSummarizeRequest extends FormRequest
         return [
             'text' => 'text content',
             'summary_length' => 'summary length',
+            'max_tokens' => 'maximum tokens',
         ];
     }
 

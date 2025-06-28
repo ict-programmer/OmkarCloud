@@ -8,6 +8,7 @@ class ImageAnalysisData extends Data
 {
     public function __construct(
         public string $image_url,
-        public string $description_required
+        public string $description_required,
+        public int $max_tokens
     ) {}
 }

@@ -25,7 +25,6 @@ use App\Http\Resources\ClaudeAPI\TextSummarizeResource;
 use App\Http\Resources\ClaudeAPI\TextTranslateResource;
 use App\Models\ServiceProvider;
 use App\Models\ServiceProviderModel;
-use App\Models\ServiceProviderType;
 use App\Models\ServiceType;
 use App\Traits\ClaudeAITrait;
 use Exception;
@@ -52,10 +51,6 @@ class ClaudeAPIService
 
     protected string $apiKey;
 
-    protected int $maxTokens;
-
-    protected string $tools;
-
     protected PendingRequest $client;
 
     /**
@@ -80,18 +75,12 @@ class ClaudeAPIService
 
         $this->apiKey = $apiKey;
 
-        $serviceType = ServiceType::where('name', $serviceTypeName->value)->first();
+        $serviceType = ServiceType::where('service_provider_id', $provider->id)
+            ->where('name', $serviceTypeName->value)
+            ->first();
+            
         if (!$serviceType) {
             throw new NotFound('Claude API service type not found.');
-        }
-
-        $providerType = ServiceProviderType::where([
-            ['service_provider_id', $provider->id],
-            ['service_type_id', $serviceType->id],
-        ])->first();
-
-        if (!$providerType || !isset($providerType->parameters['max_tokens'])) {
-            throw new NotFound('Claude API provider type configuration missing.');
         }
 
         if (!is_null($model)) {
@@ -109,8 +98,6 @@ class ClaudeAPIService
         }
 
         $this->apiUrl = "{$provider->parameters['base_url']}/{$provider->parameters['version']}/messages";
-        $this->maxTokens = $providerType->parameters['max_tokens'];
-        $this->tools = json_encode($providerType->tools) ?? [];
 
         $this->client = Http::withHeaders([
             'x-api-key' => $this->apiKey,
@@ -131,7 +118,7 @@ class ClaudeAPIService
         try {
             $response = $this->client->post($this->apiUrl, [
                 'model' => $this->CLAUDE_API_MODEL,
-                'max_tokens' => $data->max_tokens ?? $this->maxTokens,
+                'max_tokens' => $data->max_tokens,
                 'system' => config('claudeAPI.system_prompts.text_generation'),
                 'messages' => [
                     [
@@ -165,7 +152,7 @@ class ClaudeAPIService
         try {
             $response = $this->client->post($this->apiUrl, [
                 'model' => $this->CLAUDE_API_MODEL,
-                'max_tokens' => $this->maxTokens,
+                'max_tokens' => $data->max_tokens,
                 'system' => config('claudeAPI.system_prompts.text_summarize'),
                 'messages' => [
                     [
@@ -200,7 +187,7 @@ class ClaudeAPIService
         try {
             $response = $this->client->post($this->apiUrl, [
                 'model' => $this->CLAUDE_API_MODEL,
-                'max_tokens' => $this->maxTokens,
+                'max_tokens' => $data->max_tokens,
                 'system' => config('claudeAPI.system_prompts.question_answer'),
                 'messages' => [
                     [
@@ -234,7 +221,7 @@ class ClaudeAPIService
         try {
             $response = $this->client->post($this->apiUrl, [
                 'model' => $this->CLAUDE_API_MODEL,
-                'max_tokens' => $this->maxTokens,
+                'max_tokens' => $data->max_tokens,
                 'system' => config('claudeAPI.system_prompts.text_classify'),
                 'messages' => [
                     [
@@ -279,7 +266,7 @@ class ClaudeAPIService
         try {
             $response = $this->client->post($this->apiUrl, [
                 'model' => $this->CLAUDE_API_MODEL,
-                'max_tokens' => $this->maxTokens,
+                'max_tokens' => $data->max_tokens,
                 'system' => config('claudeAPI.system_prompts.text_translation'),
                 'messages' => [
                     [
@@ -334,7 +321,7 @@ class ClaudeAPIService
 
             $response = $this->client->post($this->apiUrl, [
                 'model' => $this->CLAUDE_API_MODEL,
-                'max_tokens' => $this->maxTokens,
+                'max_tokens' => $data->max_tokens,
                 'system' => config('claudeAPI.system_prompts.code_generation'),
                 'messages' => $messages
             ]);
@@ -360,7 +347,7 @@ class ClaudeAPIService
         try {
             $response = $this->client->post($this->apiUrl, [
                 'model' => $this->CLAUDE_API_MODEL,
-                'max_tokens' => $this->maxTokens,
+                'max_tokens' => $data->max_tokens,
                 'system' => config('claudeAPI.system_prompts.data_analysis_and_insight'),
                 'messages' => [
                     [
@@ -394,7 +381,7 @@ class ClaudeAPIService
         try {
             $response = $this->client->post($this->apiUrl, [
                 'model' => $this->CLAUDE_API_MODEL,
-                'max_tokens' => $this->maxTokens,
+                'max_tokens' => $data->max_tokens,
                 'system' => config('claudeAPI.system_prompts.personalization'),
                 'messages' => [
                     [

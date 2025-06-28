@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\ServiceProvider;
 use App\Models\ServiceProviderModel;
 use App\Models\ServiceType;
-use App\Models\ServiceProviderType;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -27,25 +26,19 @@ class MainService
             return $this->response('Service provider not found', null, 404);
         }
 
-        $serviceType = ServiceType::query()->find($serviceTypeId);
+        $serviceType = ServiceType::where('service_provider_id', $serviceProviderId)
+            ->where('_id', $serviceTypeId)
+            ->first();
 
         if (is_null($serviceType)) {
             return $this->response('Service type not found', null, 404);
         }
 
-        $serviceProviderType = ServiceProviderType::where('service_provider_id', $serviceProviderId)
-            ->where('service_type_id', $serviceTypeId)
-            ->first();
-
-        if (is_null($serviceProviderType)) {
-            return $this->response('Service provider type configuration not found', null, 404);
-        }
-
-        if (is_null($serviceProvider->controller_name) || is_null($serviceProviderType->function_name)) {
+        if (is_null($serviceProvider->controller_name) || is_null($serviceType->function_name)) {
             return $this->response('Service provider or service type configuration is incomplete', null, 404);
         }
 
-        if (!method_exists($serviceProvider->controller_name, $serviceProviderType->function_name)) {
+        if (!method_exists($serviceProvider->controller_name, $serviceType->function_name)) {
             return $this->response('Function not found in controller', null, 404);
         }
 
@@ -54,7 +47,10 @@ class MainService
         $model = $request->input('model');
 
         if (!is_null($model)) {
-            $modelExists = ServiceProviderModel::query()->where('service_provider_id', $serviceProviderId)->where('name', $model)->exists();
+            $modelExists = ServiceProviderModel::query()
+                ->where('service_provider_id', $serviceProviderId)
+                ->where('name', $model)
+                ->exists();
 
             if (!$modelExists) {
                 return $this->response('Model not configured for this service provider', null, 404);
@@ -62,15 +58,15 @@ class MainService
         }
 
         $formRequest = null;
-        if (!is_null($serviceProviderType->request_class_name)) {
-            $formRequest = app($serviceProviderType->request_class_name);
+        if (!is_null($serviceType->request_class_name)) {
+            $formRequest = app($serviceType->request_class_name);
             $formRequest->replace($request->all());
             $formRequest->files = $request->files;
             $formRequest->headers = $request->headers;
             $formRequest->validateResolved();
         }
 
-        return app()->call([$controller, $serviceProviderType->function_name]);
+        return app()->call([$controller, $serviceType->function_name]);
     }
 
     private function response(string $message, mixed $data, int $status = 200): JsonResponse

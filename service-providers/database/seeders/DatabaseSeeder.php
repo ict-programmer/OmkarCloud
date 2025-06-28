@@ -17,6 +17,8 @@ class DatabaseSeeder extends Seeder
             GeminiServiceProviderSeeder::class,
             DeepSeekServiceProviderSeeder::class,
             RunwaymlServiceProviderSeeder::class,
+            CanvaServiceProviderSeeder::class,
+            PexelsServiceProviderSeeder::class,
             PerplexityServiceProviderSeeder::class,
             FreepikServiceProviderSeeder::class,
         ]);
