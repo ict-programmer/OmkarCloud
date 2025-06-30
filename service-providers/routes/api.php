@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\CanvaController;
+use App\Http\Controllers\CaptionsController;
 use App\Http\Controllers\ChatGPTController;
 use App\Http\Controllers\DescriptAIController;
 use App\Http\Controllers\FreepikController;
@@ -10,11 +11,9 @@ use App\Http\Controllers\GoogleSheetsController;
 use App\Http\Controllers\MainFunctionController;
 use App\Http\Controllers\PerplexityController;
 use App\Http\Controllers\PexelsController;
-use App\Http\Controllers\PlacidController;
 use App\Http\Controllers\PremierProController;
 use App\Http\Controllers\ReactJsController;
 use App\Http\Controllers\ServiceProviderController;
-use App\Http\Controllers\ShutterstockController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -206,5 +205,12 @@ Route::prefix('freepik')->controller(FreepikController::class)->group(function (
 });
 
 Route::post('freepik/webhook', [FreepikController::class, 'handleWebhook'])->name('freepik.webhook');
+
+// Captions
+Route::prefix('captions')->controller(CaptionsController::class)->group(function () {
+    Route::post('creator/list', 'listCreators');
+    Route::post('creator/submit', 'submitCreatorVideo');
+    Route::post('creator/poll', 'pollCreatorStatus');
+});
 
 Route::post('services/{service_provider_id}/{service_type_id}', MainFunctionController::class);
