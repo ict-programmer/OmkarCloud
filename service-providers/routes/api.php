@@ -219,6 +219,12 @@ Route::prefix('captions')->controller(CaptionsController::class)->group(function
         Route::post('submit', 'submitVideoTranslation');
         Route::post('poll', 'pollTranslationStatus');
     });
+
+    Route::prefix('ads')->group(function () {
+        Route::post('list-creators', 'listAdsCreators');
+        Route::post('submit', 'submitAdVideo');
+        Route::post('poll', 'pollAdVideoStatus');
+    });
 });
 
 Route::post('services/{service_provider_id}/{service_type_id}', MainFunctionController::class);

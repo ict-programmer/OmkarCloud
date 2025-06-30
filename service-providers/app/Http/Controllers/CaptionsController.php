@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Data\Request\Captions\AiAdsPollData;
+use App\Data\Request\Captions\AiAdsSubmitData;
 use App\Data\Request\Captions\AiCreatorPollData;
 use App\Data\Request\Captions\AiCreatorSubmitData;
 use App\Data\Request\Captions\AiTranslatePollData;
 use App\Data\Request\Captions\AiTranslateSubmitData;
+use App\Http\Requests\Captions\AiAdsPollRequest;
+use App\Http\Requests\Captions\AiAdsSubmitRequest;
 use App\Http\Requests\Captions\AiCreatorPollRequest;
 use App\Http\Requests\Captions\AiCreatorSubmitRequest;
 use App\Http\Requests\Captions\AiTranslatePollRequest;
@@ -265,6 +269,152 @@ class CaptionsController extends BaseController
         $data = AiTranslatePollData::from($request->validated());
 
         $response = $this->service->pollTranslationStatus($data);
+
+        return $this->logAndResponse($response);
+    }
+
+    #[OA\Post(
+        path: '/api/captions/ads/list-creators',
+        operationId: 'listAdsCreators',
+        summary: 'List available AI Ad Creators',
+        description: 'Retrieves a list of AI creators that can be used for ad video generation.',
+        tags: ['Captions']
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response containing available AI ad creators.',
+        content: new OA\JsonContent(
+            example: [
+                'supportedCreators' => [
+                    'Jason',
+                    'Grace-1',
+                    'Grace-2',
+                ],
+                'thumbnails' => [
+                    'Jason' => [
+                        'imageUrl' => 'https://captions-cdn.xyz/ai-avatars/ugc/v2/oo0RAIESofBfKGEes2BL/thumb.jpg',
+                        'videoUrl' => 'https://captions-cdn.xyz/ai-avatars/ugc/v2/oo0RAIESofBfKGEes2BL/preview.mp4',
+                    ],
+                    'Grace-1' => [
+                        'imageUrl' => 'https://captions-cdn.xyz/ai-avatars/ugc/v2/hKUDZndVfPfMT3YUTYSd/thumb.jpg',
+                        'videoUrl' => 'https://captions-cdn.xyz/ai-avatars/ugc/v2/hKUDZndVfPfMT3YUTYSd/preview.mp4',
+                    ],
+                    'Grace-2' => [
+                        'imageUrl' => 'https://captions-cdn.xyz/ai-avatars/ugc/v2/Nmxmr9QhaNeJB1CqNuxO/thumb.jpg',
+                        'videoUrl' => 'https://captions-cdn.xyz/ai-avatars/ugc/v2/Nmxmr9QhaNeJB1CqNuxO/preview.mp4',
+                    ],
+                ],
+            ]
+        )
+    )]
+    public function listAdsCreators(): JsonResponse
+    {
+        $response = $this->service->getAdsCreatorsList();
+
+        return $this->logAndResponse($response);
+    }
+
+    #[OA\Post(
+        path: '/api/captions/ads/submit',
+        operationId: 'submitAdVideo',
+        summary: 'Submit an AI Ad video generation request',
+        description: 'Begins the AI Ads video generation process with a specified creator.',
+        tags: ['Captions']
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['script', 'creatorName', 'mediaUrls'],
+            properties: [
+                new OA\Property(
+                    property: 'script',
+                    type: 'string',
+                    maxLength: 800,
+                    description: 'Script for the AI Ad (max 800 characters)',
+                    example: 'Introducing our latest product!'
+                ),
+                new OA\Property(
+                    property: 'creatorName',
+                    type: 'string',
+                    description: 'Name of the AI Creator.',
+                    example: 'Jason'
+                ),
+                new OA\Property(
+                    property: 'mediaUrls',
+                    type: 'array',
+                    description: 'URLs to media files (JPEG, PNG, MOV, MP4). Minimum 1, maximum 10.',
+                    minItems: 1,
+                    maxItems: 10,
+                    items: new OA\Items(type: 'string', format: 'url', example: [
+                        'https://publiish.io/ipfs/QmVeajukWWf2Yy6oQD61YGJywqfZrm5kbRR31iKQQQahwJ',
+                        'https://publiish.io/ipfs/QmYdLz3cJr49qPh2vyZn55W6NwsAmLQpzrUZyHFjE3dmaY',
+                        'https://publiish.io/ipfs/QmaHawrk9Lp1PzF3mh9HdpyaSiTUepmAgaj5Ai7DDTyuAK',
+                    ])
+                ),
+                new OA\Property(
+                    property: 'resolution',
+                    type: 'string',
+                    enum: ['fhd', '4k'],
+                    description: 'Desired output resolution (default is 4k).',
+                    example: 'fhd'
+                ),
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'AI Ad video generation process started.',
+        content: new OA\JsonContent(
+            example: [
+                'operationId' => 'R61piXz8jjxcBuQgK7UM',
+            ]
+        )
+    )]
+    public function submitAdVideo(AiAdsSubmitRequest $request): JsonResponse
+    {
+        $data = AiAdsSubmitData::from($request->validated());
+
+        $response = $this->service->submitAdVideoGeneration($data);
+
+        return $this->logAndResponse($response);
+    }
+
+    #[OA\Post(
+        path: '/api/captions/ads/poll',
+        operationId: 'pollAdVideoStatus',
+        summary: 'Check the status of an AI Ads video generation request',
+        description: 'Polls the status of an AI Ads video generation process using an operationId.',
+        tags: ['Captions']
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['operationId'],
+            properties: [
+                new OA\Property(
+                    property: 'operationId',
+                    type: 'string',
+                    description: 'The unique operation ID of the submitted ad generation task.',
+                    example: 'R61piXz8jjxcBuQgK7UM'
+                ),
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Job complete or in progress.',
+        content: new OA\JsonContent(
+            example: [
+                'url' => 'https://storage.googleapis.com/captions-avatar-orc/orc/studio/writer__ugc_variant_result/LHElp6sX7OlrIh6DyoNA/52f97ad4-6b0c-4a9e-b35d-4e664e3a6a57/hd_result.mp4?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=cloud-run-captions-server%40captions-f6de9.iam.gserviceaccount.com%2F20250630%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250630T100848Z&X-Goog-Expires=604800&X-Goog-SignedHeaders=host&X-Goog-Signature=9c52cc4dd08fac1766491707ec9a3481becbfe99fc5561661a05fac20a55ffda9fd877a5ad6b540052961f3f4a41bb167ded64173fdd1182b198d628a24b467b5cac70eb03a4dc95905d149fea2180f305f9fda8a8de47cd1af3afe3d5a35d418a94cdc465f572038e31bf8a0a453a33085269abe2a318afa1004a272e04000399b31cb5c2d913c04ea353575fd91a579e8bcb2ab0649c4adce3356cd22efe28d5a51f6f1f6c05896eae9f4900a59feb6a371be529d322d77244d1fe1265ba658fa18efd7ad5008d6f9800cc385dd429457f220562dd18bb66d6cec8483208d1ca3e22ecba7c053aa61384e5554f0a6302feb2b9623073d239c2170d20d699b2',
+                'state' => 'COMPLETE',
+            ]
+        )
+    )]
+    public function pollAdVideoStatus(AiAdsPollRequest $request): JsonResponse
+    {
+        $data = AiAdsPollData::from($request->validated());
+
+        $response = $this->service->pollAdVideoStatus($data);
 
         return $this->logAndResponse($response);
     }

@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Data\Request\Captions\AiAdsPollData;
+use App\Data\Request\Captions\AiAdsSubmitData;
 use App\Data\Request\Captions\AiCreatorPollData;
 use App\Data\Request\Captions\AiCreatorSubmitData;
 use App\Data\Request\Captions\AiTranslatePollData;
@@ -60,6 +62,29 @@ class CaptionsService
     public function pollTranslationStatus(AiTranslatePollData $data): array
     {
         $response = $this->client->post('translate/poll', array_filter($data->toArray(), fn ($value) => $value !== null));
+
+        return $response->json();
+    }
+
+    public function getAdsCreatorsList(): array
+    {
+        $response = $this->client->post('ads/list-creators');
+
+        return $response->json();
+    }
+
+    public function submitAdVideoGeneration(AiAdsSubmitData $data): array
+    {
+        $payload = array_filter($data->toArray(), fn ($value) => $value !== null);
+
+        $response = $this->client->post('ads/submit', $payload);
+
+        return $response->json();
+    }
+
+    public function pollAdVideoStatus(AiAdsPollData $data): array
+    {
+        $response = $this->client->post('ads/poll', array_filter($data->toArray(), fn ($value) => $value !== null));
 
         return $response->json();
     }
