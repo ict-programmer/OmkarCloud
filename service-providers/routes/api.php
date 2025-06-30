@@ -3,8 +3,11 @@
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\CanvaController;
 use App\Http\Controllers\ChatGPTController;
+use App\Http\Controllers\ClaudeAPIController;
+use App\Http\Controllers\DeepSeekController;
 use App\Http\Controllers\DescriptAIController;
 use App\Http\Controllers\FreepikController;
+use App\Http\Controllers\GeminiController;
 use App\Http\Controllers\GettyimagesController;
 use App\Http\Controllers\GoogleSheetsController;
 use App\Http\Controllers\MainFunctionController;
@@ -12,7 +15,9 @@ use App\Http\Controllers\PerplexityController;
 use App\Http\Controllers\PexelsController;
 use App\Http\Controllers\PlacidController;
 use App\Http\Controllers\PremierProController;
+use App\Http\Controllers\QwenController;
 use App\Http\Controllers\ReactJsController;
+use App\Http\Controllers\RunwaymlAPIController;
 use App\Http\Controllers\ServiceProviderController;
 use App\Http\Controllers\ShutterstockController;
 use App\Http\Controllers\UserController;
@@ -75,6 +80,43 @@ Route::prefix('canva')->group(function () {
     Route::delete('delete_folder/{folderID}', [CanvaController::class, 'deleteFolder']);
     Route::get('get_folder_items', [CanvaController::class, 'getFolderItems']);
     Route::post('move_folder_item', [CanvaController::class, 'moveFolderItem']);
+});
+
+Route::prefix('claudeapi')->group(function () {
+    Route::post('text_generation', [ClaudeAPIController::class, 'textGeneration']);
+    Route::post('text_summarize', [ClaudeAPIController::class, 'textSummarize']);
+    Route::post('question_answer', [ClaudeAPIController::class, 'questionAnswer']);
+    Route::post('text_classify', [ClaudeAPIController::class, 'textClassify']);
+    Route::post('text_translate', [ClaudeAPIController::class, 'textTranslate']);
+    Route::post('codegen', [ClaudeAPIController::class, 'codegen']);
+    Route::post('data_analysis_insight_service', [ClaudeAPIController::class, 'dataAnalysisAndInsight']);
+    Route::post('personalize', [ClaudeAPIController::class, 'personalize']);
+});
+
+Route::prefix('runwayml')->controller(RunwaymlAPIController::class)->group(function () {
+    Route::post('video_processing', 'videoProcessing');
+    Route::post('task_management/{id}', 'taskManagement');
+});
+
+Route::prefix('gemini')->controller(GeminiController::class)->group(function () {
+    Route::post('text_generation', 'textGeneration');
+    Route::post('code_generation', 'codeGeneration');
+    Route::post('image_analysis', 'imageAnalysis');
+    Route::post('document_summarization', 'documentSummarization');
+});
+
+Route::prefix('deepseek')->controller(DeepSeekController::class)->group(function () {
+    Route::post('chat_completion', 'chatCompletion');
+    Route::post('code_completion', 'codeCompletion');
+    Route::post('document_qa', 'documentQa');
+    Route::post('mathematical_reasoning', 'mathematicalReasoning');
+});
+
+Route::prefix('qwen')->group(function () {
+    Route::post('nlp', [QwenController::class, 'nlp']);
+    Route::post('code_generation', [QwenController::class, 'codeGeneration']);
+    Route::post('text_summarization', [QwenController::class, 'textSummarization']);
+    Route::post('chatbot', [QwenController::class, 'chatbot']);
 });
 
 // Perplexity
