@@ -208,9 +208,17 @@ Route::post('freepik/webhook', [FreepikController::class, 'handleWebhook'])->nam
 
 // Captions
 Route::prefix('captions')->controller(CaptionsController::class)->group(function () {
-    Route::post('creator/list', 'listCreators');
-    Route::post('creator/submit', 'submitCreatorVideo');
-    Route::post('creator/poll', 'pollCreatorStatus');
+    Route::prefix('creator')->group(function () {
+        Route::post('list', 'listCreators');
+        Route::post('submit', 'submitCreatorVideo');
+        Route::post('poll', 'pollCreatorStatus');
+    });
+
+    Route::prefix('translate')->group(function () {
+        Route::post('supported-languages', 'getSupportedLanguages');
+        Route::post('submit', 'submitVideoTranslation');
+        Route::post('poll', 'pollTranslationStatus');
+    });
 });
 
 Route::post('services/{service_provider_id}/{service_type_id}', MainFunctionController::class);

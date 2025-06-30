@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Data\Request\Captions\AiCreatorPollData;
 use App\Data\Request\Captions\AiCreatorSubmitData;
+use App\Data\Request\Captions\AiTranslatePollData;
+use App\Data\Request\Captions\AiTranslateSubmitData;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 
@@ -37,6 +39,27 @@ class CaptionsService
     public function pollVideoGenerationStatus(AiCreatorPollData $data): array
     {
         $response = $this->client->post('creator/poll', array_filter($data->toArray(), fn ($value) => $value !== null));
+
+        return $response->json();
+    }
+
+    public function getSupportedLanguages(): array
+    {
+        $response = $this->client->post('translate/supported-languages');
+
+        return $response->json();
+    }
+
+    public function submitVideoTranslation(AiTranslateSubmitData $data): array
+    {
+        $response = $this->client->post('translate/submit', array_filter($data->toArray(), fn ($value) => $value !== null));
+
+        return $response->json();
+    }
+
+    public function pollTranslationStatus(AiTranslatePollData $data): array
+    {
+        $response = $this->client->post('translate/poll', array_filter($data->toArray(), fn ($value) => $value !== null));
 
         return $response->json();
     }
