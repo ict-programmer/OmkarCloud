@@ -8,6 +8,7 @@ use App\Data\Request\Captions\AiCreatorPollData;
 use App\Data\Request\Captions\AiCreatorSubmitData;
 use App\Data\Request\Captions\AiTranslatePollData;
 use App\Data\Request\Captions\AiTranslateSubmitData;
+use App\Data\Request\Captions\AiTwinCreateData;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 
@@ -85,6 +86,29 @@ class CaptionsService
     public function pollAdVideoStatus(AiAdsPollData $data): array
     {
         $response = $this->client->post('ads/poll', array_filter($data->toArray(), fn ($value) => $value !== null));
+
+        return $response->json();
+    }
+
+    public function getTwinSupportedLanguages(): array
+    {
+        $response = $this->client->post('twin/supported-languages');
+
+        return $response->json();
+    }
+
+    public function getAiTwins(): array
+    {
+        $response = $this->client->post('twin/list');
+
+        return $response->json();
+    }
+
+    public function createAiTwin(AiTwinCreateData $data): array
+    {
+        $payload = array_filter($data->toArray(), fn ($value) => $value !== null);
+
+        $response = $this->client->post('twin/create', $payload);
 
         return $response->json();
     }

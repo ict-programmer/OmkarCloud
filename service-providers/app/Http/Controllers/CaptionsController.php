@@ -8,12 +8,14 @@ use App\Data\Request\Captions\AiCreatorPollData;
 use App\Data\Request\Captions\AiCreatorSubmitData;
 use App\Data\Request\Captions\AiTranslatePollData;
 use App\Data\Request\Captions\AiTranslateSubmitData;
+use App\Data\Request\Captions\AiTwinCreateData;
 use App\Http\Requests\Captions\AiAdsPollRequest;
 use App\Http\Requests\Captions\AiAdsSubmitRequest;
 use App\Http\Requests\Captions\AiCreatorPollRequest;
 use App\Http\Requests\Captions\AiCreatorSubmitRequest;
 use App\Http\Requests\Captions\AiTranslatePollRequest;
 use App\Http\Requests\Captions\AiTranslateSubmitRequest;
+use App\Http\Requests\Captions\AiTwinCreateRequest;
 use App\Services\CaptionsService;
 use Illuminate\Http\JsonResponse;
 use OpenApi\Attributes as OA;
@@ -415,6 +417,135 @@ class CaptionsController extends BaseController
         $data = AiAdsPollData::from($request->validated());
 
         $response = $this->service->pollAdVideoStatus($data);
+
+        return $this->logAndResponse($response);
+    }
+
+    #[OA\Post(
+        path: '/api/captions/twin/supported-languages',
+        operationId: 'getTwinSupportedLanguages',
+        summary: 'List supported languages for AI Twin',
+        description: 'Retrieves a list of languages available for AI Twin calibration.',
+        tags: ['Captions']
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response containing supported languages.',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(
+                    property: 'supportedLanguages',
+                    type: 'array',
+                    items: new OA\Items(type: 'string'),
+                ),
+            ],
+            example: [
+                'supportedLanguages' => [
+                    'Arabic',
+                    'Chinese-Simplified',
+                    'Chinese-Traditional',
+                ],
+            ]
+        )
+    )]
+    public function getTwinSupportedLanguages(): JsonResponse
+    {
+        $response = $this->service->getTwinSupportedLanguages();
+
+        return $this->logAndResponse($response);
+    }
+
+    #[OA\Post(
+        path: '/api/captions/twin/list',
+        operationId: 'listAiTwins',
+        summary: 'List AI Twins',
+        description: 'Retrieves all AI Twins available for use.',
+        tags: ['Captions']
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Job complete, list of AI Twins retrieved.',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(
+                    property: 'twins',
+                    type: 'array',
+                    items: new OA\Items(type: 'string'),
+                    example: ['TwinA', 'TwinB', 'TwinC']
+                ),
+            ]
+        )
+    )]
+    public function listAiTwins(): JsonResponse
+    {
+        $response = $this->service->getAiTwins();
+
+        return $this->logAndResponse($response);
+    }
+
+    #[OA\Post(
+        path: '/api/captions/twin/create',
+        operationId: 'createAiTwin',
+        summary: 'Create an AI Twin',
+        description: 'Begins the process of creating an AI Twin using a video and calibration images.',
+        tags: ['Captions']
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['name', 'videoUrl', 'calibrationImageUrls'],
+            properties: [
+                new OA\Property(
+                    property: 'name',
+                    type: 'string',
+                    description: 'Name of the AI Twin.',
+                    example: 'John AI'
+                ),
+                new OA\Property(
+                    property: 'videoUrl',
+                    type: 'string',
+                    description: 'Link to the calibration video.',
+                    example: 'https://example.com/calibration.mp4'
+                ),
+                new OA\Property(
+                    property: 'calibrationImageUrls',
+                    type: 'array',
+                    description: 'List of calibration image URLs.',
+                    items: new OA\Items(type: 'string', example: [
+                        'https://publiish.io/ipfs/QmavjZjVCCXnKsU5mXfEssKmMEwrcQLAdud6LW2RgW5DgV',
+                        'https://publiish.io/ipfs/QmamhvTk5YZPEbSVSGQTnkk4Ep1c33V4ByoxXAD4Zr1rst',
+                        'https://publiish.io/ipfs/QmaZnwGpkKSMPR9i4jy5baHfs9LU2YKFu7HaBvViNxfXho',
+                        'https://publiish.io/ipfs/QmcEkcsoQDT5Nh24WoMWUmJnr6PhBni2gEeApboVNHDo1R',
+                        'https://publiish.io/ipfs/Qmcc5J7vXXCTDjtuWCcT4RFLWT67jEGh8NP4P8jhw8dSAD',
+                    ])
+                ),
+                new OA\Property(
+                    property: 'language',
+                    type: 'string',
+                    description: 'Language spoken in the video. Default is English.',
+                    example: 'English'
+                ),
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'AI Twin creation started.',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(
+                    property: 'operationId',
+                    type: 'string',
+                    example: 'twin-op-abc123'
+                ),
+            ]
+        )
+    )]
+    public function createAiTwin(AiTwinCreateRequest $request): JsonResponse
+    {
+        $data = AiTwinCreateData::from($request->validated());
+
+        $response = $this->service->createAiTwin($data);
 
         return $this->logAndResponse($response);
     }

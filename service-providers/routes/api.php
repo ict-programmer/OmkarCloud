@@ -225,6 +225,12 @@ Route::prefix('captions')->controller(CaptionsController::class)->group(function
         Route::post('submit', 'submitAdVideo');
         Route::post('poll', 'pollAdVideoStatus');
     });
+
+    Route::prefix('twin')->group(function () {
+        Route::post('supported-languages', 'getTwinSupportedLanguages');
+        Route::post('list', 'listAiTwins');
+        Route::post('create', 'createAiTwin');
+    });
 });
 
 Route::post('services/{service_provider_id}/{service_type_id}', MainFunctionController::class);
