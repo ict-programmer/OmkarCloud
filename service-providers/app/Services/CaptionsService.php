@@ -9,7 +9,12 @@ use App\Data\Request\Captions\AiCreatorSubmitData;
 use App\Data\Request\Captions\AiTranslatePollData;
 use App\Data\Request\Captions\AiTranslateSubmitData;
 use App\Data\Request\Captions\AiTwinCreateData;
+use App\Data\Request\Captions\AiTwinDeleteData;
+use App\Data\Request\Captions\AiTwinScriptData;
+use App\Data\Request\Captions\AiTwinStatusData;
+use App\Exceptions\ApiException;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 
 class CaptionsService
@@ -25,91 +30,93 @@ class CaptionsService
             ->timeout(30 * 60);
     }
 
+    private function post(string $endpoint, array $payload = []): array
+    {
+        try {
+            return $this->client
+                ->post($endpoint, array_filter($payload, fn ($value) => $value !== null))
+                ->throw()
+                ->json();
+        } catch (RequestException $e) {
+            $message = $e->response->json('detail') ?? 'API request failed';
+            $status = $e->response->status();
+
+            throw new ApiException($message, $status);
+        }
+    }
+
     public function getCreatorsList(): array
     {
-        $response = $this->client->post('creator/list');
-
-        return $response->json();
+        return $this->post('creator/list');
     }
 
     public function submitVideoGeneration(AiCreatorSubmitData $data): array
     {
-        $response = $this->client->post('creator/submit', array_filter($data->toArray(), fn ($value) => $value !== null));
-
-        return $response->json();
+        return $this->post('creator/submit', $data->toArray());
     }
 
     public function pollVideoGenerationStatus(AiCreatorPollData $data): array
     {
-        $response = $this->client->post('creator/poll', array_filter($data->toArray(), fn ($value) => $value !== null));
-
-        return $response->json();
+        return $this->post('creator/poll', $data->toArray());
     }
 
     public function getSupportedLanguages(): array
     {
-        $response = $this->client->post('translate/supported-languages');
-
-        return $response->json();
+        return $this->post('translate/supported-languages');
     }
 
     public function submitVideoTranslation(AiTranslateSubmitData $data): array
     {
-        $response = $this->client->post('translate/submit', array_filter($data->toArray(), fn ($value) => $value !== null));
-
-        return $response->json();
+        return $this->post('translate/submit', $data->toArray());
     }
 
     public function pollTranslationStatus(AiTranslatePollData $data): array
     {
-        $response = $this->client->post('translate/poll', array_filter($data->toArray(), fn ($value) => $value !== null));
-
-        return $response->json();
+        return $this->post('translate/poll', $data->toArray());
     }
 
     public function getAdsCreatorsList(): array
     {
-        $response = $this->client->post('ads/list-creators');
-
-        return $response->json();
+        return $this->post('ads/list-creators');
     }
 
     public function submitAdVideoGeneration(AiAdsSubmitData $data): array
     {
-        $payload = array_filter($data->toArray(), fn ($value) => $value !== null);
-
-        $response = $this->client->post('ads/submit', $payload);
-
-        return $response->json();
+        return $this->post('ads/submit', $data->toArray());
     }
 
     public function pollAdVideoStatus(AiAdsPollData $data): array
     {
-        $response = $this->client->post('ads/poll', array_filter($data->toArray(), fn ($value) => $value !== null));
-
-        return $response->json();
+        return $this->post('ads/poll', $data->toArray());
     }
 
     public function getTwinSupportedLanguages(): array
     {
-        $response = $this->client->post('twin/supported-languages');
-
-        return $response->json();
+        return $this->post('twin/supported-languages');
     }
 
     public function getAiTwins(): array
     {
-        $response = $this->client->post('twin/list');
-
-        return $response->json();
+        return $this->post('twin/list');
     }
 
     public function createAiTwin(AiTwinCreateData $data): array
     {
-        $payload = array_filter($data->toArray(), fn ($value) => $value !== null);
+        return $this->post('twin/create', $data->toArray());
+    }
 
-        $response = $this->client->post('twin/create', $payload);
+    public function checkAiTwinStatus(AiTwinStatusData $data): array
+    {
+        return $this->post('twin/status', $data->toArray());
+    }
 
-        return $response->json();
+    public function getAiTwinScript(AiTwinScriptData $data): array
+    {
+        return $this->post('twin/script', $data->toArray());
+    }
+
+    public function deleteAiTwin(AiTwinDeleteData $data): array
+    {
+        return $this->post('twin/delete', $data->toArray());
     }
 }

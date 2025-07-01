@@ -9,6 +9,9 @@ use App\Data\Request\Captions\AiCreatorSubmitData;
 use App\Data\Request\Captions\AiTranslatePollData;
 use App\Data\Request\Captions\AiTranslateSubmitData;
 use App\Data\Request\Captions\AiTwinCreateData;
+use App\Data\Request\Captions\AiTwinDeleteData;
+use App\Data\Request\Captions\AiTwinScriptData;
+use App\Data\Request\Captions\AiTwinStatusData;
 use App\Http\Requests\Captions\AiAdsPollRequest;
 use App\Http\Requests\Captions\AiAdsSubmitRequest;
 use App\Http\Requests\Captions\AiCreatorPollRequest;
@@ -16,6 +19,9 @@ use App\Http\Requests\Captions\AiCreatorSubmitRequest;
 use App\Http\Requests\Captions\AiTranslatePollRequest;
 use App\Http\Requests\Captions\AiTranslateSubmitRequest;
 use App\Http\Requests\Captions\AiTwinCreateRequest;
+use App\Http\Requests\Captions\AiTwinDeleteRequest;
+use App\Http\Requests\Captions\AiTwinScriptRequest;
+use App\Http\Requests\Captions\AiTwinStatusRequest;
 use App\Services\CaptionsService;
 use Illuminate\Http\JsonResponse;
 use OpenApi\Attributes as OA;
@@ -505,19 +511,20 @@ class CaptionsController extends BaseController
                     property: 'videoUrl',
                     type: 'string',
                     description: 'Link to the calibration video.',
-                    example: 'https://example.com/calibration.mp4'
+                    example: 'https://publiish.io/ipfs/QmVUmnhpHTqbwBgTnCSTuB6VfHZWyqYxAqgZQPwvFyDueh'
                 ),
                 new OA\Property(
                     property: 'calibrationImageUrls',
                     type: 'array',
                     description: 'List of calibration image URLs.',
-                    items: new OA\Items(type: 'string', example: [
+                    items: new OA\Items(type: 'string'),
+                    example: [
                         'https://publiish.io/ipfs/QmavjZjVCCXnKsU5mXfEssKmMEwrcQLAdud6LW2RgW5DgV',
                         'https://publiish.io/ipfs/QmamhvTk5YZPEbSVSGQTnkk4Ep1c33V4ByoxXAD4Zr1rst',
                         'https://publiish.io/ipfs/QmaZnwGpkKSMPR9i4jy5baHfs9LU2YKFu7HaBvViNxfXho',
                         'https://publiish.io/ipfs/QmcEkcsoQDT5Nh24WoMWUmJnr6PhBni2gEeApboVNHDo1R',
                         'https://publiish.io/ipfs/Qmcc5J7vXXCTDjtuWCcT4RFLWT67jEGh8NP4P8jhw8dSAD',
-                    ])
+                    ]
                 ),
                 new OA\Property(
                     property: 'language',
@@ -536,7 +543,7 @@ class CaptionsController extends BaseController
                 new OA\Property(
                     property: 'operationId',
                     type: 'string',
-                    example: 'twin-op-abc123'
+                    example: 'bEV7DFjDk4o2Cfl8chGp'
                 ),
             ]
         )
@@ -546,6 +553,140 @@ class CaptionsController extends BaseController
         $data = AiTwinCreateData::from($request->validated());
 
         $response = $this->service->createAiTwin($data);
+
+        return $this->logAndResponse($response);
+    }
+
+    #[OA\Post(
+        path: '/api/captions/twin/status',
+        operationId: 'checkAiTwinStatus',
+        summary: 'Check AI Twin creation status',
+        description: 'Retrieves the status of an AI Twin creation process.',
+        tags: ['Captions']
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['operationId'],
+            properties: [
+                new OA\Property(
+                    property: 'operationId',
+                    type: 'string',
+                    description: 'The unique operation ID of the AI Twin creation request.',
+                    example: 'bEV7DFjDk4o2Cfl8chGp'
+                ),
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Job complete or in progress.',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(
+                    property: 'state',
+                    type: 'string',
+                    enum: ['COMPLETE'],
+                    example: 'COMPLETE'
+                ),
+                new OA\Property(
+                    property: 'progress',
+                    type: 'number',
+                    example: 87
+                ),
+            ]
+        )
+    )]
+    public function checkAiTwinStatus(AiTwinStatusRequest $request): JsonResponse
+    {
+        $data = AiTwinStatusData::from($request->validated());
+
+        $response = $this->service->checkAiTwinStatus($data);
+
+        return $this->logAndResponse($response);
+    }
+
+    #[OA\Post(
+        path: '/api/captions/twin/script',
+        operationId: 'getAiTwinScript',
+        summary: 'Fetch AI Twin calibration script',
+        description: 'Retrieves the script to recite for AI Twin calibration, optionally filtered by language.',
+        tags: ['Captions']
+    )]
+    #[OA\RequestBody(
+        required: false,
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(
+                    property: 'language',
+                    type: 'string',
+                    description: 'Language of the script. Default is English.',
+                    example: 'English'
+                ),
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response containing the calibration script.',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(
+                    property: 'script',
+                    type: 'string',
+                    example: 'Hello everyone! Today, we embark on a journey of self-discovery. Life is a canvas, and within each of us lies untapped greatness. In the midst of our busy lives, it\'s crucial to pause and reflect on our passions. What makes your heart race with excitement? It\'s time to break free from the ordinary, explore new interests, and watch your potential unfold. Growth happens when you step outside your comfort zone. Challenge yourself, face your fears, and remember, the only limits that exist are the ones you set for yourself. Celebrate every success, no matter how small, and view setbacks as lessons learned. Surround yourself with those who inspire you because a supportive community is key to unlocking your full potential. Your journey starts now. Discover your potential, embrace the possibilities, and live a life that reflects the true essence of who you are. Unleash Your Potential. Remember, every setback is an opportunity for growth, and every challenge is a chance to prove yourself stronger than you knew. Embrace this journey with courage and determination, for the path to discovering your true potential is as rewarding as the destination itself.'
+                ),
+            ]
+        )
+    )]
+    public function getAiTwinScript(AiTwinScriptRequest $request): JsonResponse
+    {
+        $data = AiTwinScriptData::from($request->validated());
+
+        $response = $this->service->getAiTwinScript($data);
+
+        return $this->logAndResponse($response);
+    }
+
+    #[OA\Post(
+        path: '/api/captions/twin/delete',
+        operationId: 'deleteAiTwin',
+        summary: 'Delete an AI Twin',
+        description: 'Deletes an AI Twin based on its name.',
+        tags: ['Captions']
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['name'],
+            properties: [
+                new OA\Property(
+                    property: 'name',
+                    type: 'string',
+                    description: 'Name of the AI Twin to delete.',
+                    example: 'JohnTwin'
+                ),
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'AI Twin deletion complete.',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(
+                    property: 'success',
+                    type: 'boolean',
+                    example: true
+                ),
+            ]
+        )
+    )]
+    public function deleteAiTwin(AiTwinDeleteRequest $request): JsonResponse
+    {
+        $data = AiTwinDeleteData::from($request->validated());
+
+        $response = $this->service->deleteAiTwin($data);
 
         return $this->logAndResponse($response);
     }

@@ -230,6 +230,9 @@ Route::prefix('captions')->controller(CaptionsController::class)->group(function
         Route::post('supported-languages', 'getTwinSupportedLanguages');
         Route::post('list', 'listAiTwins');
         Route::post('create', 'createAiTwin');
+        Route::post('status', 'checkAiTwinStatus');
+        Route::post('script', 'getAiTwinScript');
+        Route::post('delete', 'deleteAiTwin');
     });
 });
 
