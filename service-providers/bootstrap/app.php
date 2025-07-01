@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\ApiException;
 use App\Http\Exceptions\BadRequest;
 use App\Http\Exceptions\Forbidden;
 use App\Http\Exceptions\NotFound;
@@ -8,7 +9,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Symfony\Component\HttpFoundation\Response;
 
-if (! defined('START_EXECUTION_TIME')) {
+if (!defined('START_EXECUTION_TIME')) {
     define('START_EXECUTION_TIME', microtime(true));
 }
 
@@ -27,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             BadRequest::class,
             Forbidden::class,
             NotFound::class,
+            ApiException::class,
         ]);
 
         $exceptions->render(function (BadRequest $e) {
@@ -50,5 +52,13 @@ return Application::configure(basePath: dirname(__DIR__))
                 'message' => $e->getMessage(),
                 'timestamp' => now()->format('Y-m-d, H:i:s'),
             ], Response::HTTP_NOT_FOUND);
+        });
+
+        $exceptions->render(function (ApiException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'success' => false,
+                'timestamp' => now()->format('Y-m-d, H:i:s'),
+            ], $e->getStatusCode());
         });
     })->create();

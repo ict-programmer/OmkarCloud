@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\CanvaController;
+use App\Http\Controllers\CaptionsController;
 use App\Http\Controllers\ChatGPTController;
 use App\Http\Controllers\ClaudeAPIController;
 use App\Http\Controllers\DeepSeekController;
@@ -13,13 +14,11 @@ use App\Http\Controllers\GoogleSheetsController;
 use App\Http\Controllers\MainFunctionController;
 use App\Http\Controllers\PerplexityController;
 use App\Http\Controllers\PexelsController;
-use App\Http\Controllers\PlacidController;
 use App\Http\Controllers\PremierProController;
 use App\Http\Controllers\QwenController;
 use App\Http\Controllers\ReactJsController;
 use App\Http\Controllers\RunwaymlAPIController;
 use App\Http\Controllers\ServiceProviderController;
-use App\Http\Controllers\ShutterstockController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -248,5 +247,35 @@ Route::prefix('freepik')->controller(FreepikController::class)->group(function (
 });
 
 Route::post('freepik/webhook', [FreepikController::class, 'handleWebhook'])->name('freepik.webhook');
+
+// Captions
+Route::prefix('captions')->controller(CaptionsController::class)->group(function () {
+    Route::prefix('creator')->group(function () {
+        Route::post('list', 'listCreators');
+        Route::post('submit', 'submitCreatorVideo');
+        Route::post('poll', 'pollCreatorStatus');
+    });
+
+    Route::prefix('translate')->group(function () {
+        Route::post('supported-languages', 'getSupportedLanguages');
+        Route::post('submit', 'submitVideoTranslation');
+        Route::post('poll', 'pollTranslationStatus');
+    });
+
+    Route::prefix('ads')->group(function () {
+        Route::post('list-creators', 'listAdsCreators');
+        Route::post('submit', 'submitAdVideo');
+        Route::post('poll', 'pollAdVideoStatus');
+    });
+
+    Route::prefix('twin')->group(function () {
+        Route::post('supported-languages', 'getTwinSupportedLanguages');
+        Route::post('list', 'listAiTwins');
+        Route::post('create', 'createAiTwin');
+        Route::post('status', 'checkAiTwinStatus');
+        Route::post('script', 'getAiTwinScript');
+        Route::post('delete', 'deleteAiTwin');
+    });
+});
 
 Route::post('services/{service_provider_id}/{service_type_id}', MainFunctionController::class);
