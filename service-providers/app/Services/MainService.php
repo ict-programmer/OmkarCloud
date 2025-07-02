@@ -23,23 +23,23 @@ class MainService
         $serviceProvider = ServiceProvider::query()->find($serviceProviderId);
         
         if (is_null($serviceProvider)) {
-            return $this->response('Service provider not found', null, 404);
+            return $this->errorResponse('Service provider not found');
         }
 
-        $serviceType = ServiceType::where('service_provider_id', $serviceProviderId)
+        $serviceType = ServiceType::query()->where('service_provider_id', $serviceProviderId)
             ->where('_id', $serviceTypeId)
             ->first();
 
         if (is_null($serviceType)) {
-            return $this->response('Service type not found', null, 404);
+            return $this->errorResponse('Service type not found');
         }
 
         if (is_null($serviceProvider->controller_name) || is_null($serviceType->function_name)) {
-            return $this->response('Service provider or service type configuration is incomplete', null, 404);
+            return $this->errorResponse('Service provider or service type configuration is incomplete');
         }
 
         if (!method_exists($serviceProvider->controller_name, $serviceType->function_name)) {
-            return $this->response('Function not found in controller', null, 404);
+            return $this->errorResponse('Function not found in controller');
         }
 
         $controller = app($serviceProvider->controller_name);
@@ -53,7 +53,7 @@ class MainService
                 ->exists();
 
             if (!$modelExists) {
-                return $this->response('Model not configured for this service provider', null, 404);
+                return $this->errorResponse('Model not configured for this service provider');
             }
         }
 
@@ -66,14 +66,17 @@ class MainService
             $formRequest->validateResolved();
         }
 
-        return app()->call([$controller, $serviceType->function_name]);
+        $call = app()->call([$controller, $serviceType->function_name], [
+            'request' => $formRequest ?? $request
+        ]);
+        return $call->original ?? $call;
     }
 
-    private function response(string $message, mixed $data, int $status = 200): JsonResponse
+    private function errorResponse(string $message): JsonResponse
     {
         return response()->json([
+            'error' => true,
             'message' => $message,
-            'data' => $data,
-        ], $status);
+        ], 404);
     }
 }
