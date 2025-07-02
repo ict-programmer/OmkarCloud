@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             PexelsServiceProviderSeeder::class,
             PerplexityServiceProviderSeeder::class,
             FreepikServiceProviderSeeder::class,
+            CaptionsServiceProviderSeeder::class,
         ]);
     }
 }
