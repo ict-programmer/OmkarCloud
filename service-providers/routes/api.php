@@ -65,19 +65,19 @@ Route::prefix('canva')->group(function () {
     });
 
     Route::post('create_design', [CanvaController::class, 'createDesign']);
-    Route::get('list_design', [CanvaController::class, 'listDesigns']);
-    Route::get('get_design_details', [CanvaController::class, 'getDesign']);
+    Route::post('list_design', [CanvaController::class, 'listDesigns']);
+    Route::post('get_design_details', [CanvaController::class, 'getDesign']);
     Route::post('create_export_design', [CanvaController::class, 'createDesignExportJob']);
     Route::post('get_export_design/{exportID}', [CanvaController::class, 'getDesignExportJob']);
     Route::post('asset_upload', [CanvaController::class, 'uploadAsset']);
-    Route::get('asset_upload_job', [CanvaController::class, 'getUploadJob']);
+    Route::post('asset_upload_job', [CanvaController::class, 'getUploadJob']);
 
     // folder
     Route::post('create_folder', [CanvaController::class, 'createFolder']);
-    Route::get('get_folder_details', [CanvaController::class, 'getFolder']);
-    Route::put('update_folder', [CanvaController::class, 'updateFolder']);
-    Route::delete('delete_folder/{folderID}', [CanvaController::class, 'deleteFolder']);
-    Route::get('get_folder_items', [CanvaController::class, 'getFolderItems']);
+    Route::post('get_folder_details', [CanvaController::class, 'getFolder']);
+    Route::post('update_folder', [CanvaController::class, 'updateFolder']);
+    Route::post('delete_folder/{folderID}', [CanvaController::class, 'deleteFolder']);
+    Route::post('get_folder_items', [CanvaController::class, 'getFolderItems']);
     Route::post('move_folder_item', [CanvaController::class, 'moveFolderItem']);
 });
 

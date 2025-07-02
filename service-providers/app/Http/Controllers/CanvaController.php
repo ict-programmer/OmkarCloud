@@ -14,6 +14,7 @@ use App\Data\Request\Canva\MoveFolderItemData;
 use App\Data\Request\Canva\OAuthCallbackData;
 use App\Data\Request\Canva\UpdateFolderData;
 use App\Data\Request\Canva\UploadAssetData;
+use App\Http\Exceptions\BadRequest;
 use App\Http\Requests\Canva\CreateDesignRequest;
 use App\Http\Requests\Canva\CreateFolderRequest;
 use App\Http\Requests\Canva\ExportDesignJobRequest;
@@ -684,8 +685,12 @@ class CanvaController extends BaseController
     //         ]
     //     )
     // )]
-    public function getDesignExportJob(string $exportID)
+    public function getDesignExportJob()
     {
+        $exportID = (string) request()->input('export_id');
+
+        throw_if(empty($exportID), new BadRequest(__('Export ID is required')));
+
         $result = $this->service->getExportDesignJob($exportID);
 
         return $this->logAndResponse($result);
@@ -1091,8 +1096,12 @@ class CanvaController extends BaseController
     //         ],
     //     )
     // )]
-    public function deleteFolder(string $folderID)
+    public function deleteFolder()
     {
+        $folderID = (string) request()->input('folder_id');
+
+        throw_if(empty($folderID), new BadRequest(__('Folder ID is required')));
+        
         $result = $this->service->deleteFolder($folderID);
 
         return $this->logAndResponse($result);

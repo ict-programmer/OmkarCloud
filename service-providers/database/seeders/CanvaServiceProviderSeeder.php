@@ -328,7 +328,7 @@ class CanvaServiceProviderSeeder extends Seeder
                     'job_status' => '$.job.status',
                 ],
                 'request_class_name' => ExportDesignJobRequest::class,
-                'function_name' => 'exportDesignJob',
+                'function_name' => 'createDesignExportJob',
             ],
             [
                 'name' => 'get_export_design',
@@ -357,7 +357,7 @@ class CanvaServiceProviderSeeder extends Seeder
                     'job_urls' => '$.job.urls',
                 ],
                 'request_class_name' => null,
-                'function_name' => 'getExportDesignJob',
+                'function_name' => 'getDesignExportJob',
             ],
             [
                 'name' => 'asset_upload',
