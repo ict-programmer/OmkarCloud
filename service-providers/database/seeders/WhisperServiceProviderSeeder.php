@@ -27,10 +27,7 @@ class WhisperServiceProviderSeeder extends Seeder
                     'features' => [
                         'audio_transcription',
                         'audio_translation',
-                        'timestamp_support',
-                        'language_detection',
-                        'multiple_formats',
-                        'prompt_guidance',
+                        'audio_transcribe_timestamps',
                     ],
                 ],
                 'is_active' => true,
