@@ -171,7 +171,7 @@ Route::prefix('gettyimages')->group(function () {
 
     Route::prefix('ai_generate/image-generation')->group(function () {
         Route::post('', [GettyimagesController::class, 'imageGeneration']);
-        Route::get('{generationRequestId}', [GettyimagesController::class, 'imageGeneration']);
+        Route::get('{generationRequestId}', [GettyimagesController::class, 'getImageGeneration']);
         Route::post('{generationRequestId}/images/{index}/variations', [GettyimagesController::class, 'imageVariations']);
         Route::post('refine', [GettyimagesController::class, 'refineImage']);
         Route::post('extend', [GettyimagesController::class, 'extendImage']);
