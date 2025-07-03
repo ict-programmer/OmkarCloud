@@ -32,50 +32,50 @@ class StockContentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'page' => ['sometimes', 'integer', 'min:1', 'max:100'],
+            'page' => ['nullable', 'integer', 'min:1', 'max:100'],
             'limit' => ['required', 'integer', 'min:1', 'max:100'],
             'order' => ['required', 'string', 'in:relevance,recent'],
-            'term' => ['sometimes', 'string'],
-            'slug' => ['sometimes', 'string'],
+            'term' => ['nullable', 'string'],
+            'slug' => ['nullable', 'string'],
 
             // Orientation filters
-            'filters.orientation.landscape' => ['sometimes', 'in:0,1'],
-            'filters.orientation.portrait' => ['sometimes', 'in:0,1'],
-            'filters.orientation.square' => ['sometimes', 'in:0,1'],
-            'filters.orientation.panoramic' => ['sometimes', 'in:0,1'],
+            'filters.orientation.landscape' => ['nullable', 'in:0,1'],
+            'filters.orientation.portrait' => ['nullable', 'in:0,1'],
+            'filters.orientation.square' => ['nullable', 'in:0,1'],
+            'filters.orientation.panoramic' => ['nullable', 'in:0,1'],
 
             // Content type filters
-            'filters.content_type.photo' => ['sometimes', 'in:0,1'],
-            'filters.content_type.psd' => ['sometimes', 'in:0,1'],
-            'filters.content_type.vector' => ['sometimes', 'in:0,1'],
+            'filters.content_type.photo' => ['nullable', 'in:0,1'],
+            'filters.content_type.psd' => ['nullable', 'in:0,1'],
+            'filters.content_type.vector' => ['nullable', 'in:0,1'],
 
             // License filters
-            'filters.license.freemium' => ['sometimes', 'in:0,1'],
-            'filters.license.premium' => ['sometimes', 'in:0,1'],
+            'filters.license.freemium' => ['nullable', 'in:0,1'],
+            'filters.license.premium' => ['nullable', 'in:0,1'],
 
             // People filters
-            'filters.people.include' => ['sometimes', 'in:0,1'],
-            'filters.people.exclude' => ['sometimes', 'in:0,1'],
-            'filters.people.number' => ['sometimes', 'string', Rule::in(PeopleNumberEnum::getValuesInArray())],
-            'filters.people.age' => ['sometimes', 'string', Rule::in(PeopleAgeEnum::getValuesInArray())],
-            'filters.people.gender' => ['sometimes', 'string', Rule::in(PeopleGenderEnum::getValuesInArray())],
-            'filters.people.ethnicity' => ['sometimes', 'string', Rule::in(PeopleEthnicityEnum::getValuesInArray())],
+            'filters.people.include' => ['nullable', 'in:0,1'],
+            'filters.people.exclude' => ['nullable', 'in:0,1'],
+            'filters.people.number' => ['nullable', 'string', Rule::in(PeopleNumberEnum::getValuesInArray())],
+            'filters.people.age' => ['nullable', 'string', Rule::in(PeopleAgeEnum::getValuesInArray())],
+            'filters.people.gender' => ['nullable', 'string', Rule::in(PeopleGenderEnum::getValuesInArray())],
+            'filters.people.ethnicity' => ['nullable', 'string', Rule::in(PeopleEthnicityEnum::getValuesInArray())],
 
-            'filters.period' => ['sometimes', 'string', Rule::in(PeriodEnum::getValuesInArray())],
-            'filters.color' => ['sometimes', 'string', Rule::in(ColorEnum::getValuesInArray())],
-            'filters.author' => ['sometimes', 'integer', 'min:1'],
+            'filters.period' => ['nullable', 'string', Rule::in(PeriodEnum::getValuesInArray())],
+            'filters.color' => ['nullable', 'string', Rule::in(ColorEnum::getValuesInArray())],
+            'filters.author' => ['nullable', 'integer', 'min:1'],
 
             // AI-generated flags
-            'filters.ai-generated.excluded' => ['sometimes', 'in:0,1'],
-            'filters.ai-generated.only' => ['sometimes', 'in:0,1'],
+            'filters.ai-generated.excluded' => ['nullable', 'in:0,1'],
+            'filters.ai-generated.only' => ['nullable', 'in:0,1'],
 
             // Vector & PSD
-            'filters.vector.type' => ['sometimes', 'string', Rule::in(VectorTypeEnum::getValuesInArray())],
-            'filters.vector.style' => ['sometimes', 'string', Rule::in(VectorStyleEnum::getValuesInArray())],
-            'filters.psd.type' => ['sometimes', 'string', Rule::in(PsdTypeEnum::getValuesInArray())],
+            'filters.vector.type' => ['nullable', 'string', Rule::in(VectorTypeEnum::getValuesInArray())],
+            'filters.vector.style' => ['nullable', 'string', Rule::in(VectorStyleEnum::getValuesInArray())],
+            'filters.psd.type' => ['nullable', 'string', Rule::in(PsdTypeEnum::getValuesInArray())],
 
             // ID filter
-            'filters.ids' => ['sometimes', 'string'],
+            'filters.ids' => ['nullable', 'string'],
         ];
     }
 

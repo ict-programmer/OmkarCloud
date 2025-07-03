@@ -187,6 +187,7 @@ class FreepikServiceProviderSeeder extends Seeder
                         'required' => true,
                         'options' => ['relevance', 'recent'],
                         'description' => 'The order to sort the results by.',
+                        'default' => 'relevance',
                     ],
                     'term' => [
                         'type' => 'string',
@@ -892,7 +893,7 @@ class FreepikServiceProviderSeeder extends Seeder
                     'name' => ['type' => 'string', 'required' => true, 'default' => 'cyber_hero_neo'],
                     'quality' => ['type' => 'string', 'required' => true, 'options' => ['medium', 'high', 'ultra'], 'description' => 'Quality of the LoRA character', 'default' => 'high'],
                     'gender' => ['type' => 'string', 'required' => true, 'options' => ['male', 'female', 'neutral', 'custom'], 'description' => 'Gender of the character', 'default' => 'male'],
-                    'images' => [
+                    'image_cids' => [
                         'type' => 'array',
                         'required' => true,
                         'minItems' => 8,
