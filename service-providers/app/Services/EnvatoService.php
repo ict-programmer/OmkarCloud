@@ -7,7 +7,6 @@ use App\Data\Request\Envato\ItemDetailsData;
 use App\Data\Request\Envato\UserAccountDetailsData;
 use App\Data\Request\Envato\DownloadPurchasedItemData;
 use App\Data\Request\Envato\VerifyPurchaseCodeData;
-use App\Data\Request\Envato\UserIdentityData;
 use App\Data\Request\Envato\PopularItemsData;
 use App\Data\Request\Envato\CategoriesBySiteData;
 use Illuminate\Support\Facades\Http;

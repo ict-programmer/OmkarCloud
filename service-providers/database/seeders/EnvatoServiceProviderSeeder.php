@@ -14,7 +14,7 @@ use App\Models\ServiceProvider;
 use App\Traits\ServiceProviderSeederTrait;
 use Illuminate\Database\Seeder;
 
-class EnvatoSeeder extends Seeder
+class EnvatoServiceProviderSeeder extends Seeder
 {
     use ServiceProviderSeederTrait;
 
@@ -27,7 +27,7 @@ class EnvatoSeeder extends Seeder
             ['type' => 'Envato'],
             [
                 'parameters' => [
-                    'api_key' => 'YOUR_API_TOKEN',
+                    'api_key' => 'YOUR_ENVATO_API_TOKEN',
                     'base_url' => 'https://api.envato.com',
                     'version' => 'v1',
                     'sites_supported' => [
@@ -48,7 +48,7 @@ class EnvatoSeeder extends Seeder
                         'verify_purchase_code',
                         'user_identity',
                         'popular_items',
-                        'categories',
+                        'categories_by_site',
                     ],
                 ],
                 'is_active' => true,
@@ -63,36 +63,28 @@ class EnvatoSeeder extends Seeder
                     'site' => [
                         'type' => 'string',
                         'required' => true,
+                        'default' => 'themeforest',
                         'options' => [
-                            'themeforest',
-                            'codecanyon',
-                            'videohive',
-                            'audiojungle',
-                            'graphicriver',
-                            'photodune',
-                            '3docean',
+                            'source' => 'static',
+                            'static_options' => [
+                                'themeforest',
+                                'codecanyon',
+                                'videohive',
+                                'audiojungle',
+                                'graphicriver',
+                                'photodune',
+                                '3docean',
+                            ],
                         ],
                         'description' => 'Envato marketplace site to search',
                     ],
                     'term' => [
                         'type' => 'string', 
                         'required' => true,
+                        'default' => 'portfolio theme',
                         'min_length' => 1,
                         'max_length' => 100,
                         'description' => 'Search term for items',
-                    ],
-                    'category' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'description' => 'Category to filter results',
-                    ],
-                    'page_size' => [
-                        'type' => 'integer',
-                        'required' => false,
-                        'default' => 10,
-                        'min' => 1,
-                        'max' => 100,
-                        'description' => 'Number of results per page',
                     ],
                 ],
                 'response' => [
@@ -129,6 +121,7 @@ class EnvatoSeeder extends Seeder
                     'item_id' => [
                         'type' => 'integer',
                         'required' => true,
+                        'default' => 12345,
                         'min' => 1,
                         'description' => 'Envato item ID',
                     ],
@@ -166,6 +159,7 @@ class EnvatoSeeder extends Seeder
                     'username' => [
                         'type' => 'string',
                         'required' => true,
+                        'default' => 'john_doe',
                         'min_length' => 1,
                         'max_length' => 50,
                         'description' => 'Envato username',
@@ -225,6 +219,7 @@ class EnvatoSeeder extends Seeder
                     'item_id' => [
                         'type' => 'integer',
                         'required' => true,
+                        'default' => 12345,
                         'min' => 1,
                         'description' => 'Purchased item ID',
                     ],
@@ -251,6 +246,7 @@ class EnvatoSeeder extends Seeder
                     'purchase_code' => [
                         'type' => 'string',
                         'required' => true,
+                        'default' => '12345678-1234-1234-1234-123456789012',
                         'min_length' => 36,
                         'max_length' => 36,
                         'pattern' => '^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$',
@@ -302,14 +298,18 @@ class EnvatoSeeder extends Seeder
                     'site' => [
                         'type' => 'string',
                         'required' => true,
+                        'default' => 'themeforest',
                         'options' => [
-                            'themeforest',
-                            'codecanyon',
-                            'videohive',
-                            'audiojungle',
-                            'graphicriver',
-                            'photodune',
-                            '3docean',
+                            'source' => 'static',
+                            'static_options' => [
+                                'themeforest',
+                                'codecanyon',
+                                'videohive',
+                                'audiojungle',
+                                'graphicriver',
+                                'photodune',
+                                '3docean',
+                            ],
                         ],
                         'description' => 'Envato marketplace site',
                     ],
@@ -347,14 +347,18 @@ class EnvatoSeeder extends Seeder
                     'site' => [
                         'type' => 'string',
                         'required' => true,
+                        'default' => 'themeforest',
                         'options' => [
-                            'themeforest',
-                            'codecanyon',
-                            'videohive',
-                            'audiojungle',
-                            'graphicriver',
-                            'photodune',
-                            '3docean',
+                            'source' => 'static',
+                            'static_options' => [
+                                'themeforest',
+                                'codecanyon',
+                                'videohive',
+                                'audiojungle',
+                                'graphicriver',
+                                'photodune',
+                                '3docean',
+                            ],
                         ],
                         'description' => 'Envato marketplace site',
                     ],
