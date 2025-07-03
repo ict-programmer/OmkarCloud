@@ -5,6 +5,7 @@ namespace App\Http\Requests\Freepik;
 use App\Enums\Freepik\ImageEditing\Upscaler\OptimizedForEnum;
 use App\Enums\Freepik\ImageEditing\Upscaler\ScaleFactorEnum;
 use App\Enums\Freepik\ImageEditing\Upscaler\UpscaleEngineEnum;
+use App\Rules\ValidIpfsCid;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -26,7 +27,7 @@ class UpscaleImageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image' => ['required', 'string', 'url'],
+            'image_cid' => ['required', 'string', new ValidIpfsCid],
             'scale_factor' => ['nullable', Rule::in(ScaleFactorEnum::getValuesInArray())],
             'optimized_for' => ['nullable', Rule::in(OptimizedForEnum::getValuesInArray())],
             'prompt' => ['nullable', 'string'],

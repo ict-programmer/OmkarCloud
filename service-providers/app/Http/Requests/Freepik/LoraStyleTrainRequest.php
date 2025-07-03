@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Freepik;
 
 use App\Enums\Freepik\Image\Mystic\LoraQualityEnum;
+use App\Rules\ValidIpfsCid;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -26,8 +27,8 @@ class LoraStyleTrainRequest extends FormRequest
         return [
             'name' => ['required', 'string'],
             'quality' => ['required', Rule::in(LoraQualityEnum::getValuesInArray())],
-            'images' => ['required', 'array', 'min:6', 'max:20'],
-            'images.*' => ['required', 'url'],
+            'image_cids' => ['required', 'array', 'min:6', 'max:20'],
+            'image_cids.*' => ['required', new ValidIpfsCid],
             'description' => ['nullable', 'string'],
         ];
     }

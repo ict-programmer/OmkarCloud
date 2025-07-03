@@ -46,14 +46,14 @@ class FreepikService
     private function post(string $endpoint, array $payload = [], bool $isMultipart = false): array
     {
         try {
-            $client = $this->client
-                ->post($endpoint, array_filter($payload, fn ($value) => $value !== null));
+            $client = $this->client;
 
             if ($isMultipart) {
                 $client->asMultipart();
             }
 
             return $client
+                ->post($endpoint, array_filter($payload, fn ($value) => $value !== null))
                 ->throw()
                 ->json();
         } catch (RequestException $e) {
@@ -79,30 +79,22 @@ class FreepikService
 
     public function stockContent(StockContentData $data): array
     {
-        $response = $this->client->get('/resources', $data->toArray());
-
-        return $response->json();
+        return $this->get('/resources', $data->toArray());
     }
 
     public function resourceDetail(string $resource_id): array
     {
-        $response = $this->client->get('/resources/' . $resource_id);
-
-        return $response->json();
+        return $this->get('/resources/' . $resource_id);
     }
 
     public function downloadResource(string $resource_id): array
     {
-        $response = $this->client->get('/resources/' . $resource_id . '/download');
-
-        return $response->json();
+        return $this->get('/resources/' . $resource_id . '/download');
     }
 
     public function downloadResourceFormat(DownloadResourceFormatData $data): array
     {
-        $response = $this->client->get("/resources/{$data->resource_id}/download/{$data->format}");
-
-        return $response->json();
+        return $this->get("/resources/{$data->resource_id}/download/{$data->format}");
     }
 
     public function aiImageClassifier(AiImageClassifierData $data): array
@@ -114,15 +106,12 @@ class FreepikService
 
     public function iconGeneration(IconGenerationData $data): array
     {
-        $response = $this->client
-            ->post('ai/text-to-icon', [
-                'prompt' => $data->prompt,
-                'webhook_url' => config('services.freepik.webhook_url'),
-            ]);
-        $responseJson = $response->json();
+        $responseJson = $this->post('ai/text-to-icon', [
+            'prompt' => $data->prompt,
+            'webhook_url' => config('services.freepik.webhook_url'),
+        ]);
 
-        if ($response->successful()) {
-            // Set webhook result
+        if (isset($responseJson['data'])) {
             $this->setWebhookResult($responseJson['data']);
         }
 
@@ -138,25 +127,17 @@ class FreepikService
     {
         $model = KlingModelEnum::from($model);
 
-        $response = $this->client
-            ->get("ai/image-to-video/{$model->getStatusModel()}/{$taskId}");
-
-        return $response->json();
+        return $this->get("ai/image-to-video/{$model->getStatusModel()}/{$taskId}");
     }
 
     public function klingTextToVideo(KlingTextToVideoData $data): array
     {
-        $response = $this->client->post('ai/image-to-video/kling-v2-1-master', array_filter($data->toArray(), fn ($value) => $value !== null));
-
-        return $response->json();
+        return $this->post('ai/image-to-video/kling-v2-1-master', $data->toArray());
     }
 
     public function klingTextToVideoStatus(string $taskId): array
     {
-        $response = $this->client
-            ->get("ai/image-to-video/kling-v2-1-master/{$taskId}");
-
-        return $response->json();
+        return $this->get("ai/image-to-video/kling-v2-1-master/{$taskId}");
     }
 
     public function klingElementsVideo(KlingElementsVideoData $data): array
@@ -166,10 +147,7 @@ class FreepikService
 
     public function klingElementsVideoStatus(string $taskId): array
     {
-        $response = $this->client
-            ->get("ai/image-to-video/kling-elements/{$taskId}");
-
-        return $response->json();
+        return $this->get("ai/image-to-video/kling-elements/{$taskId}");
     }
 
     public function generateMysticImage(MysticGenerateData $data): array
@@ -182,72 +160,52 @@ class FreepikService
             $data->style_reference = ImageToBase64Converter::imageUrlToBase64($data->style_reference, false);
         }
 
-        $response = $this->client->post('ai/mystic', array_filter($data->toArray(), fn ($value) => $value !== null));
-
-        return $response->json();
+        return $this->post('ai/mystic', $data->toArray());
     }
 
     public function getMysticTaskStatus(string $taskId): array
     {
-        $response = $this->client->get("ai/mystic/{$taskId}");
-
-        return $response->json();
+        return $this->get("ai/mystic/{$taskId}");
     }
 
     public function getLoras(): array
     {
-        $response = $this->client->get('ai/loras');
-
-        return $response->json();
+        return $this->get('ai/loras');
     }
 
     public function trainLoraStyle(LoraStyleTrainData $data): array
     {
-        $response = $this->client->post('ai/loras/styles', array_filter($data->toArray(), fn ($value) => $value !== null));
-
-        return $response->json();
+        return $this->post('ai/loras/styles', $data->toArray());
     }
 
     public function trainLoraCharacter(LoraCharacterTrainData $data): array
     {
-        $response = $this->client->post('ai/loras/characters', array_filter($data->toArray(), fn ($value) => $value !== null));
-
-        return $response->json();
+        return $this->post('ai/loras/characters', $data->toArray());
     }
 
     public function generateClassicFastImage(ClassicFastGenerateData $data): array
     {
-        $response = $this->client->post('ai/text-to-image', array_filter($data->toArray(), fn ($value) => $value !== null));
-
-        return $response->json();
+        return $this->post('ai/text-to-image', $data->toArray());
     }
 
     public function generateImagen3Image(Imagen3GenerateData $data): array
     {
-        $response = $this->client->post('ai/text-to-image/imagen3', array_filter($data->toArray(), fn ($value) => $value !== null));
-
-        return $response->json();
+        return $this->post('ai/text-to-image/imagen3', $data->toArray());
     }
 
     public function getImagen3TaskStatus(string $taskId): array
     {
-        $response = $this->client->get("ai/text-to-image/imagen3/{$taskId}");
-
-        return $response->json();
+        return $this->get("ai/text-to-image/imagen3/{$taskId}");
     }
 
     public function generateFluxDevImage(FluxDevGenerateData $data): array
     {
-        $response = $this->client->post('ai/text-to-image/flux-dev', array_filter($data->toArray(), fn ($value) => $value !== null));
-
-        return $response->json();
+        return $this->post('ai/text-to-image/flux-dev', array_filter($data->toArray(), fn ($value) => $value !== null));
     }
 
     public function getFluxDevTaskStatus(string $taskId): array
     {
-        $response = $this->client->get("ai/text-to-image/flux-dev/{$taskId}");
-
-        return $response->json();
+        return $this->get("ai/text-to-image/flux-dev/{$taskId}");
     }
 
     public function reimagineFluxImage(ReimagineFluxData $data): array
@@ -255,9 +213,8 @@ class FreepikService
         if (!empty($data->image)) {
             $data->image = ImageToBase64Converter::imageUrlToBase64($data->image, false);
         }
-        $response = $this->client->post('ai/beta/text-to-image/reimagine-flux', array_filter($data->toArray(), fn ($value) => $value !== null));
 
-        return $response->json();
+        return $this->post('ai/beta/text-to-image/reimagine-flux', $data->toArray());
     }
 
     public function upscaleImage(UpscaleImageData $data): array
@@ -266,16 +223,12 @@ class FreepikService
             $data->image = ImageToBase64Converter::imageUrlToBase64($data->image, false);
         }
 
-        $response = $this->client->post('ai/image-upscaler', array_filter($data->toArray(), fn ($value) => $value !== null));
-
-        return $response->json();
+        return $this->post('ai/image-upscaler', $data->toArray());
     }
 
     public function getUpscalerTaskStatus(string $taskId): array
     {
-        $response = $this->client->get("ai/image-upscaler/{$taskId}");
-
-        return $response->json();
+        return $this->get("ai/image-upscaler/{$taskId}");
     }
 
     public function relightImage(RelightImageData $data): array
@@ -290,16 +243,12 @@ class FreepikService
             $data->transfer_light_from_lightmap = ImageToBase64Converter::imageUrlToBase64($data->transfer_light_from_lightmap, false);
         }
 
-        $response = $this->client->post('ai/image-relight', array_filter($data->toArray(), fn ($value) => $value !== null));
-
-        return $response->json();
+        return $this->post('ai/image-relight', $data->toArray());
     }
 
     public function getRelightTaskStatus(string $taskId): array
     {
-        $response = $this->client->get("ai/image-relight/{$taskId}");
-
-        return $response->json();
+        return $this->get("ai/image-relight/{$taskId}");
     }
 
     public function styleTransfer(StyleTransferData $data): array
@@ -311,25 +260,17 @@ class FreepikService
             $data->reference_image = ImageToBase64Converter::imageUrlToBase64($data->reference_image, false);
         }
 
-        $response = $this->client->post('ai/image-style-transfer', array_filter($data->toArray(), fn ($value) => $value !== null));
-
-        return $response->json();
+        return $this->post('ai/image-style-transfer', $data->toArray());
     }
 
     public function getStyleTransferTaskStatus(string $taskId): array
     {
-        $response = $this->client->get("ai/image-style-transfer/{$taskId}");
-
-        return $response->json();
+        return $this->get("ai/image-style-transfer/{$taskId}");
     }
 
     public function removeBackground(RemoveBackgroundData $data): array
     {
-        $response = $this->client
-            ->asMultipart()
-            ->post('ai/beta/remove-background', array_filter($data->toArray(), fn ($value) => $value !== null));
-
-        return $response->json();
+        return $this->post('ai/beta/remove-background', $data->toArray(), true);
     }
 
     public function imageExpandFluxPro(ImageExpandFluxProData $data): array
@@ -338,16 +279,12 @@ class FreepikService
             $data->image = ImageToBase64Converter::imageUrlToBase64($data->image, false);
         }
 
-        $response = $this->client->post('ai/image-expand/flux-pro', array_filter($data->toArray(), fn ($value) => $value !== null));
-
-        return $response->json();
+        return $this->post('ai/image-expand/flux-pro', $data->toArray());
     }
 
     public function getImageExpandFluxProTaskStatus(string $taskId): array
     {
-        $response = $this->client->get("ai/image-expand/flux-pro/{$taskId}");
-
-        return $response->json();
+        return $this->get("ai/image-expand/flux-pro/{$taskId}");
     }
 
     public function setWebhookResult(array $result): void

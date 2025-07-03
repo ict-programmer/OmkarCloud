@@ -6,6 +6,7 @@ use App\Enums\Freepik\ImageEditing\Relight\RelightEngineEnum;
 use App\Enums\Freepik\ImageEditing\Relight\RelightStyleEnum;
 use App\Enums\Freepik\ImageEditing\Relight\TransferLightAEnum;
 use App\Enums\Freepik\ImageEditing\Relight\TransferLightBEnum;
+use App\Rules\ValidIpfsCid;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -27,10 +28,10 @@ class RelightImageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image' => ['required', 'string', 'url'],
+            'image_cid' => ['required', 'string', new ValidIpfsCid],
             'prompt' => ['nullable', 'string'],
-            'transfer_light_from_reference_image' => ['nullable', 'string', 'url'],
-            'transfer_light_from_lightmap' => ['nullable', 'string', 'url'],
+            'transfer_light_from_reference_image_cid' => ['nullable', 'string', new ValidIpfsCid],
+            'transfer_light_from_lightmap_cid' => ['nullable', 'string', new ValidIpfsCid],
             'light_transfer_strength' => ['nullable', 'integer', 'between:0,100'],
             'interpolate_from_original' => ['nullable', 'boolean'],
             'change_background' => ['nullable', 'boolean'],
