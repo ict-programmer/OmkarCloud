@@ -278,4 +278,5 @@ Route::prefix('captions')->controller(CaptionsController::class)->group(function
     });
 });
 
+Route::get('services/{service_provider_id}/{service_type_id}', [MainFunctionController::class, 'getRequestBody']);
 Route::post('services/{service_provider_id}/{service_type_id}', MainFunctionController::class);

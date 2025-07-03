@@ -75,6 +75,7 @@ class PerplexityServiceProviderSeeder extends Seeder
                         'min_length' => 1,
                         'max_length' => 1000,
                         'description' => 'Search query text',
+                        'default' => 'What is AI?',
                     ],
                     'search_type' => [
                         'type' => 'string',
@@ -185,6 +186,7 @@ In essence, AI is about making machines smarter by enabling them to learn from d
                         'min_length' => 1,
                         'max_length' => 1000,
                         'description' => 'Research query text',
+                        'default' => 'Impact of artificial intelligence on healthcare',
                     ],
                     'search_type' => [
                         'type' => 'string',
@@ -312,11 +314,13 @@ AI is revolutionizing healthcare through enhanced diagnostics, accelerated resea
                         'min_length' => 1,
                         'max_length' => 1000,
                         'description' => 'Coding question or prompt',
+                        'default' => 'How to reverse a string in Python?',
                     ],
                     'programming_language' => [
                         'type' => 'string',
                         'required' => false,
                         'description' => 'Programming language (e.g., python, javascript)',
+                        'default' => 'python',
                     ],
                     'code_length' => [
                         'type' => 'string',
