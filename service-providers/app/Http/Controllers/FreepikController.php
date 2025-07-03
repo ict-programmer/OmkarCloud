@@ -956,10 +956,10 @@ class FreepikController extends BaseController
         tags: ['Freepik']
     )]
     #[OA\Parameter(
-        name: 'image_url',
+        name: 'image_cid',
         in: 'query',
         required: true,
-        schema: new OA\Schema(type: 'string', format: 'uri', example: 'https://publiish.io/ipfs/QmTkm5aAqNPgc3rXKTjYJ1VVB86xWJGofZX5wiRXHeew7f')
+        schema: new OA\Schema(type: 'string', format: 'string', example: 'QmTkm5aAqNPgc3rXKTjYJ1VVB86xWJGofZX5wiRXHeew7f')
     )]
     #[OA\Response(
         response: 200,
@@ -1103,16 +1103,10 @@ class FreepikController extends BaseController
                             example: '10'
                         ),
                         new OA\Property(
-                            property: 'image',
+                            property: 'image_cid',
                             type: 'string',
-                            description: 'Reference image. Supports URL. Max 10MB, min 300x300px, aspect ratio 1:2.5 to 2.5:1.',
-                            example: 'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN'
-                        ),
-                        new OA\Property(
-                            property: 'image_tail',
-                            type: 'string',
-                            description: "Reference Image - End frame control. Supports URL. For URL, must be publicly accessible. Must follow the same format requirements as the 'image' field. (Optional) Not compatible with standard mode.",
-                            example: 'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN'
+                            description: 'Reference image. Supports cid. Max 10MB, min 300x300px, aspect ratio 1:2.5 to 2.5:1.',
+                            example: 'QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN'
                         ),
                         new OA\Property(
                             property: 'prompt',
@@ -1138,8 +1132,8 @@ class FreepikController extends BaseController
                         new OA\Property(
                             property: 'static_mask',
                             type: 'string',
-                            description: 'Static mask image URL. Must match resolution and aspect ratio of input image.',
-                            example: 'https://publiish.io/ipfs/Qme7SZ1t9PbGKAesTA24EDu7pEs3J1JkWDt9qwQdaocYRB'
+                            description: 'Static mask image cid. Must match resolution and aspect ratio of input image.',
+                            example: 'QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN'
                         ),
                         new OA\Property(
                             property: 'dynamic_masks',
@@ -1150,10 +1144,10 @@ class FreepikController extends BaseController
                                 required: ['mask', 'trajectories'],
                                 properties: [
                                     new OA\Property(
-                                        property: 'mask',
+                                        property: 'mask_cid',
                                         type: 'string',
-                                        description: 'Dynamic mask image URL',
-                                        example: 'https://publiish.io/ipfs/QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf'
+                                        description: 'Dynamic mask image cid',
+                                        example: 'QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN'
                                     ),
                                     new OA\Property(
                                         property: 'trajectories',
@@ -1387,11 +1381,11 @@ class FreepikController extends BaseController
         example: 'kling-elements-pro'
     )]
     #[OA\Parameter(
-        name: 'images[]',
+        name: 'image_cids[]',
         in: 'query',
         required: true,
-        description: 'Array of up to 4 image URLs (publicly accessible)',
-        schema: new OA\Schema(type: 'array', items: new OA\Items(type: 'string', format: 'uri'), maxItems: 4, example: ['https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN', 'https://publiish.io/ipfs/QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf'])
+        description: 'Array of up to 4 image cids (publicly accessible)',
+        schema: new OA\Schema(type: 'array', items: new OA\Items(type: 'string', format: 'uri'), maxItems: 4, example: ['QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN', 'QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf'])
     )]
     #[OA\Parameter(name: 'prompt', in: 'query', required: false, schema: new OA\Schema(type: 'string', maxLength: 2500))]
     #[OA\Parameter(name: 'negative_prompt', in: 'query', required: false, schema: new OA\Schema(type: 'string', maxLength: 2500))]
@@ -1657,9 +1651,9 @@ class FreepikController extends BaseController
             ],
             example: [
                 'prompt' => 'A futuristic cityscape at sunset, flying cars, glowing neon lights, cyberpunk vibe',
-                'structure_reference' => 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
+                'structure_reference_cid' => 'QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
                 'structure_strength' => 60,
-                'style_reference' => 'https://publiish.io/ipfs/QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV',
+                'style_reference_cid' => 'QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV',
                 'adherence' => 70,
                 'hdr' => 80,
                 'resolution' => '2k',
@@ -1827,19 +1821,19 @@ class FreepikController extends BaseController
                     example: 'high'
                 ),
                 new OA\Property(
-                    property: 'images',
+                    property: 'image_cids',
                     type: 'array',
                     minItems: 6,
                     maxItems: 20,
                     description: 'List of image URLs to train the LoRA style.',
                     items: new OA\Items(type: 'string', format: 'uri'),
                     example: [
-                        'https://publiish.io/ipfs/QmRBe3ZDEBDH18JEgDuFdTShzw3Xy1s94bY6dtcBAnH4tu',
-                        'https://publiish.io/ipfs/QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf',
-                        'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN',
-                        'https://publiish.io/ipfs/QmPnAKihJS1shKqnA4UqQ6bvkw29j8yFW4MJTb6KZA1e6Q',
-                        'https://publiish.io/ipfs/QmdHRXQ8sX2d648gnCa2CXUjeJmreS8654vqwd9JS6m8GN',
-                        'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
+                        'QmRBe3ZDEBDH18JEgDuFdTShzw3Xy1s94bY6dtcBAnH4tu',
+                        'QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf',
+                        'QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN',
+                        'QmPnAKihJS1shKqnA4UqQ6bvkw29j8yFW4MJTb6KZA1e6Q',
+                        'QmdHRXQ8sX2d648gnCa2CXUjeJmreS8654vqwd9JS6m8GN',
+                        'QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
                     ]
                 ),
                 new OA\Property(
@@ -1905,20 +1899,20 @@ class FreepikController extends BaseController
                     example: 'male'
                 ),
                 new OA\Property(
-                    property: 'images',
+                    property: 'image_cids',
                     type: 'array',
                     minItems: 8,
                     maxItems: 20,
-                    items: new OA\Items(type: 'string', format: 'uri'),
+                    items: new OA\Items(type: 'string', format: 'string'),
                     example: [
-                        'https://publiish.io/ipfs/QmRBe3ZDEBDH18JEgDuFdTShzw3Xy1s94bY6dtcBAnH4tu',
-                        'https://publiish.io/ipfs/QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf',
-                        'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN',
-                        'https://publiish.io/ipfs/QmPnAKihJS1shKqnA4UqQ6bvkw29j8yFW4MJTb6KZA1e6Q',
-                        'https://publiish.io/ipfs/QmdHRXQ8sX2d648gnCa2CXUjeJmreS8654vqwd9JS6m8GN',
-                        'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
-                        'https://publiish.io/ipfs/QmRTn93jATdpcpCg1nRfAExc8shh9Hmhbd8PHnXBrLJYAa',
-                        'https://publiish.io/ipfs/QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV',
+                        'QmRBe3ZDEBDH18JEgDuFdTShzw3Xy1s94bY6dtcBAnH4tu',
+                        'QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf',
+                        'QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN',
+                        'QmPnAKihJS1shKqnA4UqQ6bvkw29j8yFW4MJTb6KZA1e6Q',
+                        'QmdHRXQ8sX2d648gnCa2CXUjeJmreS8654vqwd9JS6m8GN',
+                        'QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
+                        'QmRTn93jATdpcpCg1nRfAExc8shh9Hmhbd8PHnXBrLJYAa',
+                        'QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV',
                     ]
                 ),
                 new OA\Property(
@@ -2676,7 +2670,7 @@ class FreepikController extends BaseController
         content: new OA\JsonContent(
             required: ['image'],
             properties: [
-                new OA\Property(property: 'image', type: 'string', format: 'byte', description: 'Base64-encoded input image', example: 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'),
+                new OA\Property(property: 'image_cid', type: 'string', format: 'byte', description: 'cid of image', example: 'QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'),
                 new OA\Property(property: 'prompt', type: 'string', description: 'Optional prompt for imagination', example: 'A beautiful sunset over a calm ocean'),
                 new OA\Property(property: 'imagination', type: 'string', enum: ['wild', 'subtle', 'vivid'], description: 'Imagination type', example: 'wild'),
                 new OA\Property(property: 'aspect_ratio', type: 'string', enum: [
@@ -2733,10 +2727,10 @@ class FreepikController extends BaseController
             required: ['image'],
             properties: [
                 new OA\Property(
-                    property: 'image',
+                    property: 'image_cid',
                     type: 'string',
                     description: 'URL of the image to upscale',
-                    example: 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'
+                    example: 'QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'
                 ),
                 new OA\Property(
                     property: 'scale_factor',
@@ -2883,13 +2877,13 @@ class FreepikController extends BaseController
     #[OA\RequestBody(
         required: true,
         content: new OA\JsonContent(
-            required: ['image'],
+            required: ['image_cid'],
             properties: [
                 new OA\Property(
-                    property: 'image',
+                    property: 'image_cid',
                     type: 'string',
-                    description: 'Base64 image to relight',
-                    example: 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'
+                    description: 'cid image to relight',
+                    example: 'QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'
                 ),
                 new OA\Property(
                     property: 'prompt',
@@ -2897,16 +2891,16 @@ class FreepikController extends BaseController
                     example: 'A sunlit forest clearing at golden hour with rays piercing through the trees'
                 ),
                 new OA\Property(
-                    property: 'transfer_light_from_reference_image',
+                    property: 'transfer_light_from_reference_image_cid',
                     type: 'string',
                     nullable: true,
-                    example: 'https://publiish.io/ipfs/QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV'
+                    example: 'QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV'
                 ),
                 new OA\Property(
-                    property: 'transfer_light_from_lightmap',
+                    property: 'transfer_light_from_lightmap_cid',
                     type: 'string',
                     nullable: true,
-                    example: 'https://publiish.io/ipfs/QmPnAKihJS1shKqnA4UqQ6bvkw29j8yFW4MJTb6KZA1e6Q'
+                    example: 'QmPnAKihJS1shKqnA4UqQ6bvkw29j8yFW4MJTb6KZA1e6Q'
                 ),
                 new OA\Property(
                     property: 'light_transfer_strength',
@@ -3097,19 +3091,19 @@ class FreepikController extends BaseController
     #[OA\RequestBody(
         required: true,
         content: new OA\JsonContent(
-            required: ['image', 'reference_image'],
+            required: ['image_cid', 'reference_image_cid'],
             properties: [
                 new OA\Property(
-                    property: 'image',
+                    property: 'image_cid',
                     type: 'string',
                     description: 'Base64 Image to style transfer',
-                    example: 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'
+                    example: 'QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'
                 ),
                 new OA\Property(
-                    property: 'reference_image',
+                    property: 'reference_image_cid',
                     type: 'string',
                     description: 'Base64 Reference image for style transfer',
-                    example: 'https://publiish.io/ipfs/QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV'
+                    example: 'QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV'
                 ),
                 new OA\Property(
                     property: 'prompt',
@@ -3265,14 +3259,14 @@ class FreepikController extends BaseController
             mediaType: 'application/x-www-form-urlencoded',
             schema: new OA\Schema(
                 type: 'object',
-                required: ['image_url'],
+                required: ['image_cid'],
                 properties: [
                     new OA\Property(
-                        property: 'image_url',
+                        property: 'image_cid',
                         type: 'string',
                         format: 'uri',
                         description: 'The URL of the image whose background needs to be removed',
-                        example: 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
+                        example: 'QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
                     ),
                 ]
             )
@@ -3336,13 +3330,13 @@ class FreepikController extends BaseController
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['image'],
+                required: ['image_cid'],
                 properties: [
                     new OA\Property(
-                        property: 'image',
+                        property: 'image_cid',
                         type: 'string',
-                        description: 'Base64 image to expand',
-                        example: 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'
+                        description: 'CID image to expand',
+                        example: 'QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'
                     ),
                     new OA\Property(
                         property: 'prompt',

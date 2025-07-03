@@ -4,6 +4,7 @@ namespace App\Http\Requests\Freepik;
 
 use App\Enums\Freepik\Image\Mystic\LoraCharacterQualityEnum;
 use App\Enums\Freepik\Image\Mystic\LoraGenderEnum;
+use App\Rules\ValidIpfsCid;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -28,8 +29,8 @@ class LoraCharacterTrainRequest extends FormRequest
             'name' => ['required', 'string'],
             'quality' => ['required', Rule::in(LoraCharacterQualityEnum::getValuesInArray())],
             'gender' => ['required', Rule::in(LoraGenderEnum::getValuesInArray())],
-            'images' => ['required', 'array', 'min:8', 'max:20'],
-            'images.*' => ['required', 'url'],
+            'image_cids' => ['required', 'array', 'min:8', 'max:20'],
+            'image_cids.*' => ['required', new ValidIpfsCid],
             'description' => ['nullable', 'string'],
 
         ];

@@ -6,6 +6,7 @@ use App\Enums\Freepik\Image\Mystic\AspectRatioEnum;
 use App\Enums\Freepik\Image\Mystic\EngineEnum;
 use App\Enums\Freepik\Image\Mystic\ModelEnum;
 use App\Enums\Freepik\Image\Mystic\ResolutionEnum;
+use App\Rules\ValidIpfsCid;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -28,9 +29,9 @@ class MysticGenerateRequest extends FormRequest
     {
         return [
             'prompt' => 'required|string',
-            'structure_reference' => 'nullable|string|url',
+            'structure_reference_cid' => ['nullable', 'string', new ValidIpfsCid],
             'structure_strength' => 'nullable|integer|min:0|max:100',
-            'style_reference' => 'nullable|string|url',
+            'style_reference_cid' => ['nullable', 'string', new ValidIpfsCid],
             'adherence' => 'nullable|integer|min:0|max:100',
             'hdr' => 'nullable|integer|min:0|max:100',
             'resolution' => ['nullable', Rule::in(ResolutionEnum::getValuesInArray())],

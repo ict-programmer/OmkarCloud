@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Freepik;
 
+use App\Rules\ValidIpfsCid;
 use Illuminate\Foundation\Http\FormRequest;
 
 class RemoveBackgroundRequest extends FormRequest
@@ -22,7 +23,7 @@ class RemoveBackgroundRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image_url' => ['required', 'string', 'url'],
+            'image_cid' => ['required', 'string', new ValidIpfsCid],
         ];
     }
 }

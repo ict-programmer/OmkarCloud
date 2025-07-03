@@ -4,6 +4,7 @@ namespace App\Http\Requests\Freepik;
 
 use App\Enums\Freepik\Image\ReimagineFlux\AspectRatioEnum;
 use App\Enums\Freepik\Image\ReimagineFlux\ImaginationTypeEnum;
+use App\Rules\ValidIpfsCid;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -25,7 +26,7 @@ class ReimagineFluxRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image' => ['required', 'string', 'url'],
+            'image_cid' => ['required', 'string', new ValidIpfsCid],
             'prompt' => ['nullable', 'string'],
             'imagination' => [
                 'nullable',

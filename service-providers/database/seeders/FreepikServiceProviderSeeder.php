@@ -172,7 +172,7 @@ class FreepikServiceProviderSeeder extends Seeder
                         'type' => 'integer',
                         'required' => false,
                         'description' => 'The page number for pagination.',
-                        'example' => 1,
+                        'default' => 1,
                     ],
                     'limit' => [
                         'type' => 'integer',
@@ -180,13 +180,14 @@ class FreepikServiceProviderSeeder extends Seeder
                         'min' => 1,
                         'max' => 100,
                         'description' => 'The number of items to return per page.',
-                        'example' => 20,
+                        'default' => 20,
                     ],
                     'order' => [
                         'type' => 'string',
                         'required' => true,
                         'options' => ['relevance', 'recent'],
                         'description' => 'The order to sort the results by.',
+                        'default' => 'relevance',
                     ],
                     'term' => [
                         'type' => 'string',
@@ -310,7 +311,7 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Resource Detail',
                 'input_parameters' => [
-                    'resource_id' => ['type' => 'string', 'required' => true, 'description' => 'The ID of the Freepik resource.', 'example' => '7663349'],
+                    'resource_id' => ['type' => 'string', 'required' => true, 'description' => 'The ID of the Freepik resource.', 'default' => '7663349'],
                 ],
                 'response' => [
                     'data' => [
@@ -354,7 +355,7 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Download resource',
                 'input_parameters' => [
-                    'resource_id' => ['type' => 'string', 'required' => true, 'description' => 'The ID of the resource to download.', 'example' => '7663349'],
+                    'resource_id' => ['type' => 'string', 'required' => true, 'description' => 'The ID of the resource to download.', 'default' => '7663349'],
                 ],
                 'response' => [
                     'data' => [
@@ -369,8 +370,8 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Download Resource Format',
                 'input_parameters' => [
-                    'resource_id' => ['type' => 'string', 'required' => true, 'description' => 'The ID of the resource.', 'example' => '150898146'],
-                    'format' => ['type' => 'string', 'required' => true, 'options' => ['psd', 'ai', 'eps', 'atn', 'fonts', 'resources', 'png', 'jpg', '3d-render', 'svg', 'mockup'], 'description' => 'The format to download.', 'example' => 'psd'],
+                    'resource_id' => ['type' => 'string', 'required' => true, 'description' => 'The ID of the resource.', 'default' => '150898146'],
+                    'format' => ['type' => 'string', 'required' => true, 'options' => ['psd', 'ai', 'eps', 'atn', 'fonts', 'resources', 'png', 'jpg', '3d-render', 'svg', 'mockup'], 'description' => 'The format to download.', 'default' => 'psd'],
                 ],
                 'response' => [
                     'data' => [
@@ -387,7 +388,7 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'AI Image Classifier',
                 'input_parameters' => [
-                    'image_url' => ['type' => 'string', 'required' => true, 'description' => 'URL of the image to classify.', 'example' => 'https://publiish.io/ipfs/QmTkm5aAqNPgc3rXKTjYJ1VVB86xWJGofZX5wiRXHeew7f'],
+                    'image_cid' => ['type' => 'string', 'required' => true, 'description' => 'URL of the image to classify.', 'default' => 'QmTkm5aAqNPgc3rXKTjYJ1VVB86xWJGofZX5wiRXHeew7f'],
                 ],
                 'response' => [
                     'data' => [
@@ -402,7 +403,7 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Icon Generation',
                 'input_parameters' => [
-                    'prompt' => ['type' => 'string', 'required' => true, 'description' => 'Text prompt describing the icon you want to generate', 'example' => 'Cute robot with camera in flat vector style'],
+                    'prompt' => ['type' => 'string', 'required' => true, 'description' => 'Text prompt describing the icon you want to generate', 'default' => 'Cute robot with camera in flat vector style'],
                 ],
                 'response' => [
                     'data' => [
@@ -418,7 +419,7 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Icon Generation Task Status',
                 'input_parameters' => [
-                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'The task_id received from the iconGeneration endpoint.', 'example' => '796dd3c1-c50b-42bc-a9e2-a892eef53438'],
+                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'The task_id received from the iconGeneration endpoint.', 'default' => '796dd3c1-c50b-42bc-a9e2-a892eef53438'],
                 ],
                 'response' => [
                     'data' => [
@@ -437,7 +438,6 @@ class FreepikServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => true,
-                        'default' => 'kling-v2-1-master',
                         'options' => [
                             'source' => 'collection',
                             'collection_name' => 'service_provider_model',
@@ -451,15 +451,14 @@ class FreepikServiceProviderSeeder extends Seeder
                             'fallback_options' => ['kling-v2-1-master', 'kling-v2-1-pro', 'kling-v2-1-std', 'kling-v2', 'kling-pro', 'kling-std'],
                         ],
                         'description' => 'Model of the generated video. Available options: kling-v2-1-master, kling-v2-1-pro, kling-v2-1-std, kling-v2, kling-pro, kling-std.',
-                        'example' => 'kling-v2-1-master',
+                        'default' => 'kling-v2-1-master',
                     ],
-                    'duration' => ['type' => 'string', 'required' => true, 'options' => ['5', '10'], 'description' => 'Duration of the generated video in seconds. Available options: 5, 10.', 'example' => '10'],
-                    'image' => ['type' => 'string', 'required' => false, 'description' => 'Reference image. Supports URL. Max 10MB, min 300x300px, aspect ratio 1:2.5 to 2.5:1.', 'example' => 'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN'],
-                    'image_tail' => ['type' => 'string', 'required' => false, 'description' => "Reference Image - End frame control. Supports URL. For URL, must be publicly accessible. Must follow the same format requirements as the 'image' field. (Optional) Not compatible with standard mode.", 'example' => 'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN'],
-                    'prompt' => ['type' => 'string', 'required' => false, 'description' => 'Text prompt describing the desired motion. Required if image is not provided.', 'example' => 'Cinematic view of a mountain range fading into mist, soft lighting, epic atmosphere'],
-                    'negative_prompt' => ['type' => 'string', 'required' => false, 'description' => 'Describe what to avoid in the generated video.', 'example' => 'blurry, low-quality, distorted, overexposed'],
-                    'cfg_scale' => ['type' => 'number', 'required' => false, 'description' => 'Higher = stronger relevance to prompt (0-1). Default is 0.5.', 'example' => 0.3, 'min' => 0, 'max' => 1],
-                    'static_mask' => ['type' => 'string', 'required' => false, 'description' => 'Static mask image URL. Must match resolution and aspect ratio of input image.', 'example' => 'https://publiish.io/ipfs/Qme7SZ1t9PbGKAesTA24EDu7pEs3J1JkWDt9qwQdaocYRB'],
+                    'duration' => ['type' => 'string', 'required' => true, 'options' => ['5', '10'], 'description' => 'Duration of the generated video in seconds. Available options: 5, 10.', 'default' => '10'],
+                    'image_cid' => ['type' => 'string', 'required' => false, 'description' => 'Reference image cid. Max 10MB, min 300x300px, aspect ratio 1:2.5 to 2.5:1.', 'default' => 'QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN'],
+                    'prompt' => ['type' => 'string', 'required' => false, 'description' => 'Text prompt describing the desired motion. Required if image is not provided.', 'default' => 'Cinematic view of a mountain range fading into mist, soft lighting, epic atmosphere'],
+                    'negative_prompt' => ['type' => 'string', 'required' => false, 'description' => 'Describe what to avoid in the generated video.', 'default' => 'blurry, low-quality, distorted, overexposed'],
+                    'cfg_scale' => ['type' => 'number', 'required' => false, 'description' => 'Higher = stronger relevance to prompt (0-1). Default is 0.5.', 'default' => 0.3, 'min' => 0, 'max' => 1],
+                    'static_mask_cid' => ['type' => 'string', 'required' => false, 'description' => 'Static mask image cid. Must match resolution and aspect ratio of input image.', 'default' => 'Qme7SZ1t9PbGKAesTA24EDu7pEs3J1JkWDt9qwQdaocYRB'],
                     'dynamic_masks' => [
                         'type' => 'array',
                         'required' => false,
@@ -467,14 +466,14 @@ class FreepikServiceProviderSeeder extends Seeder
                         'items' => [
                             'type' => 'object',
                             'properties' => [
-                                'mask' => ['type' => 'string', 'description' => 'Dynamic mask image URL', 'example' => 'https://publiish.io/ipfs/QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf'],
+                                'mask_cid' => ['type' => 'string', 'description' => 'Dynamic mask image cid', 'default' => 'QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf'],
                                 'trajectories' => [
                                     'type' => 'array',
                                     'items' => [
                                         'type' => 'object',
                                         'properties' => [
-                                            'x' => ['type' => 'integer', 'example' => 120],
-                                            'y' => ['type' => 'integer', 'example' => 200],
+                                            'x' => ['type' => 'integer', 'default' => 120],
+                                            'y' => ['type' => 'integer', 'default' => 200],
                                         ],
                                     ],
                                 ],
@@ -496,11 +495,10 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Video Generation Image to Video Task Status',
                 'input_parameters' => [
-                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the video generation task', 'example' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
+                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the video generation task', 'default' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
                     'model' => [
                         'type' => 'string',
                         'required' => true,
-                        'default' => 'kling-v2-1-master',
                         'options' => [
                             'source' => 'collection',
                             'collection_name' => 'service_provider_model',
@@ -514,7 +512,7 @@ class FreepikServiceProviderSeeder extends Seeder
                             'fallback_options' => ['kling-v2-1-master', 'kling-v2-1-pro', 'kling-v2-1-std', 'kling-v2', 'kling-pro', 'kling-std'],
                         ],
                         'description' => 'Model of the generated video. Available options: kling-v2-1-master, kling-v2-1-pro, kling-v2-1-std, kling-v2, kling-pro, kling-std.',
-                        'example' => 'kling-v2-1-master',
+                        'default' => 'kling-v2-1-master',
                     ],
                 ],
                 'response' => [
@@ -531,11 +529,11 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Video Generation Text to Video',
                 'input_parameters' => [
-                    'duration' => ['type' => 'string', 'required' => true, 'options' => ['5', '10'], 'description' => 'Duration of the generated video in seconds.', 'example' => '5'],
-                    'prompt' => ['type' => 'string', 'required' => false, 'description' => 'Text prompt describing the desired motion. Max 2500 characters.', 'example' => 'A sunset over the ocean with crashing waves'],
-                    'negative_prompt' => ['type' => 'string', 'required' => false, 'description' => 'Describe what to avoid in the generated video.', 'example' => 'low resolution, night scene'],
-                    'aspect_ratio' => ['type' => 'string', 'required' => false, 'options' => ['widescreen_16_9', 'social_story_9_16', 'square_1_1'], 'description' => 'Aspect ratio for generated video (only used when image is not provided).', 'example' => 'widescreen_16_9'],
-                    'cfg_scale' => ['type' => 'number', 'required' => false, 'description' => 'Higher = stronger relevance to prompt (0-1). Default is 0.5.', 'example' => 0.5, 'min' => 0, 'max' => 1],
+                    'duration' => ['type' => 'string', 'required' => true, 'options' => ['5', '10'], 'description' => 'Duration of the generated video in seconds.', 'default' => '5'],
+                    'prompt' => ['type' => 'string', 'required' => false, 'description' => 'Text prompt describing the desired motion. Max 2500 characters.', 'default' => 'A sunset over the ocean with crashing waves'],
+                    'negative_prompt' => ['type' => 'string', 'required' => false, 'description' => 'Describe what to avoid in the generated video.', 'default' => 'low resolution, night scene'],
+                    'aspect_ratio' => ['type' => 'string', 'required' => false, 'options' => ['widescreen_16_9', 'social_story_9_16', 'square_1_1'], 'description' => 'Aspect ratio for generated video (only used when image is not provided).', 'default' => 'widescreen_16_9'],
+                    'cfg_scale' => ['type' => 'number', 'required' => false, 'description' => 'Higher = stronger relevance to prompt (0-1). Default is 0.5.', 'default' => 0.5, 'min' => 0, 'max' => 1],
                 ],
                 'response' => [
                     'data' => [
@@ -551,7 +549,7 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Video Generation Text to Video Task Status',
                 'input_parameters' => [
-                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the video generation task', 'example' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
+                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the video generation task', 'default' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
                 ],
                 'response' => [
                     'data' => [
@@ -570,7 +568,6 @@ class FreepikServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => true,
-                        'default' => 'kling-elements-pro',
                         'options' => [
                             'source' => 'collection',
                             'collection_name' => 'service_provider_model',
@@ -584,13 +581,18 @@ class FreepikServiceProviderSeeder extends Seeder
                             'fallback_options' => ['kling-elements-pro', 'kling-elements-std'],
                         ],
                         'description' => 'Model of the generated video.',
-                        'example' => 'kling-elements-pro',
+                        'default' => 'kling-elements-pro',
                     ],
-                    'images[]' => ['type' => 'array', 'required' => true, 'description' => 'Array of up to 4 image URLs (publicly accessible)', 'items' => ['type' => 'string'], 'maxItems' => 4, 'example' => ['https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN', 'https://publiish.io/ipfs/QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf']],
-                    'prompt' => ['type' => 'string', 'required' => false, 'maxLength' => 2500],
-                    'negative_prompt' => ['type' => 'string', 'required' => false, 'maxLength' => 2500],
-                    'duration' => ['type' => 'string', 'required' => false, 'options' => ['5', '10'], 'example' => '5'],
-                    'aspect_ratio' => ['type' => 'string', 'required' => false, 'options' => ['widescreen_16_9', 'social_story_9_16', 'square_1_1']],
+                    'image_cid' => [
+                        'type' => 'array',
+                        'required' => true,
+                        'description' => 'Array of up to 4 image cids (publicly accessible)',
+                        'default' => ['QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN', 'QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf'],
+                    ],
+                    'prompt' => ['type' => 'string', 'required' => false, 'maxLength' => 2500, 'default' => 'A sunset over the ocean with crashing waves'],
+                    'negative_prompt' => ['type' => 'string', 'required' => false, 'maxLength' => 2500, 'default' => 'low resolution, night scene'],
+                    'duration' => ['type' => 'string', 'required' => false, 'options' => ['5', '10'], 'default' => '5'],
+                    'aspect_ratio' => ['type' => 'string', 'required' => false, 'options' => ['widescreen_16_9', 'social_story_9_16', 'square_1_1'], 'default' => 'widescreen_16_9'],
                 ],
                 'response' => [
                     'data' => [
@@ -606,7 +608,7 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Video Generation Elements Task Status',
                 'input_parameters' => [
-                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the video generation task', 'example' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
+                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the video generation task', 'default' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
                 ],
                 'response' => [
                     'data' => [
@@ -639,18 +641,79 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Mystic Image Generation',
                 'input_parameters' => [
-                    'prompt' => ['type' => 'string', 'required' => true, 'description' => 'AI Model Prompt Description. The text that describes the image you want to generate.'],
-                    'structure_reference' => ['type' => 'string', 'required' => false, 'description' => 'Base64 image to use as structure reference to influence the shape.'],
-                    'structure_strength' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 100, 'default' => 50, 'description' => 'Strength to maintain the structure of the original image.'],
-                    'style_reference' => ['type' => 'string', 'required' => false, 'description' => 'Base64 image to use as style reference to influence aesthetics.'],
-                    'adherence' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 100, 'default' => 50, 'description' => 'Higher values make the generation more faithful to the prompt.'],
-                    'hdr' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 100, 'default' => 50, 'description' => 'Controls image detail and "AI look" tradeoff.'],
-                    'resolution' => ['type' => 'string', 'required' => false, 'options' => ['1k', '2k', '4k'], 'default' => '2k', 'description' => 'Resolution of the generated image.'],
-                    'aspect_ratio' => ['type' => 'string', 'required' => false, 'options' => ['square_1_1', 'classic_4_3', 'traditional_3_4', 'widescreen_16_9', 'social_story_9_16', 'smartphone_horizontal_20_9', 'smartphone_vertical_9_20', 'standard_3_2', 'portrait_2_3', 'horizontal_2_1', 'vertical_1_2', 'social_5_4', 'social_post_4_5'], 'default' => 'square_1_1', 'description' => 'Aspect ratio of the generated image.'],
+                    'prompt' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'description' => 'AI Model Prompt Description. The text that describes the image you want to generate.',
+                        'default' => 'A futuristic cityscape at sunset, flying cars, glowing neon lights, cyberpunk vibe',
+                    ],
+                    'structure_reference_cid' => [
+                        'type' => 'string',
+                        'required' => false,
+                        'description' => 'cid image to use as structure reference to influence the shape.',
+                        'default' => 'QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
+                    ],
+                    'structure_strength' => [
+                        'type' => 'integer',
+                        'required' => false,
+                        'min' => 0,
+                        'max' => 100,
+                        'description' => 'Strength to maintain the structure of the original image.',
+                        'default' => 50,
+                    ],
+                    'style_reference_cid' => [
+                        'type' => 'string',
+                        'required' => false,
+                        'description' => 'cid image to use as style reference to influence aesthetics.',
+                        'default' => 'QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV',
+                    ],
+                    'adherence' => [
+                        'type' => 'integer',
+                        'required' => false,
+                        'min' => 0,
+                        'max' => 100,
+                        'description' => 'Higher values make the generation more faithful to the prompt.',
+                        'default' => 50,
+                    ],
+                    'hdr' => [
+                        'type' => 'integer',
+                        'required' => false,
+                        'min' => 0,
+                        'max' => 100,
+                        'description' => 'Controls image detail and "AI look" tradeoff.',
+                        'default' => 50,
+                    ],
+                    'resolution' => [
+                        'type' => 'string',
+                        'required' => false,
+                        'options' => ['1k', '2k', '4k'],
+                        'description' => 'Resolution of the generated image.',
+                        'default' => '2k',
+                    ],
+                    'aspect_ratio' => [
+                        'type' => 'string',
+                        'required' => false,
+                        'options' => [
+                            'square_1_1',
+                            'classic_4_3',
+                            'traditional_3_4',
+                            'widescreen_16_9',
+                            'social_story_9_16',
+                            'smartphone_horizontal_20_9',
+                            'smartphone_vertical_9_20',
+                            'standard_3_2',
+                            'portrait_2_3',
+                            'horizontal_2_1',
+                            'vertical_1_2',
+                            'social_5_4',
+                            'social_post_4_5',
+                        ],
+                        'description' => 'Aspect ratio of the generated image.',
+                        'default' => 'square_1_1',
+                    ],
                     'model' => [
                         'type' => 'string',
                         'required' => false,
-                        'default' => 'realism',
                         'options' => [
                             'source' => 'collection',
                             'collection_name' => 'service_provider_model',
@@ -664,20 +727,101 @@ class FreepikServiceProviderSeeder extends Seeder
                             'fallback_options' => ['realism', 'fluid', 'zen'],
                         ],
                         'description' => 'Model to use for generation.',
-                        'example' => 'realism',
+                        'default' => 'realism',
                     ],
-                    'creative_detailing' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 100, 'default' => 33, 'description' => 'Controls detail per pixel with tradeoff on HDR/artificial look.'],
-                    'engine' => ['type' => 'string', 'required' => false, 'options' => ['automatic', 'magnific_illusio', 'magnific_sharpy', 'magnific_sparkle'], 'default' => 'automatic', 'description' => 'Engine choice for the AI model.'],
-                    'fixed_generation' => ['type' => 'boolean', 'required' => false, 'default' => false, 'description' => 'If true, same input produces the same image (fixed randomness).'],
-                    'filter_nsfw' => ['type' => 'boolean', 'required' => false, 'default' => true, 'description' => 'When enabled, NSFW images are replaced with a black image.'],
+                    'creative_detailing' => [
+                        'type' => 'integer',
+                        'required' => false,
+                        'min' => 0,
+                        'max' => 100,
+                        'description' => 'Controls detail per pixel with tradeoff on HDR/artificial look.',
+                        'default' => 33,
+                    ],
+                    'engine' => [
+                        'type' => 'string',
+                        'required' => false,
+                        'options' => ['automatic', 'magnific_illusio', 'magnific_sharpy', 'magnific_sparkle'],
+                        'description' => 'Engine choice for the AI model.',
+                        'default' => 'automatic',
+                    ],
+                    'fixed_generation' => [
+                        'type' => 'boolean',
+                        'required' => false,
+                        'description' => 'If true, same input produces the same image (fixed randomness).',
+                        'default' => false,
+                    ],
+                    'filter_nsfw' => [
+                        'type' => 'boolean',
+                        'required' => false,
+                        'description' => 'When enabled, NSFW images are replaced with a black image.',
+                        'default' => true,
+                    ],
                     'styling' => [
                         'type' => 'object',
                         'required' => false,
                         'description' => 'Styling options for the image',
                         'properties' => [
-                            'styles' => ['type' => 'array', 'maxItems' => 1, 'items' => ['type' => 'object', 'properties' => ['name' => ['type' => 'string', 'description' => 'Name of the style to apply'], 'strength' => ['type' => 'number', 'min' => 0, 'max' => 200, 'default' => 100, 'description' => 'Strength of the style']]]],
-                            'characters' => ['type' => 'array', 'maxItems' => 1, 'items' => ['type' => 'object', 'properties' => ['id' => ['type' => 'string', 'description' => 'ID of the character'], 'strength' => ['type' => 'number', 'description' => 'Strength of the character']]]],
-                            'colors' => ['type' => 'array', 'minItems' => 1, 'maxItems' => 5, 'items' => ['type' => 'object', 'properties' => ['color' => ['type' => 'string', 'pattern' => '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$', 'description' => 'Hex color code, e.g. #FF0000'], 'weight' => ['type' => 'number', 'description' => 'Weight of the color in the generation']]]],
+                            'styles' => [
+                                'type' => 'array',
+                                'maxItems' => 1,
+                                'items' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'name' => [
+                                            'type' => 'string',
+                                            'description' => 'Name of the style to apply',
+                                            'default' => 'cyberpunk',
+                                        ],
+                                        'strength' => [
+                                            'type' => 'number',
+                                            'min' => 0,
+                                            'max' => 200,
+                                            'description' => 'Strength of the style',
+                                            'default' => 100,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            'characters' => [
+                                'type' => 'array',
+                                'maxItems' => 1,
+                                'items' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'id' => [
+                                            'type' => 'string',
+                                            'description' => 'ID of the character',
+                                            'default' => '110',
+                                        ],
+                                        'strength' => [
+                                            'type' => 'number',
+                                            'description' => 'Strength of the character',
+                                            'default' => 100,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            'colors' => [
+                                'type' => 'array',
+                                'minItems' => 1,
+                                'maxItems' => 5,
+                                'items' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'color' => [
+                                            'type' => 'string',
+                                            'pattern' => '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
+                                            'description' => 'Hex color code, e.g. #FF0000',
+                                            'default' => '#00FFFF',
+                                        ],
+                                        'weight' => [
+                                            'type' => 'number',
+                                            'description' => 'Weight of the color in the generation',
+                                            'default' => 0.6,
+                                        ],
+                                    ],
+                                ],
+                            ],
                         ],
                     ],
                 ],
@@ -695,7 +839,7 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Mystic Image Generation Task Status',
                 'input_parameters' => [
-                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the Mystic generation task', 'example' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
+                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the Mystic generation task', 'default' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
                 ],
                 'response' => [
                     'data' => [
@@ -712,10 +856,25 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'LoRAs Custom Style Training',
                 'input_parameters' => [
-                    'name' => ['type' => 'string', 'required' => true, 'description' => 'Name of the LoRA style used to identify the style in the system.', 'example' => 'neon-cyberpunk-style'],
-                    'quality' => ['type' => 'string', 'required' => true, 'options' => ['medium', 'high', 'ultra'], 'description' => 'Quality of the LoRA style.', 'example' => 'high'],
-                    'images' => ['type' => 'array', 'required' => true, 'minItems' => 6, 'maxItems' => 20, 'description' => 'List of image URLs to train the LoRA style.', 'items' => ['type' => 'string', 'format' => 'uri']],
-                    'description' => ['type' => 'string', 'required' => false, 'description' => 'Description of the LoRA style.', 'example' => 'A high-quality cyberpunk visual style with neon lights, futuristic elements, and strong contrast. Inspired by sci-fi films and urban night scenes.'],
+                    'name' => ['type' => 'string', 'required' => true, 'description' => 'Name of the LoRA style used to identify the style in the system.', 'default' => 'neon-cyberpunk-style'],
+                    'quality' => ['type' => 'string', 'required' => true, 'options' => ['medium', 'high', 'ultra'], 'description' => 'Quality of the LoRA style.', 'default' => 'high'],
+                    'image_cids' => [
+                        'type' => 'array',
+                        'required' => true,
+                        'minItems' => 6,
+                        'maxItems' => 20,
+                        'description' => 'List of image cids to train the LoRA style.',
+                        'items' => ['type' => 'string', 'format' => 'string'],
+                        'default' => [
+                            'QmRBe3ZDEBDH18JEgDuFdTShzw3Xy1s94bY6dtcBAnH4tu',
+                            'QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf',
+                            'QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN',
+                            'QmPnAKihJS1shKqnA4UqQ6bvkw29j8yFW4MJTb6KZA1e6Q',
+                            'QmdHRXQ8sX2d648gnCa2CXUjeJmreS8654vqwd9JS6m8GN',
+                            'QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
+                        ],
+                    ],
+                    'description' => ['type' => 'string', 'required' => false, 'description' => 'Description of the LoRA style.', 'default' => 'A high-quality cyberpunk visual style with neon lights, futuristic elements, and strong contrast. Inspired by sci-fi films and urban night scenes.'],
                 ],
                 'response' => [
                     'data' => [
@@ -731,11 +890,27 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'LoRAs Custom Character Training',
                 'input_parameters' => [
-                    'name' => ['type' => 'string', 'required' => true, 'example' => 'cyber_hero_neo'],
-                    'quality' => ['type' => 'string', 'required' => true, 'options' => ['medium', 'high', 'ultra'], 'description' => 'Quality of the LoRA character', 'example' => 'high'],
-                    'gender' => ['type' => 'string', 'required' => true, 'options' => ['male', 'female', 'neutral', 'custom'], 'description' => 'Gender of the character', 'example' => 'male'],
-                    'images' => ['type' => 'array', 'required' => true, 'minItems' => 8, 'maxItems' => 20, 'items' => ['type' => 'string', 'format' => 'uri']],
-                    'description' => ['type' => 'string', 'required' => false, 'example' => 'A futuristic male character with a bold cyberpunk aesthetic, glowing eyes, and advanced tech gear. Suitable for sci-fi narratives, stylized storytelling, and visual AI applications.'],
+                    'name' => ['type' => 'string', 'required' => true, 'default' => 'cyber_hero_neo'],
+                    'quality' => ['type' => 'string', 'required' => true, 'options' => ['medium', 'high', 'ultra'], 'description' => 'Quality of the LoRA character', 'default' => 'high'],
+                    'gender' => ['type' => 'string', 'required' => true, 'options' => ['male', 'female', 'neutral', 'custom'], 'description' => 'Gender of the character', 'default' => 'male'],
+                    'image_cids' => [
+                        'type' => 'array',
+                        'required' => true,
+                        'minItems' => 8,
+                        'maxItems' => 20,
+                        'items' => ['type' => 'string', 'format' => 'string'],
+                        'default' => [
+                            'QmRBe3ZDEBDH18JEgDuFdTShzw3Xy1s94bY6dtcBAnH4tu',
+                            'QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf',
+                            'QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN',
+                            'QmPnAKihJS1shKqnA4UqQ6bvkw29j8yFW4MJTb6KZA1e6Q',
+                            'QmdHRXQ8sX2d648gnCa2CXUjeJmreS8654vqwd9JS6m8GN',
+                            'QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H',
+                            'QmRTn93jATdpcpCg1nRfAExc8shh9Hmhbd8PHnXBrLJYAa',
+                            'QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV',
+                        ],
+                    ],
+                    'description' => ['type' => 'string', 'required' => false, 'default' => 'A futuristic male character with a bold cyberpunk aesthetic, glowing eyes, and advanced tech gear. Suitable for sci-fi narratives, stylized storytelling, and visual AI applications.'],
                 ],
                 'response' => [
                     'data' => [
@@ -751,31 +926,31 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Classic Fast Image Generation',
                 'input_parameters' => [
-                    'prompt' => ['type' => 'string', 'required' => true, 'minLength' => 3, 'example' => 'Crazy dog in the space', 'description' => 'Text to generate image from'],
-                    'negative_prompt' => ['type' => 'string', 'required' => false, 'minLength' => 3, 'example' => 'b&w, earth, cartoon, ugly', 'description' => 'Attributes to avoid in the generated image'],
-                    'guidance_scale' => ['type' => 'number', 'required' => false, 'min' => 0, 'max' => 2, 'default' => 1.0, 'example' => 2, 'description' => 'Fidelity to the prompt'],
-                    'seed' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 1000000, 'example' => 42, 'description' => 'Seed value for image reproducibility'],
-                    'num_images' => ['type' => 'integer', 'required' => false, 'min' => 1, 'max' => 4, 'default' => 1, 'example' => 1, 'description' => 'Number of images to generate'],
-                    'filter_nsfw' => ['type' => 'boolean', 'required' => false, 'default' => true, 'example' => true, 'description' => 'Filter NSFW content'],
+                    'prompt' => ['type' => 'string', 'required' => true, 'minLength' => 3, 'default' => 'Crazy dog in the space', 'description' => 'Text to generate image from'],
+                    'negative_prompt' => ['type' => 'string', 'required' => false, 'minLength' => 3, 'default' => 'b&w, earth, cartoon, ugly', 'description' => 'Attributes to avoid in the generated image'],
+                    'guidance_scale' => ['type' => 'number', 'required' => false, 'min' => 0, 'max' => 2,  'default' => 1.0, 'description' => 'Fidelity to the prompt'],
+                    'seed' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 1000000, 'default' => 42, 'description' => 'Seed value for image reproducibility'],
+                    'num_images' => ['type' => 'integer', 'required' => false, 'min' => 1, 'max' => 4, 'default' => 1, 'description' => 'Number of images to generate'],
+                    'filter_nsfw' => ['type' => 'boolean', 'required' => false, 'default' => true, 'description' => 'Filter NSFW content'],
                     'image' => [
                         'type' => 'object',
                         'required' => false,
                         'properties' => [
-                            'size' => ['type' => 'string', 'options' => ['square_1_1', 'classic_4_3', 'traditional_3_4', 'widescreen_16_9', 'social_story_9_16', 'smartphone_horizontal_20_9', 'smartphone_vertical_9_20', 'standard_3_2', 'portrait_2_3', 'horizontal_2_1', 'vertical_1_2', 'social_5_4', 'social_post_4_5'], 'example' => 'square_1_1', 'description' => 'Aspect ratio of the image'],
+                            'size' => ['type' => 'string', 'options' => ['square_1_1', 'classic_4_3', 'traditional_3_4', 'widescreen_16_9', 'social_story_9_16', 'smartphone_horizontal_20_9', 'smartphone_vertical_9_20', 'standard_3_2', 'portrait_2_3', 'horizontal_2_1', 'vertical_1_2', 'social_5_4', 'social_post_4_5'], 'default' => 'square_1_1', 'description' => 'Aspect ratio of the image'],
                         ],
                     ],
                     'styling' => [
                         'type' => 'object',
                         'required' => false,
                         'properties' => [
-                            'style' => ['type' => 'string', 'required' => false, 'options' => ['photo', 'digital-art', '3d', 'painting', 'low-poly', 'pixel-art', 'anime', 'cyberpunk', 'comic', 'vintage', 'cartoon', 'vector', 'studio-shot', 'dark', 'sketch', 'mockup', '2000s-pone', '70s-vibe', 'watercolor', 'art-nouveau', 'origami', 'surreal', 'fantasy', 'traditional-japan'], 'example' => 'anime', 'description' => 'Style to apply to the image'],
+                            'style' => ['type' => 'string', 'required' => false, 'options' => ['photo', 'digital-art', '3d', 'painting', 'low-poly', 'pixel-art', 'anime', 'cyberpunk', 'comic', 'vintage', 'cartoon', 'vector', 'studio-shot', 'dark', 'sketch', 'mockup', '2000s-pone', '70s-vibe', 'watercolor', 'art-nouveau', 'origami', 'surreal', 'fantasy', 'traditional-japan'], 'default' => 'anime', 'description' => 'Style to apply to the image'],
                             'effects' => [
                                 'type' => 'object',
                                 'required' => false,
                                 'properties' => [
-                                    'color' => ['type' => 'string', 'required' => false, 'options' => ['b&w', 'pastel', 'sepia', 'dramatic', 'vibrant', 'orange&teal', 'film-filter', 'split', 'electric', 'pastel-pink', 'gold-glow', 'autumn', 'muted-green', 'deep-teal', 'duotone', 'terracotta&teal', 'red&blue', 'cold-neon', 'burgundy&blue'], 'example' => 'pastel', 'description' => 'Effects - Color to apply'],
-                                    'lightning' => ['type' => 'string', 'required' => false, 'options' => ['studio', 'warm', 'cinematic', 'volumetric', 'golden-hour', 'long-exposure', 'cold', 'iridescent', 'dramatic', 'hardlight', 'redscale', 'indoor-light'], 'example' => 'warm', 'description' => 'Effects - Lightning to apply'],
-                                    'framing' => ['type' => 'string', 'required' => false, 'options' => ['portrait', 'macro', 'panoramic', 'aerial-view', 'close-up', 'cinematic', 'high-angle', 'low-angle', 'symmetry', 'fish-eye', 'first-person'], 'example' => 'portrait', 'description' => 'Effects - Framing to apply'],
+                                    'color' => ['type' => 'string', 'required' => false, 'options' => ['b&w', 'pastel', 'sepia', 'dramatic', 'vibrant', 'orange&teal', 'film-filter', 'split', 'electric', 'pastel-pink', 'gold-glow', 'autumn', 'muted-green', 'deep-teal', 'duotone', 'terracotta&teal', 'red&blue', 'cold-neon', 'burgundy&blue'], 'default' => 'pastel', 'description' => 'Effects - Color to apply'],
+                                    'lightning' => ['type' => 'string', 'required' => false, 'options' => ['studio', 'warm', 'cinematic', 'volumetric', 'golden-hour', 'long-exposure', 'cold', 'iridescent', 'dramatic', 'hardlight', 'redscale', 'indoor-light'], 'default' => 'warm', 'description' => 'Effects - Lightning to apply'],
+                                    'framing' => ['type' => 'string', 'required' => false, 'options' => ['portrait', 'macro', 'panoramic', 'aerial-view', 'close-up', 'cinematic', 'high-angle', 'low-angle', 'symmetry', 'fish-eye', 'first-person'], 'default' => 'portrait', 'description' => 'Effects - Framing to apply'],
                                 ],
                             ],
                             'colors' => [
@@ -786,8 +961,8 @@ class FreepikServiceProviderSeeder extends Seeder
                                 'items' => [
                                     'type' => 'object',
                                     'properties' => [
-                                        'color' => ['type' => 'string', 'pattern' => '^#([A-Fa-f0-9]{6})$', 'example' => '#FF5733', 'description' => 'Hex color code'],
-                                        'weight' => ['type' => 'number', 'min' => 0.05, 'max' => 1.0, 'example' => 1, 'description' => 'Weight of the color (0.05 - 1.0)'],
+                                        'color' => ['type' => 'string', 'pattern' => '^#([A-Fa-f0-9]{6})$', 'default' => '#FF5733', 'description' => 'Hex color code'],
+                                        'weight' => ['type' => 'number', 'min' => 0.05, 'max' => 1.0, 'default' => 1, 'description' => 'Weight of the color (0.05 - 1.0)'],
                                     ],
                                 ],
                             ],
@@ -805,21 +980,21 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Google Imagen 3 Image Generation',
                 'input_parameters' => [
-                    'prompt' => ['type' => 'string', 'required' => true, 'example' => 'Crazy dog in the space'],
-                    'num_images' => ['type' => 'integer', 'required' => false, 'min' => 1, 'max' => 4, 'example' => 1],
-                    'aspect_ratio' => ['type' => 'string', 'required' => false, 'options' => ['square_1_1', 'social_story_9_16', 'widescreen_16_9', 'traditional_3_4', 'classic_4_3'], 'example' => 'square_1_1'],
+                    'prompt' => ['type' => 'string', 'required' => true, 'default' => 'Crazy dog in the space'],
+                    'num_images' => ['type' => 'integer', 'required' => false, 'min' => 1, 'max' => 4, 'default' => 1],
+                    'aspect_ratio' => ['type' => 'string', 'required' => false, 'options' => ['square_1_1', 'social_story_9_16', 'widescreen_16_9', 'traditional_3_4', 'classic_4_3'], 'default' => 'square_1_1'],
                     'styling' => [
                         'type' => 'object',
                         'required' => false,
                         'properties' => [
-                            'style' => ['type' => 'string', 'required' => false, 'options' => ['photo', 'digital-art', '3d', 'painting', 'low-poly', 'pixel-art', 'anime', 'cyberpunk', 'comic', 'vintage', 'cartoon', 'vector', 'studio-shot', 'dark', 'sketch', 'mockup', '2000s-pone', '70s-vibe', 'watercolor', 'art-nouveau', 'origami', 'surreal', 'fantasy', 'traditional-japan'], 'example' => 'anime'],
+                            'style' => ['type' => 'string', 'required' => false, 'options' => ['photo', 'digital-art', '3d', 'painting', 'low-poly', 'pixel-art', 'anime', 'cyberpunk', 'comic', 'vintage', 'cartoon', 'vector', 'studio-shot', 'dark', 'sketch', 'mockup', '2000s-pone', '70s-vibe', 'watercolor', 'art-nouveau', 'origami', 'surreal', 'fantasy', 'traditional-japan'], 'default' => 'anime'],
                             'effects' => [
                                 'type' => 'object',
                                 'required' => false,
                                 'properties' => [
-                                    'color' => ['type' => 'string', 'required' => false, 'options' => ['b&w', 'pastel', 'sepia', 'dramatic', 'vibrant', 'orange&teal', 'film-filter', 'split', 'electric', 'pastel-pink', 'gold-glow', 'autumn', 'muted-green', 'deep-teal', 'duotone', 'terracotta&teal', 'red&blue', 'cold-neon', 'burgundy&blue'], 'example' => 'pastel'],
-                                    'lightning' => ['type' => 'string', 'required' => false, 'options' => ['studio', 'warm', 'cinematic', 'volumetric', 'golden-hour', 'long-exposure', 'cold', 'iridescent', 'dramatic', 'hardlight', 'redscale', 'indoor-light'], 'example' => 'warm'],
-                                    'framing' => ['type' => 'string', 'required' => false, 'options' => ['portrait', 'macro', 'panoramic', 'aerial-view', 'close-up', 'cinematic', 'high-angle', 'low-angle', 'symmetry', 'fish-eye', 'first-person'], 'example' => 'portrait'],
+                                    'color' => ['type' => 'string', 'required' => false, 'options' => ['b&w', 'pastel', 'sepia', 'dramatic', 'vibrant', 'orange&teal', 'film-filter', 'split', 'electric', 'pastel-pink', 'gold-glow', 'autumn', 'muted-green', 'deep-teal', 'duotone', 'terracotta&teal', 'red&blue', 'cold-neon', 'burgundy&blue'], 'default' => 'pastel'],
+                                    'lightning' => ['type' => 'string', 'required' => false, 'options' => ['studio', 'warm', 'cinematic', 'volumetric', 'golden-hour', 'long-exposure', 'cold', 'iridescent', 'dramatic', 'hardlight', 'redscale', 'indoor-light'], 'default' => 'warm'],
+                                    'framing' => ['type' => 'string', 'required' => false, 'options' => ['portrait', 'macro', 'panoramic', 'aerial-view', 'close-up', 'cinematic', 'high-angle', 'low-angle', 'symmetry', 'fish-eye', 'first-person'], 'default' => 'portrait'],
                                 ],
                             ],
                             'colors' => [
@@ -830,15 +1005,15 @@ class FreepikServiceProviderSeeder extends Seeder
                                 'items' => [
                                     'type' => 'object',
                                     'properties' => [
-                                        'color' => ['type' => 'string', 'example' => '#FF0000', 'description' => 'Hex color code'],
-                                        'weight' => ['type' => 'number', 'min' => 0.05, 'max' => 1.0, 'example' => 0.5, 'description' => 'Weight of the color (0.05 to 1)'],
+                                        'color' => ['type' => 'string', 'default' => '#FF0000', 'description' => 'Hex color code'],
+                                        'weight' => ['type' => 'number', 'min' => 0.05, 'max' => 1.0, 'default' => 0.5, 'description' => 'Weight of the color (0.05 to 1)'],
                                     ],
                                 ],
                             ],
                         ],
                     ],
-                    'person_generation' => ['type' => 'string', 'required' => false, 'options' => ['dont_allow', 'allow_adult', 'allow_all'], 'example' => 'allow_adult'],
-                    'safety_settings' => ['type' => 'string', 'required' => false, 'options' => ['block_low_and_above', 'block_medium_and_above', 'block_only_high', 'block_none'], 'example' => 'block_low_and_above'],
+                    'person_generation' => ['type' => 'string', 'required' => false, 'options' => ['dont_allow', 'allow_adult', 'allow_all'], 'default' => 'allow_adult'],
+                    'safety_settings' => ['type' => 'string', 'required' => false, 'options' => ['block_low_and_above', 'block_medium_and_above', 'block_only_high', 'block_none'], 'default' => 'block_low_and_above'],
                 ],
                 'response' => [
                     'data' => [
@@ -854,7 +1029,7 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Google Imagen 3 Image Generation Task Status',
                 'input_parameters' => [
-                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the Imagen3 generation task', 'example' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
+                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the Imagen3 generation task', 'default' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
                 ],
                 'response' => [
                     'data' => [
@@ -870,8 +1045,8 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Flux Dev Image Generation',
                 'input_parameters' => [
-                    'prompt' => ['type' => 'string', 'required' => false, 'example' => 'A futuristic city floating in the sky'],
-                    'aspect_ratio' => ['type' => 'string', 'required' => false, 'options' => ['square_1_1', 'classic_4_3', 'traditional_3_4', 'widescreen_16_9', 'social_story_9_16', 'standard_3_2', 'portrait_2_3', 'horizontal_2_1', 'vertical_1_2', 'social_post_4_5'], 'example' => 'square_1_1'],
+                    'prompt' => ['type' => 'string', 'required' => false, 'default' => 'A futuristic city floating in the sky'],
+                    'aspect_ratio' => ['type' => 'string', 'required' => false, 'options' => ['square_1_1', 'classic_4_3', 'traditional_3_4', 'widescreen_16_9', 'social_story_9_16', 'standard_3_2', 'portrait_2_3', 'horizontal_2_1', 'vertical_1_2', 'social_post_4_5'], 'default' => 'square_1_1'],
                     'styling' => [
                         'type' => 'object',
                         'required' => false,
@@ -880,9 +1055,9 @@ class FreepikServiceProviderSeeder extends Seeder
                                 'type' => 'object',
                                 'required' => false,
                                 'properties' => [
-                                    'color' => ['type' => 'string', 'required' => false, 'options' => ['softhue', 'b&w', 'goldglow', 'vibrant', 'coldneon'], 'example' => 'softhue'],
-                                    'framing' => ['type' => 'string', 'required' => false, 'options' => ['portrait', 'lowangle', 'midshot', 'wideshot', 'tiltshot', 'aerial'], 'example' => 'portrait'],
-                                    'lightning' => ['type' => 'string', 'required' => false, 'options' => ['iridescent', 'dramatic', 'goldenhour', 'longexposure', 'indorlight', 'flash', 'neon'], 'example' => 'iridescent'],
+                                    'color' => ['type' => 'string', 'required' => false, 'options' => ['softhue', 'b&w', 'goldglow', 'vibrant', 'coldneon'], 'default' => 'softhue'],
+                                    'framing' => ['type' => 'string', 'required' => false, 'options' => ['portrait', 'lowangle', 'midshot', 'wideshot', 'tiltshot', 'aerial'], 'default' => 'portrait'],
+                                    'lightning' => ['type' => 'string', 'required' => false, 'options' => ['iridescent', 'dramatic', 'goldenhour', 'longexposure', 'indorlight', 'flash', 'neon'], 'default' => 'iridescent'],
                                 ],
                             ],
                             'colors' => [
@@ -893,14 +1068,14 @@ class FreepikServiceProviderSeeder extends Seeder
                                 'items' => [
                                     'type' => 'object',
                                     'properties' => [
-                                        'color' => ['type' => 'string', 'example' => '#FF0000'],
-                                        'weight' => ['type' => 'number', 'min' => 0.05, 'max' => 1.0, 'example' => 0.5],
+                                        'color' => ['type' => 'string', 'default' => '#FF0000'],
+                                        'weight' => ['type' => 'number', 'min' => 0.05, 'max' => 1.0, 'default' => 0.5],
                                     ],
                                 ],
                             ],
                         ],
                     ],
-                    'seed' => ['type' => 'integer', 'required' => false, 'min' => 1, 'max' => 4294967295, 'example' => 2147483648],
+                    'seed' => ['type' => 'integer', 'required' => false, 'min' => 1, 'max' => 4294967295, 'default' => 2147483648],
                 ],
                 'response' => [
                     'data' => [
@@ -916,7 +1091,7 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Freepik Flux Dev Task Statu',
                 'input_parameters' => [
-                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the Flux Dev generation task', 'example' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
+                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the Flux Dev generation task', 'default' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
                 ],
                 'response' => [
                     'data' => [
@@ -932,10 +1107,10 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Reimagine Flux Image Generation',
                 'input_parameters' => [
-                    'image' => ['type' => 'string', 'required' => true, 'format' => 'byte', 'description' => 'Base64-encoded input image', 'example' => 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'],
-                    'prompt' => ['type' => 'string', 'required' => false, 'description' => 'Optional prompt for imagination', 'example' => 'A beautiful sunset over a calm ocean'],
-                    'imagination' => ['type' => 'string', 'required' => false, 'options' => ['wild', 'subtle', 'vivid'], 'description' => 'Imagination type', 'example' => 'wild'],
-                    'aspect_ratio' => ['type' => 'string', 'required' => false, 'options' => ['original', 'square_1_1', 'classic_4_3', 'traditional_3_4', 'widescreen_16_9', 'social_story_9_16', 'standard_3_2', 'portrait_2_3', 'horizontal_2_1', 'vertical_1_2', 'social_post_4_5'], 'description' => 'Aspect ratio of the generated image', 'example' => 'square_1_1'],
+                    'image_cid' => ['type' => 'string', 'required' => true, 'format' => 'byte', 'description' => 'cid input image', 'default' => 'QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'],
+                    'prompt' => ['type' => 'string', 'required' => false, 'description' => 'Optional prompt for imagination', 'default' => 'A beautiful sunset over a calm ocean'],
+                    'imagination' => ['type' => 'string', 'required' => false, 'options' => ['wild', 'subtle', 'vivid'], 'description' => 'Imagination type', 'default' => 'wild'],
+                    'aspect_ratio' => ['type' => 'string', 'required' => false, 'options' => ['original', 'square_1_1', 'classic_4_3', 'traditional_3_4', 'widescreen_16_9', 'social_story_9_16', 'standard_3_2', 'portrait_2_3', 'horizontal_2_1', 'vertical_1_2', 'social_post_4_5'], 'description' => 'Aspect ratio of the generated image', 'default' => 'square_1_1'],
                 ],
                 'response' => [
                     'data' => [
@@ -951,15 +1126,15 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Upscale Image Editing',
                 'input_parameters' => [
-                    'image' => ['type' => 'string', 'required' => true, 'description' => 'URL of the image to upscale', 'example' => 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'],
-                    'scale_factor' => ['type' => 'string', 'required' => false, 'options' => ['2x', '4x', '8x', '16x'], 'example' => '2x'],
-                    'optimized_for' => ['type' => 'string', 'required' => false, 'options' => ['standard', 'soft_portraits', 'hard_portraits', 'art_n_illustration', 'videogame_assets', 'nature_n_landscapes', 'films_n_photography', '3d_renders', 'science_fiction_n_horror'], 'example' => 'standard'],
-                    'prompt' => ['type' => 'string', 'required' => false, 'example' => 'A vivid and high-detail fantasy landscape with towering crystal mountains, glowing waterfalls, and enchanted forests under a twilight sky'],
-                    'creativity' => ['type' => 'integer', 'required' => false, 'min' => -10, 'max' => 10, 'example' => 5],
-                    'hdr' => ['type' => 'integer', 'required' => false, 'min' => -10, 'max' => 10, 'example' => 3],
-                    'resemblance' => ['type' => 'integer', 'required' => false, 'min' => -10, 'max' => 10, 'example' => 0],
-                    'fractality' => ['type' => 'integer', 'required' => false, 'min' => -10, 'max' => 10, 'example' => -2],
-                    'engine' => ['type' => 'string', 'required' => false, 'options' => ['automatic', 'magnific_illusio', 'magnific_sharpy', 'magnific_sparkle'], 'example' => 'automatic'],
+                    'image_cid' => ['type' => 'string', 'required' => true, 'description' => 'URL of the image to upscale', 'default' => 'QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'],
+                    'scale_factor' => ['type' => 'string', 'required' => false, 'options' => ['2x', '4x', '8x', '16x'], 'default' => '2x'],
+                    'optimized_for' => ['type' => 'string', 'required' => false, 'options' => ['standard', 'soft_portraits', 'hard_portraits', 'art_n_illustration', 'videogame_assets', 'nature_n_landscapes', 'films_n_photography', '3d_renders', 'science_fiction_n_horror'], 'default' => 'standard'],
+                    'prompt' => ['type' => 'string', 'required' => false, 'default' => 'A vivid and high-detail fantasy landscape with towering crystal mountains, glowing waterfalls, and enchanted forests under a twilight sky'],
+                    'creativity' => ['type' => 'integer', 'required' => false, 'min' => -10, 'max' => 10, 'default' => 5],
+                    'hdr' => ['type' => 'integer', 'required' => false, 'min' => -10, 'max' => 10, 'default' => 3],
+                    'resemblance' => ['type' => 'integer', 'required' => false, 'min' => -10, 'max' => 10, 'default' => 0],
+                    'fractality' => ['type' => 'integer', 'required' => false, 'min' => -10, 'max' => 10, 'default' => -2],
+                    'engine' => ['type' => 'string', 'required' => false, 'options' => ['automatic', 'magnific_illusio', 'magnific_sharpy', 'magnific_sparkle'], 'default' => 'automatic'],
                 ],
                 'response' => [
                     'data' => [
@@ -975,7 +1150,7 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Upscale Image Editing Task Status',
                 'input_parameters' => [
-                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the upscaling task', 'example' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
+                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the upscaling task', 'default' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
                 ],
                 'response' => [
                     'data' => [
@@ -991,28 +1166,28 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Relight Image Editing',
                 'input_parameters' => [
-                    'image' => ['type' => 'string', 'required' => true, 'description' => 'Base64 image to relight', 'example' => 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'],
-                    'prompt' => ['type' => 'string', 'required' => false, 'example' => 'A sunlit forest clearing at golden hour with rays piercing through the trees'],
-                    'transfer_light_from_reference_image' => ['type' => 'string', 'required' => false, 'example' => 'https://publiish.io/ipfs/QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV'],
-                    'transfer_light_from_lightmap' => ['type' => 'string', 'required' => false, 'example' => 'https://publiish.io/ipfs/QmPnAKihJS1shKqnA4UqQ6bvkw29j8yFW4MJTb6KZA1e6Q'],
-                    'light_transfer_strength' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 100, 'default' => 100, 'example' => 100],
-                    'interpolate_from_original' => ['type' => 'boolean', 'required' => false, 'default' => false, 'example' => false],
-                    'change_background' => ['type' => 'boolean', 'required' => false, 'default' => true, 'example' => true],
-                    'style' => ['type' => 'string', 'required' => false, 'options' => ['standard', 'darker_but_realistic', 'clean', 'smooth', 'brighter', 'contrasted_n_hdr', 'just_composition'], 'default' => 'standard', 'example' => 'standard'],
-                    'preserve_details' => ['type' => 'boolean', 'required' => false, 'default' => true, 'example' => true],
+                    'image_cid' => ['type' => 'string', 'required' => true, 'description' => 'cid image to relight', 'default' => 'QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'],
+                    'prompt' => ['type' => 'string', 'required' => false, 'default' => 'A sunlit forest clearing at golden hour with rays piercing through the trees'],
+                    'transfer_light_from_reference_image_cid' => ['type' => 'string', 'required' => false, 'default' => 'QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV'],
+                    'transfer_light_from_lightmap_cid' => ['type' => 'string', 'required' => false, 'default' => 'QmPnAKihJS1shKqnA4UqQ6bvkw29j8yFW4MJTb6KZA1e6Q'],
+                    'light_transfer_strength' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 100, 'default' => 100],
+                    'interpolate_from_original' => ['type' => 'boolean', 'required' => false, 'default' => false],
+                    'change_background' => ['type' => 'boolean', 'required' => false,  'default' => true],
+                    'style' => ['type' => 'string', 'required' => false, 'options' => ['standard', 'darker_but_realistic', 'clean', 'smooth', 'brighter', 'contrasted_n_hdr', 'just_composition'], 'default' => 'standard'],
+                    'preserve_details' => ['type' => 'boolean', 'required' => false,  'default' => true],
                     'advanced_settings' => [
                         'type' => 'object',
                         'required' => false,
                         'properties' => [
-                            'whites' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 100, 'default' => 50, 'example' => 50],
-                            'blacks' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 100, 'default' => 50, 'example' => 50],
-                            'brightness' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 100, 'default' => 50, 'example' => 50],
-                            'contrast' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 100, 'default' => 50, 'example' => 50],
-                            'saturation' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 100, 'default' => 50, 'example' => 50],
-                            'engine' => ['type' => 'string', 'required' => false, 'options' => ['automatic', 'balanced', 'cool', 'real', 'illusio', 'fairy', 'colorful_anime', 'hard_transform', 'softy'], 'default' => 'automatic', 'example' => 'automatic'],
-                            'transfer_light_a' => ['type' => 'string', 'required' => false, 'options' => ['automatic', 'low', 'medium', 'normal', 'high', 'high_on_faces'], 'default' => 'automatic', 'example' => 'automatic'],
-                            'transfer_light_b' => ['type' => 'string', 'required' => false, 'options' => ['automatic', 'composition', 'straight', 'smooth_in', 'smooth_out', 'smooth_both', 'reverse_both', 'soft_in', 'soft_out', 'soft_mid', 'strong_mid', 'style_shift', 'strong_shift'], 'default' => 'automatic', 'example' => 'automatic'],
-                            'fixed_generation' => ['type' => 'boolean', 'required' => false, 'default' => false, 'example' => false],
+                            'whites' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 100,  'default' => 50],
+                            'blacks' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 100,  'default' => 50],
+                            'brightness' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 100,  'default' => 50],
+                            'contrast' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 100,  'default' => 50],
+                            'saturation' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 100,  'default' => 50],
+                            'engine' => ['type' => 'string', 'required' => false, 'options' => ['automatic', 'balanced', 'cool', 'real', 'illusio', 'fairy', 'colorful_anime', 'hard_transform', 'softy'],  'default' => 'automatic'],
+                            'transfer_light_a' => ['type' => 'string', 'required' => false, 'options' => ['automatic', 'low', 'medium', 'normal', 'high', 'high_on_faces'],  'default' => 'automatic'],
+                            'transfer_light_b' => ['type' => 'string', 'required' => false, 'options' => ['automatic', 'composition', 'straight', 'smooth_in', 'smooth_out', 'smooth_both', 'reverse_both', 'soft_in', 'soft_out', 'soft_mid', 'strong_mid', 'style_shift', 'strong_shift'], 'default' => 'automatic'],
+                            'fixed_generation' => ['type' => 'boolean', 'required' => false,  'default' => false],
                         ],
                     ],
                 ],
@@ -1030,7 +1205,7 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Relight Image Editing Task Status',
                 'input_parameters' => [
-                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the Relight task', 'example' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
+                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the Relight task', 'default' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
                 ],
                 'response' => [
                     'data' => [
@@ -1046,17 +1221,17 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Style Transfer Image Editing',
                 'input_parameters' => [
-                    'image' => ['type' => 'string', 'required' => true, 'description' => 'Base64 Image to style transfer', 'example' => 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'],
-                    'reference_image' => ['type' => 'string', 'required' => true, 'description' => 'Base64 Reference image for style transfer', 'example' => 'https://publiish.io/ipfs/QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV'],
-                    'prompt' => ['type' => 'string', 'required' => false, 'example' => 'A peaceful mountain cabin at sunrise, surrounded by pine trees and light morning mist'],
-                    'style_strength' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 100, 'default' => 100, 'example' => 100],
-                    'structure_strength' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 100, 'default' => 50, 'example' => 50],
-                    'is_portrait' => ['type' => 'boolean', 'required' => false, 'default' => false, 'example' => false],
-                    'portrait_style' => ['type' => 'string', 'required' => false, 'options' => ['standard', 'pop', 'super_pop'], 'default' => 'standard', 'description' => 'Portrait style', 'example' => 'standard'],
-                    'portrait_beautifier' => ['type' => 'string', 'required' => false, 'options' => ['beautify_face', 'beautify_face_max'], 'description' => 'Portrait beautifier', 'example' => 'beautify_face'],
-                    'flavor' => ['type' => 'string', 'required' => false, 'options' => ['faithful', 'gen_z', 'psychedelia', 'detaily', 'clear', 'donotstyle', 'donotstyle_sharp'], 'default' => 'faithful', 'description' => 'Flavor of the transferring style', 'example' => 'faithful'],
-                    'engine' => ['type' => 'string', 'required' => false, 'options' => ['balanced', 'definio', 'illusio', '3d_cartoon', 'colorful_anime', 'caricature', 'real', 'super_real', 'softy'], 'default' => 'balanced', 'description' => 'Engine for style transfer', 'example' => 'balanced'],
-                    'fixed_generation' => ['type' => 'boolean', 'required' => false, 'default' => false, 'description' => 'Fixed generation flag', 'example' => false],
+                    'image_cid' => ['type' => 'string', 'required' => true, 'description' => 'Cid Image to style transfer', 'default' => 'QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'],
+                    'reference_image_cid' => ['type' => 'string', 'required' => true, 'description' => 'Cid Reference image for style transfer', 'default' => 'QmTjCdTXQ2M1JPQHMuciYGQ2BWLVXum73PEJ8KY1znV4TV'],
+                    'prompt' => ['type' => 'string', 'required' => false, 'default' => 'A peaceful mountain cabin at sunrise, surrounded by pine trees and light morning mist'],
+                    'style_strength' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 100, 'default' => 100],
+                    'structure_strength' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 100,  'default' => 50],
+                    'is_portrait' => ['type' => 'boolean', 'required' => false,  'default' => false],
+                    'portrait_style' => ['type' => 'string', 'required' => false, 'options' => ['standard', 'pop', 'super_pop'], 'description' => 'Portrait style', 'default' => 'standard'],
+                    'portrait_beautifier' => ['type' => 'string', 'required' => false, 'options' => ['beautify_face', 'beautify_face_max'], 'description' => 'Portrait beautifier', 'default' => 'beautify_face'],
+                    'flavor' => ['type' => 'string', 'required' => false, 'options' => ['faithful', 'gen_z', 'psychedelia', 'detaily', 'clear', 'donotstyle', 'donotstyle_sharp'],  'description' => 'Flavor of the transferring style', 'default' => 'faithful'],
+                    'engine' => ['type' => 'string', 'required' => false, 'options' => ['balanced', 'definio', 'illusio', '3d_cartoon', 'colorful_anime', 'caricature', 'real', 'super_real', 'softy'], 'description' => 'Engine for style transfer', 'default' => 'balanced'],
+                    'fixed_generation' => ['type' => 'boolean', 'required' => false,  'description' => 'Fixed generation flag', 'default' => false],
                 ],
                 'response' => [
                     'data' => [
@@ -1072,7 +1247,7 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Style Transfer Image Editing Task Status',
                 'input_parameters' => [
-                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the Style Transfer task', 'example' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
+                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the Style Transfer task', 'default' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
                 ],
                 'response' => [
                     'data' => [
@@ -1088,7 +1263,7 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Remove Background Image Editing',
                 'input_parameters' => [
-                    'image_url' => ['type' => 'string', 'required' => true, 'description' => 'The URL of the image whose background needs to be removed', 'example' => 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'],
+                    'image_cid' => ['type' => 'string', 'required' => true, 'description' => 'The CID of the image whose background needs to be removed', 'default' => 'QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'],
                 ],
                 'response' => [
                     'original' => 'https://api.freepik.com/v1/ai/beta/images/original/f6ff89df-f14e-4eca-936a-308ef404cfa8/thumbnail.jpg',
@@ -1103,12 +1278,12 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Expand Image Editing',
                 'input_parameters' => [
-                    'image' => ['type' => 'string', 'required' => true, 'description' => 'Base64 image to expand', 'example' => 'https://publiish.io/ipfs/QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'],
-                    'prompt' => ['type' => 'string', 'required' => false, 'description' => 'Description to guide expansion', 'example' => 'A panoramic view of a serene beach with gentle waves, golden sand, and a vibrant sunset sky extending beyond the frame'],
-                    'left' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 2048, 'description' => 'Pixels to expand on the left', 'example' => 2048],
-                    'right' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 2048, 'description' => 'Pixels to expand on the right', 'example' => 2048],
-                    'top' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 2048, 'description' => 'Pixels to expand on the top', 'example' => 2048],
-                    'bottom' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 2048, 'description' => 'Pixels to expand on the bottom', 'example' => 2048],
+                    'image_cid' => ['type' => 'string', 'required' => true, 'description' => 'CID image to expand', 'default' => 'QmPE5opZZhpeHypZzG3qJE5cbCNZ28SibBa9xo4MqsgF9H'],
+                    'prompt' => ['type' => 'string', 'required' => false, 'description' => 'Description to guide expansion', 'default' => 'A panoramic view of a serene beach with gentle waves, golden sand, and a vibrant sunset sky extending beyond the frame'],
+                    'left' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 2048, 'description' => 'Pixels to expand on the left', 'default' => 2048],
+                    'right' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 2048, 'description' => 'Pixels to expand on the right', 'default' => 2048],
+                    'top' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 2048, 'description' => 'Pixels to expand on the top', 'default' => 2048],
+                    'bottom' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 2048, 'description' => 'Pixels to expand on the bottom', 'default' => 2048],
                 ],
                 'response' => [
                     'data' => [
@@ -1124,7 +1299,7 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'Expand Image Editing Task Status',
                 'input_parameters' => [
-                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the image expand task', 'example' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
+                    'task_id' => ['type' => 'string', 'required' => true, 'description' => 'ID of the image expand task', 'default' => '046b6c7f-0b8a-43b9-b35d-6489e6daee91'],
                 ],
                 'response' => [
                     'data' => [

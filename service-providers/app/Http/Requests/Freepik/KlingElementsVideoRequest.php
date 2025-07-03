@@ -5,6 +5,7 @@ namespace App\Http\Requests\Freepik;
 use App\Enums\Freepik\AspectRatioEnum;
 use App\Enums\Freepik\KlingElementModelEnum;
 use App\Enums\Freepik\KlingVideoDurationEnum;
+use App\Rules\ValidIpfsCid;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -27,8 +28,8 @@ class KlingElementsVideoRequest extends FormRequest
     {
         return [
             'model' => ['required', Rule::in(KlingElementModelEnum::getValuesInArray())],
-            'images' => ['required', 'array', 'max:4'],
-            'images.*' => ['required', 'url'],
+            'image_cids' => ['required', 'array', 'max:4'],
+            'image_cids.*' => ['required', new ValidIpfsCid],
             'prompt' => ['nullable', 'string', 'max:2500'],
             'negative_prompt' => ['nullable', 'string', 'max:2500'],
             'duration' => ['required', Rule::in(KlingVideoDurationEnum::getValuesInArray())],

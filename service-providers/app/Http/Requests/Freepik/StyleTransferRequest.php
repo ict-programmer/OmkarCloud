@@ -6,6 +6,7 @@ use App\Enums\Freepik\ImageEditing\StyleTransfer\EngineEnum;
 use App\Enums\Freepik\ImageEditing\StyleTransfer\FlavorEnum;
 use App\Enums\Freepik\ImageEditing\StyleTransfer\PortraitBeautifierEnum;
 use App\Enums\Freepik\ImageEditing\StyleTransfer\PortraitStyleEnum;
+use App\Rules\ValidIpfsCid;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -27,8 +28,8 @@ class StyleTransferRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image' => ['required', 'string', 'url'],
-            'reference_image' => ['required', 'string', 'url'],
+            'image_cid' => ['required', 'string', new ValidIpfsCid],
+            'reference_image_cid' => ['required', 'string', new ValidIpfsCid],
             'prompt' => ['nullable', 'string'],
             'style_strength' => ['nullable', 'integer', 'between:0,100'],
             'structure_strength' => ['nullable', 'integer', 'between:0,100'],

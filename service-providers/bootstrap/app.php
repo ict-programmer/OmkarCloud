@@ -57,6 +57,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (ApiException $e) {
             return response()->json([
                 'message' => $e->getMessage(),
+                'details' => $e->details,
                 'success' => false,
                 'timestamp' => now()->format('Y-m-d, H:i:s'),
             ], $e->getStatusCode());
