@@ -22,8 +22,10 @@ use App\Data\Request\Freepik\StockContentData;
 use App\Data\Request\Freepik\StyleTransferData;
 use App\Data\Request\Freepik\UpscaleImageData;
 use App\Enums\Freepik\KlingModelEnum;
+use App\Exceptions\ApiException;
 use App\Helpers\ImageToBase64Converter;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -39,6 +41,40 @@ class FreepikService
         $this->client = Http::baseUrl($this->baseUrl)
             ->withHeader('x-freepik-api-key', config(('services.freepik.api_key')))
             ->timeout(30 * 60);
+    }
+
+    private function post(string $endpoint, array $payload = [], bool $isMultipart = false): array
+    {
+        try {
+            $client = $this->client
+                ->post($endpoint, array_filter($payload, fn ($value) => $value !== null));
+
+            if ($isMultipart) {
+                $client->asMultipart();
+            }
+
+            return $client
+                ->throw()
+                ->json();
+        } catch (RequestException $e) {
+            $message = $e->response->json('message') ?? 'API request failed';
+            $status = $e->response->status();
+            throw new ApiException($message, $status, Arr::except($e->response->json(), 'message'));
+        }
+    }
+
+    private function get(string $endpoint, array $payload = []): array
+    {
+        try {
+            return $this->client
+                ->get($endpoint, array_filter($payload, fn ($value) => $value !== null))
+                ->throw()
+                ->json();
+        } catch (RequestException $e) {
+            $message = $e->response->json('message') ?? 'API request failed';
+            $status = $e->response->status();
+            throw new ApiException($message, $status, Arr::except($e->response->json(), 'message'));
+        }
     }
 
     public function stockContent(StockContentData $data): array
@@ -71,11 +107,9 @@ class FreepikService
 
     public function aiImageClassifier(AiImageClassifierData $data): array
     {
-        $response = $this->client->post('/ai/classifier/image', [
+        return $this->post('/ai/classifier/image', [
             'image' => $data->image_url,
         ]);
-
-        return $response->json();
     }
 
     public function iconGeneration(IconGenerationData $data): array
@@ -97,9 +131,7 @@ class FreepikService
 
     public function klingImageToVideo(KlingImageToVideoData $data): array
     {
-        $response = $this->client->post('ai/image-to-video/' . $data->model->value, array_filter(Arr::except($data->toArray(), 'model'), fn ($value) => $value !== null));
-
-        return $response->json();
+        return $this->post('ai/image-to-video/' . $data->model->value, Arr::except($data->toArray(), 'model'));
     }
 
     public function klingImageToVideoStatus(string $model, string $taskId): array
@@ -129,9 +161,7 @@ class FreepikService
 
     public function klingElementsVideo(KlingElementsVideoData $data): array
     {
-        $response = $this->client->post('ai/image-to-video/' . $data->model->value, array_filter(Arr::except($data->toArray(), 'model'), fn ($value) => $value !== null));
-
-        return $response->json();
+        return $this->post('ai/image-to-video/' . $data->model->value, Arr::except($data->toArray(), 'model'));
     }
 
     public function klingElementsVideoStatus(string $taskId): array

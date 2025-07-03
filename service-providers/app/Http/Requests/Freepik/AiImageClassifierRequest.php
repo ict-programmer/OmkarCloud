@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Freepik;
 
+use App\Rules\ValidIpfsCid;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AiImageClassifierRequest extends FormRequest
@@ -22,7 +23,7 @@ class AiImageClassifierRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image_url' => ['required', 'url'],
+            'image_cid' => ['required', new ValidIpfsCid],
         ];
     }
 }

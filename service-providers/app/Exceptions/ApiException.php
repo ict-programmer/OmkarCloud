@@ -8,7 +8,8 @@ class ApiException extends Exception
 {
     public function __construct(
         string $message = 'Something went wrong',
-        protected int $statusCode = 400
+        protected int $statusCode = 400,
+        public mixed $details = null
     ) {
         parent::__construct($message, $statusCode);
     }

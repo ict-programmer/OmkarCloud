@@ -387,7 +387,7 @@ class FreepikServiceProviderSeeder extends Seeder
             [
                 'name' => 'AI Image Classifier',
                 'input_parameters' => [
-                    'image_url' => ['type' => 'string', 'required' => true, 'description' => 'URL of the image to classify.', 'example' => 'https://publiish.io/ipfs/QmTkm5aAqNPgc3rXKTjYJ1VVB86xWJGofZX5wiRXHeew7f'],
+                    'image_cid' => ['type' => 'string', 'required' => true, 'description' => 'URL of the image to classify.', 'example' => 'QmTkm5aAqNPgc3rXKTjYJ1VVB86xWJGofZX5wiRXHeew7f'],
                 ],
                 'response' => [
                     'data' => [
@@ -437,7 +437,6 @@ class FreepikServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => true,
-                        'default' => 'kling-v2-1-master',
                         'options' => [
                             'source' => 'collection',
                             'collection_name' => 'service_provider_model',
@@ -454,12 +453,11 @@ class FreepikServiceProviderSeeder extends Seeder
                         'example' => 'kling-v2-1-master',
                     ],
                     'duration' => ['type' => 'string', 'required' => true, 'options' => ['5', '10'], 'description' => 'Duration of the generated video in seconds. Available options: 5, 10.', 'example' => '10'],
-                    'image' => ['type' => 'string', 'required' => false, 'description' => 'Reference image. Supports URL. Max 10MB, min 300x300px, aspect ratio 1:2.5 to 2.5:1.', 'example' => 'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN'],
-                    'image_tail' => ['type' => 'string', 'required' => false, 'description' => "Reference Image - End frame control. Supports URL. For URL, must be publicly accessible. Must follow the same format requirements as the 'image' field. (Optional) Not compatible with standard mode.", 'example' => 'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN'],
+                    'image_cid' => ['type' => 'string', 'required' => false, 'description' => 'Reference image cid. Max 10MB, min 300x300px, aspect ratio 1:2.5 to 2.5:1.', 'example' => 'QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN'],
                     'prompt' => ['type' => 'string', 'required' => false, 'description' => 'Text prompt describing the desired motion. Required if image is not provided.', 'example' => 'Cinematic view of a mountain range fading into mist, soft lighting, epic atmosphere'],
                     'negative_prompt' => ['type' => 'string', 'required' => false, 'description' => 'Describe what to avoid in the generated video.', 'example' => 'blurry, low-quality, distorted, overexposed'],
                     'cfg_scale' => ['type' => 'number', 'required' => false, 'description' => 'Higher = stronger relevance to prompt (0-1). Default is 0.5.', 'example' => 0.3, 'min' => 0, 'max' => 1],
-                    'static_mask' => ['type' => 'string', 'required' => false, 'description' => 'Static mask image URL. Must match resolution and aspect ratio of input image.', 'example' => 'https://publiish.io/ipfs/Qme7SZ1t9PbGKAesTA24EDu7pEs3J1JkWDt9qwQdaocYRB'],
+                    'static_mask_cid' => ['type' => 'string', 'required' => false, 'description' => 'Static mask image cid. Must match resolution and aspect ratio of input image.', 'example' => 'Qme7SZ1t9PbGKAesTA24EDu7pEs3J1JkWDt9qwQdaocYRB'],
                     'dynamic_masks' => [
                         'type' => 'array',
                         'required' => false,
@@ -467,7 +465,7 @@ class FreepikServiceProviderSeeder extends Seeder
                         'items' => [
                             'type' => 'object',
                             'properties' => [
-                                'mask' => ['type' => 'string', 'description' => 'Dynamic mask image URL', 'example' => 'https://publiish.io/ipfs/QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf'],
+                                'mask_cid' => ['type' => 'string', 'description' => 'Dynamic mask image cid', 'example' => 'QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf'],
                                 'trajectories' => [
                                     'type' => 'array',
                                     'items' => [
@@ -570,7 +568,6 @@ class FreepikServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => true,
-                        'default' => 'kling-elements-pro',
                         'options' => [
                             'source' => 'collection',
                             'collection_name' => 'service_provider_model',
@@ -586,11 +583,16 @@ class FreepikServiceProviderSeeder extends Seeder
                         'description' => 'Model of the generated video.',
                         'example' => 'kling-elements-pro',
                     ],
-                    'images[]' => ['type' => 'array', 'required' => true, 'description' => 'Array of up to 4 image URLs (publicly accessible)', 'items' => ['type' => 'string'], 'maxItems' => 4, 'example' => ['https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN', 'https://publiish.io/ipfs/QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf']],
-                    'prompt' => ['type' => 'string', 'required' => false, 'maxLength' => 2500],
-                    'negative_prompt' => ['type' => 'string', 'required' => false, 'maxLength' => 2500],
+                    'image_cid' => [
+                        'type' => 'array',
+                        'required' => true,
+                        'description' => 'Array of up to 4 image cids (publicly accessible)',
+                        'example' => ['QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN', 'QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf'],
+                    ],
+                    'prompt' => ['type' => 'string', 'required' => false, 'maxLength' => 2500, 'example' => 'A sunset over the ocean with crashing waves'],
+                    'negative_prompt' => ['type' => 'string', 'required' => false, 'maxLength' => 2500, 'example' => 'low resolution, night scene'],
                     'duration' => ['type' => 'string', 'required' => false, 'options' => ['5', '10'], 'example' => '5'],
-                    'aspect_ratio' => ['type' => 'string', 'required' => false, 'options' => ['widescreen_16_9', 'social_story_9_16', 'square_1_1']],
+                    'aspect_ratio' => ['type' => 'string', 'required' => false, 'options' => ['widescreen_16_9', 'social_story_9_16', 'square_1_1'], 'example' => 'widescreen_16_9'],
                 ],
                 'response' => [
                     'data' => [

@@ -956,10 +956,10 @@ class FreepikController extends BaseController
         tags: ['Freepik']
     )]
     #[OA\Parameter(
-        name: 'image_url',
+        name: 'image_cid',
         in: 'query',
         required: true,
-        schema: new OA\Schema(type: 'string', format: 'uri', example: 'https://publiish.io/ipfs/QmTkm5aAqNPgc3rXKTjYJ1VVB86xWJGofZX5wiRXHeew7f')
+        schema: new OA\Schema(type: 'string', format: 'string', example: 'QmTkm5aAqNPgc3rXKTjYJ1VVB86xWJGofZX5wiRXHeew7f')
     )]
     #[OA\Response(
         response: 200,
@@ -1103,16 +1103,10 @@ class FreepikController extends BaseController
                             example: '10'
                         ),
                         new OA\Property(
-                            property: 'image',
+                            property: 'image_cid',
                             type: 'string',
-                            description: 'Reference image. Supports URL. Max 10MB, min 300x300px, aspect ratio 1:2.5 to 2.5:1.',
-                            example: 'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN'
-                        ),
-                        new OA\Property(
-                            property: 'image_tail',
-                            type: 'string',
-                            description: "Reference Image - End frame control. Supports URL. For URL, must be publicly accessible. Must follow the same format requirements as the 'image' field. (Optional) Not compatible with standard mode.",
-                            example: 'https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN'
+                            description: 'Reference image. Supports cid. Max 10MB, min 300x300px, aspect ratio 1:2.5 to 2.5:1.',
+                            example: 'QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN'
                         ),
                         new OA\Property(
                             property: 'prompt',
@@ -1138,8 +1132,8 @@ class FreepikController extends BaseController
                         new OA\Property(
                             property: 'static_mask',
                             type: 'string',
-                            description: 'Static mask image URL. Must match resolution and aspect ratio of input image.',
-                            example: 'https://publiish.io/ipfs/Qme7SZ1t9PbGKAesTA24EDu7pEs3J1JkWDt9qwQdaocYRB'
+                            description: 'Static mask image cid. Must match resolution and aspect ratio of input image.',
+                            example: 'QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN'
                         ),
                         new OA\Property(
                             property: 'dynamic_masks',
@@ -1150,10 +1144,10 @@ class FreepikController extends BaseController
                                 required: ['mask', 'trajectories'],
                                 properties: [
                                     new OA\Property(
-                                        property: 'mask',
+                                        property: 'mask_cid',
                                         type: 'string',
-                                        description: 'Dynamic mask image URL',
-                                        example: 'https://publiish.io/ipfs/QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf'
+                                        description: 'Dynamic mask image cid',
+                                        example: 'QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN'
                                     ),
                                     new OA\Property(
                                         property: 'trajectories',
@@ -1387,11 +1381,11 @@ class FreepikController extends BaseController
         example: 'kling-elements-pro'
     )]
     #[OA\Parameter(
-        name: 'images[]',
+        name: 'image_cids[]',
         in: 'query',
         required: true,
-        description: 'Array of up to 4 image URLs (publicly accessible)',
-        schema: new OA\Schema(type: 'array', items: new OA\Items(type: 'string', format: 'uri'), maxItems: 4, example: ['https://publiish.io/ipfs/QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN', 'https://publiish.io/ipfs/QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf'])
+        description: 'Array of up to 4 image cids (publicly accessible)',
+        schema: new OA\Schema(type: 'array', items: new OA\Items(type: 'string', format: 'uri'), maxItems: 4, example: ['QmePMNQ1BYCsaJwCpA4sbGpYxgiEznzJwPDMHir9FdUiYN', 'QmRPNoFMcYFmzJuZgd4t3BDyfELAGCwNtGSb5i5AbXkcpf'])
     )]
     #[OA\Parameter(name: 'prompt', in: 'query', required: false, schema: new OA\Schema(type: 'string', maxLength: 2500))]
     #[OA\Parameter(name: 'negative_prompt', in: 'query', required: false, schema: new OA\Schema(type: 'string', maxLength: 2500))]
