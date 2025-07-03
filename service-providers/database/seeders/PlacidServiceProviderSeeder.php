@@ -28,21 +28,13 @@ class PlacidServiceProviderSeeder extends Seeder
                     'api_key' => 'YOUR_PLACID_API_KEY',
                     'base_url' => 'https://api.placid.app',
                     'version' => '2.0',
-                    'endpoints' => [
-                        'images' => '/api/rest/images',
-                        'pdfs' => '/api/rest/pdfs',
-                        'videos' => '/api/rest/videos',
-                        'templates' => '/api/rest/templates',
-                    ],
                     'features' => [
                         'image_generation',
-                        'pdf_generation',
+                        'retrieve_template',
                         'video_generation',
-                        'template_management',
-                        'webhook_support',
-                        'async_processing',
-                        's3_transfer',
-                        'custom_modifications',
+                        'retrieve_video',
+                        'pdf_generation',
+                        'retrieve_pdf',
                     ],
                 ],
                 'is_active' => true,
@@ -57,105 +49,28 @@ class PlacidServiceProviderSeeder extends Seeder
                     'template_uuid' => [
                         'type' => 'string',
                         'required' => true,
-                        'min_length' => 8,
-                        'max_length' => 50,
-                        'description' => 'Template UUID to be used for image creation',
+                        'default' => '550e8400-e29b-41d4-a716-446655440000',
+                        'description' => 'UUID of the template to use for image generation',
                     ],
                     'layers' => [
-                        'type' => 'object',
+                        'type' => 'array',
                         'required' => true,
-                        'description' => 'Layer data to customize the template',
-                        'properties' => [
-                            'text_layers' => [
-                                'type' => 'object',
-                                'description' => 'Text content for text layers',
+                        'default' => [
+                            [
+                                'name' => 'title',
+                                'text' => 'Sample Title',
                             ],
-                            'image_layers' => [
-                                'type' => 'object',
-                                'description' => 'Image URLs for image layers',
-                            ],
-                        ],
-                    ],
-                    'create_now' => [
-                        'type' => 'boolean',
-                        'required' => false,
-                        'default' => false,
-                        'description' => 'Process the image instantly instead of queueing it',
-                    ],
-                    'webhook_success' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'format' => 'url',
-                        'description' => 'Webhook URL to be called after successful generation',
-                    ],
-                    'passthrough' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'max_length' => 1024,
-                        'description' => 'Custom data to be passed through webhooks',
-                    ],
-                    'modifications' => [
-                        'type' => 'object',
-                        'required' => false,
-                        'properties' => [
-                            'width' => [
-                                'type' => 'integer',
-                                'min' => 1,
-                                'max' => 4000,
-                            ],
-                            'height' => [
-                                'type' => 'integer',
-                                'min' => 1,
-                                'max' => 4000,
-                            ],
-                            'filename' => [
-                                'type' => 'string',
-                                'max_length' => 255,
+                            [
+                                'name' => 'subtitle',
+                                'text' => 'Sample Subtitle',
                             ],
                         ],
-                        'description' => 'Image size and filename modifications',
-                    ],
-                    'transfer' => [
-                        'type' => 'object',
-                        'required' => false,
-                        'properties' => [
-                            'to' => [
-                                'type' => 'string',
-                                'options' => ['s3', 'gcs', 'ftp'],
-                            ],
-                            'bucket' => ['type' => 'string'],
-                            'key' => ['type' => 'string'],
-                            'secret' => ['type' => 'string'],
-                            'region' => ['type' => 'string'],
-                            'path' => ['type' => 'string'],
-                        ],
-                        'description' => 'Transfer settings for external storage',
+                        'description' => 'Array of layers with content to be applied to the template',
                     ],
                 ],
                 'response' => [
-                    'id' => 12345,
-                    'status' => 'finished',
-                    'image_url' => 'https://placid.app/storage/images/generated_image_12345.png',
-                    'errors' => [],
-                    'template_uuid' => 'ospo24ysn',
-                    'layers' => [
-                        'img' => [
-                            'image' => 'https://faywoodwildlife.com/images/lion-singh.jpg',
-                        ],
-                        'subline' => [
-                            'text' => 'Employee of the month',
-                        ],
-                        'title' => [
-                            'text' => 'Meet Singh',
-                        ],
-                    ],
-                    'modifications' => [
-                        'width' => 1200,
-                        'height' => 630,
-                        'filename' => 'custom-image.png',
-                    ],
-                    'created_at' => '2024-01-15T10:30:00Z',
-                    'finished_at' => '2024-01-15T10:30:05Z',
+                    'image_url' => 'https://placid.app/u/abc123/generated-image.png',
+                    'status' => 'success',
                 ],
                 'response_path' => [
                     'final_result' => '$',
@@ -164,237 +79,40 @@ class PlacidServiceProviderSeeder extends Seeder
                 'function_name' => 'imageGeneration',
             ],
             [
-                'name' => 'PDF Generation',
-                'input_parameters' => [
-                    'template_uuid' => [
-                        'type' => 'string',
-                        'required' => true,
-                        'min_length' => 8,
-                        'max_length' => 50,
-                        'description' => 'Template UUID to be used for PDF creation',
-                    ],
-                    'layers' => [
-                        'type' => 'object',
-                        'required' => true,
-                        'description' => 'Layer data to customize the PDF template',
-                        'properties' => [
-                            'text_layers' => [
-                                'type' => 'object',
-                                'description' => 'Text content for text layers',
-                            ],
-                            'image_layers' => [
-                                'type' => 'object',
-                                'description' => 'Image URLs for image layers',
-                            ],
-                        ],
-                    ],
-                    'create_now' => [
-                        'type' => 'boolean',
-                        'required' => false,
-                        'default' => false,
-                        'description' => 'Process the PDF instantly instead of queueing it',
-                    ],
-                    'webhook_success' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'format' => 'url',
-                        'description' => 'Webhook URL to be called after successful generation',
-                    ],
-                    'modifications' => [
-                        'type' => 'object',
-                        'required' => false,
-                        'properties' => [
-                            'filename' => [
-                                'type' => 'string',
-                                'max_length' => 255,
-                            ],
-                            'format' => [
-                                'type' => 'string',
-                                'options' => ['A4', 'A3', 'Letter', 'Legal'],
-                                'default' => 'A4',
-                            ],
-                        ],
-                        'description' => 'PDF format and filename modifications',
-                    ],
-                ],
-                'response' => [
-                    'id' => 12346,
-                    'status' => 'finished',
-                    'pdf_url' => 'https://placid.app/storage/pdfs/generated_pdf_12346.pdf',
-                    'errors' => [],
-                    'template_uuid' => 'pdf123abc',
-                    'layers' => [
-                        'title' => [
-                            'text' => 'Monthly Report',
-                        ],
-                        'subtitle' => [
-                            'text' => 'January 2024',
-                        ],
-                        'company_logo' => [
-                            'image' => 'https://company.com/logo.png',
-                        ],
-                    ],
-                    'modifications' => [
-                        'filename' => 'monthly-report-jan-2024.pdf',
-                        'format' => 'A4',
-                    ],
-                    'created_at' => '2024-01-15T10:35:00Z',
-                    'finished_at' => '2024-01-15T10:35:08Z',
-                ],
-                'response_path' => [
-                    'final_result' => '$',
-                ],
-                'request_class_name' => ImageGenerationRequest::class,
-                'function_name' => 'pdfGeneration',
-            ],
-            [
-                'name' => 'Video Generation',
-                'input_parameters' => [
-                    'clips' => [
-                        'type' => 'array',
-                        'required' => true,
-                        'min_items' => 1,
-                        'max_items' => 20,
-                        'description' => 'Array of video clips to generate',
-                        'items' => [
-                            'type' => 'object',
-                            'properties' => [
-                                'template_uuid' => [
-                                    'type' => 'string',
-                                    'required' => true,
-                                ],
-                                'layers' => [
-                                    'type' => 'object',
-                                    'required' => true,
-                                ],
-                                'duration' => [
-                                    'type' => 'integer',
-                                    'min' => 1,
-                                    'max' => 300,
-                                ],
-                            ],
-                        ],
-                    ],
-                    'create_now' => [
-                        'type' => 'boolean',
-                        'required' => false,
-                        'default' => false,
-                        'description' => 'Process the video instantly instead of queueing it',
-                    ],
-                    'webhook_success' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'format' => 'url',
-                        'description' => 'Webhook URL to be called after successful generation',
-                    ],
-                    'modifications' => [
-                        'type' => 'object',
-                        'required' => false,
-                        'properties' => [
-                            'width' => [
-                                'type' => 'integer',
-                                'min' => 1,
-                                'max' => 4000,
-                            ],
-                            'height' => [
-                                'type' => 'integer',
-                                'min' => 1,
-                                'max' => 4000,
-                            ],
-                            'format' => [
-                                'type' => 'string',
-                                'options' => ['mp4', 'mov', 'avi'],
-                                'default' => 'mp4',
-                            ],
-                            'fps' => [
-                                'type' => 'integer',
-                                'options' => [24, 25, 30, 60],
-                                'default' => 30,
-                            ],
-                        ],
-                        'description' => 'Video format and quality modifications',
-                    ],
-                ],
-                'response' => [
-                    'id' => 12347,
-                    'status' => 'finished',
-                    'video_url' => 'https://placid.app/storage/videos/generated_video_12347.mp4',
-                    'errors' => [],
-                    'clips' => [
-                        [
-                            'template_uuid' => 'illcmemnt',
-                            'layers' => [
-                                'video' => [
-                                    'video' => 'https://socialmediacollection.com/assets/video-tiktok-1.mp4',
-                                ],
-                                'logo' => [
-                                    'image' => 'https://socialmediacollection.com/assets/logo.png',
-                                ],
-                                'username' => [
-                                    'text' => '@username',
-                                ],
-                            ],
-                            'duration' => 10,
-                        ],
-                    ],
-                    'modifications' => [
-                        'width' => 1080,
-                        'height' => 1920,
-                        'format' => 'mp4',
-                        'fps' => 30,
-                    ],
-                    'total_duration' => 10,
-                    'created_at' => '2024-01-15T10:40:00Z',
-                    'finished_at' => '2024-01-15T10:40:45Z',
-                ],
-                'response_path' => [
-                    'final_result' => '$',
-                ],
-                'request_class_name' => VideoGenerationRequest::class,
-                'function_name' => 'videoGeneration',
-            ],
-            [
                 'name' => 'Retrieve Template',
                 'input_parameters' => [
                     'template_uuid' => [
                         'type' => 'string',
                         'required' => true,
-                        'min_length' => 8,
-                        'max_length' => 50,
-                        'description' => 'Template UUID to retrieve information for',
+                        'default' => '550e8400-e29b-41d4-a716-446655440000',
+                        'description' => 'UUID of the template to retrieve',
                     ],
                 ],
                 'response' => [
-                    'uuid' => 'ospo24ysn',
-                    'name' => 'Social Media Post Template',
-                    'description' => 'Template for creating social media posts with image and text',
-                    'type' => 'image',
-                    'width' => 1200,
-                    'height' => 630,
+                    'template_uuid' => '550e8400-e29b-41d4-a716-446655440000',
+                    'name' => 'Sample Template',
+                    'description' => 'A sample template for demonstrations',
+                    'width' => 1920,
+                    'height' => 1080,
                     'layers' => [
-                        [
-                            'name' => 'img',
-                            'type' => 'image',
-                            'required' => true,
-                            'description' => 'Main background image',
-                        ],
                         [
                             'name' => 'title',
                             'type' => 'text',
-                            'required' => true,
-                            'max_length' => 100,
-                            'description' => 'Main title text',
+                            'x' => 100,
+                            'y' => 100,
+                            'width' => 800,
+                            'height' => 100,
                         ],
                         [
-                            'name' => 'subline',
+                            'name' => 'subtitle',
                             'type' => 'text',
-                            'required' => false,
-                            'max_length' => 200,
-                            'description' => 'Subtitle or description text',
+                            'x' => 100,
+                            'y' => 220,
+                            'width' => 800,
+                            'height' => 50,
                         ],
                     ],
-                    'created_at' => '2024-01-10T08:00:00Z',
-                    'updated_at' => '2024-01-12T10:30:00Z',
+                    'created_at' => '2024-01-01T12:00:00Z',
                 ],
                 'response_path' => [
                     'final_result' => '$',
@@ -403,40 +121,37 @@ class PlacidServiceProviderSeeder extends Seeder
                 'function_name' => 'retrieveTemplate',
             ],
             [
-                'name' => 'Retrieve PDF',
+                'name' => 'Video Generation',
                 'input_parameters' => [
-                    'pdf_id' => [
-                        'type' => 'integer',
+                    'clips' => [
+                        'type' => 'array',
                         'required' => true,
-                        'min' => 1,
-                        'description' => 'PDF ID to retrieve',
+                        'default' => [
+                            [
+                                'template_uuid' => '550e8400-e29b-41d4-a716-446655440000',
+                                'layers' => [
+                                    [
+                                        'name' => 'title',
+                                        'text' => 'Video Clip Title',
+                                    ],
+                                ],
+                                'duration' => 5,
+                            ],
+                        ],
+                        'description' => 'Array of video clips with templates and content',
                     ],
                 ],
                 'response' => [
-                    'id' => 12346,
-                    'status' => 'finished',
-                    'pdf_url' => 'https://placid.app/storage/pdfs/generated_pdf_12346.pdf',
-                    'template_uuid' => 'pdf123abc',
-                    'filename' => 'monthly-report-jan-2024.pdf',
-                    'file_size' => 2048576,
-                    'pages' => 5,
-                    'layers' => [
-                        'title' => [
-                            'text' => 'Monthly Report',
-                        ],
-                        'subtitle' => [
-                            'text' => 'January 2024',
-                        ],
-                    ],
-                    'created_at' => '2024-01-15T10:35:00Z',
-                    'finished_at' => '2024-01-15T10:35:08Z',
-                    'expires_at' => '2024-02-15T10:35:08Z',
+                    'video_id' => 67890,
+                    'status' => 'processing',
+                    'created_at' => '2024-01-15T10:30:00Z',
+                    'estimated_completion' => '2024-01-15T10:35:00Z',
                 ],
                 'response_path' => [
                     'final_result' => '$',
                 ],
-                'request_class_name' => RetrievePdfRequest::class,
-                'function_name' => 'retrievePdf',
+                'request_class_name' => VideoGenerationRequest::class,
+                'function_name' => 'videoGeneration',
             ],
             [
                 'name' => 'Retrieve Video',
@@ -444,32 +159,89 @@ class PlacidServiceProviderSeeder extends Seeder
                     'video_id' => [
                         'type' => 'integer',
                         'required' => true,
+                        'default' => 67890,
                         'min' => 1,
-                        'description' => 'Video ID to retrieve',
+                        'description' => 'ID of the video to retrieve',
                     ],
                 ],
                 'response' => [
-                    'id' => 12347,
-                    'status' => 'finished',
-                    'video_url' => 'https://placid.app/storage/videos/generated_video_12347.mp4',
-                    'thumbnail_url' => 'https://placid.app/storage/thumbnails/video_12347_thumb.jpg',
-                    'filename' => 'social-media-video.mp4',
-                    'file_size' => 15728640,
-                    'duration' => 10,
-                    'width' => 1080,
-                    'height' => 1920,
-                    'fps' => 30,
-                    'format' => 'mp4',
-                    'clips_count' => 1,
-                    'created_at' => '2024-01-15T10:40:00Z',
-                    'finished_at' => '2024-01-15T10:40:45Z',
-                    'expires_at' => '2024-02-15T10:40:45Z',
+                    'video_id' => 67890,
+                    'status' => 'completed',
+                    'video_url' => 'https://placid.app/u/abc123/generated-video.mp4',
+                    'thumbnail_url' => 'https://placid.app/u/abc123/generated-video-thumb.jpg',
+                    'created_at' => '2024-01-15T10:30:00Z',
+                    'completed_at' => '2024-01-15T10:35:00Z',
+                    'duration' => 30,
+                    'file_size' => 5120000,
+                    'resolution' => '1920x1080',
                 ],
                 'response_path' => [
                     'final_result' => '$',
                 ],
                 'request_class_name' => RetrieveVideoRequest::class,
                 'function_name' => 'retrieveVideo',
+            ],
+            [
+                'name' => 'PDF Generation',
+                'input_parameters' => [
+                    'template_uuid' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'default' => '550e8400-e29b-41d4-a716-446655440000',
+                        'description' => 'UUID of the template to use for PDF generation',
+                    ],
+                    'layers' => [
+                        'type' => 'array',
+                        'required' => true,
+                        'default' => [
+                            [
+                                'name' => 'title',
+                                'text' => 'Sample PDF Title',
+                            ],
+                            [
+                                'name' => 'content',
+                                'text' => 'Sample PDF Content',
+                            ],
+                        ],
+                        'description' => 'Array of layers with content to be applied to the template',
+                    ],
+                ],
+                'response' => [
+                    'pdf_id' => 12345,
+                    'status' => 'processing',
+                    'created_at' => '2024-01-15T10:30:00Z',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => ImageGenerationRequest::class,
+                'function_name' => 'pdfGeneration',
+            ],
+            [
+                'name' => 'Retrieve PDF',
+                'input_parameters' => [
+                    'pdf_id' => [
+                        'type' => 'integer',
+                        'required' => true,
+                        'default' => 12345,
+                        'min' => 1,
+                        'description' => 'ID of the PDF to retrieve',
+                    ],
+                ],
+                'response' => [
+                    'pdf_id' => 12345,
+                    'status' => 'completed',
+                    'pdf_url' => 'https://placid.app/u/abc123/generated-document.pdf',
+                    'created_at' => '2024-01-15T10:30:00Z',
+                    'completed_at' => '2024-01-15T10:32:00Z',
+                    'file_size' => 1024000,
+                    'pages' => 1,
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => RetrievePdfRequest::class,
+                'function_name' => 'retrievePdf',
             ],
         ];
 
