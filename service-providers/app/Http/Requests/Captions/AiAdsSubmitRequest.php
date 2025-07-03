@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Captions;
 
 use App\Enums\Captions\Creator\ResolutionEnum;
+use App\Rules\ValidIpfsCid;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -26,8 +27,8 @@ class AiAdsSubmitRequest extends FormRequest
         return [
             'script' => 'required|string|max:800',
             'creatorName' => 'required|string',
-            'mediaUrls' => 'required|array|min:1|max:10',
-            'mediaUrls.*' => 'string|url',
+            'mediaCids' => 'required|array|min:1|max:10',
+            'mediaCids.*' => ['string', new ValidIpfsCid],
             'resolution' => ['nullable', 'string', Rule::in(ResolutionEnum::getValuesInArray())],
         ];
     }

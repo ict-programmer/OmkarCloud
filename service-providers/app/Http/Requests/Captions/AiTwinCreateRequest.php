@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Captions;
 
+use App\Rules\ValidIpfsCid;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AiTwinCreateRequest extends FormRequest
@@ -23,9 +24,9 @@ class AiTwinCreateRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'videoUrl' => 'required|url',
-            'calibrationImageUrls' => 'required|array|min:1',
-            'calibrationImageUrls.*' => 'required|string|url',
+            'videoCid' => ['required', new ValidIpfsCid],
+            'calibrationImageCids' => 'required|array|min:1',
+            'calibrationImageCids.*' => ['required', new ValidIpfsCid],
             'language' => 'nullable|string|max:50',
         ];
     }

@@ -202,11 +202,11 @@ class CaptionsController extends BaseController
             required: ['videoUrl', 'sourceLanguage', 'targetLanguage'],
             properties: [
                 new OA\Property(
-                    property: 'videoUrl',
+                    property: 'videoCid',
                     type: 'string',
                     format: 'url',
-                    description: 'Public direct link to the video.',
-                    example: 'https://publiish.io/ipfs/QmXc3tZ8bKpwnetxSeXadVkYKtPdVQqByHxaMD1Cs2Cika'
+                    description: 'CID of the video to be translated.',
+                    example: 'QmXc3tZ8bKpwnetxSeXadVkYKtPdVQqByHxaMD1Cs2Cika'
                 ),
                 new OA\Property(
                     property: 'sourceLanguage',
@@ -348,16 +348,17 @@ class CaptionsController extends BaseController
                     example: 'Jason'
                 ),
                 new OA\Property(
-                    property: 'mediaUrls',
+                    property: 'mediaCids',
                     type: 'array',
-                    description: 'URLs to media files (JPEG, PNG, MOV, MP4). Minimum 1, maximum 10.',
+                    description: 'URLs to media cids (JPEG, PNG, MOV, MP4). Minimum 1, maximum 10.',
                     minItems: 1,
                     maxItems: 10,
-                    items: new OA\Items(type: 'string', format: 'url', example: [
-                        'https://publiish.io/ipfs/QmVeajukWWf2Yy6oQD61YGJywqfZrm5kbRR31iKQQQahwJ',
-                        'https://publiish.io/ipfs/QmYdLz3cJr49qPh2vyZn55W6NwsAmLQpzrUZyHFjE3dmaY',
-                        'https://publiish.io/ipfs/QmaHawrk9Lp1PzF3mh9HdpyaSiTUepmAgaj5Ai7DDTyuAK',
-                    ])
+                    items: new OA\Items(type: 'string', format: 'string'),
+                    example: [
+                        'QmVeajukWWf2Yy6oQD61YGJywqfZrm5kbRR31iKQQQahwJ',
+                        'QmYdLz3cJr49qPh2vyZn55W6NwsAmLQpzrUZyHFjE3dmaY',
+                        'QmaHawrk9Lp1PzF3mh9HdpyaSiTUepmAgaj5Ai7DDTyuAK',
+                    ]
                 ),
                 new OA\Property(
                     property: 'resolution',
@@ -508,22 +509,22 @@ class CaptionsController extends BaseController
                     example: 'John AI'
                 ),
                 new OA\Property(
-                    property: 'videoUrl',
+                    property: 'videoCid',
                     type: 'string',
                     description: 'Link to the calibration video.',
-                    example: 'https://publiish.io/ipfs/QmVUmnhpHTqbwBgTnCSTuB6VfHZWyqYxAqgZQPwvFyDueh'
+                    example: 'QmVUmnhpHTqbwBgTnCSTuB6VfHZWyqYxAqgZQPwvFyDueh'
                 ),
                 new OA\Property(
-                    property: 'calibrationImageUrls',
+                    property: 'calibrationImageCids',
                     type: 'array',
                     description: 'List of calibration image URLs.',
                     items: new OA\Items(type: 'string'),
                     example: [
-                        'https://publiish.io/ipfs/QmavjZjVCCXnKsU5mXfEssKmMEwrcQLAdud6LW2RgW5DgV',
-                        'https://publiish.io/ipfs/QmamhvTk5YZPEbSVSGQTnkk4Ep1c33V4ByoxXAD4Zr1rst',
-                        'https://publiish.io/ipfs/QmaZnwGpkKSMPR9i4jy5baHfs9LU2YKFu7HaBvViNxfXho',
-                        'https://publiish.io/ipfs/QmcEkcsoQDT5Nh24WoMWUmJnr6PhBni2gEeApboVNHDo1R',
-                        'https://publiish.io/ipfs/Qmcc5J7vXXCTDjtuWCcT4RFLWT67jEGh8NP4P8jhw8dSAD',
+                        'QmavjZjVCCXnKsU5mXfEssKmMEwrcQLAdud6LW2RgW5DgV',
+                        'QmamhvTk5YZPEbSVSGQTnkk4Ep1c33V4ByoxXAD4Zr1rst',
+                        'QmaZnwGpkKSMPR9i4jy5baHfs9LU2YKFu7HaBvViNxfXho',
+                        'QmcEkcsoQDT5Nh24WoMWUmJnr6PhBni2gEeApboVNHDo1R',
+                        'Qmcc5J7vXXCTDjtuWCcT4RFLWT67jEGh8NP4P8jhw8dSAD',
                     ]
                 ),
                 new OA\Property(
