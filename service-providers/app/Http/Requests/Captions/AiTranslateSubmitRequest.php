@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Captions;
 
+use App\Rules\ValidIpfsCid;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AiTranslateSubmitRequest extends FormRequest
@@ -22,7 +23,7 @@ class AiTranslateSubmitRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'videoUrl' => 'required|string|url',
+            'videoCid' => ['required', 'string', new ValidIpfsCid],
             'sourceLanguage' => 'required|string',
             'targetLanguage' => 'required|string',
         ];
