@@ -5,24 +5,43 @@ namespace App\Services;
 use App\Data\Request\Perplexity\AcademicResearchData;
 use App\Data\Request\Perplexity\AiSearchData;
 use App\Data\Request\Perplexity\CodeAssistantData;
+use App\Exceptions\ApiException;
 use App\Traits\OpenAIChatTrait;
-use OpenAI;
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Http;
 
 class PerplexityService
 {
     use OpenAIChatTrait;
 
-    public OpenAI\Client $client;
+    private PendingRequest $client;
 
     public function __construct()
     {
-        $this->client = OpenAI::factory()
-            ->withApiKey(config('services.perplexity.api_key'))
-            ->withBaseUri('https://api.perplexity.ai')
-            ->make();
+        $this->client = Http::baseUrl('https://api.perplexity.ai')
+            ->withToken(config('services.perplexity.api_key'))
+            ->timeout(30 * 60);
     }
 
-    public function aiSearch(AiSearchData $data): OpenAI\Responses\Chat\CreateResponse
+    private function chat(array $payload = []): array
+    {
+        try {
+            return $this->client
+                ->acceptJson()
+                ->contentType('application/json')
+                ->post('chat/completions', array_filter($payload, fn ($value) => $value !== null))
+                ->throw()
+                ->json();
+        } catch (RequestException $e) {
+            $message = $e->response->json('detail') ?? 'API request failed';
+            $status = $e->response->status();
+
+            throw new ApiException($message, $status, $e->response->json());
+        }
+    }
+
+    public function aiSearch(AiSearchData $data): array
     {
 
         $predefinedPayload = config('services.perplexity.search')[$data->search_type] ?? config('services.perplexity.search.web');
@@ -43,7 +62,7 @@ class PerplexityService
             ],
         ];
 
-        return $this->client->chat()->create(array_merge($predefinedPayload, [
+        return $this->chat(array_merge($predefinedPayload, [
             'model' => $data->model,
             'messages' => $messages,
             'top_k' => $data->max_results,
@@ -51,7 +70,7 @@ class PerplexityService
         ]));
     }
 
-    public function academicResearch(AcademicResearchData $data): OpenAI\Responses\Chat\CreateResponse
+    public function academicResearch(AcademicResearchData $data): array
     {
         $predefinedPayload = config('services.perplexity.academic');
 
@@ -68,14 +87,14 @@ class PerplexityService
             ],
         ];
 
-        return $this->client->chat()->create(array_merge($predefinedPayload, [
+        return $this->chat(array_merge($predefinedPayload, [
             'model' => $data->model,
             'messages' => $messages,
             'top_k' => $data->max_results,
         ]));
     }
 
-    public function codeAssistant(CodeAssistantData $data): OpenAI\Responses\Chat\CreateResponse|array
+    public function codeAssistant(CodeAssistantData $data): array
     {
         $languagePart = $data->programming_language ? "{$data->programming_language} " : '';
         $lengthPart = $data->code_length ? "{$data->code_length} " : '';
@@ -86,7 +105,7 @@ class PerplexityService
 
         $userPrompt = "Write a {$lengthPart}{$languagePart}code snippet for: {$data->query}";
 
-        return $this->client->chat()->create([
+        return $this->chat([
             'model' => $data->model,
             'messages' => [
                 ['role' => 'system', 'content' => $systemPrompt],
