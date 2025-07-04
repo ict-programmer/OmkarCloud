@@ -9,6 +9,7 @@ use App\Data\Request\FFMpeg\VideoTrimmingData;
 use App\Traits\PubliishIOTrait;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Http;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
@@ -24,6 +25,30 @@ class FFMpegService
     }
 
     /**
+     * Download file from URL to local temporary file.
+     *
+     * @param string $fileUrl
+     * @return string
+     * @throws ConnectionException
+     */
+    private function downloadFile(string $fileUrl): string
+    {
+        $extension = pathinfo(parse_url($fileUrl, PHP_URL_PATH), PATHINFO_EXTENSION);
+        $fileName = time() . '_' . uniqid() . '.' . $extension;
+        $localPath = storage_path($fileName);
+
+        $response = Http::timeout(300)->get($fileUrl);
+        
+        if ($response->failed()) {
+            throw new ConnectionException('Failed to download file from URL: ' . $fileUrl);
+        }
+
+        file_put_contents($localPath, $response->body());
+        
+        return $localPath;
+    }
+
+    /**
      * Process the video with the given parameters.
      *
      * @param VideoProcessingData $data
@@ -33,10 +58,12 @@ class FFMpegService
      */
     public function processVideo(VideoProcessingData $data): string
     {
+        $inputFilePath = $this->downloadFile($data->input_file);
+        
         return $this->runAndUpload(
-            $data->input_file,
+            $inputFilePath,
             [
-                '-i', $data->input_file,
+                '-i', $inputFilePath,
                 '-s', $data->resolution,
                 '-b:v', $data->bitrate,
                 '-r', $data->frame_rate,
@@ -45,17 +72,17 @@ class FFMpegService
     }
 
     /**
-     * Process the video trimming.
+     * Process the file and upload the result.
      *
-     * @param mixed $file
+     * @param string $inputFilePath
      * @param array $options
      * @return string
      * @throws ConnectionException
      * @throws RequestException
      */
-    private function runAndUpload(mixed $file, array $options): string
+    private function runAndUpload(string $inputFilePath, array $options): string
     {
-        $this->generateOutputFileName($file);
+        $this->generateOutputFileName($inputFilePath);
 
         $mergedOptions = array_merge([
             $this->ffmpeg,
@@ -66,6 +93,7 @@ class FFMpegService
 
         $path = $this->uploadImage($this->filePath);
         $this->deleteTempFile();
+        $this->deleteInputFile($inputFilePath);
 
         return $this->getPublishUrl($path);
     }
@@ -73,11 +101,11 @@ class FFMpegService
     /**
      * Generate a unique output file name based on the input file.
      *
-     * @param mixed $inputFile The input file.
+     * @param string $inputFilePath The input file path.
      */
-    public function generateOutputFileName(mixed $inputFile): void
+    public function generateOutputFileName(string $inputFilePath): void
     {
-        $inputExt = $inputFile->getClientOriginalExtension();
+        $inputExt = pathinfo($inputFilePath, PATHINFO_EXTENSION);
         $inputName = time() . '_' . uniqid();
         $this->fileName = $inputName . '.' . $inputExt;
         $this->filePath = storage_path($this->fileName);
@@ -103,6 +131,16 @@ class FFMpegService
     }
 
     /**
+     * Delete the downloaded input file.
+     */
+    public function deleteInputFile(string $inputFilePath): void
+    {
+        if (file_exists($inputFilePath)) {
+            unlink($inputFilePath);
+        }
+    }
+
+    /**
      * Process the audio with the given parameters.
      *
      * @param AudioProcessingData $data
@@ -112,10 +150,12 @@ class FFMpegService
      */
     public function processAudio(AudioProcessingData $data): string
     {
+        $inputFilePath = $this->downloadFile($data->input_file);
+        
         return $this->runAndUpload(
-            $data->input_file,
+            $inputFilePath,
             [
-                '-i', $data->input_file,
+                '-i', $inputFilePath,
                 '-ab', $data->bitrate,
                 '-ac', $data->channels,
                 '-ar', $data->sample_rate,
@@ -133,10 +173,12 @@ class FFMpegService
      */
     public function processImage(ImageProcessingData $data): string
     {
+        $inputFilePath = $this->downloadFile($data->input_file);
+        
         return $this->runAndUpload(
-            $data->input_file,
+            $inputFilePath,
             [
-                '-i', $data->input_file,
+                '-i', $inputFilePath,
                 '-vf', 'scale=' . $data->width . ':' . $data->height,
             ]
         );
@@ -152,12 +194,14 @@ class FFMpegService
      */
     public function trimVideo(VideoTrimmingData $data): string
     {
+        $inputFilePath = $this->downloadFile($data->input_file);
+        
         return $this->runAndUpload(
-            $data->input_file,
+            $inputFilePath,
             [
                 '-ss', $data->start_time,
                 '-to', $data->end_time,
-                '-i', $data->input_file,
+                '-i', $inputFilePath,
                 '-c', 'copy',
             ]
         );

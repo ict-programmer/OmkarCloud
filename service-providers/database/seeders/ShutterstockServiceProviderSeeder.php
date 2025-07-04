@@ -37,39 +37,22 @@ class ShutterstockServiceProviderSeeder extends Seeder
                     'api_key' => 'YOUR_SHUTTERSTOCK_API_TOKEN',
                     'base_url' => 'https://api.shutterstock.com',
                     'version' => 'v2',
-                    'endpoints' => [
-                        'images_search' => '/v2/images/search',
-                        'images_details' => '/v2/images',
-                        'images_licenses' => '/v2/images/licenses',
-                        'videos_search' => '/v2/videos/search',
-                        'videos_details' => '/v2/videos',
-                        'videos_licenses' => '/v2/videos/licenses',
-                        'audio_search' => '/v2/audio/search',
-                        'audio_details' => '/v2/audio',
-                        'audio_licenses' => '/v2/audio/licenses',
-                        'collections' => '/v2/images/collections',
-                        'user_subscriptions' => '/v2/user/subscriptions',
-                    ],
-                    'media_types' => [
-                        'images',
-                        'videos',
-                        'audio',
-                        'editorial',
-                    ],
-                    'subscription_types' => [
-                        'free',
-                        'standard',
-                        'enterprise',
-                    ],
                     'features' => [
-                        'search_media',
-                        'license_media',
-                        'download_media',
-                        'collections_management',
-                        'subscription_management',
-                        'bulk_operations',
-                        'computer_vision_search',
-                        'ai_search',
+                        'create_collection',
+                        'add_to_collection',
+                        'search_images',
+                        'get_image',
+                        'license_image',
+                        'download_image',
+                        'search_videos',
+                        'get_video',
+                        'license_video',
+                        'download_video',
+                        'search_audio',
+                        'get_audio',
+                        'license_audio',
+                        'download_audio',
+                        'list_user_subscriptions',
                     ],
                 ],
                 'is_active' => true,
@@ -79,100 +62,143 @@ class ShutterstockServiceProviderSeeder extends Seeder
 
         $serviceTypes = [
             [
+                'name' => 'Create Collection',
+                'input_parameters' => [
+                    'name' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'default' => 'My New Collection',
+                        'description' => 'Name of the collection to create',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Collection created successfully.',
+                    'data' => [
+                        'id' => '12345678',
+                        'name' => 'My New Collection',
+                        'total_item_count' => 0,
+                        'items_updated_time' => '2024-01-15T10:30:00.000Z',
+                        'cover_item' => null,
+                        'created_time' => '2024-01-15T10:30:00.000Z',
+                        'updated_time' => '2024-01-15T10:30:00.000Z',
+                    ],
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => CreateCollectionRequest::class,
+                'function_name' => 'createCollection',
+            ],
+            [
+                'name' => 'Add To Collection',
+                'input_parameters' => [
+                    'collection_id' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'default' => '12345678',
+                        'description' => 'ID of the collection to add items to',
+                    ],
+                    'items' => [
+                        'type' => 'array',
+                        'required' => true,
+                        'default' => [
+                            [
+                                'id' => '1234567890',
+                                'media_type' => 'image',
+                            ],
+                        ],
+                        'description' => 'Array of items to add to the collection',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Item added to collection successfully.',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => AddToCollectionRequest::class,
+                'function_name' => 'addToCollection',
+            ],
+            [
                 'name' => 'Search Images',
                 'input_parameters' => [
                     'query' => [
                         'type' => 'string',
                         'required' => true,
-                        'min_length' => 1,
-                        'max_length' => 200,
+                        'default' => 'business team',
                         'description' => 'Search query for images',
-                        'example' => 'hiking mountains',
                     ],
                     'orientation' => [
                         'type' => 'string',
-                        'required' => false,
-                        'options' => ['horizontal', 'vertical', 'square'],
+                        'required' => true,
+                        'default' => 'horizontal',
+                        'options' => [
+                            'source' => 'static',
+                            'static_options' => [
+                                'horizontal',
+                                'vertical',
+                                'square',
+                            ],
+                        ],
                         'description' => 'Image orientation filter',
-                        'example' => 'horizontal',
-                    ],
-                    'image_type' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'options' => ['photo', 'illustration', 'vector'],
-                        'description' => 'Type of image',
-                        'example' => 'photo',
-                    ],
-                    'category' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'description' => 'Image category',
-                        'example' => 'nature',
-                    ],
-                    'people_number' => [
-                        'type' => 'integer',
-                        'required' => false,
-                        'min' => 0,
-                        'max' => 4,
-                        'description' => 'Number of people in image (0-4)',
-                        'example' => 2,
-                    ],
-                    'page' => [
-                        'type' => 'integer',
-                        'required' => false,
-                        'default' => 1,
-                        'min' => 1,
-                        'max' => 1000,
-                        'description' => 'Page number for pagination',
-                    ],
-                    'per_page' => [
-                        'type' => 'integer',
-                        'required' => false,
-                        'default' => 20,
-                        'min' => 1,
-                        'max' => 500,
-                        'description' => 'Number of results per page',
-                    ],
-                    'sort' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'default' => 'popular',
-                        'options' => ['popular', 'newest', 'relevance', 'random'],
-                        'description' => 'Sort order for results',
                     ],
                 ],
                 'response' => [
+                    'message' => 'Images search successful.',
                     'data' => [
-                        [
-                            'id' => '1234567890',
-                            'aspect' => 1.5,
-                            'assets' => [
-                                'preview' => [
-                                    'height' => 300,
-                                    'url' => 'https://image.shutterstock.com/image-photo/hiking-mountains-260nw-1234567890.jpg',
-                                    'width' => 450,
+                        'data' => [
+                            [
+                                'id' => '1234567890',
+                                'aspect' => 1.78,
+                                'assets' => [
+                                    'preview' => [
+                                        'height' => 300,
+                                        'url' => 'https://image.shutterstock.com/z/stock-photo-business-team-1234567890.jpg',
+                                        'width' => 450,
+                                    ],
+                                    'small_thumb' => [
+                                        'height' => 67,
+                                        'url' => 'https://thumb1.shutterstock.com/thumb_small/1234567890/1234567890.jpg',
+                                        'width' => 100,
+                                    ],
+                                    'large_thumb' => [
+                                        'height' => 150,
+                                        'url' => 'https://thumb1.shutterstock.com/thumb_large/1234567890/1234567890.jpg',
+                                        'width' => 150,
+                                    ],
+                                    'huge_thumb' => [
+                                        'height' => 260,
+                                        'url' => 'https://image.shutterstock.com/image-photo/business-team-working-together-modern-260nw-1234567890.jpg',
+                                        'width' => 390,
+                                    ],
                                 ],
-                                'small_thumb' => [
-                                    'height' => 67,
-                                    'url' => 'https://thumb7.shutterstock.com/thumb_small/1234567890/1234567890.jpg',
-                                    'width' => 100,
+                                'contributor' => [
+                                    'id' => '12345',
                                 ],
+                                'description' => 'Business team working together in modern office',
+                                'image_type' => 'photo',
+                                'has_model_release' => true,
+                                'has_property_release' => true,
+                                'keywords' => [
+                                    'business',
+                                    'team',
+                                    'office',
+                                    'corporate',
+                                ],
+                                'categories' => [
+                                    [
+                                        'id' => '1',
+                                        'name' => 'Business/Finance',
+                                    ],
+                                ],
+                                'media_type' => 'image',
                             ],
-                            'contributor' => [
-                                'id' => '12345678',
-                            ],
-                            'description' => 'Hikers on mountain trail with beautiful landscape view',
-                            'image_type' => 'photo',
-                            'has_model_release' => true,
-                            'has_property_release' => false,
-                            'keywords' => ['hiking', 'mountains', 'nature', 'outdoor', 'adventure'],
-                            'media_type' => 'image',
                         ],
+                        'page' => 1,
+                        'per_page' => 20,
+                        'total_count' => 1250000,
+                        'search_id' => 'search_123456789',
                     ],
-                    'page' => 1,
-                    'per_page' => 20,
-                    'total_count' => 15420,
-                    'search_id' => 'abc123def456',
                 ],
                 'response_path' => [
                     'final_result' => '$',
@@ -181,51 +207,64 @@ class ShutterstockServiceProviderSeeder extends Seeder
                 'function_name' => 'searchImages',
             ],
             [
-                'name' => 'Get Image Details',
+                'name' => 'Get Image',
                 'input_parameters' => [
                     'image_id' => [
                         'type' => 'string',
                         'required' => true,
-                        'description' => 'Image ID to get details for',
-                        'example' => '1234567890',
+                        'default' => '1234567890',
+                        'description' => 'ID of the image to retrieve',
                     ],
                 ],
                 'response' => [
-                    'id' => '1234567890',
-                    'added_date' => '2023-01-15',
-                    'aspect' => 1.5,
-                    'assets' => [
-                        'preview' => [
-                            'height' => 300,
-                            'url' => 'https://image.shutterstock.com/image-photo/hiking-mountains-260nw-1234567890.jpg',
-                            'width' => 450,
+                    'message' => 'Image details retrieved successfully.',
+                    'data' => [
+                        'id' => '1234567890',
+                        'aspect' => 1.78,
+                        'assets' => [
+                            'preview' => [
+                                'height' => 300,
+                                'url' => 'https://image.shutterstock.com/z/stock-photo-business-team-1234567890.jpg',
+                                'width' => 450,
+                            ],
+                            'small_thumb' => [
+                                'height' => 67,
+                                'url' => 'https://thumb1.shutterstock.com/thumb_small/1234567890/1234567890.jpg',
+                                'width' => 100,
+                            ],
+                            'large_thumb' => [
+                                'height' => 150,
+                                'url' => 'https://thumb1.shutterstock.com/thumb_large/1234567890/1234567890.jpg',
+                                'width' => 150,
+                            ],
+                            'huge_thumb' => [
+                                'height' => 260,
+                                'url' => 'https://image.shutterstock.com/image-photo/business-team-working-together-modern-260nw-1234567890.jpg',
+                                'width' => 390,
+                            ],
                         ],
-                        'small_thumb' => [
-                            'height' => 67,
-                            'url' => 'https://thumb7.shutterstock.com/thumb_small/1234567890/1234567890.jpg',
-                            'width' => 100,
+                        'contributor' => [
+                            'id' => '12345',
                         ],
-                        'large_thumb' => [
-                            'height' => 150,
-                            'url' => 'https://thumb7.shutterstock.com/thumb_large/1234567890/1234567890.jpg',
-                            'width' => 225,
+                        'description' => 'Business team working together in modern office',
+                        'image_type' => 'photo',
+                        'has_model_release' => true,
+                        'has_property_release' => true,
+                        'keywords' => [
+                            'business',
+                            'team',
+                            'office',
+                            'corporate',
                         ],
-                    ],
-                    'categories' => [
-                        ['id' => '1', 'name' => 'Nature'],
-                        ['id' => '2', 'name' => 'Sports/Recreation'],
-                    ],
-                    'contributor' => [
-                        'id' => '12345678',
-                    ],
-                    'description' => 'Hikers on mountain trail with beautiful landscape view',
-                    'image_type' => 'photo',
-                    'has_model_release' => true,
-                    'has_property_release' => false,
-                    'keywords' => ['hiking', 'mountains', 'nature', 'outdoor', 'adventure'],
-                    'media_type' => 'image',
-                    'models' => [
-                        ['id' => 'model123'],
+                        'categories' => [
+                            [
+                                'id' => '1',
+                                'name' => 'Business/Finance',
+                            ],
+                        ],
+                        'media_type' => 'image',
+                        'added_date' => '2024-01-01',
+                        'affiliate_url' => 'https://www.shutterstock.com/image-photo/business-team-working-together-modern-office-1234567890',
                     ],
                 ],
                 'response_path' => [
@@ -240,42 +279,29 @@ class ShutterstockServiceProviderSeeder extends Seeder
                     'image_id' => [
                         'type' => 'string',
                         'required' => true,
-                        'description' => 'Image ID to license',
-                        'example' => '1234567890',
-                    ],
-                    'size' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'default' => 'huge',
-                        'options' => ['small', 'medium', 'huge', 'vector'],
-                        'description' => 'License size',
-                    ],
-                    'format' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'default' => 'jpg',
-                        'options' => ['jpg', 'eps', 'ai'],
-                        'description' => 'File format',
-                    ],
-                    'subscription_id' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'description' => 'Subscription ID to use for licensing',
+                        'default' => '1234567890',
+                        'description' => 'ID of the image to license',
                     ],
                 ],
                 'response' => [
+                    'message' => 'Image licensed successfully.',
                     'data' => [
-                        [
-                            'image_id' => '1234567890',
-                            'download' => [
-                                'url' => 'https://download.shutterstock.com/gatekeeper/W3siZCI6MTIzNDU2Nzg5MH0.jpg',
+                        'data' => [
+                            [
+                                'image_id' => '1234567890',
+                                'download' => [
+                                    'url' => 'https://download.shutterstock.com/gatekeeper/W3siZSI6MTYwNzUyMDAwMCwiayI6InBob3RvLXNlcnZpY2UvcHJvZHVjdGlvbi...',
+                                ],
+                                'license_id' => 'lic_12345678901234567890',
+                                'allotment_charge' => 1,
+                                'price' => [
+                                    'local_amount' => 0,
+                                    'local_currency' => 'USD',
+                                ],
                             ],
-                            'allotment_charge' => 1,
-                            'license' => 'standard',
                         ],
+                        'errors' => [],
                     ],
-                    'errors' => [],
-                    'message' => 'Images licensed successfully',
                 ],
                 'response_path' => [
                     'final_result' => '$',
@@ -289,19 +315,15 @@ class ShutterstockServiceProviderSeeder extends Seeder
                     'license_id' => [
                         'type' => 'string',
                         'required' => true,
-                        'description' => 'License ID from licensing response',
-                        'example' => 'li_12345678',
-                    ],
-                    'size' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'default' => 'huge',
-                        'options' => ['small', 'medium', 'huge', 'vector'],
-                        'description' => 'Download size',
+                        'default' => 'lic_12345678901234567890',
+                        'description' => 'License ID from the licensing step',
                     ],
                 ],
                 'response' => [
-                    'url' => 'https://download.shutterstock.com/gatekeeper/W3siZCI6MTIzNDU2Nzg5MH0.jpg',
+                    'message' => 'Download link generated successfully.',
+                    'data' => [
+                        'url' => 'https://download.shutterstock.com/gatekeeper/W3siZSI6MTYwNzUyMDAwMCwiayI6InBob3RvLXNlcnZpY2UvcHJvZHVjdGlvbi...',
+                    ],
                 ],
                 'response_path' => [
                     'final_result' => '$',
@@ -315,85 +337,70 @@ class ShutterstockServiceProviderSeeder extends Seeder
                     'query' => [
                         'type' => 'string',
                         'required' => true,
-                        'min_length' => 1,
-                        'max_length' => 200,
+                        'default' => 'business meeting',
                         'description' => 'Search query for videos',
-                        'example' => 'hot air balloon',
                     ],
                     'orientation' => [
                         'type' => 'string',
-                        'required' => false,
-                        'options' => ['horizontal', 'vertical', 'square'],
+                        'required' => true,
+                        'default' => 'horizontal',
+                        'options' => [
+                            'source' => 'static',
+                            'static_options' => [
+                                'horizontal',
+                                'vertical',
+                                'square',
+                            ],
+                        ],
                         'description' => 'Video orientation filter',
-                        'example' => 'horizontal',
-                    ],
-                    'category' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'description' => 'Video category',
-                        'example' => 'nature',
-                    ],
-                    'duration' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'options' => ['short', 'medium', 'long'],
-                        'description' => 'Video duration filter',
-                    ],
-                    'fps' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'options' => ['24', '25', '29.97', '30', '50', '59.94', '60'],
-                        'description' => 'Frames per second',
-                    ],
-                    'page' => [
-                        'type' => 'integer',
-                        'required' => false,
-                        'default' => 1,
-                        'min' => 1,
-                        'max' => 1000,
-                        'description' => 'Page number for pagination',
-                    ],
-                    'per_page' => [
-                        'type' => 'integer',
-                        'required' => false,
-                        'default' => 20,
-                        'min' => 1,
-                        'max' => 500,
-                        'description' => 'Number of results per page',
                     ],
                 ],
                 'response' => [
+                    'message' => 'Videos search successful.',
                     'data' => [
-                        [
-                            'id' => '9876543210',
-                            'aspect' => 1.78,
-                            'assets' => [
-                                'preview_mp4' => [
-                                    'url' => 'https://ak.picdn.net/shutterstock/videos/9876543210/preview/stock-footage-hot-air-balloon.mp4',
+                        'data' => [
+                            [
+                                'id' => '1234567890',
+                                'aspect' => 1.78,
+                                'assets' => [
+                                    'preview_mp4' => [
+                                        'url' => 'https://ak.picdn.net/shutterstock/videos/1234567890/preview/stock-footage-business-meeting.mp4',
+                                    ],
+                                    'preview_webm' => [
+                                        'url' => 'https://ak.picdn.net/shutterstock/videos/1234567890/preview/stock-footage-business-meeting.webm',
+                                    ],
+                                    'thumb_webm' => [
+                                        'url' => 'https://ak.picdn.net/shutterstock/videos/1234567890/thumb/stock-footage-business-meeting.webm',
+                                    ],
+                                    'thumb_mp4' => [
+                                        'url' => 'https://ak.picdn.net/shutterstock/videos/1234567890/thumb/stock-footage-business-meeting.mp4',
+                                    ],
+                                    'thumb_jpg' => [
+                                        'url' => 'https://ak.picdn.net/shutterstock/videos/1234567890/thumb/stock-footage-business-meeting.jpg',
+                                    ],
                                 ],
-                                'preview_webm' => [
-                                    'url' => 'https://ak.picdn.net/shutterstock/videos/9876543210/preview/stock-footage-hot-air-balloon.webm',
+                                'contributor' => [
+                                    'id' => '12345',
                                 ],
-                                'thumb_jpg' => [
-                                    'url' => 'https://ak.picdn.net/shutterstock/videos/9876543210/thumb/1.jpg',
+                                'description' => 'Business people having a meeting in conference room',
+                                'duration' => 15.5,
+                                'fps' => 30,
+                                'has_model_release' => true,
+                                'has_property_release' => true,
+                                'categories' => [
+                                    [
+                                        'id' => '1',
+                                        'name' => 'Business/Finance',
+                                    ],
                                 ],
+                                'media_type' => 'video',
                             ],
-                            'contributor' => [
-                                'id' => '87654321',
-                            ],
-                            'description' => 'Hot air balloon floating over scenic landscape',
-                            'duration' => 15.5,
-                            'fps' => 29.97,
-                            'has_model_release' => true,
-                            'has_property_release' => false,
-                            'keywords' => ['hot air balloon', 'floating', 'sky', 'adventure', 'travel'],
-                            'media_type' => 'video',
                         ],
+                        'page' => 1,
+                        'per_page' => 20,
+                        'total_count' => 850000,
+                        'search_id' => 'search_123456789',
                     ],
-                    'page' => 1,
-                    'per_page' => 20,
-                    'total_count' => 8540,
-                    'search_id' => 'xyz789abc123',
                 ],
                 'response_path' => [
                     'final_result' => '$',
@@ -402,45 +409,55 @@ class ShutterstockServiceProviderSeeder extends Seeder
                 'function_name' => 'searchVideos',
             ],
             [
-                'name' => 'Get Video Details',
+                'name' => 'Get Video',
                 'input_parameters' => [
                     'video_id' => [
                         'type' => 'string',
                         'required' => true,
-                        'description' => 'Video ID to get details for',
-                        'example' => '9876543210',
+                        'default' => '1234567890',
+                        'description' => 'ID of the video to retrieve',
                     ],
                 ],
                 'response' => [
-                    'id' => '9876543210',
-                    'added_date' => '2023-02-10',
-                    'aspect' => 1.78,
-                    'assets' => [
-                        'preview_mp4' => [
-                            'url' => 'https://ak.picdn.net/shutterstock/videos/9876543210/preview/stock-footage-hot-air-balloon.mp4',
+                    'message' => 'Video details retrieved successfully.',
+                    'data' => [
+                        'id' => '1234567890',
+                        'aspect' => 1.78,
+                        'assets' => [
+                            'preview_mp4' => [
+                                'url' => 'https://ak.picdn.net/shutterstock/videos/1234567890/preview/stock-footage-business-meeting.mp4',
+                            ],
+                            'preview_webm' => [
+                                'url' => 'https://ak.picdn.net/shutterstock/videos/1234567890/preview/stock-footage-business-meeting.webm',
+                            ],
+                            'thumb_webm' => [
+                                'url' => 'https://ak.picdn.net/shutterstock/videos/1234567890/thumb/stock-footage-business-meeting.webm',
+                            ],
+                            'thumb_mp4' => [
+                                'url' => 'https://ak.picdn.net/shutterstock/videos/1234567890/thumb/stock-footage-business-meeting.mp4',
+                            ],
+                            'thumb_jpg' => [
+                                'url' => 'https://ak.picdn.net/shutterstock/videos/1234567890/thumb/stock-footage-business-meeting.jpg',
+                            ],
                         ],
-                        'preview_webm' => [
-                            'url' => 'https://ak.picdn.net/shutterstock/videos/9876543210/preview/stock-footage-hot-air-balloon.webm',
+                        'contributor' => [
+                            'id' => '12345',
                         ],
-                        'thumb_jpg' => [
-                            'url' => 'https://ak.picdn.net/shutterstock/videos/9876543210/thumb/1.jpg',
+                        'description' => 'Business people having a meeting in conference room',
+                        'duration' => 15.5,
+                        'fps' => 30,
+                        'has_model_release' => true,
+                        'has_property_release' => true,
+                        'categories' => [
+                            [
+                                'id' => '1',
+                                'name' => 'Business/Finance',
+                            ],
                         ],
+                        'media_type' => 'video',
+                        'added_date' => '2024-01-01',
+                        'affiliate_url' => 'https://www.shutterstock.com/video/clip-1234567890-business-people-having-meeting-conference-room',
                     ],
-                    'categories' => [
-                        ['id' => '1', 'name' => 'Nature'],
-                        ['id' => '3', 'name' => 'Transportation'],
-                    ],
-                    'contributor' => [
-                        'id' => '87654321',
-                    ],
-                    'description' => 'Hot air balloon floating over scenic landscape',
-                    'duration' => 15.5,
-                    'fps' => 29.97,
-                    'has_model_release' => true,
-                    'has_property_release' => false,
-                    'keywords' => ['hot air balloon', 'floating', 'sky', 'adventure', 'travel'],
-                    'media_type' => 'video',
-                    'models' => [],
                 ],
                 'response_path' => [
                     'final_result' => '$',
@@ -454,37 +471,40 @@ class ShutterstockServiceProviderSeeder extends Seeder
                     'videos' => [
                         'type' => 'array',
                         'required' => true,
-                        'description' => 'Array of video licensing data',
-                        'items' => [
-                            'type' => 'object',
-                            'properties' => [
-                                'video_id' => ['type' => 'string', 'required' => true],
-                                'size' => ['type' => 'string', 'options' => ['web', 'sd', 'hd', '4k']],
+                        'default' => [
+                            [
+                                'video_id' => '1234567890',
+                                'size' => 'hd',
                             ],
                         ],
-                        'example' => [
-                            ['video_id' => '9876543210', 'size' => 'hd'],
-                        ],
+                        'description' => 'Array of videos to license',
                     ],
                     'search_id' => [
                         'type' => 'string',
                         'required' => false,
-                        'description' => 'Search ID from search results',
+                        'default' => '',
+                        'description' => 'Search ID from the search that found this video',
                     ],
                 ],
                 'response' => [
+                    'message' => 'Videos licensed successfully.',
                     'data' => [
-                        [
-                            'video_id' => '9876543210',
-                            'download' => [
-                                'url' => 'https://download.shutterstock.com/gatekeeper/W3siZCI6OTg3NjU0MzIxMH0.mp4',
+                        'data' => [
+                            [
+                                'video_id' => '1234567890',
+                                'download' => [
+                                    'url' => 'https://download.shutterstock.com/gatekeeper/W3siZSI6MTYwNzUyMDAwMCwiayI6InZpZGVvLXNlcnZpY2UvcHJvZHVjdGlvbi...',
+                                ],
+                                'license_id' => 'lic_12345678901234567890',
+                                'allotment_charge' => 10,
+                                'price' => [
+                                    'local_amount' => 0,
+                                    'local_currency' => 'USD',
+                                ],
                             ],
-                            'allotment_charge' => 10,
-                            'license' => 'standard',
                         ],
+                        'errors' => [],
                     ],
-                    'errors' => [],
-                    'message' => 'Videos licensed successfully',
                 ],
                 'response_path' => [
                     'final_result' => '$',
@@ -498,12 +518,15 @@ class ShutterstockServiceProviderSeeder extends Seeder
                     'license_id' => [
                         'type' => 'string',
                         'required' => true,
-                        'description' => 'License ID from licensing response',
-                        'example' => 'lv_87654321',
+                        'default' => 'lic_12345678901234567890',
+                        'description' => 'License ID from the licensing step',
                     ],
                 ],
                 'response' => [
-                    'url' => 'https://download.shutterstock.com/gatekeeper/W3siZCI6OTg3NjU0MzIxMH0.mp4',
+                    'message' => 'Download link generated successfully.',
+                    'data' => [
+                        'url' => 'https://download.shutterstock.com/gatekeeper/W3siZSI6MTYwNzUyMDAwMCwiayI6InZpZGVvLXNlcnZpY2UvcHJvZHVjdGlvbi...',
+                    ],
                 ],
                 'response_path' => [
                     'final_result' => '$',
@@ -517,78 +540,62 @@ class ShutterstockServiceProviderSeeder extends Seeder
                     'query' => [
                         'type' => 'string',
                         'required' => true,
-                        'min_length' => 1,
-                        'max_length' => 200,
+                        'default' => 'upbeat corporate',
                         'description' => 'Search query for audio tracks',
-                        'example' => 'bluegrass',
                     ],
-                    'duration' => [
+                    'sort' => [
                         'type' => 'string',
                         'required' => false,
-                        'options' => ['short', 'medium', 'long'],
-                        'description' => 'Audio duration filter',
-                    ],
-                    'genre' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'description' => 'Music genre',
-                        'example' => 'country',
-                    ],
-                    'mood' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'description' => 'Music mood',
-                        'example' => 'upbeat',
-                    ],
-                    'page' => [
-                        'type' => 'integer',
-                        'required' => false,
-                        'default' => 1,
-                        'min' => 1,
-                        'max' => 1000,
-                        'description' => 'Page number for pagination',
-                    ],
-                    'per_page' => [
-                        'type' => 'integer',
-                        'required' => false,
-                        'default' => 20,
-                        'min' => 1,
-                        'max' => 500,
-                        'description' => 'Number of results per page',
+                        'default' => 'popular',
+                        'options' => [
+                            'source' => 'static',
+                            'static_options' => [
+                                'popular',
+                                'newest',
+                                'oldest',
+                                'duration',
+                                'duration_desc',
+                            ],
+                        ],
+                        'description' => 'Sort order for search results',
                     ],
                 ],
                 'response' => [
+                    'message' => 'Audio search successful.',
                     'data' => [
-                        [
-                            'id' => '1357924680',
-                            'added_date' => '2023-03-05',
-                            'affiliate_url' => 'https://www.shutterstock.com/music/track/1357924680',
-                            'artist' => 'Mountain Music Co.',
-                            'assets' => [
-                                'preview_mp3' => [
-                                    'url' => 'https://ak.picdn.net/shutterstock/audio/1357924680/preview/preview.mp3',
+                        'data' => [
+                            [
+                                'id' => '1234567890',
+                                'title' => 'Upbeat Corporate Background Music',
+                                'artist' => 'AudioCreator',
+                                'duration' => 120.5,
+                                'genres' => ['corporate', 'background'],
+                                'instruments' => ['piano', 'guitar', 'drums'],
+                                'moods' => ['upbeat', 'positive', 'energetic'],
+                                'assets' => [
+                                    'preview_mp3' => [
+                                        'url' => 'https://ak.picdn.net/shutterstock/audio/1234567890/preview/preview.mp3',
+                                    ],
+                                    'waveform' => [
+                                        'url' => 'https://ak.picdn.net/shutterstock/audio/1234567890/waveform/waveform.png',
+                                    ],
                                 ],
-                                'waveform' => [
-                                    'url' => 'https://ak.picdn.net/shutterstock/audio/1357924680/waveform.png',
+                                'contributor' => [
+                                    'id' => '12345',
                                 ],
+                                'description' => 'Upbeat corporate background music perfect for presentations',
+                                'bpm' => 120,
+                                'has_vocal' => false,
+                                'media_type' => 'audio',
+                                'added_date' => '2024-01-01',
+                                'affiliate_url' => 'https://www.shutterstock.com/music/track/1234567890',
                             ],
-                            'bpm' => 120,
-                            'contributor' => [
-                                'id' => '11223344',
-                            ],
-                            'description' => 'Upbeat bluegrass track with banjo and fiddle',
-                            'duration' => 180.5,
-                            'genres' => ['Country', 'Folk'],
-                            'instruments' => ['Banjo', 'Fiddle', 'Guitar'],
-                            'keywords' => ['bluegrass', 'country', 'upbeat', 'folk', 'acoustic'],
-                            'media_type' => 'audio',
-                            'title' => 'Mountain Trail Bluegrass',
                         ],
+                        'page' => 1,
+                        'per_page' => 20,
+                        'total_count' => 450000,
+                        'search_id' => 'search_123456789',
                     ],
-                    'page' => 1,
-                    'per_page' => 20,
-                    'total_count' => 2340,
-                    'search_id' => 'audio123xyz789',
                 ],
                 'response_path' => [
                     'final_result' => '$',
@@ -597,39 +604,47 @@ class ShutterstockServiceProviderSeeder extends Seeder
                 'function_name' => 'searchAudio',
             ],
             [
-                'name' => 'Get Audio Details',
+                'name' => 'Get Audio',
                 'input_parameters' => [
                     'audio_id' => [
                         'type' => 'string',
                         'required' => true,
-                        'description' => 'Audio track ID to get details for',
-                        'example' => '1357924680',
+                        'default' => '1234567890',
+                        'description' => 'ID of the audio track to retrieve',
                     ],
                 ],
                 'response' => [
-                    'id' => '1357924680',
-                    'added_date' => '2023-03-05',
-                    'affiliate_url' => 'https://www.shutterstock.com/music/track/1357924680',
-                    'artist' => 'Mountain Music Co.',
-                    'assets' => [
-                        'preview_mp3' => [
-                            'url' => 'https://ak.picdn.net/shutterstock/audio/1357924680/preview/preview.mp3',
+                    'message' => 'Audio track details retrieved successfully.',
+                    'data' => [
+                        'id' => '1234567890',
+                        'title' => 'Upbeat Corporate Background Music',
+                        'artist' => 'AudioCreator',
+                        'duration' => 120.5,
+                        'genres' => ['corporate', 'background'],
+                        'instruments' => ['piano', 'guitar', 'drums'],
+                        'moods' => ['upbeat', 'positive', 'energetic'],
+                        'assets' => [
+                            'preview_mp3' => [
+                                'url' => 'https://ak.picdn.net/shutterstock/audio/1234567890/preview/preview.mp3',
+                            ],
+                            'waveform' => [
+                                'url' => 'https://ak.picdn.net/shutterstock/audio/1234567890/waveform/waveform.png',
+                            ],
                         ],
-                        'waveform' => [
-                            'url' => 'https://ak.picdn.net/shutterstock/audio/1357924680/waveform.png',
+                        'contributor' => [
+                            'id' => '12345',
+                        ],
+                        'description' => 'Upbeat corporate background music perfect for presentations',
+                        'bpm' => 120,
+                        'has_vocal' => false,
+                        'media_type' => 'audio',
+                        'added_date' => '2024-01-01',
+                        'affiliate_url' => 'https://www.shutterstock.com/music/track/1234567890',
+                        'album' => [
+                            'id' => 'album_123',
+                            'title' => 'Corporate Collection Vol. 1',
                         ],
                     ],
-                    'bpm' => 120,
-                    'contributor' => [
-                        'id' => '11223344',
-                    ],
-                    'description' => 'Upbeat bluegrass track with banjo and fiddle',
-                    'duration' => 180.5,
-                    'genres' => ['Country', 'Folk'],
-                    'instruments' => ['Banjo', 'Fiddle', 'Guitar'],
-                    'keywords' => ['bluegrass', 'country', 'upbeat', 'folk', 'acoustic'],
-                    'media_type' => 'audio',
-                    'title' => 'Mountain Trail Bluegrass',
                 ],
                 'response_path' => [
                     'final_result' => '$',
@@ -640,33 +655,43 @@ class ShutterstockServiceProviderSeeder extends Seeder
             [
                 'name' => 'License Audio',
                 'input_parameters' => [
-                    'audio_id' => [
-                        'type' => 'string',
+                    'audio_tracks' => [
+                        'type' => 'array',
                         'required' => true,
-                        'description' => 'Audio track ID to license',
-                        'example' => '1357924680',
+                        'default' => [
+                            [
+                                'audio_id' => '1234567890',
+                                'size' => 'mp3',
+                            ],
+                        ],
+                        'description' => 'Array of audio tracks to license',
                     ],
-                    'license_type' => [
+                    'search_id' => [
                         'type' => 'string',
                         'required' => false,
-                        'default' => 'standard',
-                        'options' => ['standard', 'enhanced', 'premier'],
-                        'description' => 'License type',
+                        'default' => '',
+                        'description' => 'Search ID from the search that found this audio',
                     ],
                 ],
                 'response' => [
+                    'message' => 'Audio tracks licensed successfully.',
                     'data' => [
-                        [
-                            'audio_id' => '1357924680',
-                            'download' => [
-                                'url' => 'https://download.shutterstock.com/gatekeeper/W3siZCI6MTM1NzkyNDY4MH0.mp3',
+                        'data' => [
+                            [
+                                'audio_id' => '1234567890',
+                                'download' => [
+                                    'url' => 'https://download.shutterstock.com/gatekeeper/W3siZSI6MTYwNzUyMDAwMCwiayI6ImF1ZGlvLXNlcnZpY2UvcHJvZHVjdGlvbi...',
+                                ],
+                                'license_id' => 'lic_12345678901234567890',
+                                'allotment_charge' => 5,
+                                'price' => [
+                                    'local_amount' => 0,
+                                    'local_currency' => 'USD',
+                                ],
                             ],
-                            'allotment_charge' => 10,
-                            'license' => 'standard',
                         ],
+                        'errors' => [],
                     ],
-                    'errors' => [],
-                    'message' => 'Audio licensed successfully',
                 ],
                 'response_path' => [
                     'final_result' => '$',
@@ -680,12 +705,15 @@ class ShutterstockServiceProviderSeeder extends Seeder
                     'license_id' => [
                         'type' => 'string',
                         'required' => true,
-                        'description' => 'License ID from licensing response',
-                        'example' => 'la_13579246',
+                        'default' => 'lic_12345678901234567890',
+                        'description' => 'License ID from the licensing step',
                     ],
                 ],
                 'response' => [
-                    'url' => 'https://download.shutterstock.com/gatekeeper/W3siZCI6MTM1NzkyNDY4MH0.mp3',
+                    'message' => 'Download link generated successfully.',
+                    'data' => [
+                        'url' => 'https://download.shutterstock.com/gatekeeper/W3siZSI6MTYwNzUyMDAwMCwiayI6ImF1ZGlvLXNlcnZpY2UvcHJvZHVjdGlvbi...',
+                    ],
                 ],
                 'response_path' => [
                     'final_result' => '$',
@@ -694,108 +722,36 @@ class ShutterstockServiceProviderSeeder extends Seeder
                 'function_name' => 'downloadAudio',
             ],
             [
-                'name' => 'Create Collection',
-                'input_parameters' => [
-                    'name' => [
-                        'type' => 'string',
-                        'required' => true,
-                        'min_length' => 1,
-                        'max_length' => 100,
-                        'description' => 'Collection name',
-                        'example' => 'My Nature Photos',
-                    ],
-                ],
-                'response' => [
-                    'id' => 'col_123456789',
-                    'name' => 'My Nature Photos',
-                    'total_item_count' => 0,
-                    'items_updated_time' => '2024-01-15T10:30:00Z',
-                    'cover_item' => null,
-                ],
-                'response_path' => [
-                    'final_result' => '$',
-                ],
-                'request_class_name' => CreateCollectionRequest::class,
-                'function_name' => 'createCollection',
-            ],
-            [
-                'name' => 'Add to Collection',
-                'input_parameters' => [
-                    'collection_id' => [
-                        'type' => 'string',
-                        'required' => true,
-                        'description' => 'Collection ID to add items to',
-                        'example' => 'col_123456789',
-                    ],
-                    'items' => [
-                        'type' => 'array',
-                        'required' => true,
-                        'description' => 'Array of items to add to collection',
-                        'items' => [
-                            'type' => 'object',
-                            'properties' => [
-                                'id' => ['type' => 'string', 'required' => true],
-                                'media_type' => ['type' => 'string', 'options' => ['image', 'video']],
-                            ],
-                        ],
-                        'example' => [
-                            ['id' => '1234567890', 'media_type' => 'image'],
-                        ],
-                    ],
-                ],
-                'response' => [
-                    'message' => 'Items added to collection successfully',
-                ],
-                'response_path' => [
-                    'final_result' => '$',
-                ],
-                'request_class_name' => AddToCollectionRequest::class,
-                'function_name' => 'addToCollection',
-            ],
-            [
                 'name' => 'List User Subscriptions',
                 'input_parameters' => [],
                 'response' => [
+                    'message' => 'User subscriptions retrieved successfully.',
                     'data' => [
-                        [
-                            'id' => 'sub_123456789',
-                            'product_name' => 'Standard Images',
-                            'allotment' => [
-                                'downloads_left' => 450,
-                                'downloads_limit' => 750,
-                                'reset_time' => '2024-02-01T00:00:00Z',
+                        'data' => [
+                            [
+                                'id' => 'sub_12345678901234567890',
+                                'description' => 'Premium Annual Subscription',
+                                'expires_time' => '2025-01-15T23:59:59.000Z',
+                                'license' => 'standard',
+                                'metadata' => [
+                                    'purchase_order' => 'PO-123456',
+                                ],
+                                'formats' => [
+                                    [
+                                        'format' => 'jpg',
+                                        'min_resolution' => 500,
+                                        'size' => 'huge',
+                                    ],
+                                ],
+                                'allotment' => [
+                                    'downloads_limit' => 750,
+                                    'downloads_used' => 245,
+                                ],
                             ],
-                            'license' => 'standard',
-                            'sizes' => [
-                                'small',
-                                'medium',
-                                'huge',
-                            ],
-                            'formats' => [
-                                'jpg',
-                            ],
-                            'description' => 'Standard subscription for images',
                         ],
-                        [
-                            'id' => 'sub_987654321',
-                            'product_name' => 'HD Video',
-                            'allotment' => [
-                                'downloads_left' => 8,
-                                'downloads_limit' => 10,
-                                'reset_time' => '2024-02-01T00:00:00Z',
-                            ],
-                            'license' => 'standard',
-                            'sizes' => [
-                                'web',
-                                'sd',
-                                'hd',
-                            ],
-                            'formats' => [
-                                'mov',
-                                'mp4',
-                            ],
-                            'description' => 'HD video subscription',
-                        ],
+                        'page' => 1,
+                        'per_page' => 20,
+                        'total_count' => 1,
                     ],
                 ],
                 'response_path' => [
