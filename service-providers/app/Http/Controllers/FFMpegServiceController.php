@@ -13,7 +13,7 @@ use App\Http\Requests\FFMpeg\VideoTrimmingRequest;
 use App\Services\FFMpegService;
 use Illuminate\Http\JsonResponse;
 
-class FFMpegServiceController extends Controller
+class FFMpegServiceController extends BaseController
 {
     public function __construct(public FFMpegService $service) {}
 
@@ -23,7 +23,7 @@ class FFMpegServiceController extends Controller
 
         $path = $this->service->processVideo($data);
 
-        return response()->json([
+        return $this->logAndResponse([
             'message' => 'Video processed successfully',
             'output_file_link' => $path,
         ]);
@@ -35,7 +35,7 @@ class FFMpegServiceController extends Controller
 
         $path = $this->service->processAudio($data);
 
-        return response()->json([
+        return $this->logAndResponse([
             'message' => 'Audio processed successfully',
             'output_file_link' => $path,
         ]);
@@ -47,7 +47,7 @@ class FFMpegServiceController extends Controller
 
         $path = $this->service->processImage($data);
 
-        return response()->json([
+        return $this->logAndResponse([
             'message' => 'Image processed successfully',
             'output_file_link' => $path,
         ]);
@@ -59,7 +59,7 @@ class FFMpegServiceController extends Controller
 
         $path = $this->service->trimVideo($data);
 
-        return response()->json([
+        return $this->logAndResponse([
             'message' => 'Video trimmed successfully',
             'output_file_link' => $path,
         ]);
