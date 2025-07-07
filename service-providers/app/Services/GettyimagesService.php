@@ -256,22 +256,20 @@ class GettyimagesService
     return AffiliateImageSearchResource::make($result->data);
   }
 
-  public function searchImagesByImageUpload(ImageSearchByImageUploadData $dto): AffiliateImageSearchResource
+  public function searchImagesByImageUpload(ImageSearchByImageUploadData $data): AffiliateImageSearchResource
   {
     $this->initializeService();
 
-    $file = $dto->file;
-    if (!$file instanceof UploadedFile) {
-      throw new Forbidden('The provided file is not a valid upload.');
+    if (isset($data->file) && !filter_var($data->file, FILTER_VALIDATE_URL)) {
+      throw new Forbidden('The provided file name is not a valid URL.');
     }
 
     try {
       $response = $this->client->attach(
-            name: 'file',
-            contents: file_get_contents($file->getRealPath()),
-            filename: $dto->file_name
-        )->put($this->apiUrl . "/search/by-image/uploads/{$dto->file_name}");
-
+        name: 'file',
+        contents: file_get_contents($data->file, false),
+        filename: $data->file_name
+      )->put($this->apiUrl . "/search/by-image/uploads/{$data->file_name}");
     } catch (ConnectionException | Exception $e) {
       Log::error('Getty Images request error: ' . json_encode($e->getMessage()));
       throw new Forbidden('Getty Images request failed: ' . $e->getMessage());

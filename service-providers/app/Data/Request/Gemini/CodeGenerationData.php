@@ -11,6 +11,9 @@ class CodeGenerationData extends Data
         public string $prompt,
         public int $max_tokens,
         public string $temperature,
-        public ?array $attachments
+        /**
+         * @var array<int, string>
+         */
+        public ?array $attachments = []
     ) {}
 }

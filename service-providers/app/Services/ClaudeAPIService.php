@@ -78,7 +78,7 @@ class ClaudeAPIService
         $serviceType = ServiceType::where('service_provider_id', $provider->id)
             ->where('name', $serviceTypeName->value)
             ->first();
-            
+
         if (!$serviceType) {
             throw new NotFound('Claude API service type not found.');
         }
@@ -313,9 +313,7 @@ class ClaudeAPIService
 
             if (!empty($data->attachments)) {
                 foreach ($data->attachments as $attachment) {
-                    if ($attachment instanceof UploadedFile) {
-                        $messages[0]['content'][] = $this->prepareAttachment($attachment);
-                    }
+                    $messages[0]['content'][] = $this->prepareAttachment($attachment);
                 }
             }
 

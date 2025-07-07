@@ -3,181 +3,86 @@
 namespace App\Traits;
 
 use Exception;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
-use Smalot\PdfParser\Parser; 
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use App\Helpers\ImageToBase64Converter;
+use App\Http\Exceptions\BadRequest;
 
 trait GeminiTrait
 {
-    protected static int $maxFileSize = 20 * 1024 * 1024; 
+    protected static int $maxInlineDataFileSize = 20 * 1024 * 1024;
     protected static int $maxTextLength = 1 * 1024 * 1024;
+    protected static int $maxImageDownloadSize = 20 * 1024 * 1024;
 
-    public static function prepareAttachmentPart(UploadedFile $attachment): array
+    public static function prepareAttachmentPart(string $attachmentUrl, bool $forceInlineImage = false): array
     {
-        if ($attachment->getSize() > self::$maxFileSize) {
-            throw new BadRequestHttpException("File '{$attachment->getClientOriginalName()}' exceeds maximum size limit of " .
-                self::formatBytes(self::$maxFileSize));
+        if (!filter_var($attachmentUrl, FILTER_VALIDATE_URL)) {
+            throw new BadRequest("Invalid attachment URL: '{$attachmentUrl}'");
         }
 
-        if ($attachment->getSize() === 0) {
-            throw new BadRequestHttpException("File '{$attachment->getClientOriginalName()}' is empty");
+        $pathInfo = pathinfo($attachmentUrl);
+        $extension = strtolower($pathInfo['extension'] ?? '');
+        $isImageUrl = in_array($extension, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'heic', 'heif']);
+
+        if ($forceInlineImage && $isImageUrl) {
+            return self::handleImageUrlAsInlineData($attachmentUrl);
+        } else {
+            return self::prepareUrlAttachmentPart($attachmentUrl);
         }
+    }
 
-        $mimeType = $attachment->getMimeType(); 
-        if (!$mimeType) {
-            $mimeType = $attachment->getClientMimeType() ?? 'application/octet-stream';
-        }
-
-        $fileName = $attachment->getClientOriginalName();
-        $extension = $attachment->getClientOriginalExtension() ?? '';
-
-        if ($mimeType === 'application/octet-stream' || $mimeType === 'text/plain') {
-            $guessedMime = self::getMimeTypeFromExtension($extension);
-             if ($guessedMime) {
-                 $mimeType = $guessedMime;
-             }
-        }
-
-        $type = self::resolveContentType($mimeType, $extension);
-
-        $supportedMimeTypes = self::getSupportedGeminiMimeTypes();
-        if (!isset($supportedMimeTypes[$mimeType])) {
-             $fallbackMime = match ($type) {
-                 'text' => 'text/plain',
-                 'document' => 'application/pdf', 
-                 'image' => null, 
-                 'spreadsheet' => 'text/csv', 
-                 default => null
-             };
-             if ($fallbackMime && isset($supportedMimeTypes[$fallbackMime])) {
-                 Log::debug("Mime type '{$mimeType}' not directly supported by Gemini, using fallback '{$fallbackMime}' for file '{$fileName}' based on resolved type '{$type}'.");
-                 $mimeType = $fallbackMime;
-                 $type = self::resolveContentType($mimeType, $extension); 
-             } else {
-                 throw new BadRequestHttpException("Unsupported MIME type '{$mimeType}' for Gemini API processing: {$fileName}");
-             }
-        }
+    protected static function handleImageUrlAsInlineData(string $imageUrl): array
+    {
+        $converter = new ImageToBase64Converter(maxFileSize: self::$maxImageDownloadSize);
 
         try {
-            switch ($type) {
-                case 'text':
-                    return self::handleTextFile($attachment, $fileName, $mimeType);
+            $base64Data = $converter->convertSingle($imageUrl, includeDataUri: false, checkSizeFirst: true);
 
-                case 'document': 
-                     if ($mimeType === 'application/pdf') {
-                         return self::handleBinaryFile($attachment, $fileName, $mimeType);
-                     } else {
-                          throw new BadRequestHttpException("Unsupported document type '{$mimeType}' for direct processing: {$fileName}. Only PDF is directly supported.");
-                     }
-                    
-                case 'spreadsheet': 
-                    if (strtolower($extension) === 'csv' || $mimeType === 'text/csv') {
-                        return self::handleCsvFile($attachment, $fileName);
-                    } else {
-                        throw new BadRequestHttpException("Spreadsheet format '{$mimeType}' ({$fileName}) not supported. Please convert to CSV.");
-                    }
-
-                case 'image':
-                    return self::handleBinaryFile($attachment, $fileName, $mimeType);
-
-                default:
-                    throw new BadRequestHttpException("Unsupported file type category '{$type}' derived from '{$mimeType}' for Gemini API: {$fileName}");
+            if (is_null($base64Data)) {
+                throw new BadRequest("Failed to convert image URL '{$imageUrl}' to Base64.");
             }
+
+            $info = $converter->getImageInfo($imageUrl);
+            $mimeType = $info['content_type'] ?? self::getMimeTypeFromExtension(pathinfo($imageUrl, PATHINFO_EXTENSION));
+
+            if (!$mimeType || $mimeType === 'application/octet-stream' || !str_starts_with($mimeType, 'image/')) {
+                 $detectedMime = $converter->detectMimeType(base64_decode($base64Data));
+                 $mimeType = $detectedMime ?: 'image/jpeg';
+            }
+
+            if (!isset(self::getSupportedGeminiMimeTypes()[$mimeType])) {
+                 Log::warning("Mime type '{$mimeType}' fetched for URL '{$imageUrl}' is not officially listed as supported for Gemini inline image. Attempting anyway.");
+            }
+
+            return [
+                'inline_data' => [
+                    'mime_type' => $mimeType,
+                    'data' => $base64Data,
+                ],
+            ];
         } catch (Exception $e) {
-            if ($e instanceof BadRequestHttpException) {
-                throw $e;
-            }
-
-            Log::error("Error processing attachment for Gemini: " . $e->getMessage(), [
-                'file' => $fileName,
-                'mime_type' => $mimeType,
+            Log::error("Error processing image URL for inline Gemini content: " . $e->getMessage(), [
+                'url' => $imageUrl,
                 'exception' => $e
             ]);
-
-            throw new BadRequestHttpException("Failed to process file '{$fileName}' for Gemini API: " . $e->getMessage());
+            throw new BadRequest("Failed to prepare image from URL '{$imageUrl}' for Gemini API: " . $e->getMessage());
         }
     }
 
-    private static function handleTextFile(UploadedFile $file, string $fileName, string $mimeType): array
+    protected static function prepareUrlAttachmentPart(string $url): array
     {
-        $fileContent = file_get_contents($file->path());
+        $pathInfo = pathinfo($url);
+        $extension = strtolower($pathInfo['extension'] ?? '');
+        $mimeType = self::getMimeTypeFromExtension($extension) ?? 'application/octet-stream';
 
-        if ($fileContent === false) {
-            throw new BadRequestHttpException("Failed to read file '{$fileName}'");
-        }
-
-        if ($mimeType == 'text/plain' && self::isBinaryString($fileContent)) {
-             Log::warning("File '{$fileName}' has MIME type text/plain but appears to contain binary data.");
-        }
-
-        $originalLength = strlen($fileContent);
-        $truncated = false;
-        if ($originalLength > self::$maxTextLength) {
-            $fileContent = substr($fileContent, 0, self::$maxTextLength);
-            $truncated = true;
-            Log::warning("Text content truncated for file '{$fileName}'", [
-                'original_size' => $originalLength,
-                'truncated_size' => self::$maxTextLength
-            ]);
-        }
-        
-        $language = self::guessCodeBlockLanguage($mimeType, $file->getClientOriginalExtension() ?? '');
-        $formattedContent = !empty($language) ? "```{$language}\n{$fileContent}\n```" : $fileContent;
-        
-        $prefix = "Content from file `{$fileName}` ({$mimeType}):\n";
-        $suffix = $truncated ? "\n\n[Content truncated due to size limitations]" : "";
-
-        return [
-            'text' => $prefix . $formattedContent . $suffix
-        ];
-    }
-
-    private static function handleCsvFile(UploadedFile $file, string $fileName): array
-    {
-        $content = file_get_contents($file->path());
-        if ($content === false) {
-            throw new BadRequestHttpException("Failed to read CSV file '{$fileName}'");
-        }
-        
-        $originalLength = strlen($content);
-        $truncated = false;
-        if ($originalLength > self::$maxTextLength) {
-            $content = substr($content, 0, self::$maxTextLength);
-            $truncated = true;
-             Log::warning("CSV content truncated for file '{$fileName}'", [
-                'original_size' => $originalLength,
-                'truncated_size' => self::$maxTextLength
-            ]);
-        }
-
-        $prefix = "CSV data from file `{$fileName}`:\n```csv\n";
-        $suffix = "\n```" . ($truncated ? "\n\n[Content truncated due to size limitations]" : "");
-
-        return [
-            'text' => $prefix . $content . $suffix
-        ];
-    }
-
-    private static function handleBinaryFile(UploadedFile $file, string $fileName, string $mimeType): array
-    {
-        $fileContent = file_get_contents($file->path());
-        if ($fileContent === false) {
-            throw new BadRequestHttpException("Failed to read binary file '{$fileName}'");
-        }
-
-        $base64Data = base64_encode($fileContent);
-        unset($fileContent); 
-
-        if ($base64Data === false) {
-            throw new BadRequestHttpException("Failed to base64 encode file '{$fileName}'");
+        if (!isset(self::getSupportedGeminiMimeTypes()[$mimeType]) && !str_starts_with($mimeType, 'image/')) {
+            Log::warning("MIME type '{$mimeType}' inferred for URL '{$url}' may not be directly supported by Gemini for file_data. Proceeding with URL.");
         }
 
         return [
-            'inline_data' => [
+            'file_data' => [
                 'mime_type' => $mimeType,
-                'data' => $base64Data
-            ]
+                'file_uri' => $url,
+            ],
         ];
     }
 
@@ -186,26 +91,22 @@ trait GeminiTrait
         $extension = strtolower($extension);
 
         if (str_starts_with($mimeType, 'image/')) {
-            if (isset(self::getSupportedGeminiMimeTypes()[$mimeType])) {
-                 return 'image';
-            }
+            return 'image';
         }
         if ($mimeType === 'application/pdf') {
-             if (isset(self::getSupportedGeminiMimeTypes()[$mimeType])) {
-                 return 'document'; 
-            }
+             return 'document';
         }
-        
+
          if ($mimeType === 'text/csv' || $extension === 'csv') {
              return 'spreadsheet';
          }
-        
+
          if (in_array($mimeType, [
-             'application/vnd.ms-excel', 
+             'application/vnd.ms-excel',
              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-             'application/vnd.oasis.opendocument.spreadsheet' 
+             'application/vnd.oasis.opendocument.spreadsheet'
              ]) || in_array($extension, ['xls', 'xlsx', 'ods'])) {
-             return 'spreadsheet'; 
+             return 'spreadsheet';
          }
 
         $textMimePrefixes = ['text/', 'application/json', 'application/xml', 'application/javascript', 'application/typescript', 'application/x-yaml'];
@@ -214,10 +115,10 @@ trait GeminiTrait
                 return 'text';
             }
         }
-        
+
         $textExtensions = [
-             'txt', 'json', 'php', 'html', 'htm', 'md', 'py', 'js', 'ts', 'css', 
-             'xml', 'yaml', 'yml', 'java', 'cpp', 'c', 'h', 'cs', 'rb', 'go', 
+             'txt', 'json', 'php', 'html', 'htm', 'md', 'py', 'js', 'ts', 'css',
+             'xml', 'yaml', 'yml', 'java', 'cpp', 'c', 'h', 'cs', 'rb', 'go',
              'rs', 'swift', 'kt', 'sql', 'sh', 'bat', 'ps1', 'config', 'ini',
              'conf', 'log', 'jsx', 'tsx', 'vue', 'dart'
         ];
@@ -239,8 +140,8 @@ trait GeminiTrait
             'application/xml' => true,
             'text/markdown' => true,
             'text/csv' => true,
-             'text/x-python' => true, 
-             'text/x-java' => true, 
+             'text/x-python' => true,
+             'text/x-java' => true,
              'text/x-php' => true,
 
             'image/png' => true,
@@ -248,7 +149,7 @@ trait GeminiTrait
             'image/webp' => true,
             'image/heic' => true,
             'image/heif' => true,
-            'image/gif' => true, 
+            'image/gif' => true,
 
             'application/pdf' => true,
         ];
@@ -259,7 +160,7 @@ trait GeminiTrait
         if (empty($extension)) {
             return null;
         }
-        
+
         $extension = strtolower($extension);
         return match ($extension) {
             'pdf' => 'application/pdf',
@@ -281,16 +182,16 @@ trait GeminiTrait
             'go' => 'text/x-go',
             'rs' => 'text/x-rust',
             'csv' => 'text/csv',
-            'xls' => 'application/vnd.ms-excel', 
-            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
-            'ods' => 'application/vnd.oasis.opendocument.spreadsheet', 
+            'xls' => 'application/vnd.ms-excel',
+            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
             'png' => 'image/png',
             'jpg', 'jpeg' => 'image/jpeg',
             'gif' => 'image/gif',
             'webp' => 'image/webp',
             'heic' => 'image/heic',
             'heif' => 'image/heif',
-            'svg' => 'image/svg+xml', 
+            'svg' => 'image/svg+xml',
             default => null,
         };
     }
@@ -315,14 +216,14 @@ trait GeminiTrait
             'text/x-go' => 'go',
             'text/x-rust' => 'rust',
             'text/csv' => 'csv',
-            'text/plain' => '', 
+            'text/plain' => '',
             default => null,
         };
-        
+
         if ($byMimeType !== null) {
             return $byMimeType;
         }
-        
+
         $extension = strtolower($extension);
         return match ($extension) {
             'json' => 'json',
@@ -352,9 +253,9 @@ trait GeminiTrait
             'vue' => 'vue',
             'dart' => 'dart',
             'csv' => 'csv',
-            'txt' => '', 
-            'log' => '', 
-            default => '', 
+            'txt' => '',
+            'log' => '',
+            default => '',
         };
     }
 
@@ -370,7 +271,7 @@ trait GeminiTrait
         $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
         $pow = min($pow, count($units) - 1);
         $bytes /= ($pow > 0) ? (1 << (10 * $pow)) : 1;
-        
+
         return round($bytes, $precision) . ' ' . $units[$pow];
     }
 }

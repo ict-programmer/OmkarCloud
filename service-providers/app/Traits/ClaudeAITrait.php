@@ -2,59 +2,63 @@
 
 namespace App\Traits;
 
+use App\Http\Exceptions\BadRequest;
 use Exception;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Smalot\PdfParser\Parser;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Mime\MimeTypes;
 
 trait ClaudeAITrait
 {
-    /**
-     * Maximum file size in bytes (10MB)
-     */
-    protected static int $maxFileSize = 10 * 1024 * 1024;
+    protected static int $maxDownloadFileSize = 10 * 1024 * 1024; // 10MB
+    protected static int $maxTextLength = 100 * 1024; // 100KB
 
     /**
-     * Maximum text length to process (100KB of text)
-     */
-    protected static int $maxTextLength = 100 * 1024;
-
-    /**
-     * Prepare an attachment for Claude AI
-     * 
-     * @param UploadedFile $attachment
+     * Prepare an attachment for Claude AI from a URL.
+     *
+     * @param string $attachmentUrl
      * @return array
-     * @throws BadRequestHttpException
+     * @throws BadRequest
      */
-    public static function prepareAttachment(UploadedFile $attachment): array
+    public static function prepareAttachment(string $attachmentUrl): array
     {
-        // Check file size
-        if ($attachment->getSize() > self::$maxFileSize) {
-            throw new BadRequestHttpException("File '{$attachment->getClientOriginalName()}' exceeds maximum size limit of " .
-                self::formatBytes(self::$maxFileSize));
+        if (!filter_var($attachmentUrl, FILTER_VALIDATE_URL)) {
+            throw new BadRequest("Invalid attachment URL: '{$attachmentUrl}'");
         }
 
-        // Check for empty file
-        if ($attachment->getSize() === 0) {
-            throw new BadRequestHttpException("File '{$attachment->getClientOriginalName()}' is empty");
+        $headers = @get_headers($attachmentUrl, 1);
+        if ($headers === false) {
+            throw new BadRequest("Could not retrieve headers from URL: '{$attachmentUrl}'. Check if the URL is accessible.");
         }
 
-        $mimeType = $attachment->getMimeType() ?? 'application/octet-stream';
-        $fileName = $attachment->getClientOriginalName();
-        $extension = $attachment->getClientOriginalExtension();
+        $fileSize = 0;
+        if (isset($headers['Content-Length'])) {
+            $fileSize = (int)$headers['Content-Length'];
+        } elseif (isset($headers['content-length'])) {
+            $fileSize = (int)$headers['content-length'];
+        }
 
-        // If MIME type is generic, try guessing more accurately
-        if ($mimeType === 'application/octet-stream' || $mimeType === 'text/plain') {
-            $mimeTypes = new MimeTypes();
-            $guessedType = $mimeTypes->guessMimeType($attachment->path());
+        if ($fileSize === 0 && !self::isContentLengthOptional($attachmentUrl)) {
+             Log::warning("Content-Length header not found or is 0 for URL: {$attachmentUrl}. Proceeding without size validation for now.");
+        } elseif ($fileSize > self::$maxDownloadFileSize) {
+            throw new BadRequest("File from URL '{$attachmentUrl}' exceeds maximum download size limit of " .
+                self::formatBytes(self::$maxDownloadFileSize));
+        }
 
-            if ($guessedType !== null) {
-                $mimeType = $guessedType;
+        $mimeType = null;
+        if (isset($headers['Content-Type'])) {
+            if (is_array($headers['Content-Type'])) {
+                $mimeType = explode(';', $headers['Content-Type'][0])[0];
             } else {
-                $mimeType = self::getMimeTypeFromExtension($extension) ?? $mimeType;
+                $mimeType = explode(';', $headers['Content-Type'])[0];
             }
+        }
+
+        $pathInfo = pathinfo($attachmentUrl);
+        $fileName = $pathInfo['basename'] ?? 'file';
+        $extension = strtolower($pathInfo['extension'] ?? '');
+
+        if ($mimeType === 'application/octet-stream' || $mimeType === 'text/plain' || !$mimeType) {
+            $mimeType = self::getMimeTypeFromExtension($extension) ?? $mimeType ?? 'application/octet-stream';
         }
 
         $type = self::resolveContentType($mimeType, $extension);
@@ -62,181 +66,221 @@ trait ClaudeAITrait
         try {
             switch ($type) {
                 case 'text':
-                    return self::handleTextFile($attachment, $fileName, $mimeType);
+                    return self::handleTextUrl($attachmentUrl, $fileName, $mimeType, $extension);
 
                 case 'document':
-                    return self::handleDocumentFile($attachment, $fileName);
+                    return self::handleDocumentUrl($attachmentUrl, $fileName);
 
                 case 'spreadsheet':
-                    return self::handleSpreadsheetFile($attachment, $fileName);
+                    return self::handleSpreadsheetUrl($attachmentUrl, $fileName, $extension);
 
                 case 'image':
-                    return self::handleImageFile($attachment, $fileName, $mimeType);
+                    return self::handleImageUrl($attachmentUrl, $fileName, $mimeType);
 
                 default:
-                    // For unsupported formats, try to handle as text if it looks like text
-                    if (self::isLikelyTextFile($attachment)) {
-                        return self::handleTextFile($attachment, $fileName, 'text/plain');
-                    }
-
-                    throw new BadRequestHttpException("Unsupported file type '{$mimeType}' for Claude AI: {$fileName}");
+                    throw new BadRequest("Unsupported file type '{$mimeType}' for Claude AI from URL: '{$attachmentUrl}'");
             }
         } catch (Exception $e) {
-            if ($e instanceof BadRequestHttpException) {
+            if ($e instanceof BadRequest) {
                 throw $e;
             }
 
-            Log::error("Error processing attachment for Claude AI: " . $e->getMessage(), [
-                'file' => $fileName,
+            Log::error("Error processing attachment for Claude AI from URL: " . $e->getMessage(), [
+                'url' => $attachmentUrl,
                 'mime_type' => $mimeType,
                 'exception' => $e
             ]);
 
-            throw new BadRequestHttpException("Failed to process file '{$fileName}': " . $e->getMessage());
+            throw new BadRequest("Failed to process file from URL '{$attachmentUrl}': " . $e->getMessage());
         }
     }
 
     /**
-     * Handle text-based files
+     * Checks if Content-Length header might be optional for a given URL's host.
+     * This helps in cases where some services (like Google Drive) don't always provide it reliably.
      */
-    private static function handleTextFile(UploadedFile $file, string $fileName, string $mimeType): array
+    private static function isContentLengthOptional(string $url): bool
     {
-        $fileContent = file_get_contents($file->path());
+        $parsedUrl = parse_url($url);
+        $host = $parsedUrl['host'] ?? '';
+        
+        $optionalContentLengthHosts = [
+            'drive.google.com',
+            'docs.google.com',
+        ];
 
-        if ($fileContent === false) {
-            throw new BadRequestHttpException("Failed to read file '{$fileName}'");
+        foreach ($optionalContentLengthHosts as $domain) {
+            if (str_contains($host, $domain)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Fetches the contents of a URL.
+     *
+     * @param string $url
+     * @return string
+     * @throws Exception|BadRequest
+     */
+    private static function fetchUrlContents(string $url): string
+    {
+        $context = stream_context_create([
+            'http' => [
+                'follow_location' => 1,
+                'max_redirects' => 5,
+                'timeout' => 30,
+            ],
+        ]);
+
+        $content = @file_get_contents($url, false, $context);
+
+        if ($content === false) {
+            throw new Exception("Failed to download content from URL: '{$url}'");
         }
 
-        // Check for binary content in text files
+        if (strlen($content) > self::$maxDownloadFileSize) {
+            throw new BadRequest("Downloaded content from '{$url}' exceeds maximum allowed size of " . self::formatBytes(self::$maxDownloadFileSize));
+        }
+
+        return $content;
+    }
+
+    /**
+     * Handle text-based files from a URL.
+     */
+    private static function handleTextUrl(string $url, string $fileName, string $mimeType, string $extension): array
+    {
+        $fileContent = self::fetchUrlContents($url);
+
         if (self::isBinaryString($fileContent)) {
-            throw new BadRequestHttpException("File '{$fileName}' appears to be binary, not text");
+            throw new BadRequest("Content from URL '{$url}' appears to be binary, not text");
         }
 
-        // Trim the content if it's too large
         if (strlen($fileContent) > self::$maxTextLength) {
             $fileContent = substr($fileContent, 0, self::$maxTextLength) . "\n\n[Content truncated due to Claude's size limitations]";
         }
 
-        $language = self::guessCodeBlockLanguage($mimeType, $file->getClientOriginalExtension());
+        $language = self::guessCodeBlockLanguage($mimeType, $extension);
         $codeBlock = !empty($language) ? "```{$language}\n{$fileContent}\n```" : $fileContent;
 
-        // Return in the format Claude expects
         return [
             'type' => 'text',
-            'text' => "Attached file `{$fileName}`:\n\n{$codeBlock}"
+            'text' => "Attached file `{$fileName}` from URL `{$url}`:\n\n{$codeBlock}"
         ];
     }
 
     /**
-     * Handle PDF documents
+     * Handle PDF documents from a URL.
      */
-    private static function handleDocumentFile(UploadedFile $file, string $fileName): array
+    private static function handleDocumentUrl(string $url, string $fileName): array
     {
+        $tempPdfPath = tempnam(sys_get_temp_dir(), 'claude_pdf_');
+        if ($tempPdfPath === false) {
+            throw new Exception("Failed to create temporary file for PDF download.");
+        }
+
         try {
+            $pdfContent = self::fetchUrlContents($url);
+            file_put_contents($tempPdfPath, $pdfContent);
+
             $parser = new Parser();
-            $pdf = $parser->parseFile($file->path());
+            $pdf = $parser->parseFile($tempPdfPath);
             $text = $pdf->getText();
 
             if (empty(trim($text))) {
-                return self::handlePdfAsBase64($file, $fileName);
+                return self::handlePdfAsBase64($pdfContent, $fileName, $url);
             }
 
-            // Trim the content if it's too large
             if (strlen($text) > self::$maxTextLength) {
                 $text = substr($text, 0, self::$maxTextLength) . "\n\n[Content truncated due to Claude's size limitations]";
             }
 
             return [
                 'type' => 'text',
-                'text' => "Extracted text from PDF `{$fileName}`:\n\n{$text}"
+                'text' => "Extracted text from PDF `{$fileName}` from URL `{$url}`:\n\n{$text}"
             ];
         } catch (Exception $e) {
-            Log::error("PDF parsing error", [
+            Log::error("PDF parsing error from URL", [
+                'url' => $url,
                 'file' => $fileName,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
 
             try {
-                return self::handlePdfAsBase64($file, $fileName);
-            } catch (Exception $imageError) {
-                // If both approaches fail, throw a more detailed exception
-                throw new BadRequestHttpException("Failed to process PDF file '{$fileName}'. The PDF may be corrupted or in an unsupported format.");
+                $pdfContent = self::fetchUrlContents($url);
+                return self::handlePdfAsBase64($pdfContent, $fileName, $url);
+            } catch (Exception $fallbackError) {
+                throw new BadRequest("Failed to process PDF file '{$fileName}' from URL '{$url}'. The PDF may be corrupted or in an unsupported format: " . $fallbackError->getMessage());
+            }
+        } finally {
+            if (file_exists($tempPdfPath)) {
+                unlink($tempPdfPath);
             }
         }
     }
 
     /**
-     * Handle PDF as base64 encoded text
+     * Handle PDF as base64 encoded data for Claude.
      */
-    private static function handlePdfAsBase64(UploadedFile $file, string $fileName): array
+    private static function handlePdfAsBase64(string $fileContent, string $fileName, string $url): array
     {
-
-        $fileContent = base64_encode(file_get_contents($file->path()));
+        $base64Content = base64_encode($fileContent);
 
         return [
-            'type' => 'document',
-            'source' => [
-                'type' => 'base64',
-                'media_type' => 'application/pdf',
-                'data' => $fileContent
-            ]
+            'type' => 'base64',
+            'media_type' => 'application/pdf',
+            'data' => $base64Content,
+            'file_name' => $fileName, // Add file_name for context
+            'url' => $url // Add original URL for context
         ];
     }
 
     /**
-     * Handle spreadsheet files (CSV, Excel)
+     * Handle spreadsheet files (CSV, Excel) from a URL.
      */
-    private static function handleSpreadsheetFile(UploadedFile $file, string $fileName): array
+    private static function handleSpreadsheetUrl(string $url, string $fileName, string $extension): array
     {
-        $extension = strtolower($file->getClientOriginalExtension());
-
-        // Handle CSV
         if ($extension === 'csv') {
-            $content = file_get_contents($file->path());
-            if ($content === false) {
-                throw new BadRequestHttpException("Failed to read CSV file '{$fileName}'");
-            }
+            $content = self::fetchUrlContents($url);
 
-            // Trim if needed
             if (strlen($content) > self::$maxTextLength) {
                 $content = substr($content, 0, self::$maxTextLength) . "\n\n[Content truncated due to Claude's size limitations]";
             }
 
             return [
                 'type' => 'text',
-                'text' => "CSV data from file `{$fileName}`:\n```csv\n{$content}\n```"
+                'text' => "CSV data from file `{$fileName}` from URL `{$url}`:\n```csv\n{$content}\n```"
             ];
         }
 
-        // For Excel files, currently not supported directly
-        throw new BadRequestHttpException("Excel files like '{$fileName}' are not directly supported by Claude AI. Consider converting to CSV format.");
+        throw new BadRequest("Excel files like '{$fileName}' from URL '{$url}' are not directly supported by Claude AI. Consider converting to CSV format.");
     }
 
     /**
-     * Handle image files
+     * Handle image files from a URL.
      */
-    private static function handleImageFile(UploadedFile $file, string $fileName, string $mimeType): array
+    private static function handleImageUrl(string $url, string $fileName, string $mimeType): array
     {
-        // Claude supports image inputs
-        $fileContent = base64_encode(file_get_contents($file->path()));
+        $fileContent = self::fetchUrlContents($url);
+        $base64Content = base64_encode($fileContent);
 
         return [
-            'type' => 'image',
-            'source' => [
-                'type' => 'base64',
-                'media_type' => $mimeType,
-                'data' => $fileContent
-            ]
+            'type' => 'base64',
+            'media_type' => $mimeType,
+            'data' => $base64Content,
+            'file_name' => $fileName, // Add file_name for context
+            'url' => $url // Add original URL for context
         ];
     }
 
     /**
-     * Resolve content type from MIME type and extension
+     * Resolve content type from MIME type and extension.
      */
     private static function resolveContentType(string $mimeType, string $extension = ''): string
     {
-        // Check by MIME type first
         $byMimeType = match ($mimeType) {
             'application/pdf' => 'document',
             'text/plain',
@@ -275,7 +319,6 @@ trait ClaudeAITrait
             return $byMimeType;
         }
 
-        // Fall back to extension check if MIME type didn't match
         $extension = strtolower($extension);
         return match ($extension) {
             'pdf' => 'document',
@@ -290,7 +333,7 @@ trait ClaudeAITrait
     }
 
     /**
-     * Get MIME type from file extension
+     * Get MIME type from file extension.
      */
     private static function getMimeTypeFromExtension(?string $extension): ?string
     {
@@ -331,11 +374,10 @@ trait ClaudeAITrait
     }
 
     /**
-     * Guess code block language based on MIME type and file extension
+     * Guess code block language based on MIME type and file extension.
      */
     private static function guessCodeBlockLanguage(string $mimeType, string $extension = ''): string
     {
-        // Try by MIME type first
         $byMimeType = match ($mimeType) {
             'application/json' => 'json',
             'text/x-php' => 'php',
@@ -362,7 +404,6 @@ trait ClaudeAITrait
             return $byMimeType;
         }
 
-        // Fall back to extension
         $extension = strtolower($extension);
         return match ($extension) {
             'json' => 'json',
@@ -393,16 +434,16 @@ trait ClaudeAITrait
             'dart' => 'dart',
             'csv' => 'csv',
             'txt' => '',
+            'log' => '',
             default => '',
         };
     }
 
     /**
-     * Check if a string appears to be binary rather than text
+     * Check if a string appears to be binary rather than text.
      */
     private static function isBinaryString(string $str): bool
     {
-        // Check for null bytes and a high percentage of non-printable characters
         $nonPrintable = 0;
         $length = strlen($str);
 
@@ -410,52 +451,25 @@ trait ClaudeAITrait
             return false;
         }
 
-        // Sample the string (up to 1000 characters)
         $sampleSize = min(1000, $length);
         $sample = substr($str, 0, $sampleSize);
 
         for ($i = 0; $i < strlen($sample); $i++) {
             $char = ord($sample[$i]);
-            // Check for null byte (definite binary indicator)
             if ($char === 0) {
                 return true;
             }
 
-            // Count non-printable characters (except common whitespace)
             if (($char < 32 && !in_array($char, [9, 10, 13])) || $char >= 127) {
                 $nonPrintable++;
             }
         }
 
-        // If more than 30% non-printable characters, consider it binary
         return ($nonPrintable / $sampleSize) > 0.3;
     }
 
     /**
-     * Check if a file is likely to be a text file
-     */
-    private static function isLikelyTextFile(UploadedFile $file): bool
-    {
-        // Check a sample of the file
-        $f = fopen($file->path(), 'r');
-        if (!$f) {
-            return false;
-        }
-
-        // Read first 1000 bytes
-        $sample = fread($f, 1000);
-        fclose($f);
-
-        if ($sample === false) {
-            return false;
-        }
-
-        // Use binary string detection
-        return !self::isBinaryString($sample);
-    }
-
-    /**
-     * Format bytes to a human-readable string
+     * Format bytes to a human-readable string.
      */
     private static function formatBytes(int $bytes, int $precision = 2): string
     {

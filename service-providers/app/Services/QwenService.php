@@ -84,9 +84,7 @@ class QwenService
 
     if (!empty($data->attachments)) {
       foreach ($data->attachments as $attachment) {
-        if ($attachment instanceof UploadedFile) {
-          $messages[0]['content'][] = $this->prepareAttachment($attachment);
-        }
+        $messages[0]['content'][] = $this->prepareAttachment($attachment);
       }
     }
 

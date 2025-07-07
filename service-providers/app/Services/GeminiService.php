@@ -53,7 +53,7 @@ class GeminiService
         $serviceType = ServiceType::where('service_provider_id', $provider->id)
             ->where('name', $serviceTypeName)
             ->first();
-            
+
         if (!$serviceType) {
             throw new NotFound('Gemini service type not found.');
         }
@@ -145,9 +145,7 @@ class GeminiService
 
             if (!empty($data->attachments)) {
                 foreach ($data->attachments as $attachment) {
-                    if ($attachment instanceof UploadedFile) {
-                        $messages[0]['parts'][] = $this->prepareAttachmentPart($attachment);
-                    }
+                    $messages[0]['parts'][] = $this->prepareAttachmentPart($attachment, true);
                 }
             }
 

@@ -25,7 +25,7 @@ class CodegenRequest extends FormRequest
         return [
             'description' => ['required', 'string', 'min:5', 'max:2000'],
             'attachments' => ['nullable', 'array'],
-            'attachments.*' => ['nullable', 'file', 'max:30720'], // 30MB
+            'attachments.*' => ['nullable', 'url'],
             'max_tokens' => ['required', 'integer', 'min:1', 'max:5000'],
             'model' => ['nullable', 'string'],
         ];
@@ -44,7 +44,7 @@ class CodegenRequest extends FormRequest
             'description.min' => 'The description must be at least 5 characters long to provide meaningful instructions.',
             'description.max' => 'The description may not be greater than 2,000 characters.',
             'attachments.array' => 'The attachments field must be an array of files.',
-            'attachments.*.file' => 'Each attachment must be a valid file.',
+            'attachments.*.url' => 'Each attachment must be a valid URL.',
             'attachments.*.max' => 'Each attachment may not be larger than 30MB.',
             'max_tokens.required' => 'The max_tokens field is required to specify response length.',
             'max_tokens.integer' => 'The max_tokens must be a whole number.',
