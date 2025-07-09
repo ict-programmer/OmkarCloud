@@ -193,6 +193,8 @@ class GeminiService
 
         $systemPrompt = config('gemini.system_prompts.image_analysis');
 
+        $data->image_url = $this->getPublishUrl($data->image_url);
+
         try {
             $file = file_get_contents($data->image_url);
         } catch (Throwable $e) {

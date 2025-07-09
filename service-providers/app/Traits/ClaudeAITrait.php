@@ -9,6 +9,8 @@ use Smalot\PdfParser\Parser;
 
 trait ClaudeAITrait
 {
+    use PubliishIOTrait;
+
     protected static int $maxDownloadFileSize = 10 * 1024 * 1024; // 10MB
     protected static int $maxTextLength = 100 * 1024; // 100KB
 
@@ -19,8 +21,10 @@ trait ClaudeAITrait
      * @return array
      * @throws BadRequest
      */
-    public static function prepareAttachment(string $attachmentUrl): array
+    public function prepareAttachment(string $cid): array
     {
+        $attachmentUrl = $this->getPublishUrl($cid);
+
         if (!filter_var($attachmentUrl, FILTER_VALIDATE_URL)) {
             throw new BadRequest("Invalid attachment URL: '{$attachmentUrl}'");
         }

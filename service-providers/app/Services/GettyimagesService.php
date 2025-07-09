@@ -34,19 +34,19 @@ use App\Http\Resources\GettyImages\DownloadVideoResource;
 use App\Http\Resources\GettyImages\ImageMetadataResource;
 use App\Http\Resources\GettyImages\VideoMetadataResource;
 use App\Models\ServiceProvider;
+use App\Traits\PubliishIOTrait;
 use App\Traits\QwenTrait;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use stdClass;
 
 class GettyimagesService
 {
-  use QwenTrait;
+  use QwenTrait, PubliishIOTrait;
 
   protected string $apiUrl;
 
@@ -181,6 +181,8 @@ class GettyimagesService
   public function searchImagesCreativeByImage(ImageSearchCreativeByImageData $dto): AffiliateImageSearchResource
   {
     $this->initializeService();
+
+    $dto->fields['image_url'] = $this->getPublishUrl($dto->fields['image_url']);
     try {
       $response = $this->client->get($this->apiUrl . '/search/images/creative/by-image', [
         'phrase' => $dto->phrase ?? null,
@@ -260,6 +262,8 @@ class GettyimagesService
   {
     $this->initializeService();
 
+    $data->file = $this->getPublishUrl($data->file);
+
     if (isset($data->file) && !filter_var($data->file, FILTER_VALIDATE_URL)) {
       throw new Forbidden('The provided file name is not a valid URL.');
     }
@@ -335,6 +339,9 @@ class GettyimagesService
   public function searchVideosCreativeByImage(VideoSearchCreativeByImageData $dto): AffiliateVideoSearchResource
   {
     $this->initializeService();
+
+    $dto->fields['image_url'] = $this->getPublishUrl($dto->fields['image_url']);
+
     try {
       $response = $this->client->get($this->apiUrl . '/search/videos/creative/by-image', [
         'phrase' => $dto->phrase ?? null,
@@ -587,6 +594,9 @@ class GettyimagesService
   public function refineImage(RefineImageData $data)
   {
     $this->initializeService();
+    
+    $data->mask_url = $this->getPublishUrl($data->mask_url);
+    
     try {
       $response = $this->client->post($this->apiUrl . '/ai/image-generations/refine', $data);
     } catch (ConnectionException | Exception $e) {
@@ -611,6 +621,9 @@ class GettyimagesService
   public function removeObjectFromImage(RemoveObjectFromImageData $data)
   {
     $this->initializeService();
+    
+    $data->mask_url = $this->getPublishUrl($data->mask_url);
+
     try {
       $response = $this->client->post($this->apiUrl . '/ai/image-generations/remove-object', $data);
     } catch (ConnectionException | Exception $e) {

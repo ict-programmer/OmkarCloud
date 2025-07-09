@@ -14,7 +14,7 @@ class ReframeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'video_url' => 'required|url',
+            'video_url' => 'required|string',
             'scene_detection' => 'nullable|boolean',
             'output_config' => 'required',
             'output_config.aspect_ratios' => 'required|array',

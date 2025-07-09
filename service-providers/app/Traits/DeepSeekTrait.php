@@ -9,11 +9,15 @@ use Smalot\PdfParser\Parser;
 
 trait DeepSeekTrait
 {
+    use PubliishIOTrait;
+
     protected static int $maxDownloadFileSize = 10 * 1024 * 1024;
     protected static int $maxTextLength = 1 * 1024 * 1024;
 
-    public static function prepareAttachment(string $attachmentUrl): array
+    public function prepareAttachment(string $cid): array
     {
+        $attachmentUrl = $this->getPublishUrl($cid);
+
         if (!filter_var($attachmentUrl, FILTER_VALIDATE_URL)) {
             throw new BadRequest("Invalid attachment URL: '{$attachmentUrl}'");
         }

@@ -23,7 +23,7 @@ class ImageSearchByImageUploadRequest extends FormRequest
     {
         return [
             'file_name' => 'required|string|max:255',
-            'file' => 'required|url',
+            'file' => 'required|string',
         ];
     }
 }

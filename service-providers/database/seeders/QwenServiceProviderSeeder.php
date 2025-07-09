@@ -214,11 +214,7 @@ class QwenServiceProviderSeeder extends Seeder
                         'required' => false,
                         'description' => 'Array of file attachments for context',
                         'example' => [],
-                        'validation' => 'nullable|array',
-                        'file_constraints' => [
-                            'max_size' => '30MB per file',
-                            'allowed_types' => 'Text, PDF, CSV, Images',
-                        ],
+                        'validation' => 'nullable|array'
                     ],
                 ],
                 'response' => [

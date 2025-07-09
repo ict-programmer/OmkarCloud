@@ -1060,7 +1060,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                         'required' => true,
                         'description' => 'JPEG or PNG image to upload',
                         'example' => 'binary_image_data',
-                        'validation' => 'required|file|mimes:jpeg,png', // Assuming file upload validation
+                        'validation' => 'required|string', // Assuming file upload validation
                     ],
                 ],
                 'response' => [], // Response is 200 OK, no specific data example provided in doc
@@ -1438,9 +1438,9 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'image_url' => [
                         'type' => 'string',
                         'required' => false,
-                        'description' => 'Image URL (nullable, string)',
-                        'example' => 'https://example.com/image.jpg',
-                        'validation' => 'nullable|string|url',
+                        'description' => 'Image (nullable, string)',
+                        'example' => 'image',
+                        'validation' => 'nullable|string',
                     ],
                     'include_facets' => [
                         'type' => 'boolean',
@@ -2219,11 +2219,10 @@ class GettyImageServiceProviderSeeder extends Seeder
                     ],
                     'mask_url' => [
                         'type' => 'string',
-                        'format' => 'url',
                         'required' => false,
-                        'description' => 'Mask image URL (nullable, string, format: url)',
-                        'example' => 'https://cdn.gettyimages.ai/masks/region-mask.png',
-                        'validation' => 'nullable|url',
+                        'description' => 'Mask image (nullable, string)',
+                        'example' => 'region-mask',
+                        'validation' => 'nullable|string',
                     ],
                 ],
                 'response' => [

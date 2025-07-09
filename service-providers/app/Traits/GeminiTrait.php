@@ -9,12 +9,16 @@ use App\Http\Exceptions\BadRequest;
 
 trait GeminiTrait
 {
+    use PubliishIOTrait;
+
     protected static int $maxInlineDataFileSize = 20 * 1024 * 1024;
     protected static int $maxTextLength = 1 * 1024 * 1024;
     protected static int $maxImageDownloadSize = 20 * 1024 * 1024;
 
-    public static function prepareAttachmentPart(string $attachmentUrl, bool $forceInlineImage = false): array
+    public function prepareAttachmentPart(string $cid, bool $forceInlineImage = false): array
     {
+        $attachmentUrl = $this->getPublishUrl($cid);
+
         if (!filter_var($attachmentUrl, FILTER_VALIDATE_URL)) {
             throw new BadRequest("Invalid attachment URL: '{$attachmentUrl}'");
         }

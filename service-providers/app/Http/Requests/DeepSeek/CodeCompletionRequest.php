@@ -30,7 +30,7 @@ class CodeCompletionRequest extends FormRequest
             'max_tokens' => ['required', 'integer', 'min:1', 'max:5000'],
             'temperature' => ['required', 'numeric', 'min:0', 'max:1'],
             'attachments' => 'nullable|array',
-            'attachments.*' => 'nullable|url'
+            'attachments.*' => 'nullable|string'
         ];
     }
 
@@ -57,7 +57,7 @@ class CodeCompletionRequest extends FormRequest
             'temperature.min' => __('The temperature must be at least 0.'),
             'temperature.max' => __('The temperature may not be greater than 1.'),
             'attachments.array' => __('The attachments field must be an array.'),
-            'attachments.*.url' => __('Each attachment must be a valid url.'), 
+            'attachments.*.string' => __('Each attachment must be a valid string.'), 
         ];
     }
 

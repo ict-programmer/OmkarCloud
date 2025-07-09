@@ -472,10 +472,6 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                         'description' => 'Array of file attachments (optional)',
                         'example' => [],
                         'validation' => 'nullable|array',
-                        'file_constraints' => [
-                            'max_size' => '30MB per file',
-                            'allowed_types' => 'Any file type',
-                        ],
                     ],
                     'max_tokens' => [
                         'type' => 'integer',

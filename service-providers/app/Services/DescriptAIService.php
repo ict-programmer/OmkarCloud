@@ -10,6 +10,7 @@ use App\Http\Resources\DescriptAI\GenerateAsyncResource;
 use App\Http\Resources\DescriptAI\GetGenerateAsyncResource;
 use App\Http\Resources\DescriptAI\GetVoicesResource;
 use App\Models\ServiceProvider;
+use App\Traits\PubliishIOTrait;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
@@ -20,6 +21,8 @@ use stdClass;
 
 class DescriptAIService
 {
+  use PubliishIOTrait;
+  
   /**
    * Descript AI API model
    */
@@ -71,6 +74,9 @@ class DescriptAIService
   public function generateAsync(GenerateAsyncData $data): GenerateAsyncResource
   {
     $this->initializeService();
+
+    $data->prefix_audio_url = $this->getPublishUrl($data->prefix_audio_url);
+    $data->suffix_audio_url = $this->getPublishUrl($data->suffix_audio_url);
 
     try {
       $response = $this->client->post($this->apiUrl."/generate_async", [
