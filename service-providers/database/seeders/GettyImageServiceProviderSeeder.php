@@ -705,7 +705,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                         'example' => ['caption', 'keywords'],
                         'validation' => 'nullable|array',
                     ],
-                    'image_url' => [
+                    'image_cid' => [
                         'type' => 'string',
                         'required' => false,
                         'description' => 'Image URL (nullable, string)',

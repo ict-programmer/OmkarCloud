@@ -193,10 +193,10 @@ class GeminiService
 
         $systemPrompt = config('gemini.system_prompts.image_analysis');
 
-        $data->image_url = $this->getPublishUrl($data->image_url);
+        $data->image_cid = $this->getPublishUrl($data->image_cid);
 
         try {
-            $file = file_get_contents($data->image_url);
+            $file = file_get_contents($data->image_cid);
         } catch (Throwable $e) {
             throw new Forbidden('Failed to open provided file. Please try a different file.');
         }

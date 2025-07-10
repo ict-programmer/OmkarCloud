@@ -182,7 +182,7 @@ class GettyimagesService
   {
     $this->initializeService();
 
-    $dto->fields['image_url'] = $this->getPublishUrl($dto->fields['image_url']);
+    $dto->fields['image_cid'] = $this->getPublishUrl($dto->fields['image_cid']);
     try {
       $response = $this->client->get($this->apiUrl . '/search/images/creative/by-image', [
         'phrase' => $dto->phrase ?? null,
@@ -193,7 +193,7 @@ class GettyimagesService
         'facet_fields' => $dto->fields['facet_fields'] ?? null,
         'facet_max_count' => $dto->fields['facet_max_count'] ?? null,
         'fields' => $dto->fields['fields'] ?? null,
-        'image_url' => $dto->fields['image_url'] ?? null,
+        'image_url' => $dto->fields['image_cid'] ?? null,
         'include_facets' => $dto->fields['include_facets'] ?? null,
         'page' => $dto->fields['page'] ?? null,
         'page_size' => $dto->fields['page_size'] ?? null,
@@ -340,7 +340,7 @@ class GettyimagesService
   {
     $this->initializeService();
 
-    $dto->fields['image_url'] = $this->getPublishUrl($dto->fields['image_url']);
+    $dto->fields['image_cid'] = $this->getPublishUrl($dto->fields['image_cid']);
 
     try {
       $response = $this->client->get($this->apiUrl . '/search/videos/creative/by-image', [
@@ -352,7 +352,7 @@ class GettyimagesService
         'facet_fields' => $dto->fields['facet_fields'] ?? null,
         'facet_max_count' => $dto->fields['facet_max_count'] ?? null,
         'fields' => $dto->fields['fields'] ?? null,
-        'image_url' => $dto->fields['image_url'] ?? null,
+        'image_url' => $dto->fields['image_cid'] ?? null,
         'include_facets' => $dto->fields['include_facets'] ?? null,
         'page' => $dto->fields['page'] ?? null,
         'page_size' => $dto->fields['page_size'] ?? null,
@@ -595,7 +595,7 @@ class GettyimagesService
   {
     $this->initializeService();
     
-    $data->mask_url = $this->getPublishUrl($data->mask_url);
+    $data->mask_cid = $this->getPublishUrl($data->mask_cid);
     
     try {
       $response = $this->client->post($this->apiUrl . '/ai/image-generations/refine', $data);

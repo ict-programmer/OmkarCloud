@@ -45,11 +45,11 @@ class PremierProService
    */
   public function reframe(ReframeData $data): array
   {
-    $data->video_url = $this->getPublishUrl($data->video_url);
+    $data->video_cid = $this->getPublishUrl($data->video_cid);
 
     $response = $this->client->post('/reframe', [
       'json' => [
-        'video_url' => $data->video_url,
+        'video_url' => $data->video_cid,
         'scene_detection' => $data->scene_detection,
         'output_config' => $data->output_config,
       ],

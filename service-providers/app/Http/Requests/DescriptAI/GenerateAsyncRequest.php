@@ -26,9 +26,9 @@ class GenerateAsyncRequest extends FormRequest
             'voice_id' => ['required', 'uuid'],
             'voice_style_id' => ['required', 'uuid'],
             'prefix_text' => ['nullable', 'string'],
-            'prefix_audio_url' => ['nullable', 'string'],
+            'prefix_audio_cid' => ['nullable', 'string'],
             'suffix_text' => ['nullable', 'string'],
-            'suffix_audio_url' => ['nullable', 'string'],
+            'suffix_audio_cid' => ['nullable', 'string'],
             'callback_url' => ['required', 'url'],
         ];
     }
@@ -48,9 +48,9 @@ class GenerateAsyncRequest extends FormRequest
             'voice_style_id.required' => __('The voice style ID is required.'),
             'voice_style_id.uuid' => __('The voice style ID must be a valid UUID.'),
             'prefix_text.string' => __('The prefix text must be a string.'),
-            'prefix_audio_url.string' => __('The prefix audio string must be a valid string.'),
+            'prefix_audio_cid.string' => __('The prefix audio string must be a valid string.'),
             'suffix_text.string' => __('The suffix text must be a string.'),
-            'suffix_audio_url.string' => __('The suffix audio string must be a valid string.'),
+            'suffix_audio_cid.string' => __('The suffix audio string must be a valid string.'),
             'callback_url.required' => __('The callback URL is required.'),
             'callback_url.url' => __('The callback URL must be a valid URL.'),
         ];

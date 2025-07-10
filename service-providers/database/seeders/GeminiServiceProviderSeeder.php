@@ -219,7 +219,7 @@ class GeminiServiceProviderSeeder extends Seeder
                 'name' => 'Image Analysis',
                 'description' => 'Analyze images and provide detailed descriptions or insights',
                 'input_parameters' => [
-                    'image_url' => [
+                    'image_cid' => [
                         'type' => 'string',
                         'required' => true,
                         'description' => 'Image string to analyze',

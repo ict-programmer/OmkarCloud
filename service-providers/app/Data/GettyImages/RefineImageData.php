@@ -13,6 +13,6 @@ class RefineImageData extends Data
     public ?int $product_id,
     public ?string $project_code,
     public ?string $notes,
-    public ?string $mask_url,
+    public ?string $mask_cid,
   ) {}
 }

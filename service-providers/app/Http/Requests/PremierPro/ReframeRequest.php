@@ -14,7 +14,7 @@ class ReframeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'video_url' => 'required|string',
+            'video_cid' => 'required|string',
             'scene_detection' => 'nullable|boolean',
             'output_config' => 'required',
             'output_config.aspect_ratios' => 'required|array',
@@ -30,7 +30,7 @@ class ReframeRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'video_url.required' => __('Video URL is required'),
+            'video_cid.required' => __('Video URL is required'),
             'scene_detection.required' => __('Scene detection is required'),
             'output_config.required' => __('Output config is required'),
             'output_config.aspect_ratios.required' => __('Aspect ratios is required'),

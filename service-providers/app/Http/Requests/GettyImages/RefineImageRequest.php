@@ -30,7 +30,7 @@ class RefineImageRequest extends FormRequest
             'product_id' => 'nullable|integer',
             'project_code' => 'nullable|string',
             'notes' => 'nullable|string',
-            'mask_url' => 'nullable|string|string',
+            'mask_cid' => 'nullable|string|string',
         ];
     }
 }
