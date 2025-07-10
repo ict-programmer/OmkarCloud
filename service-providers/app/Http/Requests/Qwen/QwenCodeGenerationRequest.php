@@ -20,7 +20,7 @@ class QwenCodeGenerationRequest extends FormRequest
             'temperature' => 'nullable|numeric|min:0|max:1',
             'endpoint_interface' => 'nullable|string',
             'attachments' => 'nullable|array',
-            'attachments.*' => 'nullable|file|max:30720' // 30MB
+            'attachments.*' => 'nullable|string',
         ];
     }
 
@@ -41,7 +41,7 @@ class QwenCodeGenerationRequest extends FormRequest
             'temperature.max' => __('The temperature may not be greater than 1.'),
             'endpoint_interface.string' => __('The endpoint interface field must be a string.'),
             'attachments.array' => __('The attachments field must be an array.'),
-            'attachments.*.file' => __('The attachments.*.file field must be a file.'),
+            'attachments.*.string' => __('The attachments.*.file field must be a valid string.'),
         ];
     }
 }

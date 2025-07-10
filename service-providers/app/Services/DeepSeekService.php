@@ -18,7 +18,6 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use stdClass;
@@ -108,9 +107,7 @@ class DeepSeekService
 
             if (!empty($data->attachments)) {
                 foreach ($data->attachments as $attachment) {
-                    if ($attachment instanceof UploadedFile) {
-                        $messages[1]['content'][] = $this->prepareAttachment($attachment);
-                    }
+                    $messages[1]['content'][] = $this->prepareAttachment($attachment);
                 }
             }
 

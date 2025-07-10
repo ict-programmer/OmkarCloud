@@ -34,19 +34,19 @@ use App\Http\Resources\GettyImages\DownloadVideoResource;
 use App\Http\Resources\GettyImages\ImageMetadataResource;
 use App\Http\Resources\GettyImages\VideoMetadataResource;
 use App\Models\ServiceProvider;
+use App\Traits\PubliishIOTrait;
 use App\Traits\QwenTrait;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use stdClass;
 
 class GettyimagesService
 {
-  use QwenTrait;
+  use QwenTrait, PubliishIOTrait;
 
   protected string $apiUrl;
 
@@ -181,6 +181,8 @@ class GettyimagesService
   public function searchImagesCreativeByImage(ImageSearchCreativeByImageData $dto): AffiliateImageSearchResource
   {
     $this->initializeService();
+
+    $dto->fields['image_cid'] = $this->getPublishUrl($dto->fields['image_cid']);
     try {
       $response = $this->client->get($this->apiUrl . '/search/images/creative/by-image', [
         'phrase' => $dto->phrase ?? null,
@@ -191,7 +193,7 @@ class GettyimagesService
         'facet_fields' => $dto->fields['facet_fields'] ?? null,
         'facet_max_count' => $dto->fields['facet_max_count'] ?? null,
         'fields' => $dto->fields['fields'] ?? null,
-        'image_url' => $dto->fields['image_url'] ?? null,
+        'image_url' => $dto->fields['image_cid'] ?? null,
         'include_facets' => $dto->fields['include_facets'] ?? null,
         'page' => $dto->fields['page'] ?? null,
         'page_size' => $dto->fields['page_size'] ?? null,
@@ -256,22 +258,22 @@ class GettyimagesService
     return AffiliateImageSearchResource::make($result->data);
   }
 
-  public function searchImagesByImageUpload(ImageSearchByImageUploadData $dto): AffiliateImageSearchResource
+  public function searchImagesByImageUpload(ImageSearchByImageUploadData $data): AffiliateImageSearchResource
   {
     $this->initializeService();
 
-    $file = $dto->file;
-    if (!$file instanceof UploadedFile) {
-      throw new Forbidden('The provided file is not a valid upload.');
+    $data->file = $this->getPublishUrl($data->file);
+
+    if (isset($data->file) && !filter_var($data->file, FILTER_VALIDATE_URL)) {
+      throw new Forbidden('The provided file name is not a valid URL.');
     }
 
     try {
       $response = $this->client->attach(
-            name: 'file',
-            contents: file_get_contents($file->getRealPath()),
-            filename: $dto->file_name
-        )->put($this->apiUrl . "/search/by-image/uploads/{$dto->file_name}");
-
+        name: 'file',
+        contents: file_get_contents($data->file, false),
+        filename: $data->file_name
+      )->put($this->apiUrl . "/search/by-image/uploads/{$data->file_name}");
     } catch (ConnectionException | Exception $e) {
       Log::error('Getty Images request error: ' . json_encode($e->getMessage()));
       throw new Forbidden('Getty Images request failed: ' . $e->getMessage());
@@ -337,6 +339,9 @@ class GettyimagesService
   public function searchVideosCreativeByImage(VideoSearchCreativeByImageData $dto): AffiliateVideoSearchResource
   {
     $this->initializeService();
+
+    $dto->fields['image_cid'] = $this->getPublishUrl($dto->fields['image_cid']);
+
     try {
       $response = $this->client->get($this->apiUrl . '/search/videos/creative/by-image', [
         'phrase' => $dto->phrase ?? null,
@@ -347,7 +352,7 @@ class GettyimagesService
         'facet_fields' => $dto->fields['facet_fields'] ?? null,
         'facet_max_count' => $dto->fields['facet_max_count'] ?? null,
         'fields' => $dto->fields['fields'] ?? null,
-        'image_url' => $dto->fields['image_url'] ?? null,
+        'image_url' => $dto->fields['image_cid'] ?? null,
         'include_facets' => $dto->fields['include_facets'] ?? null,
         'page' => $dto->fields['page'] ?? null,
         'page_size' => $dto->fields['page_size'] ?? null,
@@ -589,6 +594,9 @@ class GettyimagesService
   public function refineImage(RefineImageData $data)
   {
     $this->initializeService();
+    
+    $data->mask_cid = $this->getPublishUrl($data->mask_cid);
+    
     try {
       $response = $this->client->post($this->apiUrl . '/ai/image-generations/refine', $data);
     } catch (ConnectionException | Exception $e) {
@@ -613,6 +621,9 @@ class GettyimagesService
   public function removeObjectFromImage(RemoveObjectFromImageData $data)
   {
     $this->initializeService();
+    
+    $data->mask_url = $this->getPublishUrl($data->mask_url);
+
     try {
       $response = $this->client->post($this->apiUrl . '/ai/image-generations/remove-object', $data);
     } catch (ConnectionException | Exception $e) {

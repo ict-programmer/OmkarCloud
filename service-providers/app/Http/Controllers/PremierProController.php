@@ -170,7 +170,7 @@ class PremierProController extends BaseController
     // )]
     public function status (string $id): JsonResponse
     {
-        $result = $this->service->status($id);
+        $result = $this->service->getStatus($id);
 
         return $this->logAndResponse($result,);
     }

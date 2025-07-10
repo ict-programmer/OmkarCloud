@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\common\ServiceProviderEnum;
 use App\Http\Controllers\CanvaController;
 use App\Http\Requests\Canva\CreateDesignRequest;
 use App\Http\Requests\Canva\CreateFolderRequest;
@@ -27,7 +28,7 @@ class CanvaServiceProviderSeeder extends Seeder
     public function run(): void
     {
         $serviceProvider = ServiceProvider::updateOrCreate(
-            ['type' => 'Canva'],
+            ['type' => ServiceProviderEnum::CANVA->value],
             [
                 'parameters' => [
                     'api_key' => 'YOUR_API_KEY',
