@@ -33,7 +33,7 @@ class VideoSearchCreativeByImageRequest extends FormRequest
             'fields.facet_max_count'    => 'nullable|integer|min:1',
             'fields.fields'                         => 'nullable|array',
             'fields.fields.*'                       => 'string|in:allowed_use', 'artist', 'aspect_ratio', 'asset_family', 'call_for_image','caption', 'clip_length', 'collection_code', 'collection_id', 'collection_name','color_type', 'comp', 'copyright', 'date_created', 'date_submitted','detail_set', 'display_set', 'download_product', 'download_sizes', 'era','id', 'istock_collection', 'keywords', 'largest_downloads', 'license_model','mastered_to', 'object_name', 'orientation', 'originally_shot_on', 'preview','summary_set', 'thumb', 'title',
-            'fields.image_url'            => 'nullable|image_url',
+            'fields.image_cid'            => 'nullable|string',
             'fields.include_facets'      => 'nullable|boolean',
             'fields.page'                => 'nullable|integer|min:1',
             'fields.page_size'           => 'nullable|integer|min:1|max:100',

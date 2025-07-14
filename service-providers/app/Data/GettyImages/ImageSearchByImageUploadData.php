@@ -8,6 +8,6 @@ class ImageSearchByImageUploadData extends Data
 {
     public function __construct(
         public string $file_name,
-        public $file,
+        public string $file,
     ) {}
 }

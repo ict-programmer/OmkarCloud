@@ -10,6 +10,7 @@ use App\Http\Resources\DescriptAI\GenerateAsyncResource;
 use App\Http\Resources\DescriptAI\GetGenerateAsyncResource;
 use App\Http\Resources\DescriptAI\GetVoicesResource;
 use App\Models\ServiceProvider;
+use App\Traits\PubliishIOTrait;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
@@ -20,6 +21,8 @@ use stdClass;
 
 class DescriptAIService
 {
+  use PubliishIOTrait;
+  
   /**
    * Descript AI API model
    */
@@ -72,15 +75,18 @@ class DescriptAIService
   {
     $this->initializeService();
 
+    $data->prefix_audio_cid = $this->getPublishUrl($data->prefix_audio_cid);
+    $data->suffix_audio_cid = $this->getPublishUrl($data->suffix_audio_cid);
+
     try {
       $response = $this->client->post($this->apiUrl."/generate_async", [
         'text' => $data->text,
         'voice_id' => $data->voice_id,
         'voice_style_id' => $data->voice_style_id,
         'prefix_text' => $data->prefix_text,
-        'prefix_audio_url' => $data->prefix_audio_url,
+        'prefix_audio_url' => $data->prefix_audio_cid,
         'suffix_text' => $data->suffix_text,
-        'suffix_audio_url' => $data->suffix_audio_url,
+        'suffix_audio_url' => $data->suffix_audio_cid,
         'callback_url' => $data->callback_url,
       ]);
     } catch (ConnectionException | Exception $e) {

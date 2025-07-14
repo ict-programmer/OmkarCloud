@@ -53,7 +53,7 @@ class GeminiService
         $serviceType = ServiceType::where('service_provider_id', $provider->id)
             ->where('name', $serviceTypeName)
             ->first();
-            
+
         if (!$serviceType) {
             throw new NotFound('Gemini service type not found.');
         }
@@ -145,9 +145,7 @@ class GeminiService
 
             if (!empty($data->attachments)) {
                 foreach ($data->attachments as $attachment) {
-                    if ($attachment instanceof UploadedFile) {
-                        $messages[0]['parts'][] = $this->prepareAttachmentPart($attachment);
-                    }
+                    $messages[0]['parts'][] = $this->prepareAttachmentPart($attachment, true);
                 }
             }
 
@@ -195,8 +193,10 @@ class GeminiService
 
         $systemPrompt = config('gemini.system_prompts.image_analysis');
 
+        $data->image_cid = $this->getPublishUrl($data->image_cid);
+
         try {
-            $file = file_get_contents($data->image_url);
+            $file = file_get_contents($data->image_cid);
         } catch (Throwable $e) {
             throw new Forbidden('Failed to open provided file. Please try a different file.');
         }

@@ -7,7 +7,7 @@ use Spatie\LaravelData\Data;
 class ReframeData extends Data
 {
     public function __construct(
-        public string $video_url,
+        public string $video_cid,
         public array $output_config,
         public ?bool $scene_detection = true
     ) {}

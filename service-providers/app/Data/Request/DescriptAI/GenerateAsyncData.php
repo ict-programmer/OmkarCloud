@@ -11,9 +11,9 @@ class GenerateAsyncData extends Data
         public string $voice_id,
         public string $voice_style_id,
         public ?string $prefix_text,
-        public ?string $prefix_audio_url,
+        public ?string $prefix_audio_cid,
         public ?string $suffix_text,
-        public ?string $suffix_audio_url,
+        public ?string $suffix_audio_cid,
         public ?string $callback_url
     ) {}
 }

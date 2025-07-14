@@ -197,10 +197,6 @@ class GeminiServiceProviderSeeder extends Seeder
                         'description' => 'Array of file attachments for context',
                         'example' => [],
                         'validation' => 'nullable|array',
-                        'file_constraints' => [
-                            'max_size' => '30MB per file',
-                            'allowed_types' => 'Text, PDF, CSV, Images',
-                        ],
                     ],
                 ],
                 'response' => [
@@ -223,14 +219,12 @@ class GeminiServiceProviderSeeder extends Seeder
                 'name' => 'Image Analysis',
                 'description' => 'Analyze images and provide detailed descriptions or insights',
                 'input_parameters' => [
-                    'image_url' => [
+                    'image_cid' => [
                         'type' => 'string',
                         'required' => true,
-                        'description' => 'URL of the image to analyze',
-                        'example' => 'https://cdn.firstcry.com/education/2022/11/29101350/AI-Words-For-Kids-To-Improve-Vocabulary-Skills.jpg',
-                        'validation' => 'required|string|url',
-                        'supported_formats' => ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-                    ],
+                        'description' => 'Image string to analyze',
+                        'example' => 'AI-Words-For-Kids-To-Improve-Vocabulary-Skills',
+                        'validation' => 'required|string',                    ],
                     'description_required' => [
                         'type' => 'string',
                         'required' => true,
