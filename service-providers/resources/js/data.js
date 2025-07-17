@@ -7,7 +7,7 @@ const mongoDBData = {
 window.mongoDBData = mongoDBData;
 
 // 🌐 Base API URL
-const BASE_URL = "https://dev-master-clusterseed.internetcash.io/api/v2.0.0";
+const BASE_URL = process.env.BASE_URL;
 
 // 🚀 Step 2: Load all clusters dynamically from API
 async function loadAllClustersFromAPI() {
