@@ -7,10 +7,9 @@
     <script src="{{ asset('js/data.js') }}"></script>
     <script src="{{ asset('js/search.js') }}"></script>
     <script src="{{ asset('js/navigation.js') }}"></script>   
-    @vite(['resources/js/data.js'])      
-    @vite(['resources/css/styles.css', 'resources/js/app.js', 'resources/js/data.js', 'resources/js/search.js', 'resources/js/navigation.js'])
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    @vite(['resources/js/data.js'])
+    @vite(['resources/css/styles.css', 'resources/css/app.css', 'resources/js/app.js', 'resources/js/data.js', 'resources/js/search.js', 'resources/js/navigation.js'])
+    @vite(['resources/js/fonts.css', 'resources/js/fontawesome.min.css'])
 </head>
 <body>
     <div class="app-container">
