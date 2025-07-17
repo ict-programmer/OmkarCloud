@@ -1,4 +1,3 @@
-// Navigation functionality for MongoDB Manual Book
 class NavigationManager {
     constructor() {
         this.treeView = document.getElementById('treeView');
@@ -39,12 +38,6 @@ class NavigationManager {
 
         this.addTreeEventListeners();
         
-        // Hide all children by default
-        // const childrenContainers = this.treeView.querySelectorAll('.tree-children');
-        // childrenContainers.forEach(container => {
-        //     container.style.display = 'none';
-        // });
-        // Collapse only those clusters/tables that are not already marked to show
         const childrenContainers = this.treeView.querySelectorAll('.tree-children');
         childrenContainers.forEach(container => {
             const parentArrow = container.previousElementSibling?.querySelector('.tree-toggle');
@@ -85,8 +78,6 @@ class NavigationManager {
     }
     
     renderTableNode(table, cluster) {
-        // const visibleFields = table.fields.filter(field => this.shouldShowItem('field', field));
-        // const hasChildren = visibleFields.length > 0;
         const visibleFields = table.fields || []; // ✅ fallback if not yet loaded
         const hasChildren = true; // ✅ Always show arrow
         
@@ -128,17 +119,6 @@ class NavigationManager {
         if (this.currentFilter === 'all') return true;
         return type === this.currentFilter;
     }
-    
-    // addTreeEventListeners() {
-    //     // Add event listeners for expandable arrows
-    //     const expandableArrows = this.treeView.querySelectorAll('.tree-toggle.expandable');
-    //     expandableArrows.forEach(arrow => {
-    //         arrow.addEventListener('click', (e) => {
-    //             e.stopPropagation();
-    //             this.toggleTreeItem(arrow);
-    //         });
-    //     });
-    // }
 
     addTreeEventListeners() {
     const expandableArrows = this.treeView.querySelectorAll('.tree-toggle');
@@ -202,31 +182,6 @@ class NavigationManager {
         });
     });
 }
-
-
-    // handleTreeItemClick(item) {
-    //     const type = item.dataset.type;
-    //     const id = item.dataset.id;
-        
-    //     // Remove active class from all items
-    //     this.treeView.querySelectorAll('.tree-item').forEach(i => i.classList.remove('active'));
-        
-    //     // Add active class to clicked item
-    //     item.classList.add('active');
-        
-    //     // Handle navigation based on type
-    //     switch (type) {
-    //         case 'cluster':
-    //             this.showCluster(id);
-    //             break;
-    //         case 'table':
-    //             this.showTable(id);
-    //             break;
-    //         case 'field':
-    //             this.showField(id);
-    //             break;
-    //     }
-    // }
 
     async handleTreeItemClick(item) {
         const type = item.dataset.type;

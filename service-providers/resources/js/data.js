@@ -120,17 +120,6 @@ async function loadFieldsForTable(table) {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
 // Helper function to get all clusters
 function getAllClusters() {
     return mongoDBData.clusters;
@@ -222,11 +211,6 @@ function getStatistics() {
     };
 }
 
-
-
-
-
-
 function showLoader() {
     const loader = document.getElementById('loader');
     if (loader) loader.style.display = 'flex';
@@ -263,11 +247,6 @@ function renderTestClusterList() {
     container.appendChild(ul);
 }
 
-
-
-
-
-
 // Export functions for use in other modules
 window.mongoDBData = mongoDBData;
 window.getAllClusters = getAllClusters;
@@ -275,8 +254,6 @@ window.getClusterById = getClusterById;
 window.getTableById = getTableById;
 window.searchData = searchData;
 window.getStatistics = getStatistics; 
-
-
 
 document.addEventListener('DOMContentLoaded', async () => {
     showLoader(); // 👈 show loader before fetch
@@ -314,5 +291,3 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 });
-
-
