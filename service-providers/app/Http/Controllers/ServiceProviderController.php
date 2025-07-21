@@ -6,17 +6,7 @@ use App\Http\Requests\ServiceProviderListRequest;
 use App\Services\ServiceProviderService;
 use Illuminate\Support\Facades\Log;
 
-/**
- * @OA\Info(
- *     title="Master Cluster API",
- *     version="1.0.0",
- *     description="API for managing master cluster",
- *
- *     @OA\Contact(
- *         email="info@orderific.com"
- *     )
- * )
- */
+
 class ServiceProviderController extends Controller
 {
     protected $serviceProviderService;

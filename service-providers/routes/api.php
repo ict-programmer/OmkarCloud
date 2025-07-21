@@ -119,11 +119,11 @@ Route::prefix('qwen')->group(function () {
 });
 
 // Perplexity
-Route::prefix('perplexity')->controller(PerplexityController::class)->group(function () {
-    Route::post('ai_search', 'aiSearch');
-    Route::post('academic_research', 'academicResearch');
-    Route::post('code_assistant', 'codeAssistant');
-});
+// Route::prefix('perplexity')->controller(PerplexityController::class)->group(function () {
+//     Route::post('ai_search', 'aiSearch');
+//     Route::post('academic_research', 'academicResearch');
+//     Route::post('code_assistant', 'codeAssistant');
+// });
 
 Route::prefix('premierpro')->group(function () {
     Route::post('reframe', [PremierProController::class, 'reframe']);
@@ -195,88 +195,88 @@ Route::prefix('gettyimages')->group(function () {
 });
 
 // Freepik
-Route::prefix('freepik')->controller(FreepikController::class)->group(function () {
-    Route::get('stock_content', 'stockContent');
-    Route::get('resource_detail/{resource_id}', 'resourceDetail');
-    Route::get('download_resource/{resource_id}', 'downloadResource');
-    Route::get('download_resource_format', 'downloadResourceFormat');
-    Route::post('ai_image_classifier', 'aiImageClassifier');
-    Route::post('icon_generation', 'iconGeneration');
-    Route::get('icon_generation/result/{task_id}', 'getIconGenerationResult');
+// Route::prefix('freepik')->controller(FreepikController::class)->group(function () {
+//     Route::get('stock_content', 'stockContent');
+//     Route::get('resource_detail/{resource_id}', 'resourceDetail');
+//     Route::get('download_resource/{resource_id}', 'downloadResource');
+//     Route::get('download_resource_format', 'downloadResourceFormat');
+//     Route::post('ai_image_classifier', 'aiImageClassifier');
+//     Route::post('icon_generation', 'iconGeneration');
+//     Route::get('icon_generation/result/{task_id}', 'getIconGenerationResult');
 
-    Route::prefix('kling_video_generation')->group(function () {
-        Route::post('image_to_video', 'klingVideoGenerationImageToVideo');
-        Route::get('image_to_video/status', 'klingVideoGenerationImageToVideoStatus');
-        Route::post('text_to_video', 'klingVideoGenerationTextToVideo');
-        Route::get('text_to_video/status/{task_id}', 'klingVideoGenerationTextToVideoStatus');
-        Route::post('image_to_video_elements', 'klingElementsVideo');
-        Route::get('image_to_video_elements/status/{task_id}', 'klingElementsVideoStatus');
-    });
+//     Route::prefix('kling_video_generation')->group(function () {
+//         Route::post('image_to_video', 'klingVideoGenerationImageToVideo');
+//         Route::get('image_to_video/status', 'klingVideoGenerationImageToVideoStatus');
+//         Route::post('text_to_video', 'klingVideoGenerationTextToVideo');
+//         Route::get('text_to_video/status/{task_id}', 'klingVideoGenerationTextToVideoStatus');
+//         Route::post('image_to_video_elements', 'klingElementsVideo');
+//         Route::get('image_to_video_elements/status/{task_id}', 'klingElementsVideoStatus');
+//     });
 
-    Route::prefix('mystic')->group(function () {
-        Route::post('/', 'generateMysticImage');
-        Route::get('/status/{task_id}', 'getMysticTaskStatus');
+//     Route::prefix('mystic')->group(function () {
+//         Route::post('/', 'generateMysticImage');
+//         Route::get('/status/{task_id}', 'getMysticTaskStatus');
 
-        Route::prefix('loras')->group(function () {
-            Route::get('/', 'getLoras');
-            Route::post('styles', 'createLoraStyle');
-            Route::post('characters', 'trainLoraCharacter');
-        });
-    });
+//         Route::prefix('loras')->group(function () {
+//             Route::get('/', 'getLoras');
+//             Route::post('styles', 'createLoraStyle');
+//             Route::post('characters', 'trainLoraCharacter');
+//         });
+//     });
 
-    Route::prefix('text-to-image')->group(function () {
-        Route::post('/classic-fast', 'generateClassicFastImage');
-        Route::post('/imagen3', 'generateImagen3');
-        Route::get('/imagen3/status/{task_id}', 'getImagen3TaskStatus');
-        Route::post('/flux-dev', 'generateFluxDevImage');
-        Route::get('/flux-dev/status/{task_id}', 'getFluxDevTaskStatus');
-        Route::post('/reimagine-flux', 'reimagineFlux');
-    });
+//     Route::prefix('text-to-image')->group(function () {
+//         Route::post('/classic-fast', 'generateClassicFastImage');
+//         Route::post('/imagen3', 'generateImagen3');
+//         Route::get('/imagen3/status/{task_id}', 'getImagen3TaskStatus');
+//         Route::post('/flux-dev', 'generateFluxDevImage');
+//         Route::get('/flux-dev/status/{task_id}', 'getFluxDevTaskStatus');
+//         Route::post('/reimagine-flux', 'reimagineFlux');
+//     });
 
-    Route::prefix('image-editing')->group(function () {
-        Route::post('/upscaler', 'upscale');
-        Route::get('/upscaler/status/{task_id}', 'getUpscalerTaskStatus');
-        Route::post('/relight', 'relight');
-        Route::get('/relight/status/{task_id}', 'getRelightTaskStatus');
-        Route::post('/style-transfer', 'styleTransfer');
-        Route::get('/style-transfer/status/{task_id}', 'getStyleTransferTaskStatus');
-        Route::post('/remove-background', 'removeBackgroundFromImage');
-        Route::post('/image-expand/flux-pro', 'imageExpandFluxPro');
-        Route::get('/image-expand/flux-pro/status/{task_id}', 'getImageExpandFluxProTaskStatus');
-    });
-});
+//     Route::prefix('image-editing')->group(function () {
+//         Route::post('/upscaler', 'upscale');
+//         Route::get('/upscaler/status/{task_id}', 'getUpscalerTaskStatus');
+//         Route::post('/relight', 'relight');
+//         Route::get('/relight/status/{task_id}', 'getRelightTaskStatus');
+//         Route::post('/style-transfer', 'styleTransfer');
+//         Route::get('/style-transfer/status/{task_id}', 'getStyleTransferTaskStatus');
+//         Route::post('/remove-background', 'removeBackgroundFromImage');
+//         Route::post('/image-expand/flux-pro', 'imageExpandFluxPro');
+//         Route::get('/image-expand/flux-pro/status/{task_id}', 'getImageExpandFluxProTaskStatus');
+//     });
+// });
 
 Route::post('freepik/webhook', [FreepikController::class, 'handleWebhook'])->name('freepik.webhook');
 
 // Captions
-Route::prefix('captions')->controller(CaptionsController::class)->group(function () {
-    Route::prefix('creator')->group(function () {
-        Route::post('list', 'listCreators');
-        Route::post('submit', 'submitCreatorVideo');
-        Route::post('poll', 'pollCreatorStatus');
-    });
+// Route::prefix('captions')->controller(CaptionsController::class)->group(function () {
+//     Route::prefix('creator')->group(function () {
+//         Route::post('list', 'listCreators');
+//         Route::post('submit', 'submitCreatorVideo');
+//         Route::post('poll', 'pollCreatorStatus');
+//     });
 
-    Route::prefix('translate')->group(function () {
-        Route::post('supported-languages', 'getSupportedLanguages');
-        Route::post('submit', 'submitVideoTranslation');
-        Route::post('poll', 'pollTranslationStatus');
-    });
+//     Route::prefix('translate')->group(function () {
+//         Route::post('supported-languages', 'getSupportedLanguages');
+//         Route::post('submit', 'submitVideoTranslation');
+//         Route::post('poll', 'pollTranslationStatus');
+//     });
 
-    Route::prefix('ads')->group(function () {
-        Route::post('list-creators', 'listAdsCreators');
-        Route::post('submit', 'submitAdVideo');
-        Route::post('poll', 'pollAdVideoStatus');
-    });
+//     Route::prefix('ads')->group(function () {
+//         Route::post('list-creators', 'listAdsCreators');
+//         Route::post('submit', 'submitAdVideo');
+//         Route::post('poll', 'pollAdVideoStatus');
+//     });
 
-    Route::prefix('twin')->group(function () {
-        Route::post('supported-languages', 'getTwinSupportedLanguages');
-        Route::post('list', 'listAiTwins');
-        Route::post('create', 'createAiTwin');
-        Route::post('status', 'checkAiTwinStatus');
-        Route::post('script', 'getAiTwinScript');
-        Route::post('delete', 'deleteAiTwin');
-    });
-});
+//     Route::prefix('twin')->group(function () {
+//         Route::post('supported-languages', 'getTwinSupportedLanguages');
+//         Route::post('list', 'listAiTwins');
+//         Route::post('create', 'createAiTwin');
+//         Route::post('status', 'checkAiTwinStatus');
+//         Route::post('script', 'getAiTwinScript');
+//         Route::post('delete', 'deleteAiTwin');
+//     });
+// });
 
 Route::get('services/{service_provider_id}/{service_type_id}', [MainFunctionController::class, 'getRequestBody']);
 Route::post('services/{service_provider_id}/{service_type_id}', MainFunctionController::class);
