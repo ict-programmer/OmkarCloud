@@ -6,6 +6,28 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Pagination\LengthAwarePaginator;
+use OpenApi\Attributes as OA;
+
+#[OA\Info(
+    title: "Services API",
+    version: "1.0.0",
+    description: <<<DESC
+API for interacting with service providers and executing service-related functions.
+
+### Features
+- Retrieve dynamic schema based on service type
+- Execute service provider operations
+- Designed for modular and dynamic service integration
+
+### Tags
+- **Services**: Includes all endpoints for handling service provider schemas and executions.
+
+DESC,
+    contact: new OA\Contact(
+        name: "Orderific Dev Team",
+        email: "info@orderific.com",
+    )
+)]
 abstract class Controller
 {
     protected function successfulResponse($data = null, ?string $message = null, string $version = '2.0.0', bool $cached = false): JsonResponse
@@ -15,7 +37,7 @@ abstract class Controller
             'message' => $message ?? __('Success'),
             'data' => $data ?? [],
             'cached' => $cached,
-            'execution_time' => (microtime(true) - START_EXECUTION_TIME) * 1000 .' ms',
+            'execution_time' => (microtime(true) - START_EXECUTION_TIME) * 1000 . ' ms',
             'timestamp' => now()->format('Y-m-d H:i:s'),
         ])->withHeaders([
             'X-Api-Version' => $version,
@@ -36,7 +58,7 @@ abstract class Controller
             'message' => $message,
             'errors' => $errors,
             'timestamp' => now()->format('Y-m-d, H:i:s'),
-            'execution_time' => (microtime(true) - START_EXECUTION_TIME) * 1000 .' ms',
+            'execution_time' => (microtime(true) - START_EXECUTION_TIME) * 1000 . ' ms',
             'cached' => $cached,
         ], Response::HTTP_UNPROCESSABLE_ENTITY)->withHeaders([
             'X-Api-Version' => $version,
@@ -50,7 +72,7 @@ abstract class Controller
             'message' => $message ?? __('Success'),
             'data' => $lengthAwarePaginator->getCollection(),
             'cached' => $cached,
-            'execution_time' => (microtime(true) - START_EXECUTION_TIME) * 1000 .' ms',
+            'execution_time' => (microtime(true) - START_EXECUTION_TIME) * 1000 . ' ms',
             'current_page' => $lengthAwarePaginator->currentPage(),
             'last_page' => $lengthAwarePaginator->lastPage(),
             'items_per_page' => $lengthAwarePaginator->perPage(),
@@ -78,7 +100,7 @@ abstract class Controller
             'links' => $lengthAwarePaginator->links(),
             'last_page' => $lengthAwarePaginator->lastPage(),
             'timestamp' => now()->format('Y-m-d, H:i:s'),
-            'execution_time' => (microtime(true) - START_EXECUTION_TIME) * 1000 .' ms',
+            'execution_time' => (microtime(true) - START_EXECUTION_TIME) * 1000 . ' ms',
             'cached' => $cached,
         ];
 
