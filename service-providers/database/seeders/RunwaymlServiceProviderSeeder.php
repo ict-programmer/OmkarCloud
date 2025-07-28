@@ -54,6 +54,13 @@ class RunwaymlServiceProviderSeeder extends Seeder
                 'name' => 'Video Processing',
                 'description' => 'Generate videos using RunwayML AI models with image and text prompts',
                 'input_parameters' => [
+                    'model' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'description' => 'The model to use for video generation',
+                        'example' => 'gen4_turbo',
+                        'validation' => 'required|string|in:gen4_turbo,gen3a_turbo',
+                    ],
                     'prompt_image' => [
                         'type' => 'string',
                         'required' => true,
@@ -179,9 +186,9 @@ class RunwaymlServiceProviderSeeder extends Seeder
         $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, ServiceProviderEnum::RUNWAY_ML->value);
 
         $deletedProviderTypeCount = $this->cleanupObsoleteServiceTypes($serviceProvider, $keptServiceTypeIds);
-        
+
         $this->command->info("Cleanup completed:");
         $this->command->info("- Deleted {$deletedProviderTypeCount} obsolete service provider types");
         $this->command->info("- Kept " . count($keptServiceTypeIds) . " service types for RunwayML API");
     }
-} 
+}
