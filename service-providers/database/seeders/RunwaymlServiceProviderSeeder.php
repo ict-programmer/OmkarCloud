@@ -60,6 +60,21 @@ class RunwaymlServiceProviderSeeder extends Seeder
                         'description' => 'The model to use for video generation',
                         'example' => 'gen4_turbo',
                         'validation' => 'required|string|in:gen4_turbo,gen3a_turbo',
+                        'options' => [
+                            'source' => 'collection',
+                            'collection_name' => 'service_provider_model',
+                            'value_field' => 'model_name',
+                            'label_field' => 'display_name',
+                            'filters' => [
+                                'service_provider_id' => $serviceProvider->id,
+                                'status' => 'active',
+                                'supports_video_generation' => true,
+                            ],
+                            'fallback_options' => [
+                                'gen4_turbo',
+                                'gen3a_turbo',
+                            ],
+                        ],
                     ],
                     'prompt_image' => [
                         'type' => 'string',

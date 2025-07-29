@@ -140,6 +140,11 @@ class MainService
             return $this->buildArrayStructure($definition['items']);
         }
 
+        // Handle examples
+        if (isset($definition['example'])) {
+            return $definition['example'];
+        }
+
         // Return null for primitive types without defaults
         return null;
     }
