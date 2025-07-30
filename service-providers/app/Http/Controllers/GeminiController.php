@@ -286,7 +286,7 @@ class GeminiController extends BaseController
     //         ],
     //     )
     // )]
-    public function imageAnalysis(ImageAnalysisRequest $request): string
+    public function imageAnalysis(ImageAnalysisRequest $request): JsonResponse
     {
         $data = ImageAnalysisData::from($request->validated());
         $result = $this->service->imageAnalysis($data);
@@ -371,7 +371,7 @@ class GeminiController extends BaseController
     //         ],
     //     )
     // )]
-    public function documentSummarization(DocumentSummarizationRequest $request): string
+    public function documentSummarization(DocumentSummarizationRequest $request): JsonResponse
     {
         $data = DocumentSummarizationData::from($request->validated());
         $result = $this->service->documentSummarization($data);

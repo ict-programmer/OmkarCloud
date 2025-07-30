@@ -38,8 +38,6 @@ class GeminiServiceProviderSeeder extends Seeder
                         'gemini-2.0-flash',
                         'gemini-1.5-flash',
                         'gemini-1.5-pro',
-                        'gemini-pro',
-                        'gemini-ultra',
                     ],
                     'features' => [
                         'text_generation',
@@ -84,8 +82,6 @@ class GeminiServiceProviderSeeder extends Seeder
                                 'gemini-2.0-flash',
                                 'gemini-1.5-flash',
                                 'gemini-1.5-pro',
-                                'gemini-pro',
-                                'gemini-ultra',
                             ],
                         ],
                         'description' => 'The Gemini model to use for text generation',
@@ -158,8 +154,6 @@ class GeminiServiceProviderSeeder extends Seeder
                                 'gemini-2.0-flash',
                                 'gemini-1.5-flash',
                                 'gemini-1.5-pro',
-                                'gemini-pro',
-                                'gemini-ultra',
                             ],
                         ],
                         'description' => 'The Gemini model to use for code generation',
@@ -223,8 +217,9 @@ class GeminiServiceProviderSeeder extends Seeder
                         'type' => 'string',
                         'required' => true,
                         'description' => 'Image string to analyze',
-                        'example' => 'AI-Words-For-Kids-To-Improve-Vocabulary-Skills',
-                        'validation' => 'required|string',                    ],
+                        'example' => 'QmWhs8gKKZYBaQdSzFUXaAzubVz7B12HfomyBjpvKTPQ2N',
+                        'validation' => 'required|string',
+                    ],
                     'description_required' => [
                         'type' => 'string',
                         'required' => true,
@@ -293,8 +288,6 @@ class GeminiServiceProviderSeeder extends Seeder
                                 'gemini-2.0-flash',
                                 'gemini-1.5-flash',
                                 'gemini-1.5-pro',
-                                'gemini-pro',
-                                'gemini-ultra',
                             ],
                         ],
                         'description' => 'The Gemini model to use for document summarization',
@@ -339,7 +332,7 @@ class GeminiServiceProviderSeeder extends Seeder
         $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, ServiceProviderEnum::GEMINI->value);
 
         $deletedProviderTypeCount = $this->cleanupObsoleteServiceTypes($serviceProvider, $keptServiceTypeIds);
-        
+
         $this->command->info("Cleanup completed:");
         $this->command->info("- Deleted {$deletedProviderTypeCount} obsolete service provider types");
         $this->command->info("- Kept " . count($keptServiceTypeIds) . " service types for Gemini API");
