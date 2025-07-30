@@ -314,7 +314,7 @@ class GeminiService
         $parts = $firstCandidate['content']['parts'] ?? [];
 
         if (empty($parts) || empty($parts[0]['text'] ?? null)) {
-            $result->error = 'Missing or empty response content from Gemini';
+            $result->error = 'Missing or empty response content from Gemini' . json_encode($responseData);
             return $result;
         }
 
