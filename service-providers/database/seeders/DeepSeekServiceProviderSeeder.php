@@ -124,10 +124,8 @@ class DeepSeekServiceProviderSeeder extends Seeder
                     'timestamp' => '2025-05-01T12:45:30+00:00',
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.status',
-                    'main_data' => '$.data',
                     'final_result' => '$.data.completion',
-                    'timestamp' => '$.timestamp',
+                    'error_message' => '$.data.error',
                 ],
                 'request_class_name' => ChatCompletionRequest::class,
                 'function_name' => 'chatCompletion',
@@ -201,10 +199,8 @@ class DeepSeekServiceProviderSeeder extends Seeder
                     'timestamp' => '2025-05-01T12:45:30+00:00',
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.status',
-                    'main_data' => '$.data',
                     'final_result' => '$.data.code',
-                    'timestamp' => '$.timestamp',
+                    'error_message' => '$.data.error',
                 ],
                 'request_class_name' => CodeCompletionRequest::class,
                 'function_name' => 'codeCompletion',
@@ -235,17 +231,13 @@ class DeepSeekServiceProviderSeeder extends Seeder
                 'response' => [
                     'status' => 'success',
                     'data' => [
-                        'question' => 'What are the main symptoms of COVID-19?',
-                        'answer' => 'The main symptoms of COVID-19 include fever, dry cough, and fatigue. Less common symptoms may include loss of taste or smell, aches and pains, headache, sore throat, nasal congestion, red eyes, diarrhea, or a skin rash.',
+                        'reasoning' => 'The main symptoms of COVID-19 include fever, dry cough, and fatigue. Less common symptoms may include loss of taste or smell, aches and pains, headache, sore throat, nasal congestion, red eyes, diarrhea, or a skin rash.',
                     ],
                     'timestamp' => '2025-05-01T12:45:30+00:00',
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.status',
-                    'main_data' => '$.data',
-                    'final_result' => '$.data.answer',
-                    'question' => '$.data.question',
-                    'timestamp' => '$.timestamp',
+                    'final_result' => '$.data.reasoning',
+                    'error_message' => '$.data.error',
                 ],
                 'request_class_name' => DocumentQaRequest::class,
                 'function_name' => 'documentQa',
@@ -307,16 +299,12 @@ class DeepSeekServiceProviderSeeder extends Seeder
                     'status' => 'success',
                     'data' => [
                         'reasoning' => 'To find the average speed, I need to divide the total distance by the total time. Distance = 60 miles, Time = 1.5 hours. Average speed = 60 miles ÷ 1.5 hours = 40 miles per hour.',
-                        'answer' => '40 miles per hour',
                     ],
                     'timestamp' => '2025-05-01T12:45:30+00:00',
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.status',
-                    'main_data' => '$.data',
                     'final_result' => '$.data.reasoning',
-                    'answer' => '$.data.answer',
-                    'timestamp' => '$.timestamp',
+                    'error_message' => '$.data.error',
                 ],
                 'request_class_name' => MathematicalReasoningRequest::class,
                 'function_name' => 'mathematicalReasoning',
@@ -326,9 +314,9 @@ class DeepSeekServiceProviderSeeder extends Seeder
         $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, ServiceProviderEnum::DEEPSEEK->value);
 
         $deletedProviderTypeCount = $this->cleanupObsoleteServiceTypes($serviceProvider, $keptServiceTypeIds);
-        
+
         $this->command->info("Cleanup completed:");
         $this->command->info("- Deleted {$deletedProviderTypeCount} obsolete service provider types");
         $this->command->info("- Kept " . count($keptServiceTypeIds) . " service types for DeepSeek API");
     }
-} 
+}
