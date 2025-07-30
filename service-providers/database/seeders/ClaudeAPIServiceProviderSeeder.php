@@ -38,12 +38,13 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'base_url' => 'https://api.anthropic.com',
                     'version' => 'v1',
                     'models_supported' => [
-                        'claude-3-5-haiku-20241022',
-                        'claude-3-5-sonnet-20241022',
-                        'claude-3-5-opus-20241022',
+                        'claude-opus-4-20250514',
+                        'claude-sonnet-4-20250514',
+                        'claude-3-7-sonnet-latest',
+                        'claude-3-5-haiku-latest',
+                        'claude-3-5-sonnet-latest',
+                        'claude-3-5-sonnet-20240620',
                         'claude-3-haiku-20240307',
-                        'claude-3-sonnet-20240229',
-                        'claude-3-opus-20240229',
                     ],
                     'features' => [
                         'text_generation',
@@ -74,7 +75,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => false,
-                        'default' => 'claude-3-5-haiku-20241022',
+                        'default' => 'claude-3-5-haiku-latest',
                         'options' => [
                             'source' => 'collection',
                             'collection_name' => 'service_provider_model',
@@ -86,9 +87,13 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                                 'supports_text_generation' => true,
                             ],
                             'fallback_options' => [
-                                'claude-3-5-haiku-20241022',
-                                'claude-3-5-sonnet-20241022',
-                                'claude-3-5-opus-20241022',
+                                'claude-opus-4-20250514',
+                                'claude-sonnet-4-20250514',
+                                'claude-3-7-sonnet-latest',
+                                'claude-3-5-haiku-latest',
+                                'claude-3-5-sonnet-latest',
+                                'claude-3-5-sonnet-20240620',
+                                'claude-3-haiku-20240307',
                             ],
                         ],
                         'description' => 'Claude model to use for text generation',
@@ -116,15 +121,11 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'status' => true,
                     'data' => [
                         'response' => 'Once upon a time, in a faraway land, there lived a brave knight named Sir Lancelot. He was known throughout the kingdom for his courage and strength. One day, a terrible dragon appeared and began terrorizing the nearby village. The villagers were frightened and begged Sir Lancelot to help them. Without hesitation, he donned his armor and set off to confront the dragon. After a fierce battle, Sir Lancelot emerged victorious, saving the village and earning the gratitude of its people.',
-                        'model' => 'claude-3-5-haiku-20241022',
-                        'tokens_used' => 150,
                         'error' => null,
                     ],
                 ],
                 'response_path' => [
                     'final_result' => '$.data.response',
-                    'model_used' => '$.data.model',
-                    'tokens_used' => '$.data.tokens_used',
                     'error_message' => '$.data.error',
                 ],
                 'request_class_name' => TextGenerationRequest::class,
@@ -136,7 +137,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => false,
-                        'default' => 'claude-3-5-haiku-20241022',
+                        'default' => 'claude-3-5-haiku-latest',
                         'options' => [
                             'source' => 'collection',
                             'collection_name' => 'service_provider_model',
@@ -148,8 +149,13 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                                 'supports_summarization' => true,
                             ],
                             'fallback_options' => [
-                                'claude-3-5-haiku-20241022',
-                                'claude-3-5-sonnet-20241022',
+                                'claude-opus-4-20250514',
+                                'claude-sonnet-4-20250514',
+                                'claude-3-7-sonnet-latest',
+                                'claude-3-5-haiku-latest',
+                                'claude-3-5-sonnet-latest',
+                                'claude-3-5-sonnet-20240620',
+                                'claude-3-haiku-20240307',
                             ],
                         ],
                         'description' => 'Claude model to use for text summarization',
@@ -187,16 +193,12 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'data' => [
                         'text' => 'Once upon a time, in a faraway land, there lived a brave knight named Sir Lancelot. He was known throughout the kingdom for his courage and strength. One day, a terrible dragon appeared and began terrorizing the nearby village. The villagers were frightened and begged Sir Lancelot to help them. Without hesitation, he donned his armor and set off to confront the dragon. After a fierce battle, Sir Lancelot emerged victorious, saving the village and earning the gratitude of its people.',
                         'summary_length' => 'short',
-                        'summary' => 'A brave knight named Sir Lancelot saves a village from a dragon, earning the villagers\' gratitude.',
-                        'model' => 'claude-3-5-haiku-20241022',
                         'error' => null,
                     ],
                 ],
                 'response_path' => [
-                    'final_result' => '$.data.summary',
-                    'original_text' => '$.data.text',
+                    'final_result' => '$.data.text',
                     'summary_length' => '$.data.summary_length',
-                    'model_used' => '$.data.model',
                     'error_message' => '$.data.error',
                 ],
                 'request_class_name' => TextSummarizeRequest::class,
@@ -220,8 +222,13 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                                 'supports_question_answering' => true,
                             ],
                             'fallback_options' => [
-                                'claude-3-5-sonnet-20241022',
-                                'claude-3-5-opus-20241022',
+                                'claude-opus-4-20250514',
+                                'claude-sonnet-4-20250514',
+                                'claude-3-7-sonnet-latest',
+                                'claude-3-5-haiku-latest',
+                                'claude-3-5-sonnet-latest',
+                                'claude-3-5-sonnet-20240620',
+                                'claude-3-haiku-20240307',
                             ],
                         ],
                         'description' => 'Claude model to use for question answering',
@@ -258,17 +265,11 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'status' => true,
                     'data' => [
                         'answer' => 'The moral of the story is that courage and selflessness can overcome even the greatest challenges. Sir Lancelot\'s bravery in facing the dragon and his willingness to help the villagers demonstrate the importance of standing up for others in times of need.',
-                        'question' => 'What is the moral of this story?',
-                        'context' => 'Once upon a time, in a faraway land, there lived a brave knight named Sir Lancelot...',
-                        'model' => 'claude-3-5-sonnet-20241022',
                         'error' => null,
                     ],
                 ],
                 'response_path' => [
                     'final_result' => '$.data.answer',
-                    'question' => '$.data.question',
-                    'context' => '$.data.context',
-                    'model_used' => '$.data.model',
                     'error_message' => '$.data.error',
                 ],
                 'request_class_name' => QuestionAnswerRequest::class,
@@ -280,7 +281,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => false,
-                        'default' => 'claude-3-5-haiku-20241022',
+                        'default' => 'claude-3-5-haiku-latest',
                         'options' => [
                             'source' => 'collection',
                             'collection_name' => 'service_provider_model',
@@ -292,8 +293,13 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                                 'supports_classification' => true,
                             ],
                             'fallback_options' => [
-                                'claude-3-5-haiku-20241022',
-                                'claude-3-5-sonnet-20241022',
+                                'claude-opus-4-20250514',
+                                'claude-sonnet-4-20250514',
+                                'claude-3-7-sonnet-latest',
+                                'claude-3-5-haiku-latest',
+                                'claude-3-5-sonnet-latest',
+                                'claude-3-5-sonnet-20240620',
+                                'claude-3-haiku-20240307',
                             ],
                         ],
                         'description' => 'Claude model to use for text classification',
@@ -331,18 +337,12 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'data' => [
                         'sentiment' => 'positive',
                         'category' => 'Adventure',
-                        'text' => 'This is a story about a brave knight who saved a village from a dragon.',
-                        'categories' => 'Adventure, Fantasy, Drama',
-                        'model' => 'claude-3-5-haiku-20241022',
                         'error' => null,
                     ],
                 ],
                 'response_path' => [
                     'final_result' => '$.data.category',
                     'sentiment' => '$.data.sentiment',
-                    'text' => '$.data.text',
-                    'categories' => '$.data.categories',
-                    'model_used' => '$.data.model',
                     'error_message' => '$.data.error',
                 ],
                 'request_class_name' => TextClassifyRequest::class,
@@ -354,7 +354,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => false,
-                        'default' => 'claude-3-5-haiku-20241022',
+                        'default' => 'claude-3-5-haiku-latest',
                         'options' => [
                             'source' => 'collection',
                             'collection_name' => 'service_provider_model',
@@ -366,8 +366,13 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                                 'supports_translation' => true,
                             ],
                             'fallback_options' => [
-                                'claude-3-5-haiku-20241022',
-                                'claude-3-5-sonnet-20241022',
+                                'claude-opus-4-20250514',
+                                'claude-sonnet-4-20250514',
+                                'claude-3-7-sonnet-latest',
+                                'claude-3-5-haiku-latest',
+                                'claude-3-5-sonnet-latest',
+                                'claude-3-5-sonnet-20240620',
+                                'claude-3-haiku-20240307',
                             ],
                         ],
                         'description' => 'Claude model to use for text translation',
@@ -389,7 +394,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                         'description' => 'Source language code (ISO 639-1 format)',
                         'example' => 'en',
                         'validation' => 'required|string|size:2|regex:/^[a-z]{2}$/',
-                        'supported_languages' => ['en', 'es', 'fr', 'de', 'it', 'pt', 'ja', 'ko', 'zh', 'ar', 'hi', 'ru'],
+                        'options' => ['en', 'es', 'fr', 'de', 'it', 'pt', 'ja', 'ko', 'zh', 'ar', 'hi', 'ru'],
                     ],
                     'target_language' => [
                         'type' => 'string',
@@ -399,7 +404,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                         'description' => 'Target language code (ISO 639-1 format)',
                         'example' => 'es',
                         'validation' => 'required|string|size:2|regex:/^[a-z]{2}$/',
-                        'supported_languages' => ['en', 'es', 'fr', 'de', 'it', 'pt', 'ja', 'ko', 'zh', 'ar', 'hi', 'ru'],
+                        'options' => ['en', 'es', 'fr', 'de', 'it', 'pt', 'ja', 'ko', 'zh', 'ar', 'hi', 'ru'],
                     ],
                     'max_tokens' => [
                         'type' => 'integer',
@@ -415,19 +420,11 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'status' => true,
                     'data' => [
                         'translated_text' => 'Hola, ¿cómo estás?',
-                        'text' => 'Hello, how are you?',
-                        'source_language' => 'en',
-                        'target_language' => 'es',
-                        'model' => 'claude-3-5-haiku-20241022',
                         'error' => null,
                     ],
                 ],
                 'response_path' => [
                     'final_result' => '$.data.translated_text',
-                    'original_text' => '$.data.text',
-                    'source_language' => '$.data.source_language',
-                    'target_language' => '$.data.target_language',
-                    'model_used' => '$.data.model',
                     'error_message' => '$.data.error',
                 ],
                 'request_class_name' => TextTranslateRequest::class,
@@ -451,8 +448,13 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                                 'supports_code_generation' => true,
                             ],
                             'fallback_options' => [
-                                'claude-3-5-sonnet-20241022',
-                                'claude-3-5-opus-20241022',
+                                'claude-opus-4-20250514',
+                                'claude-sonnet-4-20250514',
+                                'claude-3-7-sonnet-latest',
+                                'claude-3-5-haiku-latest',
+                                'claude-3-5-sonnet-latest',
+                                'claude-3-5-sonnet-20240620',
+                                'claude-3-haiku-20240307',
                             ],
                         ],
                         'description' => 'Claude model to use for code generation',
@@ -487,17 +489,11 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'status' => true,
                     'data' => [
                         'code' => 'def factorial(n):\n    if n == 0:\n        return 1\n    else:\n        return n * factorial(n-1)',
-                        'description' => 'Write a Python function to calculate the factorial of a number.',
-                        'language' => 'python',
-                        'model' => 'claude-3-5-sonnet-20241022',
                         'error' => null,
                     ],
                 ],
                 'response_path' => [
                     'final_result' => '$.data.code',
-                    'description' => '$.data.description',
-                    'language' => '$.data.language',
-                    'model_used' => '$.data.model',
                     'error_message' => '$.data.error',
                 ],
                 'request_class_name' => CodegenRequest::class,
@@ -521,8 +517,13 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                                 'supports_data_analysis' => true,
                             ],
                             'fallback_options' => [
-                                'claude-3-5-sonnet-20241022',
-                                'claude-3-5-opus-20241022',
+                                'claude-opus-4-20250514',
+                                'claude-sonnet-4-20250514',
+                                'claude-3-7-sonnet-latest',
+                                'claude-3-5-haiku-latest',
+                                'claude-3-5-sonnet-latest',
+                                'claude-3-5-sonnet-20240620',
+                                'claude-3-haiku-20240307',
                             ],
                         ],
                         'description' => 'Claude model to use for data analysis',
@@ -569,23 +570,12 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                 'response' => [
                     'status' => true,
                     'data' => [
-                        'average_score' => 87.5,
-                        'data' => [
-                            ['name' => 'Alice', 'age' => 30, 'score' => 85],
-                            ['name' => 'Bob', 'age' => 25, 'score' => 90],
-                        ],
-                        'task' => 'average_score',
-                        'insights' => 'The average score is 87.5, indicating good performance across the dataset.',
-                        'model' => 'claude-3-5-sonnet-20241022',
+                        'result' => 'The average score is 87.5, indicating good performance across the dataset.',
                         'error' => null,
                     ],
                 ],
                 'response_path' => [
-                    'final_result' => '$.data.insights',
-                    'average_score' => '$.data.average_score',
-                    'data' => '$.data.data',
-                    'task' => '$.data.task',
-                    'model_used' => '$.data.model',
+                    'final_result' => '$.data.result',
                     'error_message' => '$.data.error',
                 ],
                 'request_class_name' => DataAnalysisInsightRequest::class,
@@ -597,7 +587,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => false,
-                        'default' => 'claude-3-5-haiku-20241022',
+                        'default' => 'claude-3-5-haiku-latest',
                         'options' => [
                             'source' => 'collection',
                             'collection_name' => 'service_provider_model',
@@ -609,8 +599,13 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                                 'supports_personalization' => true,
                             ],
                             'fallback_options' => [
-                                'claude-3-5-haiku-20241022',
-                                'claude-3-5-sonnet-20241022',
+                                'claude-opus-4-20250514',
+                                'claude-sonnet-4-20250514',
+                                'claude-3-7-sonnet-latest',
+                                'claude-3-5-haiku-latest',
+                                'claude-3-5-sonnet-latest',
+                                'claude-3-5-sonnet-20240620',
+                                'claude-3-haiku-20240307',
                             ],
                         ],
                         'description' => 'Claude model to use for personalization',
@@ -625,18 +620,11 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                         'validation' => 'required|string|min:1|max:100',
                     ],
                     'preferences' => [
-                        'type' => 'array',
+                        'type' => 'string',
                         'required' => true,
-                        'min_items' => 1,
-                        'max_items' => 20,
-                        'description' => 'Array of user preferences or interests',
-                        'example' => ['technology', 'science'],
-                        'validation' => 'required|array|min:1|max:20',
-                        'array_type' => 'string',
-                        'common_preferences' => [
-                            'technology', 'science', 'sports', 'music', 'art',
-                            'literature', 'travel', 'food', 'fitness', 'business',
-                        ],
+                        'description' => 'Comma separated list of user preferences or interests',
+                        'example' => 'technology,science',
+                        'validation' => 'required|string',
                     ],
                     'max_tokens' => [
                         'type' => 'integer',
@@ -652,17 +640,11 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'status' => true,
                     'data' => [
                         'personalized_content' => 'I am a software engineer with a strong interest in technology and science. I enjoy working on projects that involve complex algorithms and data analysis.',
-                        'user_id' => '12345',
-                        'preferences' => ['technology', 'science'],
-                        'model' => 'claude-3-5-haiku-20241022',
                         'error' => null,
                     ],
                 ],
                 'response_path' => [
                     'final_result' => '$.data.personalized_content',
-                    'user_id' => '$.data.user_id',
-                    'preferences' => '$.data.preferences',
-                    'model_used' => '$.data.model',
                     'error_message' => '$.data.error',
                 ],
                 'request_class_name' => PersonalizationRequest::class,
@@ -673,9 +655,9 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
         $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, ServiceProviderEnum::CLAUDE->value);
 
         $deletedProviderTypeCount = $this->cleanupObsoleteServiceTypes($serviceProvider, $keptServiceTypeIds);
-        
+
         $this->command->info("Cleanup completed:");
         $this->command->info("- Deleted {$deletedProviderTypeCount} obsolete service provider types");
         $this->command->info("- Kept " . count($keptServiceTypeIds) . " service types for Claude API");
     }
-} 
+}

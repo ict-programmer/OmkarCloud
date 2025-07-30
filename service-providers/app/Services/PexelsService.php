@@ -12,6 +12,7 @@ use App\Data\Pexels\GetVideoData;
 use App\Data\Pexels\SearchPhotosData;
 use App\Data\Pexels\SearchVideosData;
 use App\Http\Exceptions\BadRequest;
+use App\Http\Exceptions\Forbidden;
 use App\Http\Exceptions\NotFound;
 use Devscast\Pexels\Client;
 use Devscast\Pexels\Data\CollectionMedia;
@@ -32,6 +33,7 @@ class PexelsService
 
   public function __construct()
   {
+    throw new Forbidden('Pexels API is not currently supported');
     $apiKey = env('PEXELS_API_KEY');
 
     if (empty($apiKey)) {

@@ -90,7 +90,6 @@ class DeepSeekServiceProviderSeeder extends Seeder
                         'description' => 'Array of conversation messages with role and content',
                         'example' => [
                             ['role' => 'user', 'content' => 'Hello, how are you?'],
-                            ['role' => 'assistant', 'content' => 'I am doing well, thank you!'],
                         ],
                         'validation' => 'required|array|min:1|max:50',
                         'structure' => [
@@ -174,7 +173,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
                         'min' => 1,
                         'max' => 5000,
                         'description' => 'Maximum number of tokens to generate in the response',
-                        'example' => 200,
+                        'example' => 2000,
                         'validation' => 'required|integer|min:1|max:5000',
                     ],
                     'temperature' => [

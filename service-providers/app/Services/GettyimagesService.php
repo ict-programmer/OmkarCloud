@@ -61,6 +61,7 @@ class GettyimagesService
    */
   protected function initializeService(): void
   {
+    throw new Forbidden('Getty Images API is not currently supported');
     $provider = ServiceProvider::where('type', ServiceProviderEnum::GETTY_IMAGES->value)->first();
 
     if (

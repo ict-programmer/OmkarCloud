@@ -24,8 +24,7 @@ class PersonalizationRequest extends FormRequest
     {
         return [
             'user_id' => ['required', 'string', 'min:1', 'max:100'],
-            'preferences' => ['required', 'array', 'min:1', 'max:20'],
-            'preferences.*' => ['required', 'string', 'min:2', 'max:50'],
+            'preferences' => ['required', 'string'],
             'max_tokens' => ['required', 'integer', 'min:1', 'max:5000'],
             'model' => ['nullable', 'string'],
         ];
@@ -44,13 +43,6 @@ class PersonalizationRequest extends FormRequest
             'user_id.min' => 'The user_id must be at least 1 character long.',
             'user_id.max' => 'The user_id may not be greater than 100 characters.',
             'preferences.required' => 'The preferences field is required for personalization.',
-            'preferences.array' => 'The preferences must be an array of interests.',
-            'preferences.min' => 'The preferences array must contain at least 1 preference.',
-            'preferences.max' => 'The preferences array may not contain more than 20 preferences.',
-            'preferences.*.required' => 'Each preference must be a valid string.',
-            'preferences.*.string' => 'Each preference must be a valid string.',
-            'preferences.*.min' => 'Each preference must be at least 2 characters long.',
-            'preferences.*.max' => 'Each preference may not be greater than 50 characters.',
             'max_tokens.required' => 'The max_tokens field is required to specify response length.',
             'max_tokens.integer' => 'The max_tokens must be a whole number.',
             'max_tokens.min' => 'The max_tokens must be at least 1 token.',

@@ -386,7 +386,7 @@ class ClaudeAPIService
                         'role' => 'user',
                         'content' => json_encode([
                             'text' => $data->user_id,
-                            'preferences' => $data->preferences,
+                            'preferences' => explode(',', $data->preferences),
                         ]),
                     ],
                 ],

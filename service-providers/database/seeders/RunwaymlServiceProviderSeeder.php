@@ -80,7 +80,7 @@ class RunwaymlServiceProviderSeeder extends Seeder
                         'type' => 'string',
                         'required' => true,
                         'description' => 'The URL of the prompt image for video generation',
-                        'example' => 'https://example.com/image.png',
+                        'example' => 'https://fastly.picsum.photos/id/0/5000/3333.jpg?hmac=_j6ghY5fCfSD6tvtcV74zXivkJSPIfR9B8w34XeQmvU',
                         'validation' => 'required|string|url',
                     ],
                     'prompt_text' => [
