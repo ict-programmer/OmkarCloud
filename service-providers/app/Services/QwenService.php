@@ -223,6 +223,11 @@ class QwenService
     $result->status = true;
     $result->message = $message;
 
+    // Remove thinking tokens from the response if present
+    $result->message = preg_replace('/<think>.*?<\/think>/is', '', $result->message);
+    $result->message = ltrim($result->message, "\n\n");
+
+
     if (preg_match('/\\b(error|sorry|unable)\\b/i', $result->message)) {
       $result->status = false;
       $result->error = $result->message;
