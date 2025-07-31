@@ -121,31 +121,15 @@ class QwenServiceProviderSeeder extends Seeder
                     ],
                 ],
                 'response' => [
-                    'id' => 'qwen_response_id',
-                    'object' => 'qwen_response_object',
-                    'created' => 1234567890,
-                    'model' => 'qwen/qwq-32b:free',
-                    'choices' => [
-                        [
-                            'index' => 0,
-                            'message' => [
-                                'role' => 'assistant',
-                                'content' => 'The capital of France is Paris.',
-                            ],
-                            'finish_reason' => 'stop',
-                        ],
+                    'status' => true,
+                    'data' => [
+                        'text' => 'The capital of France is Paris.',
                     ],
-                    'usage' => [
-                        'prompt_tokens' => 10,
-                        'completion_tokens' => 20,
-                        'total_tokens' => 30,
-                    ],
+                    'timestamp' => '2025-05-01T12:45:30+00:00',
                 ],
                 'response_path' => [
-                    'final_result' => '$.choices[0].message.content',
-                    'model_used' => '$.model',
-                    'tokens_used' => '$.usage.total_tokens',
-                    'finish_reason' => '$.choices[0].finish_reason',
+                    'final_result' => '$.data.text',
+                    'error_message' => '$.data.error',
                 ],
                 'request_class_name' => QwenNLPRequest::class,
                 'function_name' => 'nlp',
@@ -218,31 +202,15 @@ class QwenServiceProviderSeeder extends Seeder
                     ],
                 ],
                 'response' => [
-                    'id' => 'qwen_response_id',
-                    'object' => 'qwen_response_object',
-                    'created' => 1234567890,
-                    'model' => 'qwen/qwq-32b:free',
-                    'choices' => [
-                        [
-                            'index' => 0,
-                            'message' => [
-                                'role' => 'assistant',
-                                'content' => 'def factorial(n):\n    if n == 0:\n        return 1\n    else:\n        return n * factorial(n-1)',
-                            ],
-                            'finish_reason' => 'stop',
-                        ],
+                    'success' => true,
+                    'data' => [
+                        'code' => 'def factorial(n):\n    if n == 0:\n        return 1\n    else:\n        return n * factorial(n-1)',
                     ],
-                    'usage' => [
-                        'prompt_tokens' => 10,
-                        'completion_tokens' => 20,
-                        'total_tokens' => 30,
-                    ],
+                    'timestamp' => '2025-05-01T12:45:30+00:00',
                 ],
                 'response_path' => [
-                    'final_result' => '$.choices[0].message.content',
-                    'model_used' => '$.model',
-                    'tokens_used' => '$.usage.total_tokens',
-                    'finish_reason' => '$.choices[0].finish_reason',
+                    'final_result' => '$.data.code',
+                    'error_message' => '$.data.error',
                 ],
                 'request_class_name' => QwenCodeGenerationRequest::class,
                 'function_name' => 'codeGeneration',
@@ -317,31 +285,15 @@ class QwenServiceProviderSeeder extends Seeder
                     ],
                 ],
                 'response' => [
-                    'id' => 'qwen_response_id',
-                    'object' => 'qwen_response_object',
-                    'created' => 1234567890,
-                    'model' => 'qwen/qwq-32b:free',
-                    'choices' => [
-                        [
-                            'index' => 0,
-                            'message' => [
-                                'role' => 'assistant',
-                                'content' => 'A brave knight named Sir Lancelot saves a village from a dragon, earning the villagers\' gratitude.',
-                            ],
-                            'finish_reason' => 'stop',
-                        ],
+                    'success' => true,
+                    'data' => [
+                        'summary' => 'A brave knight named Sir Lancelot saves a village from a dragon, earning the villagers\' gratitude.',
                     ],
-                    'usage' => [
-                        'prompt_tokens' => 10,
-                        'completion_tokens' => 20,
-                        'total_tokens' => 30,
-                    ],
+                    'timestamp' => '2025-05-01T12:45:30+00:00',
                 ],
                 'response_path' => [
-                    'final_result' => '$.choices[0].message.content',
-                    'model_used' => '$.model',
-                    'tokens_used' => '$.usage.total_tokens',
-                    'finish_reason' => '$.choices[0].finish_reason',
+                    'final_result' => '$.data.summary',
+                    'error_message' => '$.data.error',
                 ],
                 'request_class_name' => QwenTextSummarizationRequest::class,
                 'function_name' => 'textSummarization',
@@ -414,31 +366,15 @@ class QwenServiceProviderSeeder extends Seeder
                     ],
                 ],
                 'response' => [
-                    'id' => 'qwen_response_id',
-                    'object' => 'qwen_response_object',
-                    'created' => 1234567890,
-                    'model' => 'qwen/qwq-32b:free',
-                    'choices' => [
-                        [
-                            'index' => 0,
-                            'message' => [
-                                'role' => 'assistant',
-                                'content' => 'Hello! I am doing well, thank you!',
-                            ],
-                            'finish_reason' => 'stop',
-                        ],
+                    'success' => true,
+                    'data' => [
+                        'text' => 'Hello! I am doing well, thank you!',
                     ],
-                    'usage' => [
-                        'prompt_tokens' => 10,
-                        'completion_tokens' => 20,
-                        'total_tokens' => 30,
-                    ],
+                    'timestamp' => '2025-05-01T12:45:30+00:00',
                 ],
                 'response_path' => [
-                    'final_result' => '$.choices[0].message.content',
-                    'model_used' => '$.model',
-                    'tokens_used' => '$.usage.total_tokens',
-                    'finish_reason' => '$.choices[0].finish_reason',
+                    'final_result' => '$.data.text',
+                    'error_message' => '$.data.error',
                 ],
                 'request_class_name' => QwenChatbotRequest::class,
                 'function_name' => 'chatbot',
@@ -448,7 +384,7 @@ class QwenServiceProviderSeeder extends Seeder
         $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, ServiceProviderEnum::QWEN->value);
 
         $deletedProviderTypeCount = $this->cleanupObsoleteServiceTypes($serviceProvider, $keptServiceTypeIds);
-        
+
         $this->command->info("Cleanup completed:");
         $this->command->info("- Deleted {$deletedProviderTypeCount} obsolete service provider types");
         $this->command->info("- Kept " . count($keptServiceTypeIds) . " service types for Qwen API");
