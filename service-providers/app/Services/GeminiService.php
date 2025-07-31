@@ -203,7 +203,7 @@ class GeminiService
 
         try {
             $response = $this->client->post(
-                "{$this->baseUrl}/models/gemini-1.5-pro:generateContent?key={$this->apiKey}",
+                "{$this->baseUrl}/models/{$data->model}:generateContent?key={$this->apiKey}",
                 [
                     'system_instruction' => [
                         'parts' => [

@@ -137,7 +137,7 @@ class GeminiServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => true,
-                        'default' => 'gemini-1.5-pro',
+                        'default' => 'gemini-2.5-flash',
                         'options' => [
                             'source' => 'collection',
                             'collection_name' => 'service_provider_model',
@@ -146,7 +146,7 @@ class GeminiServiceProviderSeeder extends Seeder
                             'filters' => [
                                 'service_provider_id' => $serviceProvider->id,
                                 'status' => 'active',
-                                'supports_code_generation' => true,
+                                'supports_text_generation' => true,
                             ],
                             'fallback_options' => [
                                 'gemini-2.5-flash',
@@ -213,6 +213,30 @@ class GeminiServiceProviderSeeder extends Seeder
                 'name' => 'Image Analysis',
                 'description' => 'Analyze images and provide detailed descriptions or insights',
                 'input_parameters' => [
+                    'model' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'default' => 'gemini-2.5-flash',
+                        'options' => [
+                            'source' => 'collection',
+                            'collection_name' => 'service_provider_model',
+                            'value_field' => 'model_name',
+                            'label_field' => 'display_name',
+                            'filters' => [
+                                'service_provider_id' => $serviceProvider->id,
+                                'status' => 'active',
+                                'supports_text_generation' => true,
+                            ],
+                            'fallback_options' => [
+                                'gemini-2.5-flash',
+                                'gemini-2.5-pro',
+                                'gemini-2.0-flash',
+                                'gemini-1.5-flash',
+                                'gemini-1.5-pro',
+                            ],
+                        ],
+                        'description' => 'The Gemini model to use for image analysis',
+                    ],
                     'image_cid' => [
                         'type' => 'string',
                         'required' => true,
@@ -271,7 +295,7 @@ class GeminiServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => true,
-                        'default' => 'gemini-1.5-pro',
+                        'default' => 'gemini-2.5-flash',
                         'options' => [
                             'source' => 'collection',
                             'collection_name' => 'service_provider_model',
@@ -280,7 +304,7 @@ class GeminiServiceProviderSeeder extends Seeder
                             'filters' => [
                                 'service_provider_id' => $serviceProvider->id,
                                 'status' => 'active',
-                                'supports_summarization' => true,
+                                'supports_text_generation' => true,
                             ],
                             'fallback_options' => [
                                 'gemini-2.5-flash',
@@ -290,7 +314,7 @@ class GeminiServiceProviderSeeder extends Seeder
                                 'gemini-1.5-pro',
                             ],
                         ],
-                        'description' => 'The Gemini model to use for document summarization',
+                        'description' => 'The Gemini model to use for document summarization'
                     ],
                     'summary_length' => [
                         'type' => 'integer',
