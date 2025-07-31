@@ -304,23 +304,19 @@ class GeminiService
 
         $responseData = $response->json();
 
-        if (empty($responseData['candidates'])) {
-            // Check if the response was stopped due to not enough tokens
-            if (isset($responseData['finishReason']) && $responseData['finishReason'] === 'MAX_TOKENS') {
-                $result->error = 'Gemini API reached maximum token limit, try reducing the prompt length or increasing the max_tokens.';
-                Log::error('Gemini API reached maximum token limit: ' . $response->body());
-                return $result;
-            } else {
-                $result->error = 'No candidates returned by Gemini API';
-                Log::error('Gemini Malformed Response: Missing candidates', $responseData);
-                return $result;
-            }
-        }
-
         $firstCandidate = $responseData['candidates'][0] ?? null;
         $parts = $firstCandidate['content']['parts'] ?? [];
 
         if (empty($parts) || empty($parts[0]['text'] ?? null)) {
+            // Check if the response was stopped due to not enough tokens
+            $finishReason = $firstCandidate['finishReason'] ?? null;
+
+            if ($finishReason === 'MAX_TOKENS') {
+                $result->error = 'Gemini API reached maximum token limit, try reducing the prompt length or increasing the max_tokens.';
+                Log::error('Gemini API reached maximum token limit: ' . $response->body());
+                return $result;
+            }
+
             $result->error = 'Missing or empty response content from Gemini' . json_encode($responseData);
             return $result;
         }
