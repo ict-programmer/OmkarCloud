@@ -25,8 +25,8 @@ class DocumentSummarizationRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'model' => ['required', 'in:gemini-2.5-flash,gemini-2.5-flash-lite,gemini-2.0-flash,gemini-2.0-flash-lite'],
             'document_text' => ['required', 'string', 'min:10', 'max:100000'],
-            'model' => ['required', 'in:gemini-2.5-flash,gemini-2.5-pro,gemini-2.0-flash,gemini-1.5-flash,gemini-1.5-pro'],
             'summary_length' => ['required', 'integer', 'min:1', 'max:1000'],
             'max_tokens' => ['required', 'integer', 'min:1', 'max:5000'],
         ];

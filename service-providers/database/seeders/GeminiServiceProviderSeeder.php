@@ -209,23 +209,10 @@ class GeminiServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => true,
-                        'default' => 'gemini-2.5-flash',
+                        'default' => 'gemini-2.0-flash',
                         'options' => [
-                            'source' => 'collection',
-                            'collection_name' => 'service_provider_model',
-                            'value_field' => 'model_name',
-                            'label_field' => 'display_name',
-                            'filters' => [
-                                'service_provider_id' => $serviceProvider->id,
-                                'status' => 'active',
-                                'supports_text_generation' => true,
-                            ],
-                            'fallback_options' => [
-                                'gemini-2.5-flash',
-                                'gemini-2.5-flash-lite',
-                                'gemini-2.0-flash',
-                                'gemini-2.0-flash-lite',
-                            ],
+                            'gemini-2.0-flash',
+                            'gemini-2.0-flash-lite',
                         ],
                         'description' => 'The Gemini model to use for image analysis',
                     ],
