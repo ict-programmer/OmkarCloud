@@ -248,6 +248,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'alt' => 'A dog running on grass'
                 ],
                 'response_path' => [
+                    'final_result' => '$',
                     'id' => '$.id',
                     'width' => '$.width',
                     'height' => '$.height',

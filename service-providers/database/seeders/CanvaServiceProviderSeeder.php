@@ -584,7 +584,7 @@ class CanvaServiceProviderSeeder extends Seeder
                     'status' => 'success',
                 ],
                 'response_path' => [
-                    'status' => '$.status',
+                    'final_result' => '$.status',
                 ],
                 'request_class_name' => null,
                 'function_name' => 'deleteFolder',
@@ -674,7 +674,7 @@ class CanvaServiceProviderSeeder extends Seeder
                     'status' => 'success',
                 ],
                 'response_path' => [
-                    'status' => '$.status',
+                    'final_result' => '$.status',
                 ],
                 'request_class_name' => MoveFolderItemRequest::class,
                 'function_name' => 'moveFolderItem',

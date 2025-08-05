@@ -334,10 +334,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'related_searches' => [],
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.result_count', // Assuming success if result_count is present
-                    'main_data' => '$.images',
                     'final_result' => '$.images',
-                    'timestamp' => null, // No explicit timestamp in example
                 ],
                 'request_class_name' => ImageSearchRequest::class,
                 'function_name' => 'imageSearch',
@@ -626,10 +623,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'related_searches' => [],
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.result_count',
-                    'main_data' => '$.images',
                     'final_result' => '$.images',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => ImageSearchCreativeRequest::class,
                 'function_name' => 'imageSearchCreative',
@@ -749,10 +743,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'auto_corrections' => [],
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.result_count',
-                    'main_data' => '$.images',
                     'final_result' => '$.images',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => ImageSearchCreativeByImageRequest::class,
                 'function_name' => 'imageSearchCreativeByImage',
@@ -1034,10 +1025,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'related_searches' => [],
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.result_count',
-                    'main_data' => '$.images',
                     'final_result' => '$.images',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => ImageSearchEditorialRequest::class,
                 'function_name' => 'imageSearchEditorial',
@@ -1065,10 +1053,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                 ],
                 'response' => [], // Response is 200 OK, no specific data example provided in doc
                 'response_path' => [
-                    'success_indicator' => null, // No specific indicator in example
-                    'main_data' => null,
                     'final_result' => null,
-                    'timestamp' => null,
                 ],
                 'request_class_name' => ImageSearchByImageUploadRequest::class,
                 'function_name' => 'imageSearchByImageUpload',
@@ -1365,10 +1350,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'auto_corrections' => [],
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.result_count',
-                    'main_data' => '$.videos',
                     'final_result' => '$.videos',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => VideoSearchCreativeRequest::class,
                 'function_name' => 'videoSearchCreative',
@@ -1478,10 +1460,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'auto_corrections' => [],
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.result_count',
-                    'main_data' => '$.videos',
                     'final_result' => '$.videos',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => VideoSearchCreativeByImageRequest::class,
                 'function_name' => 'videoSearchCreativeByImage',
@@ -1732,10 +1711,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'auto_corrections' => [],
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.result_count',
-                    'main_data' => '$.videos',
                     'final_result' => '$.videos',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => VideoSearchEditorialRequest::class,
                 'function_name' => 'videoSearchEditorial',
@@ -1792,10 +1768,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     ]
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.status',
-                    'main_data' => '$.data',
                     'final_result' => '$.data.generation_request_id',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => RemoveBackgroundRequest::class,
                 'function_name' => 'removeBackground',
@@ -1818,10 +1791,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'images_not_found' => [],
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.images', // Assuming success if images array is present
-                    'main_data' => '$.images[0]',
-                    'final_result' => '$.images[0]',
-                    'timestamp' => null,
+                    'final_result' => '$.images',
                 ],
                 'request_class_name' => null, // No specific request class for path parameters
                 'function_name' => 'imageMetadata',
@@ -1867,10 +1837,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'istock_licenses' => [],
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.id', // Assuming success if ID is present
-                    'main_data' => '$',
                     'final_result' => '$',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => null, // No specific request class for path parameters
                 'function_name' => 'videoMetadata',
@@ -1890,10 +1857,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                 ],
                 'response' => [], // Response is 200 OK, no specific data example provided in doc
                 'response_path' => [
-                    'success_indicator' => null,
-                    'main_data' => null,
-                    'final_result' => null,
-                    'timestamp' => null,
+                    'final_result' => '$',
                 ],
                 'request_class_name' => null, // No specific request class for path parameters
                 'function_name' => 'imageDownload',
@@ -1913,10 +1877,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                 ],
                 'response' => [], // Response is 200 OK, no specific data example provided in doc
                 'response_path' => [
-                    'success_indicator' => null,
-                    'main_data' => null,
-                    'final_result' => null,
-                    'timestamp' => null,
+                    'final_result' => '$',
                 ],
                 'request_class_name' => null, // No specific request class for path parameters
                 'function_name' => 'videoDownload',
@@ -1962,10 +1923,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'auto_corrections' => [],
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.images',
-                    'main_data' => '$.images',
                     'final_result' => '$.images',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => AffiliateImageSearchRequest::class,
                 'function_name' => 'affiliateImageSearch',
@@ -2003,10 +1961,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'auto_corrections' => [],
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.videos',
-                    'main_data' => '$.videos',
                     'final_result' => '$.videos',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => AffiliateVideoSearchRequest::class,
                 'function_name' => 'affiliateVideoSearch',
@@ -2079,10 +2034,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'generation_request_id' => 'gen_abc123',
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.generation_request_id',
-                    'main_data' => '$',
                     'final_result' => '$.generation_request_id',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => ImageGenerationRequest::class,
                 'function_name' => 'imageGeneration',
@@ -2104,10 +2056,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'generation_request_id' => 'gen_abc123',
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.generation_request_id',
-                    'main_data' => '$',
                     'final_result' => '$.generation_request_id',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => null, // No specific request class for path parameters
                 'function_name' => 'getImageGeneration',
@@ -2158,10 +2107,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'data' => [],
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.status',
-                    'main_data' => '$.data',
                     'final_result' => '$.data',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => ImageVariationsRequest::class,
                 'function_name' => 'imageVariations',
@@ -2229,10 +2175,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'generation_request_id' => 'gen_xyz789',
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.generation_request_id',
-                    'main_data' => '$',
                     'final_result' => '$.generation_request_id',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => RefineImageRequest::class,
                 'function_name' => 'refineImage',
@@ -2321,10 +2264,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'generation_request_id' => 'gen_98765abc',
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.generation_request_id',
-                    'main_data' => '$',
                     'final_result' => '$.generation_request_id',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => ExtendImageRequest::class,
                 'function_name' => 'extendImage',
@@ -2386,10 +2326,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'generation_request_id' => 'gen_xyz789',
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.generation_request_id',
-                    'main_data' => '$',
                     'final_result' => '$.generation_request_id',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => RemoveObjectFromImageRequest::class,
                 'function_name' => 'removeObjectFromImage',
@@ -2479,10 +2416,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'generation_request_id' => 'gen_abc789',
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.generation_request_id',
-                    'main_data' => '$',
                     'final_result' => '$.generation_request_id',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => ReplaceBackgroundRequest::class,
                 'function_name' => 'replaceBackground',
@@ -2572,10 +2506,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'generation_request_id' => 'gen_xyz123',
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.generation_request_id',
-                    'main_data' => '$',
                     'final_result' => '$.generation_request_id',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => InfluenceColorByImageRequest::class,
                 'function_name' => 'influenceColorByImage',
@@ -2672,10 +2603,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'generation_request_id' => 'gen_5678',
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.generation_request_id',
-                    'main_data' => '$',
                     'final_result' => '$.generation_request_id',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => InfluenceCompositionByImageRequest::class,
                 'function_name' => 'influenceCompositionByImage',
@@ -2757,10 +2685,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'generation_request_id' => 'string',
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.generation_request_id',
-                    'main_data' => '$',
                     'final_result' => '$.generation_request_id',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => GenerateBackgroundsRequest::class,
                 'function_name' => 'generateBackgrounds',
@@ -2792,10 +2717,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     ],
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.status',
-                    'main_data' => '$.data.sizes',
                     'final_result' => '$.data.sizes',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => null, // No specific request class for path parameters
                 'function_name' => 'getDownloadSizes',
@@ -2853,10 +2775,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'generated_asset_id' => 'string',
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.url',
-                    'main_data' => '$',
                     'final_result' => '$.url',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => DownloadImageAsyncRequest::class,
                 'function_name' => 'downloadImageAsync',
@@ -2886,10 +2805,7 @@ class GettyImageServiceProviderSeeder extends Seeder
                     'generated_asset_id' => 'string',
                 ],
                 'response_path' => [
-                    'success_indicator' => '$.url',
-                    'main_data' => '$',
                     'final_result' => '$.url',
-                    'timestamp' => null,
                 ],
                 'request_class_name' => null, // No specific request class for path parameters
                 'function_name' => 'downloadImage',

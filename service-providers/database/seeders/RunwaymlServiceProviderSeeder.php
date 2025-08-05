@@ -142,7 +142,7 @@ class RunwaymlServiceProviderSeeder extends Seeder
                     ],
                 ],
                 'response_path' => [
-                    'task_id' => '$.data.id',
+                    'final_result' => '$.data.id',
                 ],
                 'request_class_name' => VideoProcessingRequest::class,
                 'function_name' => 'videoProcessing',
@@ -176,6 +176,7 @@ class RunwaymlServiceProviderSeeder extends Seeder
                     'error' => null,
                 ],
                 'response_path' => [
+                    'final_result' => '$.result',
                     'task_id' => '$.id',
                     'task_status' => '$.status',
                     'created_at' => '$.createdAt',
