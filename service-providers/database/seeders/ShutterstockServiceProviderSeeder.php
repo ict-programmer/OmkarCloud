@@ -67,6 +67,7 @@ class ShutterstockServiceProviderSeeder extends Seeder
                     'name' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 'My New Collection',
                         'description' => 'Name of the collection to create',
                     ],
@@ -95,11 +96,13 @@ class ShutterstockServiceProviderSeeder extends Seeder
                     'collection_id' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => '12345678',
                         'description' => 'ID of the collection to add items to',
                     ],
                     'items' => [
                         'type' => 'array',
+                        'userinput_rqd' => true,
                         'required' => true,
                         'default' => [
                             [
@@ -123,12 +126,14 @@ class ShutterstockServiceProviderSeeder extends Seeder
                 'name' => 'Search Images',
                 'input_parameters' => [
                     'query' => [
+                        'userinput_rqd' => true,
                         'type' => 'string',
                         'required' => true,
                         'default' => 'business team',
                         'description' => 'Search query for images',
                     ],
                     'orientation' => [
+                        'userinput_rqd' => true,
                         'type' => 'string',
                         'required' => true,
                         'default' => 'horizontal',
@@ -211,6 +216,7 @@ class ShutterstockServiceProviderSeeder extends Seeder
                 'input_parameters' => [
                     'image_id' => [
                         'type' => 'string',
+                        'userinput_rqd' => true,
                         'required' => true,
                         'default' => '1234567890',
                         'description' => 'ID of the image to retrieve',
@@ -277,6 +283,7 @@ class ShutterstockServiceProviderSeeder extends Seeder
                 'name' => 'License Image',
                 'input_parameters' => [
                     'image_id' => [
+                        'userinput_rqd' => true,
                         'type' => 'string',
                         'required' => true,
                         'default' => '1234567890',
@@ -314,6 +321,7 @@ class ShutterstockServiceProviderSeeder extends Seeder
                 'input_parameters' => [
                     'license_id' => [
                         'type' => 'string',
+                        'userinput_rqd' => true,
                         'required' => true,
                         'default' => 'lic_12345678901234567890',
                         'description' => 'License ID from the licensing step',
@@ -336,6 +344,7 @@ class ShutterstockServiceProviderSeeder extends Seeder
                 'input_parameters' => [
                     'query' => [
                         'type' => 'string',
+                        'userinput_rqd' => true,
                         'required' => true,
                         'default' => 'business meeting',
                         'description' => 'Search query for videos',
@@ -343,6 +352,7 @@ class ShutterstockServiceProviderSeeder extends Seeder
                     'orientation' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 'horizontal',
                         'options' => [
                             'source' => 'static',
@@ -413,6 +423,7 @@ class ShutterstockServiceProviderSeeder extends Seeder
                 'input_parameters' => [
                     'video_id' => [
                         'type' => 'string',
+                        'userinput_rqd' => true,
                         'required' => true,
                         'default' => '1234567890',
                         'description' => 'ID of the video to retrieve',
@@ -470,6 +481,7 @@ class ShutterstockServiceProviderSeeder extends Seeder
                 'input_parameters' => [
                     'videos' => [
                         'type' => 'array',
+                        'userinput_rqd' => true,
                         'required' => true,
                         'default' => [
                             [
@@ -483,6 +495,7 @@ class ShutterstockServiceProviderSeeder extends Seeder
                         'type' => 'string',
                         'required' => false,
                         'default' => '',
+                        'userinput_rqd' => true,
                         'description' => 'Search ID from the search that found this video',
                     ],
                 ],
@@ -517,6 +530,7 @@ class ShutterstockServiceProviderSeeder extends Seeder
                 'input_parameters' => [
                     'license_id' => [
                         'type' => 'string',
+                        'userinput_rqd' => true,
                         'required' => true,
                         'default' => 'lic_12345678901234567890',
                         'description' => 'License ID from the licensing step',
@@ -540,6 +554,7 @@ class ShutterstockServiceProviderSeeder extends Seeder
                     'query' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 'upbeat corporate',
                         'description' => 'Search query for audio tracks',
                     ],
@@ -609,6 +624,7 @@ class ShutterstockServiceProviderSeeder extends Seeder
                     'audio_id' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => '1234567890',
                         'description' => 'ID of the audio track to retrieve',
                     ],
@@ -657,6 +673,7 @@ class ShutterstockServiceProviderSeeder extends Seeder
                 'input_parameters' => [
                     'audio_tracks' => [
                         'type' => 'array',
+                        'userinput_rqd' => true,
                         'required' => true,
                         'default' => [
                             [
@@ -704,6 +721,7 @@ class ShutterstockServiceProviderSeeder extends Seeder
                 'input_parameters' => [
                     'license_id' => [
                         'type' => 'string',
+                        'userinput_rqd' => true,
                         'required' => true,
                         'default' => 'lic_12345678901234567890',
                         'description' => 'License ID from the licensing step',

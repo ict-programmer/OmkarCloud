@@ -45,16 +45,19 @@ class WhisperServiceProviderSeeder extends Seeder
                         'default' => 'https://output.lemonfox.ai/wikipedia_ai.mp3',
                         'format' => 'url',
                         'description' => 'URL to audio file (alternative to file upload)',
+                        'userinput_rqd' => true,
                     ],
                     'language' => [
                         'type' => 'string',
                         'required' => true,
                         'default' => 'en',
                         'description' => 'Language of the audio content (ISO 639-1 format)',
+                        'userinput_rqd' => true,
                     ],
                     'prompt' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 'This is a business meeting discussing quarterly results.',
                         'description' => 'Optional text to guide the model\'s style or continue a previous audio segment',
                     ],
@@ -122,12 +125,14 @@ class WhisperServiceProviderSeeder extends Seeder
                         'default' => 'https://output.lemonfox.ai/wikipedia_ai.mp3',
                         'format' => 'url',
                         'description' => 'URL to audio file (alternative to file upload)',
+                        'userinput_rqd' => true,
                     ],
                     'language' => [
                         'type' => 'string',
                         'required' => true,
                         'default' => 'en',
                         'description' => 'Language of the audio content (ISO 639-1 format)',
+                        'userinput_rqd' => true,
                     ],
                     'prompt' => [
                         'type' => 'string',
@@ -135,6 +140,7 @@ class WhisperServiceProviderSeeder extends Seeder
                         'default' => 'This is a podcast interview about technology trends.',
                         'min_length' => 1,
                         'max_length' => 1000,
+                        'userinput_rqd' => true,
                         'description' => 'Optional text to guide the model\'s style or continue a previous audio segment',
                     ],
                 ],
@@ -155,6 +161,7 @@ class WhisperServiceProviderSeeder extends Seeder
                 'input_parameters' => [
                     'link' => [
                         'type' => 'string',
+                        'userinput_rqd' => true,
                         'required' => true,
                         'default' => 'https://output.lemonfox.ai/wikipedia_ai.mp3',
                         'format' => 'url',
@@ -163,6 +170,7 @@ class WhisperServiceProviderSeeder extends Seeder
                     'language' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 'es',
                         'description' => 'Source language of the audio content (will be translated to English)',
                     ],
@@ -171,6 +179,7 @@ class WhisperServiceProviderSeeder extends Seeder
                         'required' => true,
                         'default' => 'This is a formal business presentation that should be translated professionally.',
                         'min_length' => 1,
+                        'userinput_rqd' => true,
                         'max_length' => 1000,
                         'description' => 'Optional text to guide the translation style',
                     ],

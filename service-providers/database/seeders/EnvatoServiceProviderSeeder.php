@@ -63,6 +63,7 @@ class EnvatoServiceProviderSeeder extends Seeder
                     'site' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 'themeforest',
                         'options' => [
                             'source' => 'static',
@@ -81,6 +82,7 @@ class EnvatoServiceProviderSeeder extends Seeder
                     'term' => [
                         'type' => 'string', 
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 'portfolio theme',
                         'min_length' => 1,
                         'max_length' => 100,
@@ -121,6 +123,7 @@ class EnvatoServiceProviderSeeder extends Seeder
                     'item_id' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 12345,
                         'min' => 1,
                         'description' => 'Envato item ID',
@@ -159,6 +162,7 @@ class EnvatoServiceProviderSeeder extends Seeder
                     'username' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 'john_doe',
                         'min_length' => 1,
                         'max_length' => 50,
@@ -219,6 +223,7 @@ class EnvatoServiceProviderSeeder extends Seeder
                     'item_id' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 12345,
                         'min' => 1,
                         'description' => 'Purchased item ID',
@@ -246,6 +251,7 @@ class EnvatoServiceProviderSeeder extends Seeder
                     'purchase_code' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => '12345678-1234-1234-1234-123456789012',
                         'min_length' => 36,
                         'max_length' => 36,
@@ -298,6 +304,7 @@ class EnvatoServiceProviderSeeder extends Seeder
                     'site' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 'themeforest',
                         'options' => [
                             'source' => 'static',
@@ -347,6 +354,7 @@ class EnvatoServiceProviderSeeder extends Seeder
                     'site' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 'themeforest',
                         'options' => [
                             'source' => 'static',
