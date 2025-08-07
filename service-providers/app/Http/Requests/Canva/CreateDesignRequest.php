@@ -29,7 +29,7 @@ class CreateDesignRequest extends FormRequest
             'design_type.height' => ['nullable', 'required_if:design_type.type,custom', 'integer', 'min:40', 'max:8000'],
             'asset_id' => ['required', 'string'],
             'title' => ['required', 'string'],
-            'endpoint_interface' => ['required', 'string', 'in:generate'],
+            'endpoint_interface' => ['nullable', 'string', 'in:generate'],
         ];
     }
 

@@ -69,6 +69,7 @@ class CanvaServiceProviderSeeder extends Seeder
                     'design_type' => [
                         'type' => 'array',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'Design type',
                         'example' => [
                             'type' => 'preset',
@@ -89,6 +90,7 @@ class CanvaServiceProviderSeeder extends Seeder
                     'asset_id' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'Asset ID',
                         'example' => 'MAGnWRFNXUA',
                         'validation' => 'required|string',
@@ -96,17 +98,11 @@ class CanvaServiceProviderSeeder extends Seeder
                     'title' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'Title of the design',
                         'example' => 'My Holiday Presentation',
                         'validation' => 'required|string',
-                    ],
-                    'endpoint_interface' => [
-                        'type' => 'string',
-                        'required' => true,
-                        'description' => 'Endpoint interface',
-                        'example' => 'generate',
-                        'validation' => 'required|string|in:generate',
-                    ],
+                    ]
                 ],
                 'response' => [
                     'design' => [
@@ -154,17 +150,11 @@ class CanvaServiceProviderSeeder extends Seeder
                     'continuation' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Token for fetching the next page of results. Leave empty for the first page.',
                         'example' => 'next_page_token',
                         'validation' => 'nullable|string',
-                    ],
-                    'endpoint_interface' => [
-                        'type' => 'string',
-                        'required' => true,
-                        'description' => 'Endpoint interface to specify the operation.',
-                        'example' => 'generate',
-                        'validation' => 'required|string|in:generate',
-                    ],
+                    ]
                 ],
                 'response' => [
                     'items' => [
@@ -216,17 +206,11 @@ class CanvaServiceProviderSeeder extends Seeder
                     'design_id' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'ID of the design to retrieve details for.',
                         'example' => 'design_id',
                         'validation' => 'required|string',
-                    ],
-                    'endpoint_interface' => [
-                        'type' => 'string',
-                        'required' => true,
-                        'description' => 'Endpoint interface to specify the operation.',
-                        'example' => 'generate',
-                        'validation' => 'required|string|in:generate',
-                    ],
+                    ]
                 ],
                 'response' => [
                     'design' => [
@@ -274,6 +258,7 @@ class CanvaServiceProviderSeeder extends Seeder
                     'design_id' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'ID of the design to export.',
                         'example' => 'design_id',
                         'validation' => 'required|string',
@@ -281,6 +266,7 @@ class CanvaServiceProviderSeeder extends Seeder
                     'format' => [
                         'type' => 'array',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'Format of the export',
                         'example' => [
                             'type' => 'png',
@@ -337,6 +323,7 @@ class CanvaServiceProviderSeeder extends Seeder
                     'exportID' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'ID of the export',
                         'example' => '17f20503-6c24-4c16-946b-35dbbce2af2f',
                         'validation' => 'required|string|uuid',
@@ -366,6 +353,7 @@ class CanvaServiceProviderSeeder extends Seeder
                     'file' => [
                         'type' => 'file',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'File to upload',
                         'example' => 'file',
                         'validation' => 'required|file|max:30720',
@@ -391,6 +379,7 @@ class CanvaServiceProviderSeeder extends Seeder
                     'job_id' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'ID of the upload job to retrieve details for.',
                         'example' => 'e08861ae-3b29-45db-8dc1-1fe0bf7f1cc8',
                         'validation' => 'required|string',
@@ -429,6 +418,7 @@ class CanvaServiceProviderSeeder extends Seeder
                     'name' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'The name of the folder',
                         'example' => 'My awesome holiday',
                         'validation' => 'required|string|min:1|max:255',
@@ -436,17 +426,11 @@ class CanvaServiceProviderSeeder extends Seeder
                     'parent_folder_id' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'The folder ID of the parent folder. To create a new folder at the top level, use the ID root',
                         'example' => 'root',
                         'validation' => 'required|string|min:1|max:50',
-                    ],
-                    'endpoint_interface' => [
-                        'type' => 'string',
-                        'required' => true,
-                        'description' => 'Endpoint interface',
-                        'example' => 'generate',
-                        'validation' => 'required|string|in:generate',
-                    ],
+                    ]
                 ],
                 'response' => [
                     'folder' => [
@@ -480,17 +464,11 @@ class CanvaServiceProviderSeeder extends Seeder
                     'folder_id' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'ID of the folder to retrieve details for.',
                         'example' => 'folder_id',
                         'validation' => 'required|string',
-                    ],
-                    'endpoint_interface' => [
-                        'type' => 'string',
-                        'required' => true,
-                        'description' => 'Endpoint interface to specify the operation.',
-                        'example' => 'generate',
-                        'validation' => 'required|string|in:generate',
-                    ],
+                    ]
                 ],
                 'response' => [
                     'folder' => [
@@ -524,6 +502,7 @@ class CanvaServiceProviderSeeder extends Seeder
                     'name' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'The name of the folder',
                         'example' => 'My awesome holiday',
                         'validation' => 'required|string|min:1|max:255',
@@ -531,17 +510,11 @@ class CanvaServiceProviderSeeder extends Seeder
                     'folder_id' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'The folder ID of the parent folder. To Update a new folder at the top level, use the ID root',
                         'example' => 'root',
                         'validation' => 'required|string|min:1|max:50',
-                    ],
-                    'endpoint_interface' => [
-                        'type' => 'string',
-                        'required' => true,
-                        'description' => 'Endpoint interface',
-                        'example' => 'generate',
-                        'validation' => 'required|string|in:generate',
-                    ],
+                    ]
                 ],
                 'response' => [
                     'folder' => [
@@ -575,6 +548,7 @@ class CanvaServiceProviderSeeder extends Seeder
                     'folderID' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'The folder ID to be deleted',
                         'example' => 'root',
                         'validation' => 'required|string|min:1|max:50',
@@ -595,6 +569,7 @@ class CanvaServiceProviderSeeder extends Seeder
                     'folder_id' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'The ID of the folder to update',
                         'example' => 'FAF2lZtloor',
                         'validation' => 'required|string|min:1|max:50',
@@ -602,6 +577,7 @@ class CanvaServiceProviderSeeder extends Seeder
                     'continuation' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Continuation token (optional)',
                         'example' => 'continue-here',
                         'validation' => 'nullable|string',
@@ -609,6 +585,7 @@ class CanvaServiceProviderSeeder extends Seeder
                     'item_types' => [
                         'type' => 'array',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Filter by item types (optional)',
                         'example' => ['design', 'image'],
                         'validation' => 'nullable|array',
@@ -622,9 +599,11 @@ class CanvaServiceProviderSeeder extends Seeder
                     'sort_by' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'description' => 'Sort items by criteria',
                         'example' => 'created_ascending',
                         'validation' => 'nullable|string|in:created_ascending,created_descending,modified_ascending,modified_descending,title_ascending,title_descending',
+                        'options' => ['created_ascending', 'created_descending', 'modified_ascending', 'modified_descending', 'title_ascending', 'title_descending'],
                     ],
                 ],
                 'response' => [
@@ -658,6 +637,7 @@ class CanvaServiceProviderSeeder extends Seeder
                     'to_folder_id' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'The ID of the to folder',
                         'example' => 'FAF2lZtloor',
                         'validation' => 'required|string|min:1|max:50',
@@ -665,6 +645,7 @@ class CanvaServiceProviderSeeder extends Seeder
                     'item_id' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'The ID of the item to move',
                         'example' => 'FAF2lZtloor',
                         'validation' => 'required|string|min:1|max:50',

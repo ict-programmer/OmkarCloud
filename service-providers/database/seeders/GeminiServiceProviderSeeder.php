@@ -64,6 +64,7 @@ class GeminiServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => false,
                         'default' => 'gemini-2.5-flash',
                         'options' => [
                             'source' => 'collection',
@@ -87,6 +88,7 @@ class GeminiServiceProviderSeeder extends Seeder
                     'prompt' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 1,
                         'max_length' => 1000,
                         'description' => 'The text prompt to generate content from',
@@ -96,6 +98,7 @@ class GeminiServiceProviderSeeder extends Seeder
                     'max_tokens' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min' => 1,
                         'max' => 5000,
                         'description' => 'Maximum number of tokens to generate in the response',
@@ -105,6 +108,7 @@ class GeminiServiceProviderSeeder extends Seeder
                     'temperature' => [
                         'type' => 'float',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min' => 0,
                         'max' => 1,
                         'description' => 'Controls randomness in the response generation',
@@ -133,6 +137,7 @@ class GeminiServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => false,
                         'default' => 'gemini-2.5-flash',
                         'options' => [
                             'source' => 'collection',
@@ -156,6 +161,7 @@ class GeminiServiceProviderSeeder extends Seeder
                     'prompt' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 1,
                         'max_length' => 1000,
                         'description' => 'Natural language description of the code to generate',
@@ -165,6 +171,7 @@ class GeminiServiceProviderSeeder extends Seeder
                     'max_tokens' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min' => 1,
                         'max' => 5000,
                         'description' => 'Maximum number of tokens to generate in the response',
@@ -174,6 +181,7 @@ class GeminiServiceProviderSeeder extends Seeder
                     'temperature' => [
                         'type' => 'float',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min' => 0,
                         'max' => 1,
                         'description' => 'Controls randomness in the response generation',
@@ -183,6 +191,7 @@ class GeminiServiceProviderSeeder extends Seeder
                     'attachments' => [
                         'type' => 'array',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'description' => 'Array of file attachments for context',
                         'example' => [],
                         'validation' => 'nullable|array',
@@ -209,6 +218,7 @@ class GeminiServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => false,
                         'default' => 'gemini-2.0-flash',
                         'options' => [
                             'gemini-2.0-flash',
@@ -219,6 +229,7 @@ class GeminiServiceProviderSeeder extends Seeder
                     'image_cid' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'Image string to analyze',
                         'example' => 'QmWhs8gKKZYBaQdSzFUXaAzubVz7B12HfomyBjpvKTPQ2N',
                         'validation' => 'required|string',
@@ -226,6 +237,7 @@ class GeminiServiceProviderSeeder extends Seeder
                     'description_required' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 1,
                         'max_length' => 1000,
                         'description' => 'Specific description or analysis request for the image',
@@ -235,6 +247,7 @@ class GeminiServiceProviderSeeder extends Seeder
                     'max_tokens' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min' => 1,
                         'max' => 5000,
                         'description' => 'Maximum number of tokens to generate in the response',
@@ -263,6 +276,7 @@ class GeminiServiceProviderSeeder extends Seeder
                     'document_text' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 10,
                         'max_length' => 100000,
                         'description' => 'The document text content to be summarized',
@@ -272,6 +286,7 @@ class GeminiServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => false,
                         'default' => 'gemini-2.5-flash',
                         'options' => [
                             'source' => 'collection',
@@ -295,6 +310,7 @@ class GeminiServiceProviderSeeder extends Seeder
                     'summary_length' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min' => 1,
                         'max' => 1000,
                         'description' => 'Desired length of the summary in sentences',
@@ -304,6 +320,7 @@ class GeminiServiceProviderSeeder extends Seeder
                     'max_tokens' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min' => 1,
                         'max' => 5000,
                         'description' => 'Maximum number of tokens to generate in the response',

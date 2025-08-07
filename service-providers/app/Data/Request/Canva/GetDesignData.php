@@ -8,6 +8,6 @@ class GetDesignData extends Data
 {
   public function __construct(
     public string $design_id,
-    public string $endpoint_interface
+    public ?string $endpoint_interface = "generate"
   ) {}
 }

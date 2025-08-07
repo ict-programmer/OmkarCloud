@@ -34,7 +34,7 @@ class CreateFolderRequest extends FormRequest
                 'min:1',
                 'max:50',
             ],
-            'endpoint_interface' => ['required', 'string', 'in:generate'],
+            'endpoint_interface' => ['nullable', 'string', 'in:generate'],
         ];
     }
 

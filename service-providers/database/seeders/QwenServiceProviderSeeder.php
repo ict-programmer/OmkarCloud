@@ -66,6 +66,7 @@ class QwenServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'default' => 'qwen/qwq-32b:free',
                         'options' => [
                             'source' => 'collection',
@@ -88,6 +89,7 @@ class QwenServiceProviderSeeder extends Seeder
                     'prompt' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 1,
                         'max_length' => 10000,
                         'description' => 'The text prompt to process',
@@ -97,6 +99,7 @@ class QwenServiceProviderSeeder extends Seeder
                     'max_tokens' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'min' => 1,
                         'max' => 2000,
                         'description' => 'Maximum number of tokens to generate in the response',
@@ -106,19 +109,13 @@ class QwenServiceProviderSeeder extends Seeder
                     'temperature' => [
                         'type' => 'float',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'min' => 0,
                         'max' => 1,
                         'description' => 'Controls randomness in the response generation',
                         'example' => 0.7,
                         'validation' => 'nullable|numeric|min:0|max:1',
-                    ],
-                    'endpoint_interface' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'description' => 'The endpoint interface to use',
-                        'example' => 'generate',
-                        'validation' => 'nullable|string',
-                    ],
+                    ]
                 ],
                 'response' => [
                     'status' => true,
@@ -140,6 +137,7 @@ class QwenServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'default' => 'qwen/qwq-32b:free',
                         'options' => [
                             'source' => 'collection',
@@ -162,6 +160,7 @@ class QwenServiceProviderSeeder extends Seeder
                     'prompt' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 1,
                         'max_length' => 10000,
                         'description' => 'Natural language description of the code to generate',
@@ -171,6 +170,7 @@ class QwenServiceProviderSeeder extends Seeder
                     'max_tokens' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'min' => 1,
                         'max' => 2000,
                         'description' => 'Maximum number of tokens to generate in the response',
@@ -180,22 +180,17 @@ class QwenServiceProviderSeeder extends Seeder
                     'temperature' => [
                         'type' => 'float',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'min' => 0,
                         'max' => 1,
                         'description' => 'Controls randomness in the response generation',
                         'example' => 0.7,
                         'validation' => 'nullable|numeric|min:0|max:1',
                     ],
-                    'endpoint_interface' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'description' => 'The endpoint interface to use',
-                        'example' => 'generate',
-                        'validation' => 'nullable|string',
-                    ],
                     'attachments' => [
                         'type' => 'array',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'description' => 'Array of file attachments for context',
                         'example' => [],
                         'validation' => 'nullable|array'
@@ -221,6 +216,7 @@ class QwenServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'default' => 'qwen/qwq-32b:free',
                         'options' => [
                             'source' => 'collection',
@@ -243,6 +239,7 @@ class QwenServiceProviderSeeder extends Seeder
                     'text' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 10,
                         'max_length' => 10000,
                         'description' => 'The text content to be summarized',
@@ -252,6 +249,7 @@ class QwenServiceProviderSeeder extends Seeder
                     'text_length' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'min' => 1,
                         'max' => 1000,
                         'description' => 'Desired length of the summary in words',
@@ -261,6 +259,7 @@ class QwenServiceProviderSeeder extends Seeder
                     'max_tokens' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'min' => 1,
                         'max' => 2000,
                         'description' => 'Maximum number of tokens to generate in the response',
@@ -270,19 +269,13 @@ class QwenServiceProviderSeeder extends Seeder
                     'temperature' => [
                         'type' => 'float',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'min' => 0,
                         'max' => 1,
                         'description' => 'Controls randomness in the response generation',
                         'example' => 0.7,
                         'validation' => 'nullable|numeric|min:0|max:1',
-                    ],
-                    'endpoint_interface' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'description' => 'The endpoint interface to use',
-                        'example' => 'generate',
-                        'validation' => 'nullable|string',
-                    ],
+                    ]
                 ],
                 'response' => [
                     'success' => true,
@@ -304,6 +297,7 @@ class QwenServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'default' => 'qwen/qwq-32b:free',
                         'options' => [
                             'source' => 'collection',
@@ -326,6 +320,7 @@ class QwenServiceProviderSeeder extends Seeder
                     'conversation_history' => [
                         'type' => 'array',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_items' => 1,
                         'max_items' => 50,
                         'description' => 'Array of conversation messages with role and content',
@@ -342,6 +337,7 @@ class QwenServiceProviderSeeder extends Seeder
                     'temperature' => [
                         'type' => 'float',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'min' => 0,
                         'max' => 1,
                         'description' => 'Controls randomness in the response generation',
@@ -351,19 +347,13 @@ class QwenServiceProviderSeeder extends Seeder
                     'max_tokens' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'min' => 1,
                         'max' => 4000,
                         'description' => 'Maximum number of tokens to generate in the response',
                         'example' => 4000,
                         'validation' => 'nullable|integer|min:1|max:4000',
-                    ],
-                    'endpoint_interface' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'description' => 'The endpoint interface to use',
-                        'example' => 'generate',
-                        'validation' => 'nullable|string',
-                    ],
+                    ]
                 ],
                 'response' => [
                     'success' => true,

@@ -57,6 +57,7 @@ class RunwaymlServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => false,
                         'description' => 'The model to use for video generation',
                         'example' => 'gen4_turbo',
                         'validation' => 'required|string|in:gen4_turbo,gen3a_turbo',
@@ -79,6 +80,7 @@ class RunwaymlServiceProviderSeeder extends Seeder
                     'prompt_image' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'The URL of the prompt image for video generation',
                         'example' => 'https://fastly.picsum.photos/id/0/5000/3333.jpg?hmac=_j6ghY5fCfSD6tvtcV74zXivkJSPIfR9B8w34XeQmvU',
                         'validation' => 'required|string|url',
@@ -86,6 +88,7 @@ class RunwaymlServiceProviderSeeder extends Seeder
                     'prompt_text' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 1,
                         'max_length' => 1000,
                         'description' => 'The text prompt for video generation',
@@ -95,6 +98,7 @@ class RunwaymlServiceProviderSeeder extends Seeder
                     'seed' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'The seed value for randomization to ensure consistent results',
                         'example' => 12345,
                         'validation' => 'required|integer',
@@ -102,6 +106,7 @@ class RunwaymlServiceProviderSeeder extends Seeder
                     'duration' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 5,
                         'options' => [5, 10],
                         'description' => 'The duration of the generated video in seconds',
@@ -111,6 +116,7 @@ class RunwaymlServiceProviderSeeder extends Seeder
                     'width' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 1280,
                         'options' => [1280, 720, 1104, 832, 960, 1584, 768],
                         'description' => 'The width of the generated video in pixels',
@@ -120,6 +126,7 @@ class RunwaymlServiceProviderSeeder extends Seeder
                     'height' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 720,
                         'options' => [720, 1280, 832, 1104, 960, 672, 768],
                         'description' => 'The height of the generated video in pixels',
@@ -154,6 +161,7 @@ class RunwaymlServiceProviderSeeder extends Seeder
                     'task_id' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'The ID of the task to check status and retrieve details',
                         'example' => '17f20503-6c24-4c16-946b-35dbbce2af2f',
                         'validation' => 'required|string|uuid',

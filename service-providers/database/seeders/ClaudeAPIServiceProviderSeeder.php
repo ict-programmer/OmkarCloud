@@ -75,6 +75,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'default' => 'claude-3-5-haiku-latest',
                         'options' => [
                             'source' => 'collection',
@@ -101,6 +102,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'prompt' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 1,
                         'max_length' => 1000,
                         'description' => 'The text prompt to generate content from',
@@ -110,6 +112,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'max_tokens' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min' => 1,
                         'max' => 5000,
                         'description' => 'Maximum number of tokens to generate in the response',
@@ -137,6 +140,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'default' => 'claude-3-5-haiku-latest',
                         'options' => [
                             'source' => 'collection',
@@ -163,6 +167,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'text' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 10,
                         'max_length' => 10000,
                         'description' => 'The text content to be summarized',
@@ -172,6 +177,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'summary_length' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 'short',
                         'options' => ['short', 'medium', 'long'],
                         'description' => 'Desired length of the summary',
@@ -181,6 +187,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'max_tokens' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min' => 1,
                         'max' => 5000,
                         'description' => 'Maximum number of tokens to generate in the response',
@@ -210,6 +217,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'default' => 'claude-3-5-sonnet-20241022',
                         'options' => [
                             'source' => 'collection',
@@ -236,6 +244,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'question' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 3,
                         'max_length' => 1000,
                         'description' => 'The question to be answered',
@@ -245,6 +254,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'context' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 10,
                         'max_length' => 10000,
                         'description' => 'Contextual information to help answer the question',
@@ -254,6 +264,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'max_tokens' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min' => 1,
                         'max' => 5000,
                         'description' => 'Maximum number of tokens to generate in the response',
@@ -281,6 +292,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'default' => 'claude-3-5-haiku-latest',
                         'options' => [
                             'source' => 'collection',
@@ -307,6 +319,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'text' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 5,
                         'max_length' => 5000,
                         'description' => 'The text content to be classified',
@@ -316,6 +329,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'categories' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 3,
                         'max_length' => 500,
                         'description' => 'Comma-separated list of categories to classify the text into',
@@ -325,6 +339,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'max_tokens' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min' => 1,
                         'max' => 5000,
                         'description' => 'Maximum number of tokens to generate in the response',
@@ -354,6 +369,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'default' => 'claude-3-5-haiku-latest',
                         'options' => [
                             'source' => 'collection',
@@ -380,6 +396,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'text' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 1,
                         'max_length' => 5000,
                         'description' => 'The text to be translated',
@@ -389,6 +406,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'source_language' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => false,
                         'size' => 2,
                         'pattern' => '/^[a-z]{2}$/',
                         'description' => 'Source language code (ISO 639-1 format)',
@@ -399,6 +417,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'target_language' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => false,
                         'size' => 2,
                         'pattern' => '/^[a-z]{2}$/',
                         'description' => 'Target language code (ISO 639-1 format)',
@@ -409,6 +428,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'max_tokens' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min' => 1,
                         'max' => 5000,
                         'description' => 'Maximum number of tokens to generate in the response',
@@ -436,6 +456,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'default' => 'claude-3-5-sonnet-20241022',
                         'options' => [
                             'source' => 'collection',
@@ -462,6 +483,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'description' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 5,
                         'max_length' => 2000,
                         'description' => 'Natural language description of the code to generate',
@@ -471,6 +493,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'attachments' => [
                         'type' => 'array',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'description' => 'Array of file attachments (optional)',
                         'example' => [],
                         'validation' => 'nullable|array',
@@ -478,6 +501,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'max_tokens' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min' => 1,
                         'max' => 5000,
                         'description' => 'Maximum number of tokens to generate in the response',
@@ -505,6 +529,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'default' => 'claude-3-5-sonnet-20241022',
                         'options' => [
                             'source' => 'collection',
@@ -531,6 +556,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'data' => [
                         'type' => 'array',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_items' => 1,
                         'max_items' => 1000,
                         'description' => 'Array of data objects to analyze',
@@ -544,6 +570,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'task' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 3,
                         'max_length' => 100,
                         'description' => 'The analysis task to perform on the data',
@@ -560,6 +587,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'max_tokens' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min' => 1,
                         'max' => 5000,
                         'description' => 'Maximum number of tokens to generate in the response',
@@ -587,6 +615,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'default' => 'claude-3-5-haiku-latest',
                         'options' => [
                             'source' => 'collection',
@@ -613,6 +642,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'user_id' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 1,
                         'max_length' => 100,
                         'description' => 'Unique identifier for the user',
@@ -622,6 +652,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'preferences' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'Comma separated list of user preferences or interests',
                         'example' => 'technology,science',
                         'validation' => 'required|string',
@@ -629,6 +660,7 @@ class ClaudeAPIServiceProviderSeeder extends Seeder
                     'max_tokens' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min' => 1,
                         'max' => 5000,
                         'description' => 'Maximum number of tokens to generate in the response',

@@ -65,6 +65,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'query' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'Search query',
                         'example' => 'dog',
                         'validation' => 'required|string'
@@ -72,20 +73,25 @@ class PexelsServiceProviderSeeder extends Seeder
                     'orientation' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'description' => 'Orientation',
                         'example' => 'landscape',
-                        'validation' => 'nullable|string|in:landscape,portrait,square'
+                        'validation' => 'nullable|string|in:landscape,portrait,square',
+                        'options' => ['landscape', 'portrait', 'square'],
                     ],
                     'size' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'description' => 'Size',
                         'example' => 'medium',
-                        'validation' => 'nullable|string|in:small,medium,large'
+                        'validation' => 'nullable|string|in:small,medium,large',
+                        'options' => ['small', 'medium', 'large'],
                     ],
                     'color' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Color',
                         'example' => 'red',
                         'validation' => 'nullable|string'
@@ -93,6 +99,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'locale' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Locale',
                         'example' => 'en-US',
                         'validation' => 'nullable|string'
@@ -100,6 +107,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'page' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Page number',
                         'example' => 1,
                         'validation' => 'nullable|integer'
@@ -107,6 +115,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'per_page' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Results per page',
                         'example' => 15,
                         'validation' => 'nullable|integer'
@@ -160,6 +169,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'page' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Page number',
                         'example' => 1,
                         'validation' => 'nullable|integer'
@@ -167,6 +177,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'per_page' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Results per page',
                         'example' => 15,
                         'validation' => 'nullable|integer'
@@ -220,6 +231,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'id' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'Photo ID',
                         'example' => '123456789',
                         'validation' => 'required|string'
@@ -270,6 +282,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'query' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'Search query',
                         'example' => 'dog',
                         'validation' => 'required|string'
@@ -277,20 +290,26 @@ class PexelsServiceProviderSeeder extends Seeder
                     'orientation' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'description' => 'Orientation',
                         'example' => 'landscape',
-                        'validation' => 'nullable|string|in:landscape,portrait,square'
+                        'validation' => 'nullable|string|in:landscape,portrait,square',
+                        'options' => ['landscape', 'portrait', 'square'],
                     ],
                     'size' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Size',
                         'example' => 'medium',
-                        'validation' => 'nullable|string|in:small,medium,large'
+                        'validation' => 'nullable|string|in:small,medium,large',
+                        'options' => ['small', 'medium', 'large'],
                     ],
                     'locale' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Locale',
                         'example' => 'en-US',
                         'validation' => 'nullable|string'
@@ -298,6 +317,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'page' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Page number',
                         'example' => 1,
                         'validation' => 'nullable|integer'
@@ -305,6 +325,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'per_page' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Results per page',
                         'example' => 15,
                         'validation' => 'nullable|integer'
@@ -379,6 +400,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'min_width' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Minimum width',
                         'example' => 1080,
                         'validation' => 'nullable|integer'
@@ -386,6 +408,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'min_height' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Minimum height',
                         'example' => 1080,
                         'validation' => 'nullable|integer'
@@ -393,6 +416,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'min_duration' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Minimum duration',
                         'example' => 10,
                         'validation' => 'nullable|integer'
@@ -400,6 +424,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'max_duration' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Maximum duration',
                         'example' => 10,
                         'validation' => 'nullable|integer'
@@ -407,6 +432,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'page' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Page number',
                         'example' => 1,
                         'validation' => 'nullable|integer'
@@ -414,6 +440,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'per_page' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Results per page',
                         'example' => 15,
                         'validation' => 'nullable|integer'
@@ -488,6 +515,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'id' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'Video ID',
                         'example' => '123456789',
                         'validation' => 'required|string'
@@ -555,6 +583,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'page' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Page number',
                         'example' => 1,
                         'validation' => 'nullable|integer'
@@ -562,6 +591,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'per_page' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Results per page',
                         'example' => 15,
                         'validation' => 'nullable|integer'
@@ -602,6 +632,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'page' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Page number',
                         'example' => 1,
                         'validation' => 'nullable|integer'
@@ -609,6 +640,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'per_page' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Results per page',
                         'example' => 15,
                         'validation' => 'nullable|integer'
@@ -649,6 +681,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'id' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'Collection ID',
                         'example' => '123456789',
                         'validation' => 'required|string'
@@ -656,20 +689,25 @@ class PexelsServiceProviderSeeder extends Seeder
                     'type' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'description' => 'Collection type',
                         'example' => 'photos',
-                        'validation' => 'nullable|string|in:photos,videos'
+                        'validation' => 'nullable|string|in:photos,videos',
+                        'options' => ['photos', 'videos'],
                     ],
                     'sort' => [
                         'type' => 'string',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'description' => 'Sort order',
                         'example' => 'asc',
-                        'validation' => 'nullable|string|in:asc,desc'
+                        'validation' => 'nullable|string|in:asc,desc',
+                        'options' => ['asc', 'desc'],
                     ],
                     'page' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Page number',
                         'example' => 1,
                         'validation' => 'nullable|integer'
@@ -677,6 +715,7 @@ class PexelsServiceProviderSeeder extends Seeder
                     'per_page' => [
                         'type' => 'integer',
                         'required' => false,
+                        'userinput_rqd' => true,
                         'description' => 'Results per page',
                         'example' => 15,
                         'validation' => 'nullable|integer'

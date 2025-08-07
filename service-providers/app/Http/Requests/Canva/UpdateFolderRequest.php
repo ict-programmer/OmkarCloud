@@ -32,7 +32,7 @@ class UpdateFolderRequest extends FormRequest
                 'required',
                 'string',
             ],
-            'endpoint_interface' => ['required', 'string', 'in:generate'],
+            'endpoint_interface' => ['nullable', 'string', 'in:generate'],
         ];
     }
 

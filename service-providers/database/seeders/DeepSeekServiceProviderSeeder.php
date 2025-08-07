@@ -63,6 +63,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => false,
                         'default' => 'deepseek-chat',
                         'options' => [
                             'source' => 'collection',
@@ -85,6 +86,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
                     'messages' => [
                         'type' => 'array',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_items' => 1,
                         'max_items' => 50,
                         'description' => 'Array of conversation messages with role and content',
@@ -100,6 +102,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
                     'max_tokens' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min' => 1,
                         'max' => 4000,
                         'description' => 'Maximum number of tokens to generate in the response',
@@ -109,6 +112,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
                     'temperature' => [
                         'type' => 'float',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min' => 0,
                         'max' => 1,
                         'description' => 'Controls randomness in the response generation',
@@ -137,6 +141,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => false,
                         'default' => 'deepseek-chat',
                         'options' => [
                             'source' => 'collection',
@@ -159,6 +164,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
                     'prompt' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 1,
                         'max_length' => 1000,
                         'description' => 'Natural language description of the code to generate',
@@ -168,6 +174,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
                     'max_tokens' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min' => 1,
                         'max' => 5000,
                         'description' => 'Maximum number of tokens to generate in the response',
@@ -177,6 +184,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
                     'temperature' => [
                         'type' => 'float',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min' => 0,
                         'max' => 1,
                         'description' => 'Controls randomness in the response generation',
@@ -186,6 +194,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
                     'attachments' => [
                         'type' => 'array',
                         'required' => false,
+                        'userinput_rqd' => false,
                         'description' => 'Array of file attachments for context',
                         'example' => [],
                         'validation' => 'nullable|array',
@@ -212,6 +221,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
                     'document_text' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 10,
                         'max_length' => 100000,
                         'description' => 'The document text content to analyze',
@@ -221,6 +231,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
                     'question' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 1,
                         'max_length' => 100000,
                         'description' => 'The question to be answered based on the document',
@@ -249,6 +260,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
                     'problem_statement' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 1,
                         'max_length' => 100000,
                         'description' => 'The mathematical problem to be solved',
@@ -266,6 +278,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => false,
                         'default' => 'deepseek-chat',
                         'options' => [
                             'source' => 'collection',
@@ -288,6 +301,7 @@ class DeepSeekServiceProviderSeeder extends Seeder
                     'max_tokens' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min' => 1,
                         'max' => 5000,
                         'description' => 'Maximum number of tokens to generate in the response',
