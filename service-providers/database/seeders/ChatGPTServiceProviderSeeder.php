@@ -55,6 +55,7 @@ class ChatGPTServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 'gpt-4-turbo',
                         'options' => [
                             'source' => 'collection',
@@ -77,6 +78,7 @@ class ChatGPTServiceProviderSeeder extends Seeder
                     'messages' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 'Hello, how can I assist you today?',
                         'description' => 'Prompt messages for the chat completion',
                     ],
@@ -132,6 +134,7 @@ class ChatGPTServiceProviderSeeder extends Seeder
                     'prompt' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 1,
                         'max_length' => 4000,
                         'default' => 'A futuristic cityscape at sunset with towering glass skyscrapers reflecting golden light, flying cars navigating between buildings, and holographic advertisements illuminating the streets below.',
@@ -140,6 +143,7 @@ class ChatGPTServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 'gpt-turbo',
                         'options' => [
                             'source' => 'collection',
@@ -162,6 +166,7 @@ class ChatGPTServiceProviderSeeder extends Seeder
                     'size' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => '1024x1024',
                         'description' => 'Size of the generated image',
                     ],
@@ -195,6 +200,7 @@ class ChatGPTServiceProviderSeeder extends Seeder
                     'input' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 1,
                         'max_length' => 8191,
                         'description' => 'Text to generate embeddings for',
@@ -202,6 +208,7 @@ class ChatGPTServiceProviderSeeder extends Seeder
                     'model' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 'gpt-turbo',
                         'options' => [
                             'source' => 'collection',

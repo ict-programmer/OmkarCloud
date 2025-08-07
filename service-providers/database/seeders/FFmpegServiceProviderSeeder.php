@@ -44,6 +44,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                     'file_link' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
                         'format' => 'url',
                         'description' => 'URL of the video file to process',
@@ -51,18 +52,21 @@ class FFmpegServiceProviderSeeder extends Seeder
                     'resolution' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => '1920x1080',
                         'description' => 'Output video resolution (e.g., 1920x1080, 1280x720)',
                     ],
                     'bitrate' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => '2000k',
                         'description' => 'Video bitrate (e.g., 2000k, 5000k)',
                     ],
                     'frame_rate' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 30,
                         'min' => 1,
                         'max' => 120,
@@ -89,6 +93,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                     'file_link' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
                         'format' => 'url',
                         'description' => 'URL of the audio file to process',
@@ -96,12 +101,14 @@ class FFmpegServiceProviderSeeder extends Seeder
                     'bitrate' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => '192k',
                         'description' => 'Audio bitrate (e.g., 128k, 192k, 320k)',
                     ],
                     'channels' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 2,
                         'min' => 1,
                         'max' => 8,
@@ -110,6 +117,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                     'sample_rate' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 44100,
                         'description' => 'Audio sample rate in Hz (e.g., 44100, 48000)',
                     ],
@@ -134,6 +142,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                     'file_link' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 'https://picsum.photos/2560/1440',
                         'format' => 'url',
                         'description' => 'URL of the image file to process',
@@ -141,6 +150,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                     'width' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 1920,
                         'min' => 1,
                         'max' => 8000,
@@ -149,6 +159,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                     'height' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 1080,
                         'min' => 1,
                         'max' => 8000,
@@ -176,6 +187,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                     'file_link' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4',
                         'format' => 'url',
                         'description' => 'URL of the video file to trim',
@@ -183,12 +195,14 @@ class FFmpegServiceProviderSeeder extends Seeder
                     'start_time' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => '00:00:30',
                         'description' => 'Start time for trimming (format: HH:MM:SS)',
                     ],
                     'end_time' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => '00:01:30',
                         'description' => 'End time for trimming (format: HH:MM:SS)',
                     ],

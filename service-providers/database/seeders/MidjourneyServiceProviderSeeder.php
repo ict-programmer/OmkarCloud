@@ -43,6 +43,7 @@ class MidjourneyServiceProviderSeeder extends Seeder
                     'prompt' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 1,
                         'max_length' => 4000,
                         'description' => 'A detailed text prompt for image generation',
@@ -101,12 +102,14 @@ class MidjourneyServiceProviderSeeder extends Seeder
                     'origin_task_id' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'UUID of the parent task to create variations from',
                         'default' => '550e8400-e29b-41d4-a716-446655440000',
                     ],
                     'index' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'default' => '1',
                         'options' => [
                             '1',
@@ -121,6 +124,7 @@ class MidjourneyServiceProviderSeeder extends Seeder
                     'prompt' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'min_length' => 1,
                         'max_length' => 4000,
                         'description' => 'Prompt for the variation operation',

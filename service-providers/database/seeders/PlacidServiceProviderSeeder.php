@@ -49,12 +49,14 @@ class PlacidServiceProviderSeeder extends Seeder
                     'template_uuid' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'UUID of the template to use for image generation',
                         'default' => 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
                     ],
                     'layers' => [
                         'type' => 'array',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'Array of layer configurations for the image',
                         'default' => [
                             [
@@ -81,12 +83,14 @@ class PlacidServiceProviderSeeder extends Seeder
                     'template_uuid' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'UUID of the template to use for PDF generation',
                         'default' => 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
                     ],
                     'layers' => [
                         'type' => 'array',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'Array of layer configurations for the PDF pages',
                         'default' => [
                             [
@@ -113,6 +117,7 @@ class PlacidServiceProviderSeeder extends Seeder
                     'template_uuid' => [
                         'type' => 'string',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'UUID of the template to retrieve',
                         'default' => 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
                     ],
@@ -148,6 +153,7 @@ class PlacidServiceProviderSeeder extends Seeder
                     'pdf_id' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'ID of the PDF to retrieve',
                         'default' => 12345,
                     ],
@@ -174,6 +180,7 @@ class PlacidServiceProviderSeeder extends Seeder
                     'clips' => [
                         'type' => 'array',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'Array of video clips configuration',
                         'default' => [
                             [
@@ -210,6 +217,7 @@ class PlacidServiceProviderSeeder extends Seeder
                     'video_id' => [
                         'type' => 'integer',
                         'required' => true,
+                        'userinput_rqd' => true,
                         'description' => 'ID of the video to retrieve',
                         'default' => 67890,
                     ],
