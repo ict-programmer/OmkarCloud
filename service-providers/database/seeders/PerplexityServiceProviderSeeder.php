@@ -68,6 +68,7 @@ class PerplexityServiceProviderSeeder extends Seeder
                             ],
                         ],
                         'description' => 'Model name',
+                        'userinput_rqd' => false
                     ],
                     'query' => [
                         'type' => 'string',
@@ -76,6 +77,7 @@ class PerplexityServiceProviderSeeder extends Seeder
                         'max_length' => 1000,
                         'description' => 'Search query text',
                         'default' => 'What is AI?',
+                        'userinput_rqd' => true
                     ],
                     'search_type' => [
                         'type' => 'string',
@@ -86,6 +88,7 @@ class PerplexityServiceProviderSeeder extends Seeder
                             'news',
                         ],
                         'description' => 'Type of search',
+                        'userinput_rqd' => false
                     ],
                     'max_results' => [
                         'type' => 'integer',
@@ -94,6 +97,7 @@ class PerplexityServiceProviderSeeder extends Seeder
                         'min' => 0,
                         'max' => 100,
                         'description' => 'Maximum number of results',
+                        'userinput_rqd' => true
                     ],
                     'temperature' => [
                         'type' => 'float',
@@ -102,6 +106,7 @@ class PerplexityServiceProviderSeeder extends Seeder
                         'min' => 0,
                         'max' => 1.9,
                         'description' => 'Temperature for search randomness (0 to <2)',
+                        'userinput_rqd' => true
                     ],
                 ],
                 'response' => [
@@ -179,6 +184,7 @@ In essence, AI is about making machines smarter by enabling them to learn from d
                             ],
                         ],
                         'description' => 'Model name',
+                        'userinput_rqd' => false
                     ],
                     'query' => [
                         'type' => 'string',
@@ -187,6 +193,7 @@ In essence, AI is about making machines smarter by enabling them to learn from d
                         'max_length' => 1000,
                         'description' => 'Research query text',
                         'default' => 'Impact of artificial intelligence on healthcare',
+                        'userinput_rqd' => true
                     ],
                     'search_type' => [
                         'type' => 'string',
@@ -196,6 +203,7 @@ In essence, AI is about making machines smarter by enabling them to learn from d
                             'academic',
                         ],
                         'description' => 'Type of research',
+                        'userinput_rqd' => false
                     ],
                     'max_results' => [
                         'type' => 'integer',
@@ -204,6 +212,7 @@ In essence, AI is about making machines smarter by enabling them to learn from d
                         'min' => 0,
                         'max' => 100,
                         'description' => 'Maximum number of results',
+                        'userinput_rqd' => true
                     ],
                 ],
                 'response' => [
@@ -307,6 +316,7 @@ AI is revolutionizing healthcare through enhanced diagnostics, accelerated resea
                             ],
                         ],
                         'description' => 'Model name',
+                        'userinput_rqd' => false
                     ],
                     'query' => [
                         'type' => 'string',
@@ -315,12 +325,14 @@ AI is revolutionizing healthcare through enhanced diagnostics, accelerated resea
                         'max_length' => 1000,
                         'description' => 'Coding question or prompt',
                         'default' => 'How to reverse a string in Python?',
+                        'userinput_rqd' => true
                     ],
                     'programming_language' => [
                         'type' => 'string',
                         'required' => false,
                         'description' => 'Programming language (e.g., python, javascript)',
                         'default' => 'python',
+                        'userinput_rqd' => true
                     ],
                     'code_length' => [
                         'type' => 'string',
@@ -332,6 +344,7 @@ AI is revolutionizing healthcare through enhanced diagnostics, accelerated resea
                             'long',
                         ],
                         'description' => 'Desired length of generated code',
+                        'userinput_rqd' => false
                     ],
                 ],
                 'response' => [

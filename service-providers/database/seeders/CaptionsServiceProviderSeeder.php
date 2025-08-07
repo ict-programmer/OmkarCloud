@@ -74,9 +74,9 @@ class CaptionsServiceProviderSeeder extends Seeder
             [
                 'name' => 'AI Creator',
                 'input_parameters' => [
-                    'script' => ['type' => 'string', 'required' => true, 'maxLength' => 800, 'description' => 'Script for the AI Creator (max 800 characters)', 'default' => 'Hello, welcome to our brand new tutorial!'],
-                    'creatorName' => ['type' => 'string', 'required' => false, 'description' => 'Name of the AI Creator. Default is "Kate".', 'default' => 'Kate'],
-                    'resolution' => ['type' => 'string', 'required' => false, 'options' => ['fhd', '4k'], 'description' => 'Desired output resolution (default is 4k).', 'default' => 'fhd'],
+                    'script' => ['type' => 'string', 'userinput_rqd' => true, 'required' => true, 'maxLength' => 800, 'description' => 'Script for the AI Creator (max 800 characters)', 'default' => 'Hello, welcome to our brand new tutorial!'],
+                    'creatorName' => ['type' => 'string', 'userinput_rqd' => true, 'required' => false, 'description' => 'Name of the AI Creator. Default is "Kate".', 'default' => 'Kate'],
+                    'resolution' => ['type' => 'string', 'userinput_rqd' => true, 'required' => false, 'options' => ['fhd', '4k'], 'description' => 'Desired output resolution (default is 4k).', 'default' => 'fhd'],
                 ],
                 'response' => ['operationId' => 'tg7FaiVgmGqTQfuDhyGA'],
                 'response_path' => ['final_result' => '$.operationId'],
@@ -86,7 +86,7 @@ class CaptionsServiceProviderSeeder extends Seeder
             [
                 'name' => 'AI Creator Status',
                 'input_parameters' => [
-                    'operationId' => ['type' => 'string', 'required' => true, 'description' => 'The unique operation ID of the submitted video generation task.', 'default' => 'tg7FaiVgmGqTQfuDhyGA'],
+                    'operationId' => ['type' => 'string', 'userinput_rqd' => true, 'required' => true, 'description' => 'The unique operation ID of the submitted video generation task.', 'default' => 'tg7FaiVgmGqTQfuDhyGA'],
                 ],
                 'response' => [
                     'url' => 'https://storage.googleapis.com/captions-avatar-orc/orc/studio/video_clip__crop_video/aiA8TwJfHR6TbiTlQZgC/69f3642a-fdb4-47e1-9552-5e22911482de/cropped_result.mp4',
@@ -107,9 +107,9 @@ class CaptionsServiceProviderSeeder extends Seeder
             [
                 'name' => 'AI Translate',
                 'input_parameters' => [
-                    'videoCid' => ['type' => 'string', 'required' => true, 'format' => 'url', 'description' => 'CID of the video to translate.', 'default' => 'QmXc3tZ8bKpwnetxSeXadVkYKtPdVQqByHxaMD1Cs2Cika'],
-                    'sourceLanguage' => ['type' => 'string', 'required' => true, 'description' => 'Language spoken in the original video.', 'default' => 'English'],
-                    'targetLanguage' => ['type' => 'string', 'required' => true, 'description' => 'Desired translation language.', 'default' => 'Japanese'],
+                    'videoCid' => ['type' => 'string', 'userinput_rqd' => true, 'required' => true, 'format' => 'url', 'description' => 'CID of the video to translate.', 'default' => 'QmXc3tZ8bKpwnetxSeXadVkYKtPdVQqByHxaMD1Cs2Cika'],
+                    'sourceLanguage' => ['type' => 'string',  'userinput_rqd' => true, 'required' => true, 'description' => 'Language spoken in the original video.', 'default' => 'English'],
+                    'targetLanguage' => ['type' => 'string', 'userinput_rqd' => true, 'required' => true, 'description' => 'Desired translation language.', 'default' => 'Japanese'],
                 ],
                 'response' => ['operationId' => 'GHOk0bF4wCZ2V5ntWLpG'],
                 'response_path' => ['final_result' => '$.operationId'],
@@ -119,7 +119,7 @@ class CaptionsServiceProviderSeeder extends Seeder
             [
                 'name' => 'AI Translate Status',
                 'input_parameters' => [
-                    'operationId' => ['type' => 'string', 'required' => true, 'description' => 'The operation ID returned when the translation was submitted.', 'default' => 'GHOk0bF4wCZ2V5ntWLpG'],
+                    'operationId' => ['type' => 'string', 'userinput_rqd' => true, 'required' => true, 'description' => 'The operation ID returned when the translation was submitted.', 'default' => 'GHOk0bF4wCZ2V5ntWLpG'],
                 ],
                 'response' => [
                     'url' => 'https://storage.googleapis.com/captions-autolipdub/SKBSas0SgowfnH8EGH2y/ac3b781d-036b-4d40-a851-701aa7473589_stitched_video.mp4',
@@ -147,10 +147,10 @@ class CaptionsServiceProviderSeeder extends Seeder
             [
                 'name' => 'AI Ads',
                 'input_parameters' => [
-                    'script' => ['type' => 'string', 'required' => true, 'maxLength' => 800, 'description' => 'Script for the AI Ad (max 800 characters)', 'default' => 'Introducing our latest product!'],
-                    'creatorName' => ['type' => 'string', 'required' => true, 'description' => 'Name of the AI Creator.', 'default' => 'Jason'],
-                    'mediaCids' => ['type' => 'array', 'required' => true, 'description' => 'URLs to media cids (JPEG, PNG, MOV, MP4). Minimum 1, maximum 10.', 'minItems' => 1, 'maxItems' => 10, 'items' => ['type' => 'string', 'format' => 'string'], 'default' => ['QmVeajukWWf2Yy6oQD61YGJywqfZrm5kbRR31iKQQQahwJ', 'QmYdLz3cJr49qPh2vyZn55W6NwsAmLQpzrUZyHFjE3dmaY', 'QmaHawrk9Lp1PzF3mh9HdpyaSiTUepmAgaj5Ai7DDTyuAK']],
-                    'resolution' => ['type' => 'string', 'required' => false, 'options' => ['fhd', '4k'], 'description' => 'Desired output resolution (default is 4k).', 'default' => 'fhd'],
+                    'script' => ['type' => 'string', 'required' => true, 'userinput_rqd' => true, 'maxLength' => 800, 'description' => 'Script for the AI Ad (max 800 characters)', 'default' => 'Introducing our latest product!'],
+                    'creatorName' => ['type' => 'string', 'required' => true, 'userinput_rqd' => true, 'description' => 'Name of the AI Creator.', 'default' => 'Jason'],
+                    'mediaCids' => ['type' => 'array', 'required' => true, 'userinput_rqd' => true, 'description' => 'URLs to media cids (JPEG, PNG, MOV, MP4). Minimum 1, maximum 10.', 'minItems' => 1, 'maxItems' => 10, 'items' => ['type' => 'string', 'format' => 'string'], 'default' => ['QmVeajukWWf2Yy6oQD61YGJywqfZrm5kbRR31iKQQQahwJ', 'QmYdLz3cJr49qPh2vyZn55W6NwsAmLQpzrUZyHFjE3dmaY', 'QmaHawrk9Lp1PzF3mh9HdpyaSiTUepmAgaj5Ai7DDTyuAK']],
+                    'resolution' => ['type' => 'string', 'required' => false, 'userinput_rqd' => true, 'options' => ['fhd', '4k'], 'description' => 'Desired output resolution (default is 4k).', 'default' => 'fhd'],
                 ],
                 'response' => ['operationId' => 'R61piXz8jjxcBuQgK7UM'],
                 'response_path' => ['final_result' => '$.operationId'],
@@ -160,7 +160,7 @@ class CaptionsServiceProviderSeeder extends Seeder
             [
                 'name' => 'AI Ads Status',
                 'input_parameters' => [
-                    'operationId' => ['type' => 'string', 'required' => true, 'description' => 'The unique operation ID of the submitted ad generation task.', 'default' => 'R61piXz8jjxcBuQgK7UM'],
+                    'operationId' => ['type' => 'string', 'required' => true, 'userinput_rqd' => true, 'description' => 'The unique operation ID of the submitted ad generation task.', 'default' => 'R61piXz8jjxcBuQgK7UM'],
                 ],
                 'response' => [
                     'url' => 'https://storage.googleapis.com/captions-avatar-orc/orc/studio/writer__ugc_variant_result/LHElp6sX7OlrIh6DyoNA/52f97ad4-6b0c-4a9e-b35d-4e664e3a6a57/hd_result.mp4',
@@ -189,10 +189,10 @@ class CaptionsServiceProviderSeeder extends Seeder
             [
                 'name' => 'AI Twin',
                 'input_parameters' => [
-                    'name' => ['type' => 'string', 'required' => true, 'description' => 'Name of the AI Twin.', 'default' => 'John AI'],
-                    'videoCid' => ['type' => 'string', 'required' => true, 'description' => 'Link to the calibration video.', 'default' => 'QmVUmnhpHTqbwBgTnCSTuB6VfHZWyqYxAqgZQPwvFyDueh'],
-                    'calibrationImageCids' => ['type' => 'array', 'required' => true, 'description' => 'List of calibration image URLs.', 'items' => ['type' => 'string'], 'default' => ['QmavjZjVCCXnKsU5mXfEssKmMEwrcQLAdud6LW2RgW5DgV', 'QmamhvTk5YZPEbSVSGQTnkk4Ep1c33V4ByoxXAD4Zr1rst', 'QmaZnwGpkKSMPR9i4jy5baHfs9LU2YKFu7HaBvViNxfXho', 'QmcEkcsoQDT5Nh24WoMWUmJnr6PhBni2gEeApboVNHDo1R', 'Qmcc5J7vXXCTDjtuWCcT4RFLWT67jEGh8NP4P8jhw8dSAD']],
-                    'language' => ['type' => 'string', 'required' => false, 'description' => 'Language spoken in the video. Default is English.', 'default' => 'English'],
+                    'name' => ['type' => 'string', 'required' => true, 'userinput_rqd' => true, 'description' => 'Name of the AI Twin.', 'default' => 'John AI'],
+                    'videoCid' => ['type' => 'string', 'required' => true, 'userinput_rqd' => true, 'description' => 'Link to the calibration video.', 'default' => 'QmVUmnhpHTqbwBgTnCSTuB6VfHZWyqYxAqgZQPwvFyDueh'],
+                    'calibrationImageCids' => ['type' => 'array', 'required' => true, 'userinput_rqd' => true, 'description' => 'List of calibration image URLs.', 'items' => ['type' => 'string'], 'default' => ['QmavjZjVCCXnKsU5mXfEssKmMEwrcQLAdud6LW2RgW5DgV', 'QmamhvTk5YZPEbSVSGQTnkk4Ep1c33V4ByoxXAD4Zr1rst', 'QmaZnwGpkKSMPR9i4jy5baHfs9LU2YKFu7HaBvViNxfXho', 'QmcEkcsoQDT5Nh24WoMWUmJnr6PhBni2gEeApboVNHDo1R', 'Qmcc5J7vXXCTDjtuWCcT4RFLWT67jEGh8NP4P8jhw8dSAD']],
+                    'language' => ['type' => 'string', 'required' => false, 'userinput_rqd' => true, 'description' => 'Language spoken in the video. Default is English.', 'default' => 'English'],
                 ],
                 'response' => ['operationId' => 'bEV7DFjDk4o2Cfl8chGp'],
                 'response_path' => ['final_result' => '$.operationId'],
@@ -202,7 +202,7 @@ class CaptionsServiceProviderSeeder extends Seeder
             [
                 'name' => 'AI Twin Status',
                 'input_parameters' => [
-                    'operationId' => ['type' => 'string', 'required' => true, 'description' => 'The unique operation ID of the AI Twin creation request.', 'default' => 'bEV7DFjDk4o2Cfl8chGp'],
+                    'operationId' => ['type' => 'string', 'required' => true,  'userinput_rqd' => true, 'description' => 'The unique operation ID of the AI Twin creation request.', 'default' => 'bEV7DFjDk4o2Cfl8chGp'],
                 ],
                 'response' => ['state' => 'COMPLETE', 'progress' => 87],
                 'response_path' => ['final_result' => '$'],
@@ -212,7 +212,7 @@ class CaptionsServiceProviderSeeder extends Seeder
             [
                 'name' => 'Fetch AI Twin calibration script',
                 'input_parameters' => [
-                    'language' => ['type' => 'string', 'required' => false, 'description' => 'Language of the script. Default is English.', 'default' => 'English'],
+                    'language' => ['type' => 'string', 'required' => false, 'userinput_rqd' => true, 'description' => 'Language of the script. Default is English.', 'default' => 'English'],
                 ],
                 'response' => ['script' => 'Hello everyone! Today, we embark on a journey of self-discovery...'],
                 'response_path' => ['final_result' => '$.script'],
@@ -222,7 +222,7 @@ class CaptionsServiceProviderSeeder extends Seeder
             [
                 'name' => 'Delete an AI Twin',
                 'input_parameters' => [
-                    'name' => ['type' => 'string', 'required' => true, 'description' => 'Name of the AI Twin to delete.', 'default' => 'JohnTwin'],
+                    'name' => ['type' => 'string', 'required' => true, 'userinput_rqd' => true, 'description' => 'Name of the AI Twin to delete.', 'default' => 'JohnTwin'],
                 ],
                 'response' => ['success' => true],
                 'response_path' => ['final_result' => '$.success'],
