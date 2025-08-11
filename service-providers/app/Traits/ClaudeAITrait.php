@@ -234,7 +234,7 @@ trait ClaudeAITrait
         $base64Content = base64_encode($fileContent);
 
         return [
-            'type' => 'base64',
+            'type' => 'document',
             'media_type' => 'application/pdf',
             'data' => $base64Content,
             'file_name' => $fileName, // Add file_name for context
@@ -272,7 +272,7 @@ trait ClaudeAITrait
         $base64Content = base64_encode($fileContent);
 
         return [
-            'type' => 'base64',
+            'type' => 'image',
             'media_type' => $mimeType,
             'data' => $base64Content,
             'file_name' => $fileName, // Add file_name for context
