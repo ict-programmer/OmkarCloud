@@ -235,10 +235,11 @@ trait ClaudeAITrait
 
         return [
             'type' => 'document',
-            'media_type' => 'application/pdf',
-            'data' => $base64Content,
-            'file_name' => $fileName, // Add file_name for context
-            'url' => $url // Add original URL for context
+            'source' => [
+                'type' => 'base64',
+                'media_type' => 'application/pdf',
+                'data' => $base64Content
+            ]
         ];
     }
 
@@ -273,10 +274,11 @@ trait ClaudeAITrait
 
         return [
             'type' => 'image',
-            'media_type' => $mimeType,
-            'data' => $base64Content,
-            'file_name' => $fileName, // Add file_name for context
-            'url' => $url // Add original URL for context
+            'source' => [
+                'type' => 'base64',
+                'media_type' => $mimeType,
+                'data' => $base64Content
+            ]
         ];
     }
 
