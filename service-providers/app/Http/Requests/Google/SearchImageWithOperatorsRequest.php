@@ -2,13 +2,13 @@
 
 namespace App\Http\Requests\Google;
 
-
 use App\Enums\Google\C2CoffEnum;
 use App\Enums\Google\FilterEnum;
 use App\Enums\Google\ImageSizeEnum;
 use App\Enums\Google\ImgColorTypeEnum;
 use App\Enums\Google\ImgDominantColorEnum;
 use App\Enums\Google\ImgTypeEnum;
+use App\Enums\Google\LanguageEnum;
 use App\Enums\Google\SafeEnum;
 use App\Enums\Google\SiteSearchFilterEnum;
 use Illuminate\Foundation\Http\FormRequest;
@@ -36,13 +36,12 @@ class SearchImageWithOperatorsRequest extends FormRequest
 
             'c2coff' => ['nullable', Rule::in(C2CoffEnum::getValuesInArray())],
             'cr' => ['nullable', 'string', 'max:50'],
-            'dateRestrict' => ['nullable', 'string', 'max:10'],
+            'dateRestrict' => ['nullable', 'string', 'max:10', 'regex:/^(d|w|m|y)\d+$/i'],
             'exactTerms' => ['nullable', 'string', 'max:255'],
             'excludeTerms' => ['nullable', 'string', 'max:255'],
             'fileType' => ['nullable', 'string', 'max:20'],
             'filter' => ['nullable', Rule::in(FilterEnum::getValuesInArray())],
             'gl' => ['nullable', 'string', 'size:2'],
-            'googlehost' => ['nullable', 'string', 'max:50'],
             'highRange' => ['nullable', 'string', 'max:50'],
             'hl' => ['nullable', 'string', 'max:5'],
             'hq' => ['nullable', 'string', 'max:255'],
@@ -54,7 +53,7 @@ class SearchImageWithOperatorsRequest extends FormRequest
 
             'linkSite' => ['nullable', 'string', 'max:255'],
             'lowRange' => ['nullable', 'string', 'max:50'],
-            'lr' => ['nullable', 'string', 'max:20'],
+            'lr' => ['nullable', 'string', Rule::in(LanguageEnum::getOriginalValuesInArray())],
             'num' => ['nullable', 'integer', 'min:1', 'max:10'],
             'orTerms' => ['nullable', 'string', 'max:255'],
 
@@ -94,6 +93,10 @@ class SearchImageWithOperatorsRequest extends FormRequest
             ]),
             'siteSearchFilter.in' => __('The selected siteSearchFilter is invalid. Valid values: :values', [
                 'values' => SiteSearchFilterEnum::getValuesInString(),
+            ]),
+            'dateRestrict.regex' => 'The dateRestrict field must be in the format d[number], w[number], m[number], or y[number]. Example: d7 for the past 7 days.',
+            'lr.in' => __('The selected lr is invalid. Valid values: :values', [
+                'values' => LanguageEnum::getOriginalValuesInString(),
             ]),
         ];
     }

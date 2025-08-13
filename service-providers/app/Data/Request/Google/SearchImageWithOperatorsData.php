@@ -17,7 +17,6 @@ class SearchImageWithOperatorsData extends Data
         public ?string $fileType,
         public ?string $filter,
         public ?string $gl,
-        public ?string $googlehost,
         public ?string $highRange,
         public ?string $hl,
         public ?string $hq,
@@ -30,7 +29,7 @@ class SearchImageWithOperatorsData extends Data
         public ?string $linkSite,
         public ?string $lowRange,
         public ?string $lr,
-        public ?int    $num,
+        public ?int $num,
         public ?string $orTerms,
 
         public ?string $rights,
@@ -39,6 +38,6 @@ class SearchImageWithOperatorsData extends Data
         public ?string $siteSearchFilter,
 
         public ?string $sort,
-        public ?int    $start,
+        public ?int $start,
     ) {}
 }
