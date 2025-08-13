@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests\Google;
 
-use App\Enums\Freepik\Image\ClassicFast\ImageSizeEnum;
+
 use App\Enums\Google\C2CoffEnum;
 use App\Enums\Google\FilterEnum;
+use App\Enums\Google\ImageSizeEnum;
 use App\Enums\Google\ImgColorTypeEnum;
 use App\Enums\Google\ImgDominantColorEnum;
 use App\Enums\Google\ImgTypeEnum;
