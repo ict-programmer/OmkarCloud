@@ -2,16 +2,6 @@
 
 namespace App\Services;
 
-use App\Data\Request\Captions\AiAdsPollData;
-use App\Data\Request\Captions\AiAdsSubmitData;
-use App\Data\Request\Captions\AiCreatorPollData;
-use App\Data\Request\Captions\AiCreatorSubmitData;
-use App\Data\Request\Captions\AiTranslatePollData;
-use App\Data\Request\Captions\AiTranslateSubmitData;
-use App\Data\Request\Captions\AiTwinCreateData;
-use App\Data\Request\Captions\AiTwinDeleteData;
-use App\Data\Request\Captions\AiTwinScriptData;
-use App\Data\Request\Captions\AiTwinStatusData;
 use App\Data\Request\Google\SearchImageWithOperatorsData;
 use App\Data\Request\Google\SearchWebWithOperatorsData;
 use App\Exceptions\ApiException;
@@ -31,8 +21,8 @@ class GoogleService
 
     public function __construct()
     {
-        $this->apiKey = config('services.google.api_key');
-        $this->googleCx = config('services.google.cx');
+        $this->apiKey = config('services.google.custom_search.api_key');
+        $this->googleCx = config('services.google.custom_search.search_engine_id');
         $this->client = Http::baseUrl($this->baseUrl)
             ->timeout(30 * 60);
     }
@@ -41,7 +31,7 @@ class GoogleService
     {
         try {
             return $this->client
-                ->get($endpoint, array_filter($payload, fn($value) => $value !== null) + ['key' => $this->apiKey, 'cx' => $this->googleCx])
+                ->get($endpoint, array_filter($payload, fn ($value) => $value !== null) + ['key' => $this->apiKey, 'cx' => $this->googleCx])
                 ->throw()
                 ->json();
         } catch (RequestException $e) {

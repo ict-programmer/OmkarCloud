@@ -163,7 +163,9 @@ return [
     ],
 
     'google' => [
-        'api_key' => env('GOOGLE_API_KEY'),
-        'cx' => env('GOOGLE_CX'),
-    ]
+        'custom_search' => [
+            'api_key' => env('GOOGLE_CUSTOM_SEARCH_API_KEY'),
+            'search_engine_id' => env('GOOGLE_CUSTOM_SEARCH_ENGINE_ID'),
+        ],
+    ],
 ];
