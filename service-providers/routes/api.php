@@ -10,6 +10,7 @@ use App\Http\Controllers\DescriptAIController;
 use App\Http\Controllers\FreepikController;
 use App\Http\Controllers\GeminiController;
 use App\Http\Controllers\GettyimagesController;
+use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\GoogleSheetsController;
 use App\Http\Controllers\MainFunctionController;
 use App\Http\Controllers\PerplexityController;
@@ -277,6 +278,13 @@ Route::post('freepik/webhook', [FreepikController::class, 'handleWebhook'])->nam
 //         Route::post('delete', 'deleteAiTwin');
 //     });
 // });
+
+// Google Custom Search
+Route::prefix('google')->controller(GoogleController::class)->group(function () {
+    Route::post('search_web_with_operators', 'searchWeb');
+    Route::post('search_image_with_operators', 'searchImage');
+});
+
 
 Route::get('services/{service_provider_id}/{service_type_id}', [MainFunctionController::class, 'getRequestBody']);
 Route::post('services/{service_provider_id}/{service_type_id}', MainFunctionController::class);

@@ -161,4 +161,9 @@ return [
     'captions' => [
         'api_key' => env('CAPTIONS_API_KEY'),
     ],
+
+    'google' => [
+        'api_key' => env('GOOGLE_API_KEY'),
+        'cx' => env('GOOGLE_CX'),
+    ]
 ];
