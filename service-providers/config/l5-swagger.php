@@ -47,6 +47,7 @@ return [
                     base_path('app/Http/Controllers/Controller.php'),
                     base_path('app/Http/Controllers/MainFunctionController.php'),
                     base_path('app/Http/Controllers/GoogleSheetsController.php'),
+                    base_path('app/Http/Controllers/GoogleController.php'),
                 ],
             ],
         ],
