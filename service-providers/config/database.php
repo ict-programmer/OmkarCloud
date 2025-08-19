@@ -92,6 +92,12 @@ return [
             'database' => env('DB_CLUSTER_CONTENT_NAME', 'dev_clusters_content'),
         ],
 
+        'mongodb_clusters_marketing' => [
+            'driver' => 'mongodb',
+            'dsn' => env('MONGODB_URI', 'mongodb://127.0.0.1:27017/?directConnection=true'),
+            'database' => env('DB_CLUSTER_MARKETING_NAME', 'dev_clusters_marketing'),
+        ],
+
         'mongodb_direct' => [
             'driver' => 'mongodb',
             'host' => env('MONGODB_HOST', '127.0.0.1'),
