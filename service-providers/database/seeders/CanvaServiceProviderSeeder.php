@@ -36,6 +36,7 @@ class CanvaServiceProviderSeeder extends Seeder
                     'base_url' => 'https://api.canva.com',
                     'version' => 'v1',
                     'features' => [
+                        'authorize',
                         'create_design',
                         'list_design',
                         'get_design_details',
@@ -63,6 +64,18 @@ class CanvaServiceProviderSeeder extends Seeder
         );
 
         $serviceTypes = [
+            [
+                'name' => 'authorize',
+                'input_parameters' => [],
+                'response' => [
+                    'url' => 'https://www.canva.com/api/oauth/authorize?response_type=code&code_challenge=code_challenge&state=state',
+                ],
+                'response_path' => [
+                    'final_result' => '$.url',
+                ],
+                'request_class_name' => null,
+                'function_name' => 'initiateOAuth'
+            ],
             [
                 'name' => 'create_design',
                 'input_parameters' => [
