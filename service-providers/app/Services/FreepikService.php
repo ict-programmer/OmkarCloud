@@ -53,13 +53,17 @@ class FreepikService
             }
 
             return $client
-                ->post($endpoint, array_filter($payload, fn ($value) => $value !== null))
+                ->post($endpoint, array_filter($payload, fn($value) => $value !== null))
                 ->throw()
                 ->json();
         } catch (RequestException $e) {
             $message = $e->response->json('message') ?? 'API request failed';
             $status = $e->response->status();
-            throw new ApiException($message, $status, Arr::except($e->response->json(), 'message'));
+            $responseData = $e->response->json();
+            if (is_array($responseData)) {
+                throw new ApiException($message, $status, Arr::except($responseData, 'message'));
+            }
+            throw new ApiException($message, $status, $responseData);
         }
     }
 
@@ -67,7 +71,7 @@ class FreepikService
     {
         try {
             return $this->client
-                ->get($endpoint, array_filter($payload, fn ($value) => $value !== null))
+                ->get($endpoint, array_filter($payload, fn($value) => $value !== null))
                 ->throw()
                 ->json();
         } catch (RequestException $e) {
@@ -200,7 +204,7 @@ class FreepikService
 
     public function generateFluxDevImage(FluxDevGenerateData $data): array
     {
-        return $this->post('ai/text-to-image/flux-dev', array_filter($data->toArray(), fn ($value) => $value !== null));
+        return $this->post('ai/text-to-image/flux-dev', array_filter($data->toArray(), fn($value) => $value !== null));
     }
 
     public function getFluxDevTaskStatus(string $taskId): array
