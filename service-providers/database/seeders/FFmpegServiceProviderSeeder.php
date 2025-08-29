@@ -7,6 +7,7 @@ use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\FFProbeRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
 use App\Http\Requests\FFMpeg\LoudnessNormalizationRequest;
+use App\Http\Requests\FFMpeg\TranscodingRequest;
 use App\Http\Requests\FFMpeg\VideoProcessingRequest;
 use App\Http\Requests\FFMpeg\VideoTrimmingRequest;
 use App\Models\ServiceProvider;
@@ -35,6 +36,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                         'video_trimming',
                         'loudness_normalization',
                         'ffprobe',
+                        'transcoding',
                     ],
                 ],
                 'is_active' => true,
@@ -380,6 +382,45 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => FFProbeRequest::class,
                 'function_name' => 'ffprobe',
+            ],
+            [
+                'name' => 'Media Transcoding',
+                'input_parameters' => [
+                    'file_link' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                        'format' => 'url',
+                        'description' => 'URL of the media file to transcode',
+                    ],
+                    'output_format' => [
+                        'type' => 'string',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => 'mp4',
+                        'enum' => ['mp4', 'avi', 'mov', 'mkv', 'webm', 'flv', 'wmv', 'm4v', '3gp', 'mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma'],
+                        'description' => 'Output container format (defaults to mp4 with H.264/AAC)',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Media transcoded successfully',
+                    'output_file_link' => 'https://output.example.com/transcoded_media_123456.mp4',
+                    'processing_time' => 120.5,
+                    'input_format' => 'mov,mp4,m4a,3gp,3g2,mj2',
+                    'output_format' => 'mp4',
+                    'input_duration' => '180.000000',
+                    'output_duration' => '180.000000',
+                    'video_codec' => 'libx264',
+                    'audio_codec' => 'aac',
+                    'file_size' => '125MB',
+                    'compression_ratio' => '35.2%',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => TranscodingRequest::class,
+                'function_name' => 'transcoding',
             ],
         ];
 

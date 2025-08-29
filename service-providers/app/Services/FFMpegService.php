@@ -6,6 +6,7 @@ use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\FFProbeData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
 use App\Data\Request\FFMpeg\LoudnessNormalizationData;
+use App\Data\Request\FFMpeg\TranscodingData;
 use App\Data\Request\FFMpeg\VideoProcessingData;
 use App\Data\Request\FFMpeg\VideoTrimmingData;
 use App\Traits\PubliishIOTrait;
@@ -363,5 +364,78 @@ class FFMpegService
         
         // For other formats, return raw output
         return ['raw_output' => $output];
+    }
+
+    /**
+     * Transcode media file with specified parameters.
+     *
+     * @param TranscodingData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function transcodeMedia(TranscodingData $data): string
+    {
+        $inputFilePath = $this->downloadFile($data->file_link);
+        
+        // Set default transcoding parameters
+        $videoCodec = 'libx264';
+        $audioCodec = 'aac';
+        $preset = 'medium';
+        
+        // Build ffmpeg command for transcoding
+        $command = [
+            '-i', $inputFilePath,
+        ];
+
+        // Determine output type based on format
+        $isAudioOnly = in_array($data->output_format, ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma']);
+        
+        if ($isAudioOnly) {
+            // Audio-only output - remove video stream
+            $command[] = '-vn';
+            $command[] = '-c:a';
+            
+            // Set appropriate audio codec based on format
+            switch ($data->output_format) {
+                case 'mp3':
+                    $command[] = 'libmp3lame';
+                    break;
+                case 'wav':
+                    $command[] = 'pcm_s16le';
+                    break;
+                case 'flac':
+                    $command[] = 'flac';
+                    break;
+                case 'ogg':
+                    $command[] = 'libvorbis';
+                    break;
+                case 'm4a':
+                case 'aac':
+                default:
+                    $command[] = 'aac';
+                    break;
+            }
+        } else {
+            // Video output with both video and audio
+            
+            // Video codec
+            $command[] = '-c:v';
+            $command[] = $videoCodec;
+            
+            // Video preset for encoding speed vs compression
+            $command[] = '-preset';
+            $command[] = $preset;
+            
+            // Audio codec
+            $command[] = '-c:a';
+            $command[] = $audioCodec;
+        }
+
+        return $this->runAndUpload(
+            $inputFilePath,
+            $command,
+            $data->output_format
+        );
     }
 }

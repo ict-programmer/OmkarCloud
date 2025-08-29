@@ -6,12 +6,14 @@ use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\FFProbeData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
 use App\Data\Request\FFMpeg\LoudnessNormalizationData;
+use App\Data\Request\FFMpeg\TranscodingData;
 use App\Data\Request\FFMpeg\VideoProcessingData;
 use App\Data\Request\FFMpeg\VideoTrimmingData;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\FFProbeRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
 use App\Http\Requests\FFMpeg\LoudnessNormalizationRequest;
+use App\Http\Requests\FFMpeg\TranscodingRequest;
 use App\Http\Requests\FFMpeg\VideoProcessingRequest;
 use App\Http\Requests\FFMpeg\VideoTrimmingRequest;
 use App\Services\FFMpegService;
@@ -90,6 +92,18 @@ class FFMpegServiceController extends BaseController
         return $this->logAndResponse([
             'message' => 'Media probed successfully',
             'probe_data' => $result,
+        ]);
+    }
+
+    public function transcoding(TranscodingRequest $request): JsonResponse
+    {
+        $data = TranscodingData::from($request->validated());
+
+        $path = $this->service->transcodeMedia($data);
+
+        return $this->logAndResponse([
+            'message' => 'Media transcoded successfully',
+            'output_file_link' => $path,
         ]);
     }
 }
