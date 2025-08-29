@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
+use App\Data\Request\FFMpeg\LoudnessNormalizationData;
 use App\Data\Request\FFMpeg\VideoProcessingData;
 use App\Data\Request\FFMpeg\VideoTrimmingData;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
+use App\Http\Requests\FFMpeg\LoudnessNormalizationRequest;
 use App\Http\Requests\FFMpeg\VideoProcessingRequest;
 use App\Http\Requests\FFMpeg\VideoTrimmingRequest;
 use App\Services\FFMpegService;
@@ -61,6 +63,18 @@ class FFMpegServiceController extends BaseController
 
         return $this->logAndResponse([
             'message' => 'Video trimmed successfully',
+            'output_file_link' => $path,
+        ]);
+    }
+
+    public function loudnessNormalization(LoudnessNormalizationRequest $request): JsonResponse
+    {
+        $data = LoudnessNormalizationData::from($request->validated());
+
+        $path = $this->service->normalizeLoudness($data);
+
+        return $this->logAndResponse([
+            'message' => 'Loudness normalized successfully',
             'output_file_link' => $path,
         ]);
     }

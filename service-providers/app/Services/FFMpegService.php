@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
+use App\Data\Request\FFMpeg\LoudnessNormalizationData;
 use App\Data\Request\FFMpeg\VideoProcessingData;
 use App\Data\Request\FFMpeg\VideoTrimmingData;
 use App\Traits\PubliishIOTrait;
@@ -269,6 +270,29 @@ class FFMpegService
                 '-to', $data->end_time,
                 '-i', $inputFilePath,
                 '-c', 'copy',
+            ],
+            'mp4'
+        );
+    }
+
+    /**
+     * Normalize loudness of audio/video based on the provided data.
+     *
+     * @param LoudnessNormalizationData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function normalizeLoudness(LoudnessNormalizationData $data): string
+    {
+        $inputFilePath = $this->downloadFile($data->file_link, 'mp4');
+        
+        return $this->runAndUpload(
+            $inputFilePath,
+            [
+                '-i', $inputFilePath,
+                '-af', 'loudnorm=I=' . $data->target_lufs . ':LRA=' . $data->lra . ':TP=' . $data->tp,
+                '-c:v', 'copy',
             ],
             'mp4'
         );

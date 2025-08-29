@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Http\Controllers\FFMpegServiceController;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
+use App\Http\Requests\FFMpeg\LoudnessNormalizationRequest;
 use App\Http\Requests\FFMpeg\VideoProcessingRequest;
 use App\Http\Requests\FFMpeg\VideoTrimmingRequest;
 use App\Models\ServiceProvider;
@@ -30,6 +31,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                         'audio_processing',
                         'image_processing',
                         'video_trimming',
+                        'loudness_normalization',
                     ],
                 ],
                 'is_active' => true,
@@ -222,6 +224,61 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => VideoTrimmingRequest::class,
                 'function_name' => 'videoTrimming',
+            ],
+            [
+                'name' => 'Loudness Normalization',
+                'input_parameters' => [
+                    'file_link' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                        'format' => 'url',
+                        'description' => 'URL of the audio/video file to normalize loudness',
+                    ],
+                    'target_lufs' => [
+                        'type' => 'number',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => -23.0,
+                        'min' => -50,
+                        'max' => 0,
+                        'description' => 'Target integrated loudness in LUFS (default: -23.0 for broadcast)',
+                    ],
+                    'lra' => [
+                        'type' => 'number',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => 7.0,
+                        'min' => 1,
+                        'max' => 20,
+                        'description' => 'Loudness range in LU (default: 7.0)',
+                    ],
+                    'tp' => [
+                        'type' => 'number',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => -2.0,
+                        'min' => -6,
+                        'max' => 0,
+                        'description' => 'True peak in dBTP (default: -2.0)',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Loudness normalized successfully',
+                    'output_file_link' => 'https://output.example.com/normalized_audio_123456.mp4',
+                    'processing_time' => 25.3,
+                    'input_lufs' => -18.5,
+                    'output_lufs' => -23.0,
+                    'loudness_range' => 7.0,
+                    'true_peak' => -2.0,
+                    'file_size' => '85MB',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => LoudnessNormalizationRequest::class,
+                'function_name' => 'loudnessNormalization',
             ],
         ];
 
