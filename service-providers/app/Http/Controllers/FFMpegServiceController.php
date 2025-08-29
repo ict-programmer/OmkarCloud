@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\FFProbeData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
@@ -9,6 +10,7 @@ use App\Data\Request\FFMpeg\LoudnessNormalizationData;
 use App\Data\Request\FFMpeg\TranscodingData;
 use App\Data\Request\FFMpeg\VideoProcessingData;
 use App\Data\Request\FFMpeg\VideoTrimmingData;
+use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\FFProbeRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
@@ -103,6 +105,18 @@ class FFMpegServiceController extends BaseController
 
         return $this->logAndResponse([
             'message' => 'Media transcoded successfully',
+            'output_file_link' => $path,
+        ]);
+    }
+
+    public function audioOverlay(AudioOverlayRequest $request): JsonResponse
+    {
+        $data = AudioOverlayData::from($request->validated());
+
+        $path = $this->service->overlayAudio($data);
+
+        return $this->logAndResponse([
+            'message' => 'Audio overlay completed successfully',
             'output_file_link' => $path,
         ]);
     }

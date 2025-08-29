@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\FFProbeData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
@@ -437,5 +438,54 @@ class FFMpegService
             $command,
             $data->output_format
         );
+    }
+
+    /**
+     * Overlay audio files using FFmpeg amix filter.
+     *
+     * @param AudioOverlayData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function overlayAudio(AudioOverlayData $data): string
+    {
+        // Download both audio files
+        $mainAudioPath = $this->downloadFile($data->background_track);
+        $overlayAudioPath = $this->downloadFile($data->overlay_track);
+        
+        // Set audio codec based on output format
+        $audioCodec = match ($data->output_format) {
+            'wav' => 'pcm_s16le',
+            'flac' => 'flac',
+            'aac', 'm4a' => 'aac',
+            'ogg' => 'libvorbis',
+            'wma' => 'wmav2',
+            default => 'libmp3lame',
+        };
+        
+        // Build FFmpeg command for audio overlay using amix filter
+        $command = [
+            '-analyzeduration', '10M',
+            '-probesize', '10M',
+            '-i', $mainAudioPath,
+            '-i', $overlayAudioPath,
+            '-filter_complex', '[0:a][1:a]amix=inputs=2:duration=first:dropout_transition=3',
+            '-c:a', $audioCodec,
+            '-ar', '44100',
+            '-ac', '2',
+        ];
+
+        // Use a temporary name for the main audio file for runAndUpload
+        $result = $this->runAndUpload(
+            $mainAudioPath,
+            $command,
+            $data->output_format
+        );
+
+        // Clean up the overlay audio file
+        $this->deleteInputFile($overlayAudioPath);
+
+        return $result;
     }
 }

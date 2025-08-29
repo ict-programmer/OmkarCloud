@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Http\Controllers\FFMpegServiceController;
+use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\FFProbeRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
@@ -37,6 +38,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                         'loudness_normalization',
                         'ffprobe',
                         'transcoding',
+                        'audio_overlay',
                     ],
                 ],
                 'is_active' => true,
@@ -421,6 +423,51 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => TranscodingRequest::class,
                 'function_name' => 'transcoding',
+            ],
+            [
+                'name' => 'Audio Overlay',
+                'input_parameters' => [
+                    'background_track' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/codeskulptor-assets/Evillaugh.ogg',
+                        'format' => 'url',
+                        'description' => 'URL of the background audio track (base layer)',
+                    ],
+                    'overlay_track' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/codeskulptor-assets/week7-brrring.m4a',
+                        'format' => 'url',
+                        'description' => 'URL of the overlay audio track (to be mixed on top)',
+                    ],
+                    'output_format' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'mp3',
+                        'enum' => ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma'],
+                        'description' => 'Required output audio format for the mixed result',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Audio overlay completed successfully',
+                    'output_file_link' => 'https://output.example.com/audio_overlay_123456.mp3',
+                    'processing_time' => 15.8,
+                    'main_audio_duration' => '120.000000',
+                    'overlay_audio_duration' => '45.000000',
+                    'output_duration' => '120.000000',
+                    'mix_method' => 'amix',
+                    'inputs_mixed' => 2,
+                    'file_size' => '4.2MB',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => AudioOverlayRequest::class,
+                'function_name' => 'audioOverlay',
             ],
         ];
 
