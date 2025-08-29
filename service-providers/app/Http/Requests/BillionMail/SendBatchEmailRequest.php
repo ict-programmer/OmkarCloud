@@ -11,10 +11,13 @@ class SendBatchEmailRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'recipients'   => ['required', 'array', 'min:1'],
+            'recipients' => ['required', 'array', 'min:1'],
             'recipients.*' => ['email'],
-            'addresser'    => ['required', 'email'],
-            'attribs'      => ['nullable', 'array'],
+            'addresser' => ['required', 'email'],
+            'attribs' => ['required', 'array'],
+            'attribs.subject' => ['required', 'string'],
+            'attribs.body' => ['required', 'string'],
         ];
     }
+
 }

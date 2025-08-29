@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Data\Request\BillionMail\SendEmailData;
+use App\Data\Request\BillionMail\SendBatchEmailData;
 use Illuminate\Support\Facades\Http;
 
 class BillionMailService
@@ -15,46 +17,29 @@ class BillionMailService
         $this->apiKey = config('services.billionmail.api_key');
     }
 
-    public function sendEmail(array $data): array
+    public function sendEmail(SendEmailData $data): array
     {
-        return $this->callApi('send', [
-            'recipient' => $data['recipient'],
-            'addresser' => $data['addresser'],
-            'attribs'   => $data['attribs'],
-        ]);
-    }
+        $http = Http::withHeaders(['X-API-Key' => $this->apiKey]);
 
-    public function sendBatchEmail(array $data): array
-    {
-        return $this->callApi('batch_send', [
-            'recipients' => $data['recipients'],
-            'addresser'  => $data['addresser'],
-            'attribs'    => $data['attribs'],
-        ]);
-    }
-
-    protected function callApi(string $endpoint, array $payload): array
-    {
-        try {
-            $http = Http::withHeaders(['X-API-Key' => $this->apiKey]);
-
-            if (config('app.env') === 'local') {
-                $http = $http->withoutVerifying();
-            }
-
-            $response = $http->post("{$this->apiUrl}/{$endpoint}", $payload);
-
-            return [
-                'success' => $response->successful(),
-                'status'  => $response->status(),
-                'data'    => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'status'  => 500,
-                'message' => $e->getMessage(),
-            ];
+        if (config('app.env') === 'local') {
+            $http = $http->withoutVerifying();
         }
+
+        $response = $http->post("{$this->apiUrl}/send", $data->toArray());
+
+        return $response->json();
+    }
+
+    public function sendBatchEmail(SendBatchEmailData $data): array
+    {
+        $http = Http::withHeaders(['X-API-Key' => $this->apiKey]);
+
+        if (config('app.env') === 'local') {
+            $http = $http->withoutVerifying();
+        }
+
+        $response = $http->post("{$this->apiUrl}/batch_send", $data->toArray());
+
+        return $response->json();
     }
 }

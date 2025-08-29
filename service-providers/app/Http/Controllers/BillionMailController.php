@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\BillionMail\SendEmailRequest;
 use App\Http\Requests\BillionMail\SendBatchEmailRequest;
+use App\Data\Request\BillionMail\SendEmailData;
+use App\Data\Request\BillionMail\SendBatchEmailData;
 use App\Services\BillionMailService;
 use Illuminate\Http\JsonResponse;
 
@@ -21,7 +23,8 @@ class BillionMailController extends BaseController
      */
     public function sendEmail(SendEmailRequest $request): JsonResponse
     {
-        $response = $this->billionMail->sendEmail($request->validated());
+        $data = SendEmailData::from($request->validated());
+        $response = $this->billionMail->sendEmail($data);
 
         return $this->logAndResponse($response);
     }
@@ -31,8 +34,10 @@ class BillionMailController extends BaseController
      */
     public function sendBatchEmail(SendBatchEmailRequest $request): JsonResponse
     {
-        $response = $this->billionMail->sendBatchEmail($request->validated());
+        $data = SendBatchEmailData::from($request->validated());
+        $response = $this->billionMail->sendBatchEmail($data);
 
         return $this->logAndResponse($response);
     }
+
 }
