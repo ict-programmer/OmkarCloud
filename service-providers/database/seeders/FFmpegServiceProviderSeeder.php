@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Http\Controllers\FFMpegServiceController;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
+use App\Http\Requests\FFMpeg\FFProbeRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
 use App\Http\Requests\FFMpeg\LoudnessNormalizationRequest;
 use App\Http\Requests\FFMpeg\VideoProcessingRequest;
@@ -25,13 +26,15 @@ class FFmpegServiceProviderSeeder extends Seeder
             ['type' => 'FFmpeg'],
             [
                 'parameters' => [
-                    'ffmpeg_path' => '/usr/bin/ffmpeg',
+                    'ffmpeg_path' => '/opt/homebrew/bin/ffmpeg',
+                    'ffprobe_path' => '/opt/homebrew/bin/ffprobe',
                     'features' => [
                         'video_processing',
                         'audio_processing',
                         'image_processing',
                         'video_trimming',
                         'loudness_normalization',
+                        'ffprobe',
                     ],
                 ],
                 'is_active' => true,
@@ -279,6 +282,104 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => LoudnessNormalizationRequest::class,
                 'function_name' => 'loudnessNormalization',
+            ],
+            [
+                'name' => 'FFProbe Media Analysis',
+                'input_parameters' => [
+                    'file_link' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                        'format' => 'url',
+                        'description' => 'URL of the media file to analyze',
+                    ],
+                    'output_format' => [
+                        'type' => 'string',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => 'json',
+                        'enum' => ['json', 'xml', 'csv', 'flat', 'ini', 'default'],
+                        'description' => 'Output format for probe data (default: json)',
+                    ],
+                    'show_format' => [
+                        'type' => 'boolean',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => true,
+                        'description' => 'Show format/container information',
+                    ],
+                    'show_streams' => [
+                        'type' => 'boolean',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => true,
+                        'description' => 'Show streams information',
+                    ],
+                    'show_chapters' => [
+                        'type' => 'boolean',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => false,
+                        'description' => 'Show chapters information',
+                    ],
+                    'show_programs' => [
+                        'type' => 'boolean',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => false,
+                        'description' => 'Show programs information',
+                    ],
+                    'select_streams' => [
+                        'type' => 'string',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => '',
+                        'description' => 'Select specific streams (e.g., "v:0" for first video stream, "a" for all audio)',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Media probed successfully',
+                    'probe_data' => [
+                        'format' => [
+                            'filename' => 'example.mp4',
+                            'nb_streams' => 2,
+                            'nb_programs' => 0,
+                            'format_name' => 'mov,mp4,m4a,3gp,3g2,mj2',
+                            'format_long_name' => 'QuickTime / MOV',
+                            'start_time' => '0.000000',
+                            'duration' => '120.000000',
+                            'size' => '15728640',
+                            'bit_rate' => '1048576',
+                        ],
+                        'streams' => [
+                            [
+                                'index' => 0,
+                                'codec_name' => 'h264',
+                                'codec_type' => 'video',
+                                'width' => 1920,
+                                'height' => 1080,
+                                'r_frame_rate' => '30/1',
+                                'avg_frame_rate' => '30/1',
+                                'duration' => '120.000000',
+                            ],
+                            [
+                                'index' => 1,
+                                'codec_name' => 'aac',
+                                'codec_type' => 'audio',
+                                'sample_rate' => '48000',
+                                'channels' => 2,
+                                'channel_layout' => 'stereo',
+                                'duration' => '120.000000',
+                            ],
+                        ],
+                    ],
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => FFProbeRequest::class,
+                'function_name' => 'ffprobe',
             ],
         ];
 

@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Data\Request\FFMpeg\AudioProcessingData;
+use App\Data\Request\FFMpeg\FFProbeData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
 use App\Data\Request\FFMpeg\LoudnessNormalizationData;
 use App\Data\Request\FFMpeg\VideoProcessingData;
 use App\Data\Request\FFMpeg\VideoTrimmingData;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
+use App\Http\Requests\FFMpeg\FFProbeRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
 use App\Http\Requests\FFMpeg\LoudnessNormalizationRequest;
 use App\Http\Requests\FFMpeg\VideoProcessingRequest;
@@ -76,6 +78,18 @@ class FFMpegServiceController extends BaseController
         return $this->logAndResponse([
             'message' => 'Loudness normalized successfully',
             'output_file_link' => $path,
+        ]);
+    }
+
+    public function ffprobe(FFProbeRequest $request): JsonResponse
+    {
+        $data = FFProbeData::from($request->validated());
+
+        $result = $this->service->probeMedia($data);
+
+        return $this->logAndResponse([
+            'message' => 'Media probed successfully',
+            'probe_data' => $result,
         ]);
     }
 }
