@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
             DeepSeekServiceProviderSeeder::class,
             RunwaymlServiceProviderSeeder::class,
             CanvaServiceProviderSeeder::class,
+            CanvaAPIServiceProviderSeeder::class,
+            GoogleSheetsAPIServiceProviderSeeder::class,
             PexelsServiceProviderSeeder::class,
             PerplexityServiceProviderSeeder::class,
             FreepikServiceProviderSeeder::class,
