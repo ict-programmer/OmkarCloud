@@ -291,6 +291,7 @@ Route::prefix('sheets')
     ->group(function () {
         Route::post('create_spreadsheet', 'create');
         Route::get('read_range', 'readRange');
+        Route::put('write_range', 'writeRange');
     }
 );
 
