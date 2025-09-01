@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Data\Request\GoogleSheetsAPI\CreateSpreadsheetData;
+use App\Data\Request\GoogleSheetsAPI\ReadRangeData;
 use App\Http\Requests\GoogleSheetAPI\CreateSpreadsheetRequest;
+use App\Http\Requests\GoogleSheetAPI\ReadRangeRequest;
 use App\Services\GoogleSheetsAPIService;
 use Illuminate\Http\JsonResponse;
 use OpenApi\Annotations as OA;
@@ -128,8 +130,18 @@ class GoogleSheetsAPIController extends Controller
     {
         $validatedRequest = $request->validated();
         $spreadsheetData = CreateSpreadsheetData::from($validatedRequest);
-        
-        return  $this->googleSheetsAPIService
+
+        return $this->googleSheetsAPIService
             ->createSpreadsheet($spreadsheetData);
+    }
+
+
+    public function readRange(ReadRangeRequest $request): JsonResponse
+    {
+        $validatedRequest = $request->validated();
+
+        $readRangeData = ReadRangeData::from($validatedRequest);
+
+        return $this->googleSheetsAPIService->readRange($readRangeData);
     }
 }
