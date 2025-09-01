@@ -20,6 +20,269 @@ use App\Http\Resources\GoogleSheetsAPI\GoogleSheetsAPIResource;
 use App\Services\GoogleSheetsAPIService;
 use OpenApi\Annotations as OA;
 
+/**
+ * @OA\Schema(
+ *     schema="CreateSpreadsheetRequest",
+ *     title="Create Spreadsheet Request",
+ *     required={"properties"},
+ *     @OA\Property(
+ *         property="properties",
+ *         type="object",
+ *         description="Properties of the spreadsheet",
+ *         required={"title"},
+ *         @OA\Property(
+ *             property="title",
+ *             type="string",
+ *             description="The title of the spreadsheet",
+ *             maxLength=255
+ *         ),
+ *         @OA\Property(
+ *             property="locale",
+ *             type="string",
+ *             description="The locale of the spreadsheet",
+ *             maxLength=10,
+ *             enum={"en", "es", "fr", "de", "ja", "ko", "pt", "ru", "zh_CN", "zh_TW", "en_US", "es_419", "pt_BR", "fil", "id", "it", "pl", "vi", "tr", "he", "ar", "fa", "hi", "bn", "th"}
+ *         ),
+ *         @OA\Property(
+ *             property="timeZone",
+ *             type="string",
+ *             description="The time zone of the spreadsheet",
+ *             maxLength=255
+ *         )
+ *     ),
+ *     @OA\Property(
+ *         property="sheets",
+ *         type="array",
+ *         description="Properties of the sheets within the spreadsheet",
+ *         @OA\Items(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="properties",
+ *                 type="object",
+ *                 required={"title"},
+ *                 @OA\Property(
+ *                     property="title",
+ *                     type="string",
+ *                     description="The title of the sheet",
+ *                     maxLength=255
+ *                 ),
+ *                 @OA\Property(
+ *                     property="index",
+ *                     type="integer",
+ *                     description="The index of the sheet",
+ *                     minimum=0
+ *                 ),
+ *                 @OA\Property(
+ *                     property="sheetType",
+ *                     type="string",
+ *                     description="The type of the sheet",
+ *                     enum={"GRID", "OBJECT", "DATA_SOURCE"}
+ *                 ),
+ *                 @OA\Property(
+ *                     property="hidden",
+ *                     type="boolean",
+ *                     description="Whether the sheet is hidden"
+ *                 ),
+ *                 @OA\Property(
+ *                     property="rightToLeft",
+ *                     type="boolean",
+ *                     description="Whether the sheet is right to left"
+ *                 ),
+ *                 @OA\Property(
+ *                     property="gridProperties",
+ *                     type="object",
+ *                     description="Properties of the grid within the sheet",
+ *                     @OA\Property(
+ *                         property="rowCount",
+ *                         type="integer",
+ *                         description="The number of rows in the grid",
+ *                         minimum=1
+ *                     ),
+ *                     @OA\Property(
+ *                         property="columnCount",
+ *                         type="integer",
+ *                         description="The number of columns in the grid",
+ *                         minimum=1
+ *                     ),
+ *                     @OA\Property(
+ *                         property="frozenRowCount",
+ *                         type="integer",
+ *                         description="The number of frozen rows in the grid",
+ *                         minimum=0
+ *                     ),
+ *                     @OA\Property(
+ *                         property="frozenColumnCount",
+ *                         type="integer",
+ *                         description="The number of frozen columns in the grid",
+ *                         minimum=0
+ *                     ),
+ *                     @OA\Property(
+ *                         property="hideGridlines",
+ *                         type="boolean",
+ *                         description="Whether the gridlines are hidden"
+ *                     ),
+ *                     @OA\Property(
+ *                         property="rowGroupControlAfter",
+ *                         type="boolean",
+ *                         description="Whether the row group control is after"
+ *                     ),
+ *                     @OA\Property(
+ *                         property="columnGroupControlAfter",
+ *                         type="boolean",
+ *                         description="Whether the column group control is after"
+ *                     )
+ *                 ),
+ *                 @OA\Property(
+ *                     property="tabColor",
+ *                     type="object",
+ *                     description="The color of the tab",
+ *                     @OA\Property(property="red", type="number", format="float", minimum=0, maximum=1),
+ *                     @OA\Property(property="green", type="number", format="float", minimum=0, maximum=1),
+ *                     @OA\Property(property="blue", type="number", format="float", minimum=0, maximum=1),
+ *                     @OA\Property(property="alpha", type="number", format="float", minimum=0, maximum=1)
+ *                 ),
+ *                 @OA\Property(
+ *                     property="tabColorStyle",
+ *                     type="object",
+ *                     description="The color style of the tab",
+ *                     @OA\Property(
+ *                         property="rgbColor",
+ *                         type="object",
+ *                         @OA\Property(property="red", type="number", format="float", minimum=0, maximum=1),
+ *                         @OA\Property(property="green", type="number", format="float", minimum=0, maximum=1),
+ *                         @OA\Property(property="blue", type="number", format="float", minimum=0, maximum=1),
+ *                         @OA\Property(property="alpha", type="number", format="float", minimum=0, maximum=1)
+ *                     ),
+ *                     @OA\Property(
+ *                         property="themeColor",
+ *                         type="string",
+ *                         enum={"THEME_COLOR_TYPE_UNSPECIFIED", "TEXT", "BACKGROUND", "ACCENT1", "ACCENT2", "ACCENT3", "ACCENT4", "ACCENT5", "ACCENT6", "LINK", "FOLLOWED_LINK"}
+ *                     )
+ *                 ),
+ *                 @OA\Property(
+ *                     property="dataSourceSheetProperties",
+ *                     type="object",
+ *                     description="Properties for a data source sheet",
+ *                     required={"dataSourceId"},
+ *                     @OA\Property(
+ *                         property="dataSourceId",
+ *                         type="string",
+ *                         description="The ID of the data source",
+ *                         maxLength=255
+ *                     ),
+ *                     @OA\Property(
+ *                         property="columns",
+ *                         type="array",
+ *                         @OA\Items(
+ *                             type="object",
+ *                             required={"reference"},
+ *                             @OA\Property(
+ *                                 property="reference",
+ *                                 type="object",
+ *                                 required={"name"},
+ *                                 @OA\Property(
+ *                                     property="name",
+ *                                     type="string",
+ *                                     description="The name of the column reference",
+ *                                     maxLength=255
+ *                                 )
+ *                             ),
+ *                             @OA\Property(
+ *                                 property="formula",
+ *                                 type="string",
+ *                                 description="The formula for the column"
+ *                             )
+ *                         )
+ *                     )
+ *                 )
+ *             )
+ *         )
+ *     )
+ * )
+ *
+ * @OA\Schema(
+ *     schema="GoogleSheetsAPIResource",
+ *     title="Google Sheets API Resource",
+ *     description="Represents a Google Spreadsheet resource.",
+ *     @OA\Property(
+ *         property="spreadsheetId",
+ *         type="string",
+ *         description="The ID of the spreadsheet."
+ *     ),
+ *     @OA\Property(
+ *         property="spreadsheetUrl",
+ *         type="string",
+ *         description="The URL of the spreadsheet."
+ *     ),
+ *     @OA\Property(
+ *         property="properties",
+ *         type="object",
+ *         description="Properties of the spreadsheet.",
+ *         @OA\Property(
+ *             property="title",
+ *             type="string",
+ *             description="The title of the spreadsheet."
+ *         ),
+ *         @OA\Property(
+ *             property="locale",
+ *             type="string",
+ *             description="The locale of the spreadsheet."
+ *         ),
+ *         @OA\Property(
+ *             property="timeZone",
+ *             type="string",
+ *             description="The time zone of the spreadsheet."
+ *         )
+ *     ),
+ *     @OA\Property(
+ *         property="sheets",
+ *         type="array",
+ *         description="The sheets in the spreadsheet.",
+ *         @OA\Items(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="properties",
+ *                 type="object",
+ *                 @OA\Property(
+ *                     property="sheetId",
+ *                     type="integer",
+ *                     description="The ID of the sheet."
+ *                 ),
+ *                 @OA\Property(
+ *                     property="title",
+ *                     type="string",
+ *                     description="The title of the sheet."
+ *                 ),
+ *                 @OA\Property(
+ *                     property="index",
+ *                     type="integer",
+ *                     description="The index of the sheet."
+ *                 )
+ *             )
+ *         )
+ *     )
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ValidationError",
+ *     title="Validation Error",
+ *     @OA\Property(property="status", type="string", example="error"),
+ *     @OA\Property(property="message", type="string", example="Validation failed"),
+ *     @OA\Property(
+ *         property="errors",
+ *         type="object",
+ *         additionalProperties={"type": "array", "items": {"type": "string"}}
+ *     )
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ErrorResponse",
+ *     title="Error Response",
+ *     @OA\Property(property="message", type="string", example="An unexpected error occurred."),
+ *     @OA\Property(property="statusCode", type="integer", example=500),
+ *     @OA\Property(property="details", type="string", example="Error details here.")
+ * )
+ */
 class GoogleSheetsAPIController extends BaseController
 {
     protected GoogleSheetsAPIService $googleSheetsAPIService;
@@ -29,6 +292,32 @@ class GoogleSheetsAPIController extends BaseController
         $this->googleSheetsAPIService = $googleSheetsAPIService;
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/google-sheets/create",
+     *     summary="Create a new Google Spreadsheet",
+     *     tags={"Google Sheets API"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/CreateSpreadsheetRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/GoogleSheetsAPIResource")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error",
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationError")
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     )
+     * )
+     */
     public function create(CreateSpreadsheetRequest $request)
     {
         $validatedRequest = $request->validated();
