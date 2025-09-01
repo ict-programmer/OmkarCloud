@@ -149,7 +149,7 @@ class FFMpegService
         ]);
         $this->run($mergedOptions);
 
-        $path = $this->uploadImage($this->filePath);
+        $path = $this->uploadFile($this->filePath);
         $this->deleteTempFile();
         $this->deleteInputFile($inputFilePath);
 
