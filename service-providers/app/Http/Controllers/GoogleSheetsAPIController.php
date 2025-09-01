@@ -136,6 +136,85 @@ class GoogleSheetsAPIController extends Controller
     }
 
 
+    /**
+     * @OA\Get(
+     *      path="/api/sheets/read_range",
+     *      operationId="readGoogleSheetRange",
+     *      tags={"GoogleSheetsAPI"},
+     *      summary="Read a range of values from a Google Spreadsheet",
+     *      description="Reads a specified range of values from a Google Spreadsheet.",
+     *      @OA\Parameter(
+     *          name="spreadSheetId",
+     *          in="query",
+     *          required=true,
+     *          description="The ID of the spreadsheet to retrieve data from.",
+     *          @OA\Schema(type="string", example="1_abc123def456ghi789jkl0mnO_pqr")
+     *      ),
+     *      @OA\Parameter(
+     *          name="range",
+     *          in="query",
+     *          required=true,
+     *          description="The A1 notation of the range to retrieve values from.",
+     *          @OA\Schema(type="string", example="Sheet1!A1:D5")
+     *      ),
+     *      @OA\Parameter(
+     *          name="majorDimensions",
+     *          in="query",
+     *          required=false,
+     *          description="The major dimension that results should use. Either ROWS or COLUMNS.",
+     *          @OA\Schema(type="string", enum={"ROWS", "COLUMNS"}, default="ROWS")
+     *      ),
+     *      @OA\Parameter(
+     *          name="valueRenderOption",
+     *          in="query",
+     *          required=false,
+     *          description="How values should be represented in the output. The default render option is FORMATTED_VALUE.",
+     *          @OA\Schema(type="string", enum={"FORMATTED_VALUE", "UNFORMATTED_VALUE", "FORMULA"}, default="FORMATTED_VALUE")
+     *      ),
+     *      @OA\Parameter(
+     *          name="dateTimeRenderOption",
+     *          in="query",
+     *          required=false,
+     *          description="How dates, times, and durations should be represented in the output. The default render option is SERIAL_NUMBER.",
+     *          @OA\Schema(type="string", enum={"SERIAL_NUMBER", "FORMATTED_STRING"}, default="SERIAL_NUMBER")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="range", type="string", example="Sheet1!A1:D5"),
+     *              @OA\Property(property="majorDimension", type="string", example="ROWS"),
+     *              @OA\Property(property="values", type="array",
+     *                  @OA\Items(type="array",
+     *                      @OA\Items(type="string", example="Value1")
+     *                  )
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="The given data was invalid."),
+     *              @OA\Property(property="errors", type="object",
+     *                  @OA\Property(property="spreadSheetId", type="array", @OA\Items(type="string", example="The spreadsheet ID is required."))
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Failed to read Google Spreadsheet range due to API error or unexpected error",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="status", type="string", example="error"),
+     *              @OA\Property(property="message", type="string", example="Failed to read Google Spreadsheet range due to an external API error."),
+     *              @OA\Property(property="code", type="integer", example=500)
+     *          )
+     *      )
+     * )
+     */
     public function readRange(ReadRangeRequest $request): JsonResponse
     {
         $validatedRequest = $request->validated();
