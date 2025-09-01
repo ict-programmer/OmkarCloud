@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
+use App\Data\Request\FFMpeg\AudioVolumeData;
 use App\Data\Request\FFMpeg\FFProbeData;
 use App\Data\Request\FFMpeg\FrameExtractionData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
@@ -567,5 +568,49 @@ class FFMpegService
             }
             rmdir($dirPath);
         }
+    }
+
+    /**
+     * Adjust audio volume using FFmpeg volume filter.
+     *
+     * @param AudioVolumeData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function adjustAudioVolume(AudioVolumeData $data): string
+    {
+        // Download input audio/video file
+        $inputFilePath = $this->downloadFile($data->input);
+        
+        // Determine output format based on input file extension
+        $inputExtension = pathinfo($data->input, PATHINFO_EXTENSION);
+        $outputFormat = in_array(strtolower($inputExtension), ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma']) 
+            ? strtolower($inputExtension) 
+            : 'mp3';
+        
+        // Set audio codec based on output format
+        $audioCodec = match ($outputFormat) {
+            'wav' => 'pcm_s16le',
+            'flac' => 'flac',
+            'aac', 'm4a' => 'aac',
+            'ogg' => 'libvorbis',
+            'wma' => 'wmav2',
+            default => 'libmp3lame',
+        };
+        
+        // Build FFmpeg command for volume adjustment
+        $command = [
+            '-i', $inputFilePath,
+            '-af', 'volume=' . $data->volume_factor,  // Audio filter for volume
+            '-c:a', $audioCodec,
+            '-c:v', 'copy',  // Copy video stream if present (for video files)
+        ];
+
+        return $this->runAndUpload(
+            $inputFilePath,
+            $command,
+            $outputFormat
+        );
     }
 }

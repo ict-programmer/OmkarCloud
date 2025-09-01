@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
+use App\Data\Request\FFMpeg\AudioVolumeData;
 use App\Data\Request\FFMpeg\FFProbeData;
 use App\Data\Request\FFMpeg\FrameExtractionData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
@@ -13,6 +14,7 @@ use App\Data\Request\FFMpeg\VideoProcessingData;
 use App\Data\Request\FFMpeg\VideoTrimmingData;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
+use App\Http\Requests\FFMpeg\AudioVolumeRequest;
 use App\Http\Requests\FFMpeg\FFProbeRequest;
 use App\Http\Requests\FFMpeg\FrameExtractionRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
@@ -133,6 +135,18 @@ class FFMpegServiceController extends BaseController
             'message' => 'Frame extraction completed successfully',
             'total_frames' => count($frameUrls),
             'frame_urls' => $frameUrls,
+        ]);
+    }
+
+    public function audioVolume(AudioVolumeRequest $request): JsonResponse
+    {
+        $data = AudioVolumeData::from($request->validated());
+
+        $path = $this->service->adjustAudioVolume($data);
+
+        return $this->logAndResponse([
+            'message' => 'Audio volume adjusted successfully',
+            'output_file_link' => $path,
         ]);
     }
 }

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Http\Controllers\FFMpegServiceController;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
+use App\Http\Requests\FFMpeg\AudioVolumeRequest;
 use App\Http\Requests\FFMpeg\FFProbeRequest;
 use App\Http\Requests\FFMpeg\FrameExtractionRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
@@ -41,6 +42,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                         'transcoding',
                         'audio_overlay',
                         'frame_extraction',
+                        'audio_volume',
                     ],
                 ],
                 'is_active' => true,
@@ -515,6 +517,43 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => FrameExtractionRequest::class,
                 'function_name' => 'frameExtraction',
+            ],
+            [
+                'name' => 'Audio Volume Adjustment',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/codeskulptor-assets/Evillaugh.ogg',
+                        'format' => 'url',
+                        'description' => 'URL of the audio/video file to adjust volume',
+                    ],
+                    'volume_factor' => [
+                        'type' => 'number',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 1.5,
+                        'min' => 0,
+                        'max' => 10,
+                        'description' => 'Volume multiplication factor (1.0 = original, 2.0 = double, 0.5 = half)',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Audio volume adjusted successfully',
+                    'output_file_link' => 'https://output.example.com/volume_adjusted_123456.ogg',
+                    'processing_time' => 3.2,
+                    'original_volume' => '1.0',
+                    'new_volume_factor' => '1.5',
+                    'volume_change' => '+50%',
+                    'output_format' => 'ogg',
+                    'file_size' => '2.8MB',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => AudioVolumeRequest::class,
+                'function_name' => 'audioVolume',
             ],
         ];
 
