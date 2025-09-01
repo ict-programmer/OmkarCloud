@@ -621,6 +621,32 @@ class GoogleSheetsAPIController extends BaseController
         return $this->logAndResponse(GoogleSheetsAPIResource::make($result));
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/google-sheets/batch-update",
+     *     summary="Batch update values in a Google Spreadsheet",
+     *     tags={"Google Sheets API"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/BatchUpdateRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/BatchUpdateValuesResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error",
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationError")
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     )
+     * )
+     */
     public function batchUpdate(BatchUpdateRequest $request)
     {
         $validatedRequest = $request->validated();
