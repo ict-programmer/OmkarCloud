@@ -55,6 +55,10 @@ return [
         'path' => env('FFMPEG_PATH', '/usr/bin/ffmpeg'),
     ],
 
+    'ffprobe' => [
+        'path' => env('FFPROBE_PATH', '/usr/bin/ffprobe'),
+    ],
+
     'runwayml' => [
         'api_key' => env('RUNWAYML_API_KEY'),
     ],

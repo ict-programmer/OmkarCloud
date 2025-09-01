@@ -3,8 +3,17 @@
 namespace Database\Seeders;
 
 use App\Http\Controllers\FFMpegServiceController;
+use App\Http\Requests\FFMpeg\AudioFadesRequest;
+use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
+use App\Http\Requests\FFMpeg\AudioVolumeRequest;
+use App\Http\Requests\FFMpeg\ConcatenateRequest;
+use App\Http\Requests\FFMpeg\FFProbeRequest;
+use App\Http\Requests\FFMpeg\FrameExtractionRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
+use App\Http\Requests\FFMpeg\LoudnessNormalizationRequest;
+use App\Http\Requests\FFMpeg\ScaleRequest;
+use App\Http\Requests\FFMpeg\TranscodingRequest;
 use App\Http\Requests\FFMpeg\VideoProcessingRequest;
 use App\Http\Requests\FFMpeg\VideoTrimmingRequest;
 use App\Models\ServiceProvider;
@@ -24,12 +33,22 @@ class FFmpegServiceProviderSeeder extends Seeder
             ['type' => 'FFmpeg'],
             [
                 'parameters' => [
-                    'ffmpeg_path' => '/usr/bin/ffmpeg',
+                    'ffmpeg_path' => '/opt/homebrew/bin/ffmpeg',
+                    'ffprobe_path' => '/opt/homebrew/bin/ffprobe',
                     'features' => [
                         'video_processing',
                         'audio_processing',
                         'image_processing',
                         'video_trimming',
+                        'loudness_normalization',
+                        'ffprobe',
+                        'transcoding',
+                        'audio_overlay',
+                        'frame_extraction',
+                        'audio_volume',
+                        'audio_fades',
+                        'scale',
+                        'concatenate',
                     ],
                 ],
                 'is_active' => true,
@@ -222,6 +241,464 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => VideoTrimmingRequest::class,
                 'function_name' => 'videoTrimming',
+            ],
+            [
+                'name' => 'Loudness Normalization',
+                'input_parameters' => [
+                    'file_link' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                        'format' => 'url',
+                        'description' => 'URL of the audio/video file to normalize loudness',
+                    ],
+                    'target_lufs' => [
+                        'type' => 'number',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => -23.0,
+                        'min' => -50,
+                        'max' => 0,
+                        'description' => 'Target integrated loudness in LUFS (default: -23.0 for broadcast)',
+                    ],
+                    'lra' => [
+                        'type' => 'number',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => 7.0,
+                        'min' => 1,
+                        'max' => 20,
+                        'description' => 'Loudness range in LU (default: 7.0)',
+                    ],
+                    'tp' => [
+                        'type' => 'number',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => -2.0,
+                        'min' => -6,
+                        'max' => 0,
+                        'description' => 'True peak in dBTP (default: -2.0)',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Loudness normalized successfully',
+                    'output_file_link' => 'https://output.example.com/normalized_audio_123456.mp4',
+                    'processing_time' => 25.3,
+                    'input_lufs' => -18.5,
+                    'output_lufs' => -23.0,
+                    'loudness_range' => 7.0,
+                    'true_peak' => -2.0,
+                    'file_size' => '85MB',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => LoudnessNormalizationRequest::class,
+                'function_name' => 'loudnessNormalization',
+            ],
+            [
+                'name' => 'FFProbe Media Analysis',
+                'input_parameters' => [
+                    'file_link' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                        'format' => 'url',
+                        'description' => 'URL of the media file to analyze',
+                    ],
+                    'output_format' => [
+                        'type' => 'string',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => 'json',
+                        'enum' => ['json', 'xml', 'csv', 'flat', 'ini', 'default'],
+                        'description' => 'Output format for probe data (default: json)',
+                    ],
+                    'show_format' => [
+                        'type' => 'boolean',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => true,
+                        'description' => 'Show format/container information',
+                    ],
+                    'show_streams' => [
+                        'type' => 'boolean',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => true,
+                        'description' => 'Show streams information',
+                    ],
+                    'show_chapters' => [
+                        'type' => 'boolean',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => false,
+                        'description' => 'Show chapters information',
+                    ],
+                    'show_programs' => [
+                        'type' => 'boolean',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => false,
+                        'description' => 'Show programs information',
+                    ],
+                    'select_streams' => [
+                        'type' => 'string',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => '',
+                        'description' => 'Select specific streams (e.g., "v:0" for first video stream, "a" for all audio)',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Media probed successfully',
+                    'probe_data' => [
+                        'format' => [
+                            'filename' => 'example.mp4',
+                            'nb_streams' => 2,
+                            'nb_programs' => 0,
+                            'format_name' => 'mov,mp4,m4a,3gp,3g2,mj2',
+                            'format_long_name' => 'QuickTime / MOV',
+                            'start_time' => '0.000000',
+                            'duration' => '120.000000',
+                            'size' => '15728640',
+                            'bit_rate' => '1048576',
+                        ],
+                        'streams' => [
+                            [
+                                'index' => 0,
+                                'codec_name' => 'h264',
+                                'codec_type' => 'video',
+                                'width' => 1920,
+                                'height' => 1080,
+                                'r_frame_rate' => '30/1',
+                                'avg_frame_rate' => '30/1',
+                                'duration' => '120.000000',
+                            ],
+                            [
+                                'index' => 1,
+                                'codec_name' => 'aac',
+                                'codec_type' => 'audio',
+                                'sample_rate' => '48000',
+                                'channels' => 2,
+                                'channel_layout' => 'stereo',
+                                'duration' => '120.000000',
+                            ],
+                        ],
+                    ],
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => FFProbeRequest::class,
+                'function_name' => 'ffprobe',
+            ],
+            [
+                'name' => 'Media Transcoding',
+                'input_parameters' => [
+                    'file_link' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                        'format' => 'url',
+                        'description' => 'URL of the media file to transcode',
+                    ],
+                    'output_format' => [
+                        'type' => 'string',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => 'mp4',
+                        'enum' => ['mp4', 'avi', 'mov', 'mkv', 'webm', 'flv', 'wmv', 'm4v', '3gp', 'mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma'],
+                        'description' => 'Output container format (defaults to mp4 with H.264/AAC)',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Media transcoded successfully',
+                    'output_file_link' => 'https://output.example.com/transcoded_media_123456.mp4',
+                    'processing_time' => 120.5,
+                    'input_format' => 'mov,mp4,m4a,3gp,3g2,mj2',
+                    'output_format' => 'mp4',
+                    'input_duration' => '180.000000',
+                    'output_duration' => '180.000000',
+                    'video_codec' => 'libx264',
+                    'audio_codec' => 'aac',
+                    'file_size' => '125MB',
+                    'compression_ratio' => '35.2%',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => TranscodingRequest::class,
+                'function_name' => 'transcoding',
+            ],
+            [
+                'name' => 'Audio Overlay',
+                'input_parameters' => [
+                    'background_track' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/codeskulptor-assets/Evillaugh.ogg',
+                        'format' => 'url',
+                        'description' => 'URL of the background audio track (base layer)',
+                    ],
+                    'overlay_track' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/codeskulptor-assets/week7-brrring.m4a',
+                        'format' => 'url',
+                        'description' => 'URL of the overlay audio track (to be mixed on top)',
+                    ],
+                    'output_format' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'mp3',
+                        'enum' => ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma'],
+                        'description' => 'Required output audio format for the mixed result',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Audio overlay completed successfully',
+                    'output_file_link' => 'https://output.example.com/audio_overlay_123456.mp3',
+                    'processing_time' => 15.8,
+                    'main_audio_duration' => '120.000000',
+                    'overlay_audio_duration' => '45.000000',
+                    'output_duration' => '120.000000',
+                    'mix_method' => 'amix',
+                    'inputs_mixed' => 2,
+                    'file_size' => '4.2MB',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => AudioOverlayRequest::class,
+                'function_name' => 'audioOverlay',
+            ],
+            [
+                'name' => 'Frame Extraction',
+                'input_parameters' => [
+                    'input_file' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                        'format' => 'url',
+                        'description' => 'URL of the video file to extract frames from',
+                    ],
+                    'frame_rate' => [
+                        'type' => 'number',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 1.0,
+                        'min' => 0.1,
+                        'max' => 30,
+                        'description' => 'Frame extraction rate (frames per second). Lower values = fewer frames extracted',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Frame extraction completed successfully',
+                    'total_frames' => 12,
+                    'frame_urls' => [
+                        'https://output.example.com/frame_0001.jpg',
+                        'https://output.example.com/frame_0002.jpg',
+                        'https://output.example.com/frame_0003.jpg',
+                        'https://output.example.com/frame_0004.jpg',
+                        'https://output.example.com/frame_0005.jpg',
+                        'https://output.example.com/frame_0006.jpg',
+                        '...'
+                    ],
+                    'processing_time' => 8.5,
+                    'video_duration' => '12.000000',
+                    'extracted_frame_rate' => 1.0,
+                    'image_format' => 'JPEG',
+                    'image_quality' => 'high',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => FrameExtractionRequest::class,
+                'function_name' => 'frameExtraction',
+            ],
+            [
+                'name' => 'Audio Volume Adjustment',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/codeskulptor-assets/Evillaugh.ogg',
+                        'format' => 'url',
+                        'description' => 'URL of the audio/video file to adjust volume',
+                    ],
+                    'volume_factor' => [
+                        'type' => 'number',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 1.5,
+                        'min' => 0,
+                        'max' => 10,
+                        'description' => 'Volume multiplication factor (1.0 = original, 2.0 = double, 0.5 = half)',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Audio volume adjusted successfully',
+                    'output_file_link' => 'https://output.example.com/volume_adjusted_123456.ogg',
+                    'processing_time' => 3.2,
+                    'original_volume' => '1.0',
+                    'new_volume_factor' => '1.5',
+                    'volume_change' => '+50%',
+                    'output_format' => 'ogg',
+                    'file_size' => '2.8MB',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => AudioVolumeRequest::class,
+                'function_name' => 'audioVolume',
+            ],
+            [
+                'name' => 'Audio Fades / Ducking',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/codeskulptor-assets/Evillaugh.ogg',
+                        'format' => 'url',
+                        'description' => 'URL of the audio/video file to apply fades',
+                    ],
+                    'fade_in_duration' => [
+                        'type' => 'number',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => 2.0,
+                        'min' => 0,
+                        'max' => 60,
+                        'description' => 'Fade in duration in seconds (null to skip fade in)',
+                    ],
+                    'fade_out_duration' => [
+                        'type' => 'number',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => 3.0,
+                        'min' => 0,
+                        'max' => 60,
+                        'description' => 'Fade out duration in seconds (null to skip fade out)',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Audio fades applied successfully',
+                    'output_file_link' => 'https://output.example.com/faded_audio_123456.ogg',
+                    'processing_time' => 4.1,
+                    'fade_in_applied' => true,
+                    'fade_in_duration' => '2.0s',
+                    'fade_out_applied' => true,
+                    'fade_out_duration' => '3.0s',
+                    'total_fade_duration' => '5.0s',
+                    'output_format' => 'ogg',
+                    'file_size' => '3.1MB',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => AudioFadesRequest::class,
+                'function_name' => 'audioFades',
+            ],
+            [
+                'name' => 'Video Scaling / Resizing',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                        'format' => 'url',
+                        'description' => 'URL of the video file to scale/resize',
+                    ],
+                    'resolution_target' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => '1280x720',
+                        'description' => 'Target resolution (e.g., "1920x1080", "1280x720") or preset ("720p", "1080p", "1440p", "2160p", "4K", "8K")',
+                        'examples' => [
+                            '1920x1080',
+                            '1280x720',
+                            '720p',
+                            '1080p',
+                            '1440p',
+                            '2160p',
+                            '4K',
+                            '8K'
+                        ],
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Video scaled successfully',
+                    'output_file_link' => 'https://output.example.com/scaled_video_123456.mp4',
+                    'processing_time' => 45.7,
+                    'original_resolution' => '1920x1080',
+                    'target_resolution' => '1280x720',
+                    'scaling_ratio' => '66.7%',
+                    'output_format' => 'mp4',
+                    'video_codec' => 'libx264',
+                    'audio_codec' => 'aac',
+                    'file_size' => '78MB',
+                    'compression_achieved' => '35%',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => ScaleRequest::class,
+                'function_name' => 'scale',
+            ],
+            [
+                'name' => 'Video Concatenation',
+                'input_parameters' => [
+                    'input_files' => [
+                        'type' => 'array',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => [
+                            'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                            'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
+                        ],
+                        'min_items' => 2,
+                        'max_items' => 20,
+                        'items' => [
+                            'type' => 'string',
+                            'format' => 'url',
+                        ],
+                        'description' => 'Array of video file URLs to concatenate (minimum 2, maximum 20 files)',
+                        'validation' => 'Each URL must be a valid video file. All files should have similar properties (resolution, codec) for best results.',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Videos concatenated successfully',
+                    'output_file_link' => 'https://output.example.com/concatenated_video_123456.mp4',
+                    'total_input_files' => 2,
+                    'processing_time' => 8.5,
+                    'total_duration' => '00:00:30',
+                    'individual_durations' => [
+                        'file_1' => '00:00:15',
+                        'file_2' => '00:00:15'
+                    ],
+                    'output_format' => 'mp4',
+                    'video_codec' => 'libx264',
+                    'audio_codec' => 'aac',
+                    'file_size' => '12MB',
+                    'concatenation_method' => 'concat_demuxer',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => ConcatenateRequest::class,
+                'function_name' => 'concatenate',
             ],
         ];
 
