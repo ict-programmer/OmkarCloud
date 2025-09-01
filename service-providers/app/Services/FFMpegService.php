@@ -10,6 +10,7 @@ use App\Data\Request\FFMpeg\FFProbeData;
 use App\Data\Request\FFMpeg\FrameExtractionData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
 use App\Data\Request\FFMpeg\LoudnessNormalizationData;
+use App\Data\Request\FFMpeg\ScaleData;
 use App\Data\Request\FFMpeg\TranscodingData;
 use App\Data\Request\FFMpeg\VideoProcessingData;
 use App\Data\Request\FFMpeg\VideoTrimmingData;
@@ -677,5 +678,75 @@ class FFMpegService
             $command,
             $outputFormat
         );
+    }
+
+    /**
+     * Scale/resize video using FFmpeg scale filter.
+     *
+     * @param ScaleData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function scaleVideo(ScaleData $data): string
+    {
+        // Download input video file
+        $inputFilePath = $this->downloadFile($data->input);
+        
+        // Determine output format based on input file extension
+        $inputExtension = pathinfo($data->input, PATHINFO_EXTENSION);
+        $outputFormat = in_array(strtolower($inputExtension), ['mp4', 'avi', 'mov', 'mkv', 'webm', 'flv', 'wmv', 'm4v', '3gp']) 
+            ? strtolower($inputExtension) 
+            : 'mp4';
+
+        // Convert resolution presets to actual dimensions
+        $resolution = $this->convertResolutionPreset($data->resolution_target);
+        
+        // Set video codec based on output format
+        $videoCodec = match ($outputFormat) {
+            'webm' => 'libvpx-vp9',
+            'avi' => 'libxvid',
+            'mov' => 'libx264',
+            'mkv' => 'libx264',
+            'flv' => 'libx264',
+            'wmv' => 'wmv2',
+            'm4v' => 'libx264',
+            '3gp' => 'libx264',
+            default => 'libx264', // mp4 and others
+        };
+
+        // Build FFmpeg command for scaling
+        $command = [
+            '-i', $inputFilePath,
+            '-vf', 'scale=' . $resolution,  // Video filter for scaling
+            '-c:v', $videoCodec,
+            '-c:a', 'aac',  // Keep audio codec consistent
+            '-preset', 'medium',  // Encoding speed vs quality balance
+            '-crf', '23',  // Quality setting (lower = better quality)
+        ];
+
+        return $this->runAndUpload(
+            $inputFilePath,
+            $command,
+            $outputFormat
+        );
+    }
+
+    /**
+     * Convert resolution presets to actual dimensions.
+     *
+     * @param string $resolution
+     * @return string
+     */
+    private function convertResolutionPreset(string $resolution): string
+    {
+        return match (strtolower($resolution)) {
+            '720p' => '1280:720',
+            '1080p' => '1920:1080',
+            '1440p' => '2560:1440',
+            '2160p', '4k' => '3840:2160',
+            '8k' => '7680:4320',
+            default => str_replace('x', ':', $resolution), // Convert WxH to W:H format
+        };
     }
 }

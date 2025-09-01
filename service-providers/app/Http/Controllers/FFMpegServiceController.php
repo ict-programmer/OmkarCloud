@@ -10,6 +10,7 @@ use App\Data\Request\FFMpeg\FFProbeData;
 use App\Data\Request\FFMpeg\FrameExtractionData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
 use App\Data\Request\FFMpeg\LoudnessNormalizationData;
+use App\Data\Request\FFMpeg\ScaleData;
 use App\Data\Request\FFMpeg\TranscodingData;
 use App\Data\Request\FFMpeg\VideoProcessingData;
 use App\Data\Request\FFMpeg\VideoTrimmingData;
@@ -21,6 +22,7 @@ use App\Http\Requests\FFMpeg\FFProbeRequest;
 use App\Http\Requests\FFMpeg\FrameExtractionRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
 use App\Http\Requests\FFMpeg\LoudnessNormalizationRequest;
+use App\Http\Requests\FFMpeg\ScaleRequest;
 use App\Http\Requests\FFMpeg\TranscodingRequest;
 use App\Http\Requests\FFMpeg\VideoProcessingRequest;
 use App\Http\Requests\FFMpeg\VideoTrimmingRequest;
@@ -160,6 +162,18 @@ class FFMpegServiceController extends BaseController
 
         return $this->logAndResponse([
             'message' => 'Audio fades applied successfully',
+            'output_file_link' => $path,
+        ]);
+    }
+
+    public function scale(ScaleRequest $request): JsonResponse
+    {
+        $data = ScaleData::from($request->validated());
+
+        $path = $this->service->scaleVideo($data);
+
+        return $this->logAndResponse([
+            'message' => 'Video scaled successfully',
             'output_file_link' => $path,
         ]);
     }

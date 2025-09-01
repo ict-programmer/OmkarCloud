@@ -11,6 +11,7 @@ use App\Http\Requests\FFMpeg\FFProbeRequest;
 use App\Http\Requests\FFMpeg\FrameExtractionRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
 use App\Http\Requests\FFMpeg\LoudnessNormalizationRequest;
+use App\Http\Requests\FFMpeg\ScaleRequest;
 use App\Http\Requests\FFMpeg\TranscodingRequest;
 use App\Http\Requests\FFMpeg\VideoProcessingRequest;
 use App\Http\Requests\FFMpeg\VideoTrimmingRequest;
@@ -45,6 +46,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                         'frame_extraction',
                         'audio_volume',
                         'audio_fades',
+                        'scale',
                     ],
                 ],
                 'is_active' => true,
@@ -604,6 +606,54 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => AudioFadesRequest::class,
                 'function_name' => 'audioFades',
+            ],
+            [
+                'name' => 'Video Scaling / Resizing',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                        'format' => 'url',
+                        'description' => 'URL of the video file to scale/resize',
+                    ],
+                    'resolution_target' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => '1280x720',
+                        'description' => 'Target resolution (e.g., "1920x1080", "1280x720") or preset ("720p", "1080p", "1440p", "2160p", "4K", "8K")',
+                        'examples' => [
+                            '1920x1080',
+                            '1280x720',
+                            '720p',
+                            '1080p',
+                            '1440p',
+                            '2160p',
+                            '4K',
+                            '8K'
+                        ],
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Video scaled successfully',
+                    'output_file_link' => 'https://output.example.com/scaled_video_123456.mp4',
+                    'processing_time' => 45.7,
+                    'original_resolution' => '1920x1080',
+                    'target_resolution' => '1280x720',
+                    'scaling_ratio' => '66.7%',
+                    'output_format' => 'mp4',
+                    'video_codec' => 'libx264',
+                    'audio_codec' => 'aac',
+                    'file_size' => '78MB',
+                    'compression_achieved' => '35%',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => ScaleRequest::class,
+                'function_name' => 'scale',
             ],
         ];
 
