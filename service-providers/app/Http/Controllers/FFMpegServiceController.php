@@ -6,6 +6,7 @@ use App\Data\Request\FFMpeg\AudioFadesData;
 use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\AudioVolumeData;
+use App\Data\Request\FFMpeg\ConcatenateData;
 use App\Data\Request\FFMpeg\FFProbeData;
 use App\Data\Request\FFMpeg\FrameExtractionData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
@@ -18,6 +19,7 @@ use App\Http\Requests\FFMpeg\AudioFadesRequest;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\AudioVolumeRequest;
+use App\Http\Requests\FFMpeg\ConcatenateRequest;
 use App\Http\Requests\FFMpeg\FFProbeRequest;
 use App\Http\Requests\FFMpeg\FrameExtractionRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
@@ -174,6 +176,18 @@ class FFMpegServiceController extends BaseController
 
         return $this->logAndResponse([
             'message' => 'Video scaled successfully',
+            'output_file_link' => $path,
+        ]);
+    }
+
+    public function concatenate(ConcatenateRequest $request): JsonResponse
+    {
+        $data = ConcatenateData::from($request->validated());
+
+        $path = $this->service->concatenateVideos($data);
+
+        return $this->logAndResponse([
+            'message' => 'Videos concatenated successfully',
             'output_file_link' => $path,
         ]);
     }

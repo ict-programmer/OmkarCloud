@@ -7,6 +7,7 @@ use App\Http\Requests\FFMpeg\AudioFadesRequest;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\AudioVolumeRequest;
+use App\Http\Requests\FFMpeg\ConcatenateRequest;
 use App\Http\Requests\FFMpeg\FFProbeRequest;
 use App\Http\Requests\FFMpeg\FrameExtractionRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
@@ -47,6 +48,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                         'audio_volume',
                         'audio_fades',
                         'scale',
+                        'concatenate',
                     ],
                 ],
                 'is_active' => true,
@@ -654,6 +656,49 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => ScaleRequest::class,
                 'function_name' => 'scale',
+            ],
+            [
+                'name' => 'Video Concatenation',
+                'input_parameters' => [
+                    'input_files' => [
+                        'type' => 'array',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => [
+                            'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                            'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
+                        ],
+                        'min_items' => 2,
+                        'max_items' => 20,
+                        'items' => [
+                            'type' => 'string',
+                            'format' => 'url',
+                        ],
+                        'description' => 'Array of video file URLs to concatenate (minimum 2, maximum 20 files)',
+                        'validation' => 'Each URL must be a valid video file. All files should have similar properties (resolution, codec) for best results.',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Videos concatenated successfully',
+                    'output_file_link' => 'https://output.example.com/concatenated_video_123456.mp4',
+                    'total_input_files' => 2,
+                    'processing_time' => 8.5,
+                    'total_duration' => '00:00:30',
+                    'individual_durations' => [
+                        'file_1' => '00:00:15',
+                        'file_2' => '00:00:15'
+                    ],
+                    'output_format' => 'mp4',
+                    'video_codec' => 'libx264',
+                    'audio_codec' => 'aac',
+                    'file_size' => '12MB',
+                    'concatenation_method' => 'concat_demuxer',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => ConcatenateRequest::class,
+                'function_name' => 'concatenate',
             ],
         ];
 

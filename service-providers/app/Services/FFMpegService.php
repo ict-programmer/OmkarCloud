@@ -6,6 +6,7 @@ use App\Data\Request\FFMpeg\AudioFadesData;
 use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\AudioVolumeData;
+use App\Data\Request\FFMpeg\ConcatenateData;
 use App\Data\Request\FFMpeg\FFProbeData;
 use App\Data\Request\FFMpeg\FrameExtractionData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
@@ -748,5 +749,87 @@ class FFMpegService
             '8k' => '7680:4320',
             default => str_replace('x', ':', $resolution), // Convert WxH to W:H format
         };
+    }
+
+    /**
+     * Concatenate multiple video files using FFmpeg concat demuxer.
+     *
+     * @param ConcatenateData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function concatenateVideos(ConcatenateData $data): string
+    {
+        // Download all input files
+        $inputFilePaths = [];
+        $outputFormat = 'mp4'; // Default output format
+        
+        foreach ($data->input_files as $index => $fileUrl) {
+            $inputFilePath = $this->downloadFile($fileUrl);
+            $inputFilePaths[] = $inputFilePath;
+            
+            // Determine output format from first file
+            if ($index === 0) {
+                $inputExtension = pathinfo($fileUrl, PATHINFO_EXTENSION);
+                $outputFormat = in_array(strtolower($inputExtension), ['mp4', 'avi', 'mov', 'mkv', 'webm', 'flv', 'wmv', 'm4v', '3gp']) 
+                    ? strtolower($inputExtension) 
+                    : 'mp4';
+            }
+        }
+
+        try {
+            // Use filter_complex method for more reliable concatenation
+            $command = [];
+            
+            // Add all input files
+            foreach ($inputFilePaths as $filePath) {
+                $command[] = '-i';
+                $command[] = $filePath;
+            }
+            
+            // Build filter_complex for concatenation
+            $inputCount = count($inputFilePaths);
+            $filterInputs = '';
+            for ($i = 0; $i < $inputCount; $i++) {
+                $filterInputs .= "[$i:v][$i:a]";
+            }
+            
+            $command[] = '-filter_complex';
+            $command[] = $filterInputs . "concat=n=$inputCount:v=1:a=1[outv][outa]";
+            $command[] = '-map';
+            $command[] = '[outv]';
+            $command[] = '-map';
+            $command[] = '[outa]';
+            $command[] = '-c:v';
+            $command[] = 'libx264';
+            $command[] = '-c:a';
+            $command[] = 'aac';
+            $command[] = '-preset';
+            $command[] = 'medium';
+            $command[] = '-crf';
+            $command[] = '23';
+
+            // Use the first input file path as reference for runAndUpload
+            $result = $this->runAndUpload(
+                $inputFilePaths[0],
+                $command,
+                $outputFormat
+            );
+
+            // Clean up input files
+            foreach ($inputFilePaths as $filePath) {
+                $this->deleteInputFile($filePath);
+            }
+
+            return $result;
+
+        } catch (\Exception $e) {
+            // Clean up on error
+            foreach ($inputFilePaths as $filePath) {
+                $this->deleteInputFile($filePath);
+            }
+            throw $e;
+        }
     }
 }
