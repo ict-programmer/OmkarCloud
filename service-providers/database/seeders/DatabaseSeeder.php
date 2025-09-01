@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             FreepikServiceProviderSeeder::class,
             CaptionsServiceProviderSeeder::class,
             GettyImageServiceProviderSeeder::class,
+            BillionMailServiceProviderSeeder::class,
         ]);
     }
 }

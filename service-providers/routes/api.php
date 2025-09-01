@@ -12,6 +12,7 @@ use App\Http\Controllers\GeminiController;
 use App\Http\Controllers\GettyimagesController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\GoogleSheetsController;
+use App\Http\Controllers\BillionMailController;
 use App\Http\Controllers\MainFunctionController;
 use App\Http\Controllers\PerplexityController;
 use App\Http\Controllers\PexelsController;
@@ -51,6 +52,11 @@ Route::get('test', function () {
     $cursor = \App\Models\ProjectStructure::all();
 
     return response()->json($cursor);
+});
+
+Route::prefix('billionmail')->group(function () {
+    Route::post('send', [BillionMailController::class, 'sendEmail']);
+    Route::post('batch_send', [BillionMailController::class, 'sendBatchEmail']);
 });
 
 Route::prefix('descriptai')->controller(DescriptAIController::class)->group(function () {
