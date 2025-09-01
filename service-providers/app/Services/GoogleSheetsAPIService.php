@@ -7,19 +7,16 @@ use App\Data\Request\GoogleSheetsAPI\CreateSpreadsheetData;
 use App\Data\Request\GoogleSheetsAPI\BatchUpdateData;
 use App\Data\Request\GoogleSheetsAPI\ClearRangeData;
 use App\Data\Request\GoogleSheetsAPI\WriteRangeData;
+use App\Data\Request\GoogleSheetsAPI\ReadRangeData;
+use App\Data\Request\GoogleSheetsAPI\SheetsManagementData;
 use Google\Client;
 use Google\Service\Drive;
 use Google\Service\Sheets;
-use App\Data\Request\GoogleSheetsAPI\ReadRangeData;
-use App\Data\Request\GoogleSheetsAPI\SheetsManagementData;
-use Google\Service\Sheets\BatchUpdateSpreadsheetRequest;
 use Google\Service\Sheets\BatchUpdateValuesRequest;
 use Google\Service\Sheets\ClearValuesRequest;
-use Google\Service\Sheets\CopySheetToAnotherSpreadsheetRequest;
-use Google\Service\Sheets\Request;
 use Google\Service\Sheets\Spreadsheet;
+use App\Exceptions\ApiException;
 use Google\Service\Sheets\ValueRange;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
 class GoogleSheetsAPIService
@@ -47,12 +44,47 @@ class GoogleSheetsAPIService
     }
 
     /**
+     * Handles Google Sheets API calls and common error logging/response.
+     *
+     * @param callable $callback The API call to execute.
+     * @param string $errorMessagePrefix A prefix for error messages.
+     * @return array|object
+     * @throws \Exception
+     */
+    private function handleGoogleSheetsApiCall(callable $callback, string $errorMessagePrefix)
+    {
+        try {
+            return $callback();
+        } catch (\Google\Service\Exception $e) {
+            Log::error('Google Sheets API Error: '.$e->getMessage(), ['code' => $e->getCode(), 'errors' => $e->getErrors()]);
+            $httpStatusCode = $e->getCode();
+            
+            if (! is_int($httpStatusCode) || $httpStatusCode < 100 || $httpStatusCode > 599) {
+                $httpStatusCode = 500;
+            }
+            
+            throw new ApiException(
+                message: $errorMessagePrefix.' due to an external API error.', statusCode: $httpStatusCode,
+                details: $e->getMessage()
+            );
+        } catch (\Exception $e) {
+            Log::error($errorMessagePrefix.': '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            
+            throw new ApiException(
+                message: 'An unexpected error occurred while '.$errorMessagePrefix.'.',
+                statusCode: 500,
+                details: $e->getMessage()
+            );
+        }
+    }
+
+    /**
      * Create a new Google Spreadsheet.
      *
      * @param CreateSpreadsheetData $data
-     * @return JsonResponse
+     * @return object
      */
-    public function createSpreadsheet(CreateSpreadsheetData $data): JsonResponse
+    public function createSpreadsheet(CreateSpreadsheetData $data): object
     {
         $spreadsheetProperties = $data->properties ? new Sheets\SpreadsheetProperties($data->properties) : null;
 
@@ -78,86 +110,39 @@ class GoogleSheetsAPIService
             'sheets' => $sheets,
         ]);
 
-        try {
-            $response = $this->sheetsService->spreadsheets->create($spreadsheet);
-
-            return response()->json($response, 201);
-        } catch (\Google\Service\Exception $e) {
-
-            Log::error('Google Sheets API Error: '.$e->getMessage(), ['code' => $e->getCode(), 'errors' => $e->getErrors()]);
-
-            $httpStatusCode = $e->getCode();
-
-            if (! is_int($httpStatusCode) || $httpStatusCode < 100 || $httpStatusCode > 599) {
-                $httpStatusCode = 500;
-            }
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to create Google Spreadsheet due to an external API error.',
-                'code' => $httpStatusCode,
-            ], $httpStatusCode);
-
-        } catch (\Exception $e) {
-            Log::error('Error creating Google Spreadsheet: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
-            return response()->json([
-                'status' => 'error',
-                'message' => 'An unexpected error occurred while creating Google Spreadsheet.'
-            ], 500);
-        }
+        return $this->handleGoogleSheetsApiCall(
+            fn () => $this->sheetsService->spreadsheets->create($spreadsheet),
+            'Failed to create Google Spreadsheet'
+        );
     }
 
     /**
      * Read a range of values from a Google Spreadsheet.
      *
      * @param ReadRangeData $data
-     * @return JsonResponse
+     * @return object
      */
-    public function readRange(ReadRangeData $data): JsonResponse
+    public function readRange(ReadRangeData $data): object
     {
-        try {
-            $response = $this->sheetsService
+        return $this->handleGoogleSheetsApiCall(
+            fn () => $this->sheetsService
                 ->spreadsheets_values
                 ->get($data->spreadSheetId, $data->range, [
                     'majorDimension' => $data->majorDimensions,
                     'valueRenderOption' => $data->valueRenderOption,
                     'dateTimeRenderOption' => $data->dateTimeRenderOption,
-                ]);
-
-            return response()->json($response, 200);
-
-        } catch (\Google\Service\Exception $e) {
-
-            Log::error('Google Sheets API Error: '.$e->getMessage(), ['code' => $e->getCode(), 'errors' => $e->getErrors()]);
-
-            $httpStatusCode = $e->getCode();
-
-            if (! is_int($httpStatusCode) || $httpStatusCode < 100 || $httpStatusCode > 599) {
-                $httpStatusCode = 500;
-            }
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to read Google Spreadsheet range due to an external API error.',
-                'code' => $httpStatusCode,
-            ], $httpStatusCode);
-        } catch (\Exception $e) {
-            Log::error('Error reading Google Spreadsheet range: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'An unexpected error occurred while reading Google Spreadsheet range.'
-            ], 500);
-        }
+                ]),
+            'Failed to read Google Spreadsheet range'
+        );
     }
 
     /**
      * Write a range of values to a Google Spreadsheet.
      *
      * @param WriteRangeData $data
-     * @return JsonResponse
+     * @return object
      */
-    public function writeRange(WriteRangeData $data): JsonResponse
+    public function writeRange(WriteRangeData $data): object
     {
         $valueRange = new Sheets\ValueRange([
             'values' => $data->values,
@@ -167,45 +152,21 @@ class GoogleSheetsAPIService
             'valueInputOption' => $data->valueInputOption,
         ];
 
-        try {
-            $response = $this->sheetsService
+        return $this->handleGoogleSheetsApiCall(
+            fn () => $this->sheetsService
                 ->spreadsheets_values
-                ->update($data->spreadSheetId, $data->range, $valueRange, $options);
-
-            return response()->json($response, 200);
-
-        } catch (\Google\Service\Exception $e) {
-
-            Log::error('Google Sheets API Error: '.$e->getMessage(), ['code' => $e->getCode(), 'errors' => $e->getErrors()]);
-
-            $httpStatusCode = $e->getCode();
-
-            if (! is_int($httpStatusCode) || $httpStatusCode < 100 || $httpStatusCode > 599) {
-                $httpStatusCode = 500;
-            }
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to write Google Spreadsheet range due to an external API error.',
-                'code' => $httpStatusCode,
-            ], $httpStatusCode);
-        } catch (\Exception $e) {
-            Log::error('Error writing Google Spreadsheet range: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'An unexpected error occurred while writing Google Spreadsheet range.'
-            ], 500);
-        }
+                ->update($data->spreadSheetId, $data->range, $valueRange, $options),
+            'Failed to write Google Spreadsheet range'
+        );
     }
 
     /**
      * Batch update values in a Google Spreadsheet.
      *
      * @param BatchUpdateData $data
-     * @return JsonResponse
+     * @return object
      */
-    public function batchUpdate(BatchUpdateData $data): JsonResponse
+    public function batchUpdate(BatchUpdateData $data): object
     {
         $valueRanges = collect($data->data->all())->map(function (BatchUpdateSheetData $item) {
             return new ValueRange([
@@ -219,90 +180,40 @@ class GoogleSheetsAPIService
             'valueInputOption' => $data->valueInputOption,
         ]);
 
-        try {
-            $response = $this->sheetsService
+        return $this->handleGoogleSheetsApiCall(
+            fn () => $this->sheetsService
                 ->spreadsheets_values
-                ->batchUpdate($data->spreadSheetId, $body);
-
-            return response()->json($response, 200);
-
-        } catch (\Google\Service\Exception $e) {
-            Log::error('Google Sheets API Error: '.$e->getMessage(), ['code' => $e->getCode(), 'errors' => $e->getErrors()]);
-
-            $httpStatusCode = $e->getCode();
-
-            if (! is_int($httpStatusCode) || $httpStatusCode < 100 || $httpStatusCode > 599) {
-                $httpStatusCode = 500;
-            }
-
-            return response()->json(
-                [
-                    'status' => 'error',
-                    'message' => 'Failed to batch update Google Spreadsheet values due to an external API error.',
-                    'code' => $httpStatusCode,
-                ]
-                , $httpStatusCode
-            );
-        } catch (\Exception $e) {
-            Log::error('Error batch updating Google Spreadsheet values: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'An unexpected error occurred while batch updating Google Spreadsheet values.'
-            ], 500);
-        }
+                ->batchUpdate($data->spreadSheetId, $body),
+            'Failed to batch update Google Spreadsheet values'
+        );
     }
 
     /**
      * Clear a range of values from a Google Spreadsheet.
      *
      * @param ClearRangeData $data
-     * @return JsonResponse
+     * @return object
      */
-    public function clearRange(ClearRangeData $data): JsonResponse
+    public function clearRange(ClearRangeData $data): object
     {
-        try {
-            $body = new ClearValuesRequest();
-            $response = $this->sheetsService
+        $body = new ClearValuesRequest();
+        return $this->handleGoogleSheetsApiCall(
+            fn () => $this->sheetsService
                 ->spreadsheets_values
-                ->clear($data->spreadSheetId, $data->range, $body);
-
-            return response()->json($response, 200);
-
-        } catch (\Google\Service\Exception $e) {
-
-            Log::error('Google Sheets API Error: '.$e->getMessage(), ['code' => $e->getCode(), 'errors' => $e->getErrors()]);
-
-            $httpStatusCode = $e->getCode();
-
-            if (! is_int($httpStatusCode) || $httpStatusCode < 100 || $httpStatusCode > 599) {
-                $httpStatusCode = 500;
-            }
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to clear Google Spreadsheet range due to an external API error.',
-                'code' => $httpStatusCode,
-            ], $httpStatusCode);
-        } catch (\Exception $e) {
-            Log::error('Error clearing Google Spreadsheet range: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'An unexpected error occurred while clearing Google Spreadsheet range.'
-            ], 500);
-        }
+                ->clear($data->spreadSheetId, $data->range, $body),
+            'Failed to clear Google Spreadsheet range'
+        );
     }
 
     /**
      * Perform various management operations on Google Sheets (add, delete, copy).
      *
      * @param SheetsManagementData $data
-     * @return JsonResponse
+     * @return object
      */
-    public function sheetsManagement(SheetsManagementData $data): JsonResponse
+    public function sheetsManagement(SheetsManagementData $data): object
     {
-        try {
+        return $this->handleGoogleSheetsApiCall(function () use ($data) {
             switch ($data->type) {
                 case 'addSheet':
                     $request = new Sheets\Request([
@@ -325,46 +236,20 @@ class GoogleSheetsAPIService
                         'destinationSpreadsheetId' => $data->destinationSpreadsheetId,
                     ]);
 
-                    $response = $this->sheetsService
+                    return $this->sheetsService
                         ->spreadsheets_sheets
                         ->copyTo($data->spreadSheetId, $data->sheetId, $copySheetToAnotherSpreadsheetRequest);
-
-                    return response()->json($response, 200);
                 default:
-                    return response()->json(['status' => 'error', 'message' => 'Invalid sheet management type.'], 400);
+                    throw new \Exception('Invalid sheet management type.', 400);
             }
 
             $batchUpdateRequest = new Sheets\BatchUpdateSpreadsheetRequest([
                 'requests' => [$request],
             ]);
 
-            $response = $this->sheetsService
+            return $this->sheetsService
                 ->spreadsheets
                 ->batchUpdate($data->spreadSheetId, $batchUpdateRequest);
-
-            return response()->json($response, 200);
-
-        } catch (\Google\Service\Exception $e) {
-            Log::error('Google Sheets API Error: '.$e->getMessage(), ['code' => $e->getCode(), 'errors' => $e->getErrors()]);
-
-            $httpStatusCode = $e->getCode();
-
-            if (! is_int($httpStatusCode) || $httpStatusCode < 100 || $httpStatusCode > 599) {
-                $httpStatusCode = 500;
-            }
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to manage Google Sheet due to an external API error.',
-                'code' => $httpStatusCode,
-            ], $httpStatusCode);
-        } catch (\Exception $e) {
-            Log::error('Error managing Google Sheet: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'An unexpected error occurred while managing Google Sheet.'
-            ], 500);
-        }
+        }, 'Failed to manage Google Sheet');
     }
 }
