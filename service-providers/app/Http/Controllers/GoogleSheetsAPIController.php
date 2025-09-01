@@ -532,7 +532,7 @@ class GoogleSheetsAPIController extends BaseController
 
     /**
      * @OA\Post(
-     *     path="/api/google-sheets/create",
+     *     path="/api/sheets/create",
      *     summary="Create a new Google Spreadsheet",
      *     tags={"Google Sheets API"},
      *     @OA\RequestBody(
@@ -567,7 +567,7 @@ class GoogleSheetsAPIController extends BaseController
 
     /**
      * @OA\Get(
-     *     path="/api/google-sheets/read-range",
+     *     path="/api/sheets/read-range",
      *     summary="Read a range of values from a Google Spreadsheet",
      *     tags={"Google Sheets API"},
      *     @OA\Parameter(
@@ -630,7 +630,7 @@ class GoogleSheetsAPIController extends BaseController
 
     /**
      * @OA\Put(
-     *     path="/api/google-sheets/write-range",
+     *     path="/api/sheets/write-range",
      *     summary="Write a range of values to a Google Spreadsheet",
      *     tags={"Google Sheets API"},
      *     @OA\RequestBody(
@@ -694,7 +694,7 @@ class GoogleSheetsAPIController extends BaseController
 
     /**
      * @OA\Post(
-     *     path="/api/google-sheets/append-values",
+     *     path="/api/sheets/append-values",
      *     summary="Append values to a Google Spreadsheet",
      *     tags={"Google Sheets API"},
      *     @OA\RequestBody(
@@ -758,7 +758,7 @@ class GoogleSheetsAPIController extends BaseController
 
     /**
      * @OA\Post(
-     *     path="/api/google-sheets/batch-update",
+     *     path="/api/sheets/batch-update",
      *     summary="Batch update values in a Google Spreadsheet",
      *     tags={"Google Sheets API"},
      *     @OA\RequestBody(
@@ -793,7 +793,7 @@ class GoogleSheetsAPIController extends BaseController
 
     /**
      * @OA\Post(
-     *     path="/api/google-sheets/clear-range",
+     *     path="/api/sheets/clear-range",
      *     summary="Clear a range of values from a Google Spreadsheet",
      *     tags={"Google Sheets API"},
      *     @OA\RequestBody(
