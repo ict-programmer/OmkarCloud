@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Http\Controllers\FFMpegServiceController;
+use App\Http\Requests\FFMpeg\AudioFadesRequest;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\AudioVolumeRequest;
@@ -43,6 +44,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                         'audio_overlay',
                         'frame_extraction',
                         'audio_volume',
+                        'audio_fades',
                     ],
                 ],
                 'is_active' => true,
@@ -554,6 +556,54 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => AudioVolumeRequest::class,
                 'function_name' => 'audioVolume',
+            ],
+            [
+                'name' => 'Audio Fades / Ducking',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/codeskulptor-assets/Evillaugh.ogg',
+                        'format' => 'url',
+                        'description' => 'URL of the audio/video file to apply fades',
+                    ],
+                    'fade_in_duration' => [
+                        'type' => 'number',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => 2.0,
+                        'min' => 0,
+                        'max' => 60,
+                        'description' => 'Fade in duration in seconds (null to skip fade in)',
+                    ],
+                    'fade_out_duration' => [
+                        'type' => 'number',
+                        'required' => false,
+                        'userinput_rqd' => false,
+                        'default' => 3.0,
+                        'min' => 0,
+                        'max' => 60,
+                        'description' => 'Fade out duration in seconds (null to skip fade out)',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Audio fades applied successfully',
+                    'output_file_link' => 'https://output.example.com/faded_audio_123456.ogg',
+                    'processing_time' => 4.1,
+                    'fade_in_applied' => true,
+                    'fade_in_duration' => '2.0s',
+                    'fade_out_applied' => true,
+                    'fade_out_duration' => '3.0s',
+                    'total_fade_duration' => '5.0s',
+                    'output_format' => 'ogg',
+                    'file_size' => '3.1MB',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => AudioFadesRequest::class,
+                'function_name' => 'audioFades',
             ],
         ];
 

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Data\Request\FFMpeg\AudioFadesData;
 use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\AudioVolumeData;
@@ -606,6 +607,70 @@ class FFMpegService
             '-c:a', $audioCodec,
             '-c:v', 'copy',  // Copy video stream if present (for video files)
         ];
+
+        return $this->runAndUpload(
+            $inputFilePath,
+            $command,
+            $outputFormat
+        );
+    }
+
+    /**
+     * Apply audio fade in/out effects using FFmpeg afade filter.
+     *
+     * @param AudioFadesData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function applyAudioFades(AudioFadesData $data): string
+    {
+        // Download input audio/video file
+        $inputFilePath = $this->downloadFile($data->input);
+        
+        // Determine output format based on input file extension
+        $inputExtension = pathinfo($data->input, PATHINFO_EXTENSION);
+        $outputFormat = in_array(strtolower($inputExtension), ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma']) 
+            ? strtolower($inputExtension) 
+            : 'mp3';
+        
+        // Set audio codec based on output format
+        $audioCodec = match ($outputFormat) {
+            'wav' => 'pcm_s16le',
+            'flac' => 'flac',
+            'aac', 'm4a' => 'aac',
+            'ogg' => 'libvorbis',
+            'wma' => 'wmav2',
+            default => 'libmp3lame',
+        };
+
+        // Build audio filter chain for fades
+        $audioFilters = [];
+        
+        // Add fade in filter if specified
+        if ($data->fade_in_duration !== null && $data->fade_in_duration > 0) {
+            $audioFilters[] = 'afade=t=in:d=' . $data->fade_in_duration;
+        }
+        
+        // Add fade out filter if specified
+        if ($data->fade_out_duration !== null && $data->fade_out_duration > 0) {
+            $audioFilters[] = 'afade=t=out:d=' . $data->fade_out_duration;
+        }
+        
+        // Build FFmpeg command
+        $command = ['-i', $inputFilePath];
+        
+        // Apply audio filters if any fades are specified
+        if (!empty($audioFilters)) {
+            $command[] = '-af';
+            $command[] = implode(',', $audioFilters);
+        }
+        
+        // Add codec and stream copy options
+        $command[] = '-c:a';
+        $command[] = $audioCodec;
+        $command[] = '-c:v';
+        $command[] = 'copy';  // Copy video stream if present
 
         return $this->runAndUpload(
             $inputFilePath,

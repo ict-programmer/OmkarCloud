@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Data\Request\FFMpeg\AudioFadesData;
 use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\AudioVolumeData;
@@ -12,6 +13,7 @@ use App\Data\Request\FFMpeg\LoudnessNormalizationData;
 use App\Data\Request\FFMpeg\TranscodingData;
 use App\Data\Request\FFMpeg\VideoProcessingData;
 use App\Data\Request\FFMpeg\VideoTrimmingData;
+use App\Http\Requests\FFMpeg\AudioFadesRequest;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\AudioVolumeRequest;
@@ -146,6 +148,18 @@ class FFMpegServiceController extends BaseController
 
         return $this->logAndResponse([
             'message' => 'Audio volume adjusted successfully',
+            'output_file_link' => $path,
+        ]);
+    }
+
+    public function audioFades(AudioFadesRequest $request): JsonResponse
+    {
+        $data = AudioFadesData::from($request->validated());
+
+        $path = $this->service->applyAudioFades($data);
+
+        return $this->logAndResponse([
+            'message' => 'Audio fades applied successfully',
             'output_file_link' => $path,
         ]);
     }
