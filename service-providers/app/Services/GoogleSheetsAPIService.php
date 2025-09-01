@@ -7,6 +7,7 @@ use App\Data\Request\GoogleSheetsAPI\CreateSpreadsheetData;
 use App\Data\Request\GoogleSheetsAPI\BatchUpdateData;
 use App\Data\Request\GoogleSheetsAPI\ClearRangeData;
 use App\Data\Request\GoogleSheetsAPI\WriteRangeData;
+use App\Data\Request\GoogleSheetsAPI\AppendValuesData;
 use App\Data\Request\GoogleSheetsAPI\ReadRangeData;
 use App\Data\Request\GoogleSheetsAPI\SheetsManagementData;
 use Google\Client;
@@ -58,18 +59,18 @@ class GoogleSheetsAPIService
         } catch (\Google\Service\Exception $e) {
             Log::error('Google Sheets API Error: '.$e->getMessage(), ['code' => $e->getCode(), 'errors' => $e->getErrors()]);
             $httpStatusCode = $e->getCode();
-            
+
             if (! is_int($httpStatusCode) || $httpStatusCode < 100 || $httpStatusCode > 599) {
                 $httpStatusCode = 500;
             }
-            
+
             throw new ApiException(
                 message: $errorMessagePrefix.' due to an external API error.', statusCode: $httpStatusCode,
                 details: $e->getMessage()
             );
         } catch (\Exception $e) {
             Log::error($errorMessagePrefix.': '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
-            
+
             throw new ApiException(
                 message: 'An unexpected error occurred while '.$errorMessagePrefix.'.',
                 statusCode: 500,
@@ -157,6 +158,30 @@ class GoogleSheetsAPIService
                 ->spreadsheets_values
                 ->update($data->spreadSheetId, $data->range, $valueRange, $options),
             'Failed to write Google Spreadsheet range'
+        );
+    }
+
+    /**
+     * Append values to a Google Spreadsheet.
+     *
+     * @param AppendValuesData $data
+     * @return object
+     */
+    public function appendValues(AppendValuesData $data): object
+    {
+        $valueRange = new Sheets\ValueRange([
+            'values' => $data->values,
+        ]);
+
+        $options = [
+            'valueInputOption' => $data->valueInputOption,
+        ];
+
+        return $this->handleGoogleSheetsApiCall(
+            fn () => $this->sheetsService
+                ->spreadsheets_values
+                ->append($data->spreadSheetId, $data->range, $valueRange, $options),
+            'Failed to append values to Google Spreadsheet'
         );
     }
 
@@ -252,4 +277,6 @@ class GoogleSheetsAPIService
                 ->batchUpdate($data->spreadSheetId, $batchUpdateRequest);
         }, 'Failed to manage Google Sheet');
     }
+
+
 }
