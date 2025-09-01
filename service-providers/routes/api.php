@@ -290,6 +290,7 @@ Route::prefix('sheets')
     ->controller(GoogleSheetsAPIController::class)
     ->group(function () {
         Route::post('create_spreadsheet', 'create');
+        Route::get('read_range', 'readRange');
     }
 );
 
