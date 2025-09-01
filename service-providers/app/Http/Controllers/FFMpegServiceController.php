@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\FFProbeData;
+use App\Data\Request\FFMpeg\FrameExtractionData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
 use App\Data\Request\FFMpeg\LoudnessNormalizationData;
 use App\Data\Request\FFMpeg\TranscodingData;
@@ -13,6 +14,7 @@ use App\Data\Request\FFMpeg\VideoTrimmingData;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\FFProbeRequest;
+use App\Http\Requests\FFMpeg\FrameExtractionRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
 use App\Http\Requests\FFMpeg\LoudnessNormalizationRequest;
 use App\Http\Requests\FFMpeg\TranscodingRequest;
@@ -118,6 +120,19 @@ class FFMpegServiceController extends BaseController
         return $this->logAndResponse([
             'message' => 'Audio overlay completed successfully',
             'output_file_link' => $path,
+        ]);
+    }
+
+    public function frameExtraction(FrameExtractionRequest $request): JsonResponse
+    {
+        $data = FrameExtractionData::from($request->validated());
+
+        $frameUrls = $this->service->extractFrames($data);
+
+        return $this->logAndResponse([
+            'message' => 'Frame extraction completed successfully',
+            'total_frames' => count($frameUrls),
+            'frame_urls' => $frameUrls,
         ]);
     }
 }

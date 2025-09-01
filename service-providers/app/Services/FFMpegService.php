@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\FFProbeData;
+use App\Data\Request\FFMpeg\FrameExtractionData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
 use App\Data\Request\FFMpeg\LoudnessNormalizationData;
 use App\Data\Request\FFMpeg\TranscodingData;
@@ -487,5 +488,84 @@ class FFMpegService
         $this->deleteInputFile($overlayAudioPath);
 
         return $result;
+    }
+
+    /**
+     * Extract frames from video at specified frame rate.
+     *
+     * @param FrameExtractionData $data
+     * @return array
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function extractFrames(FrameExtractionData $data): array
+    {
+        // Download input video file
+        $inputFilePath = $this->downloadFile($data->input_file, 'mp4');
+        
+        // Create a temporary directory for extracted frames
+        $frameDir = storage_path('frames_' . time() . '_' . uniqid());
+        mkdir($frameDir, 0755, true);
+        
+        // Frame filename pattern
+        $framePattern = $frameDir . '/frame_%04d.jpg';
+        
+        // Build FFmpeg command for frame extraction
+        $command = [
+            $this->ffmpeg,
+            '-i', $inputFilePath,
+            '-r', (string) $data->frame_rate,  // Frame rate
+            '-f', 'image2',                    // Output format
+            '-q:v', '2',                       // High quality (1-31, lower is better)
+            $framePattern
+        ];
+
+        // Run FFmpeg command
+        $process = new Process($command);
+        $process->setTimeout(300);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            // Clean up on failure
+            $this->deleteInputFile($inputFilePath);
+            $this->deleteDirectory($frameDir);
+            throw new ProcessFailedException($process);
+        }
+
+        // Get all extracted frame files
+        $frameFiles = glob($frameDir . '/*.jpg');
+        sort($frameFiles); // Ensure proper order
+        
+        $frameUrls = [];
+        
+        // Upload each frame and collect URLs
+        foreach ($frameFiles as $frameFile) {
+            $uploadedPath = $this->uploadFile($frameFile);
+            $frameUrls[] = $this->getPublishUrl($uploadedPath);
+            unlink($frameFile); // Clean up local frame file
+        }
+        
+        // Clean up
+        $this->deleteInputFile($inputFilePath);
+        $this->deleteDirectory($frameDir);
+        
+        return $frameUrls;
+    }
+
+    /**
+     * Delete directory and its contents.
+     *
+     * @param string $dirPath
+     */
+    private function deleteDirectory(string $dirPath): void
+    {
+        if (is_dir($dirPath)) {
+            $files = array_diff(scandir($dirPath), ['.', '..']);
+            foreach ($files as $file) {
+                $filePath = $dirPath . '/' . $file;
+                is_dir($filePath) ? $this->deleteDirectory($filePath) : unlink($filePath);
+            }
+            rmdir($dirPath);
+        }
     }
 }

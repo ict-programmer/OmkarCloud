@@ -6,6 +6,7 @@ use App\Http\Controllers\FFMpegServiceController;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\FFProbeRequest;
+use App\Http\Requests\FFMpeg\FrameExtractionRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
 use App\Http\Requests\FFMpeg\LoudnessNormalizationRequest;
 use App\Http\Requests\FFMpeg\TranscodingRequest;
@@ -39,6 +40,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                         'ffprobe',
                         'transcoding',
                         'audio_overlay',
+                        'frame_extraction',
                     ],
                 ],
                 'is_active' => true,
@@ -468,6 +470,51 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => AudioOverlayRequest::class,
                 'function_name' => 'audioOverlay',
+            ],
+            [
+                'name' => 'Frame Extraction',
+                'input_parameters' => [
+                    'input_file' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                        'format' => 'url',
+                        'description' => 'URL of the video file to extract frames from',
+                    ],
+                    'frame_rate' => [
+                        'type' => 'number',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 1.0,
+                        'min' => 0.1,
+                        'max' => 30,
+                        'description' => 'Frame extraction rate (frames per second). Lower values = fewer frames extracted',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Frame extraction completed successfully',
+                    'total_frames' => 12,
+                    'frame_urls' => [
+                        'https://output.example.com/frame_0001.jpg',
+                        'https://output.example.com/frame_0002.jpg',
+                        'https://output.example.com/frame_0003.jpg',
+                        'https://output.example.com/frame_0004.jpg',
+                        'https://output.example.com/frame_0005.jpg',
+                        'https://output.example.com/frame_0006.jpg',
+                        '...'
+                    ],
+                    'processing_time' => 8.5,
+                    'video_duration' => '12.000000',
+                    'extracted_frame_rate' => 1.0,
+                    'image_format' => 'JPEG',
+                    'image_quality' => 'high',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => FrameExtractionRequest::class,
+                'function_name' => 'frameExtraction',
             ],
         ];
 
