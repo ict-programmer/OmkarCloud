@@ -308,6 +308,37 @@ use OpenApi\Annotations as OA;
  *         )
  *     )
  * )
+ *
+ * @OA\Schema(
+ *     schema="UpdateValuesResponse",
+ *     title="Update Values Response",
+ *     description="Response for updating a range of values in a spreadsheet.",
+ *     @OA\Property(
+ *         property="spreadsheetId",
+ *         type="string",
+ *         description="The ID of the spreadsheet."
+ *     ),
+ *     @OA\Property(
+ *         property="updatedRange",
+ *         type="string",
+ *         description="The range that the values cover, in A1 notation."
+ *     ),
+ *     @OA\Property(
+ *         property="updatedRows",
+ *         type="integer",
+ *         description="The number of rows that were updated."
+ *     ),
+ *     @OA\Property(
+ *         property="updatedColumns",
+ *         type="integer",
+ *         description="The number of columns that were updated."
+ *     ),
+ *     @OA\Property(
+ *         property="updatedCells",
+ *         type="integer",
+ *         description="The number of cells that were updated."
+ *     )
+ * )
  */
 class GoogleSheetsAPIController extends BaseController
 {
@@ -416,6 +447,61 @@ class GoogleSheetsAPIController extends BaseController
         return $this->logAndResponse(GoogleSheetsAPIResource::make($result));
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/google-sheets/write-range",
+     *     summary="Write a range of values to a Google Spreadsheet",
+     *     tags={"Google Sheets API"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"spreadSheetId", "range", "valueInputOption", "values"},
+     *             @OA\Property(
+     *                 property="spreadSheetId",
+     *                 type="string",
+     *                 description="The ID of the spreadsheet to write data to.",
+     *                 maxLength=255
+     *             ),
+     *             @OA\Property(
+     *                 property="range",
+     *                 type="string",
+     *                 description="The A1 notation of the range to write values to.",
+     *                 maxLength=255
+     *             ),
+     *             @OA\Property(
+     *                 property="valueInputOption",
+     *                 type="string",
+     *                 description="How the input data should be interpreted.",
+     *                 enum={"RAW", "USER_ENTERED"}
+     *             ),
+     *             @OA\Property(
+     *                 property="values",
+     *                 type="array",
+     *                 description="The data to write, as a list of lists.",
+     *                 @OA\Items(
+     *                     type="array",
+     *                     @OA\Items(type="string")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/UpdateValuesResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error",
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationError")
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     )
+     * )
+     */
     public function writeRange(WriteRangeRequest $request)
     {
         $validatedRequest = $request->validated();
