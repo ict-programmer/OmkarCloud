@@ -339,6 +339,52 @@ use OpenApi\Annotations as OA;
  *         description="The number of cells that were updated."
  *     )
  * )
+ *
+ * @OA\Schema(
+ *     schema="AppendValuesResponse",
+ *     title="Append Values Response",
+ *     description="Response for appending values to a spreadsheet.",
+ *     @OA\Property(
+ *         property="spreadsheetId",
+ *         type="string",
+ *         description="The ID of the spreadsheet."
+ *     ),
+ *     @OA\Property(
+ *         property="tableRange",
+ *         type="string",
+ *         description="The table range where the values were appended, in A1 notation."
+ *     ),
+ *     @OA\Property(
+ *         property="updates",
+ *         type="object",
+ *         description="Information about the updates that were applied.",
+ *         @OA\Property(
+ *             property="spreadsheetId",
+ *             type="string",
+ *             description="The ID of the spreadsheet."
+ *         ),
+ *         @OA\Property(
+ *             property="updatedRange",
+ *             type="string",
+ *             description="The range that the values cover, in A1 notation."
+ *         ),
+ *         @OA\Property(
+ *             property="updatedRows",
+ *             type="integer",
+ *             description="The number of rows that were updated."
+ *         ),
+ *         @OA\Property(
+ *             property="updatedColumns",
+ *             type="integer",
+ *             description="The number of columns that were updated."
+ *         ),
+ *         @OA\Property(
+ *             property="updatedCells",
+ *             type="integer",
+ *             description="The number of cells that were updated."
+ *         )
+ *     )
+ * )
  */
 class GoogleSheetsAPIController extends BaseController
 {
@@ -511,6 +557,61 @@ class GoogleSheetsAPIController extends BaseController
         return $this->logAndResponse(GoogleSheetsAPIResource::make($result));
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/google-sheets/append-values",
+     *     summary="Append values to a Google Spreadsheet",
+     *     tags={"Google Sheets API"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"spreadSheetId", "range", "valueInputOption", "values"},
+     *             @OA\Property(
+     *                 property="spreadSheetId",
+     *                 type="string",
+     *                 description="The ID of the spreadsheet to append data to.",
+     *                 maxLength=255
+     *             ),
+     *             @OA\Property(
+     *                 property="range",
+     *                 type="string",
+     *                 description="The A1 notation of the range to append values to.",
+     *                 maxLength=255
+     *             ),
+     *             @OA\Property(
+     *                 property="valueInputOption",
+     *                 type="string",
+     *                 description="How the input data should be interpreted.",
+     *                 enum={"RAW", "USER_ENTERED"}
+     *             ),
+     *             @OA\Property(
+     *                 property="values",
+     *                 type="array",
+     *                 description="The data to append, as a list of lists.",
+     *                 @OA\Items(
+     *                     type="array",
+     *                     @OA\Items(type="string")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/AppendValuesResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error",
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationError")
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     )
+     * )
+     */
     public function appendValues(AppendValuesRequest $request)
     {
         $validatedRequest = $request->validated();
