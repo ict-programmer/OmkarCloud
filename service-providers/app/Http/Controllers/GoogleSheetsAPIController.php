@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Data\Request\GoogleSheetsAPI\CreateSpreadsheetData;
 use App\Data\Request\GoogleSheetsAPI\BatchUpdateData;
 use App\Data\Request\GoogleSheetsAPI\ClearRangeData;
+use App\Data\Request\GoogleSheetsAPI\AppendValuesData;
 use App\Data\Request\GoogleSheetsAPI\ReadRangeData;
 use App\Data\Request\GoogleSheetsAPI\SheetsManagementData;
 use App\Data\Request\GoogleSheetsAPI\WriteRangeData;
+use App\Http\Requests\GoogleSheetAPI\AppendValuesRequest;
 use App\Http\Requests\GoogleSheetAPI\BatchUpdateRequest;
 use App\Http\Requests\GoogleSheetAPI\ClearRangeRequest;
 use App\Http\Requests\GoogleSheetAPI\CreateSpreadsheetRequest;
@@ -54,6 +56,15 @@ class GoogleSheetsAPIController extends BaseController
         return $this->logAndResponse(GoogleSheetsAPIResource::make($result));
     }
 
+    public function appendValues(AppendValuesRequest $request)
+    {
+        $validatedRequest = $request->validated();
+        $appendValuesData = AppendValuesData::from($validatedRequest);
+
+        $result = $this->googleSheetsAPIService->appendValues($appendValuesData);
+        return $this->logAndResponse(GoogleSheetsAPIResource::make($result));
+    }
+
     public function batchUpdate(BatchUpdateRequest $request)
     {
         $validatedRequest = $request->validated();
@@ -80,4 +91,6 @@ class GoogleSheetsAPIController extends BaseController
         $result = $this->googleSheetsAPIService->sheetsManagement($sheetsManagementData);
         return $this->logAndResponse(GoogleSheetsAPIResource::make($result));
     }
+
+
 }
