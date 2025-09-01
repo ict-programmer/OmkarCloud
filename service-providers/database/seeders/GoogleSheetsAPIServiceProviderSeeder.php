@@ -385,7 +385,7 @@ class GoogleSheetsAPIServiceProviderSeeder extends Seeder
                     'updatedCells' => '$.updatedCells',
                 ],
                 'request_class_name' => ReadRangeRequest::class,
-                'function_name' => 'writeRange',
+                'function_name' => 'readRange',
                 'status' => 1,
             ],
             [
