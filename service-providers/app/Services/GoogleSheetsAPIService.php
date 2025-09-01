@@ -6,6 +6,7 @@ use App\Data\Request\GoogleSheetsAPI\CreateSpreadsheetData;
 use Google\Client;
 use Google\Service\Drive;
 use Google\Service\Sheets;
+use App\Data\Request\GoogleSheetsAPI\ReadRangeData;
 use Google\Service\Sheets\Spreadsheet;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
@@ -91,6 +92,50 @@ class GoogleSheetsAPIService
             return response()->json([
                 'status' => 'error',
                 'message' => 'An unexpected error occurred while creating Google Spreadsheet.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Read a range of values from a Google Spreadsheet.
+     *
+     * @param ReadRangeData $data
+     * @return JsonResponse
+     */
+    public function readRange(ReadRangeData $data): JsonResponse
+    {
+        try {
+            $response = $this->sheetsService
+                ->spreadsheets_values
+                ->get($data->spreadSheetId, $data->range, [
+                    'majorDimension' => $data->majorDimensions,
+                    'valueRenderOption' => $data->valueRenderOption,
+                    'dateTimeRenderOption' => $data->dateTimeRenderOption,
+                ]);
+
+            return response()->json($response, 200);
+
+        } catch (\Google\Service\Exception $e) {
+
+            Log::error('Google Sheets API Error: '.$e->getMessage(), ['code' => $e->getCode(), 'errors' => $e->getErrors()]);
+
+            $httpStatusCode = $e->getCode();
+
+            if (! is_int($httpStatusCode) || $httpStatusCode < 100 || $httpStatusCode > 599) {
+                $httpStatusCode = 500;
+            }
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to read Google Spreadsheet range due to an external API error.',
+                'code' => $httpStatusCode,
+            ], $httpStatusCode);
+        } catch (\Exception $e) {
+            Log::error('Error reading Google Spreadsheet range: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An unexpected error occurred while reading Google Spreadsheet range.'
             ], 500);
         }
     }
