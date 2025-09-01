@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Data\Request\GoogleSheetsAPI\CreateSpreadsheetData;
 use App\Data\Request\GoogleSheetsAPI\BatchUpdateData;
+use App\Data\Request\GoogleSheetsAPI\ClearRangeData;
 use App\Data\Request\GoogleSheetsAPI\ReadRangeData;
 use App\Data\Request\GoogleSheetsAPI\WriteRangeData;
 use App\Http\Requests\GoogleSheetAPI\BatchUpdateRequest;
+use App\Http\Requests\GoogleSheetAPI\ClearRangeRequest;
 use App\Http\Requests\GoogleSheetAPI\CreateSpreadsheetRequest;
 use App\Http\Requests\GoogleSheetAPI\ReadRangeRequest;
 use App\Http\Requests\GoogleSheetAPI\WriteRangeRequest;
@@ -228,7 +230,7 @@ class GoogleSheetsAPIController extends Controller
         return $this->googleSheetsAPIService->readRange($readRangeData);
     }
 
-    
+
     public function writeRange(WriteRangeRequest $request): JsonResponse
     {
         $validatedRequest = $request->validated();
@@ -318,5 +320,61 @@ class GoogleSheetsAPIController extends Controller
         $batchUpdateData = BatchUpdateData::from($validatedRequest);
 
         return $this->googleSheetsAPIService->batchUpdate($batchUpdateData);
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/api/sheets/clear_range",
+     *      operationId="clearGoogleSheetRange",
+     *      tags={"GoogleSheetsAPI"},
+     *      summary="Clear a range of values from a Google Spreadsheet",
+     *      description="Clears a specified range of values from a Google Spreadsheet.",
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              type="object",
+     *              required={"spreadSheetId", "range"},
+     *              @OA\Property(property="spreadSheetId", type="string", example="1pkgT-KFlwDUFlaBVTC6rvenuCoKL6VpAuDw05cQsPVk", description="The ID of the spreadsheet to clear data from."),
+     *              @OA\Property(property="range", type="string", example="Sheet1!A1:B10", description="The A1 notation of the range to clear.")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="spreadsheetId", type="string", example="1pkgT-KFlwDUFlaBVTC6rvenuCoKL6VpAuDw05cQsPVk"),
+     *              @OA\Property(property="clearedRange", type="string", example="Sheet1!A1:B10")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="The given data was invalid."),
+     *              @OA\Property(property="errors", type="object",
+     *                  @OA\Property(property="spreadSheetId", type="array", @OA\Items(type="string", example="The spreadsheet ID is required."))
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Failed to clear Google Spreadsheet range due to API error or unexpected error",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="status", type="string", example="error"),
+     *              @OA\Property(property="message", type="string", example="Failed to clear Google Spreadsheet range due to an external API error."),
+     *              @OA\Property(property="code", type="integer", example=500)
+     *          )
+     *      )
+     * )
+     */
+    public function clearRange(ClearRangeRequest $request): JsonResponse
+    {
+        $validatedRequest = $request->validated();
+        $clearRangeData = ClearRangeData::from($validatedRequest);
+
+        return $this->googleSheetsAPIService->clearRange($clearRangeData);
     }
 }

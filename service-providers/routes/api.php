@@ -293,6 +293,7 @@ Route::prefix('sheets')
         Route::get('read_range', 'readRange');
         Route::put('write_range', 'writeRange');
         Route::post('batch_update', 'batchUpdate');
+        Route::post('clear_range', 'clearRange');
     }
 );
 
