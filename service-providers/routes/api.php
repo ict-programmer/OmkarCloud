@@ -11,6 +11,7 @@ use App\Http\Controllers\FreepikController;
 use App\Http\Controllers\GeminiController;
 use App\Http\Controllers\GettyimagesController;
 use App\Http\Controllers\GoogleController;
+use App\Http\Controllers\GoogleSheetsAPIController;
 use App\Http\Controllers\GoogleSheetsController;
 use App\Http\Controllers\MainFunctionController;
 use App\Http\Controllers\PerplexityController;
@@ -285,6 +286,12 @@ Route::prefix('google')->controller(GoogleController::class)->group(function () 
     Route::post('search_image_with_operators', 'searchImage');
 });
 
+Route::prefix('sheets')
+    ->controller(GoogleSheetsAPIController::class)
+    ->group(function () {
+        Route::post('create_spreadsheet', 'create');
+    }
+);
 
 Route::get('services/{service_provider_id}/{service_type_id}', [MainFunctionController::class, 'getRequestBody']);
 Route::post('services/{service_provider_id}/{service_type_id}', MainFunctionController::class);
