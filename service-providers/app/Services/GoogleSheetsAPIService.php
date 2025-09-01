@@ -2,13 +2,17 @@
 
 namespace App\Services;
 
+use App\Data\Request\GoogleSheetsAPI\BatchUpdateSheetData;
 use App\Data\Request\GoogleSheetsAPI\CreateSpreadsheetData;
+use App\Data\Request\GoogleSheetsAPI\BatchUpdateData;
 use App\Data\Request\GoogleSheetsAPI\WriteRangeData;
 use Google\Client;
 use Google\Service\Drive;
 use Google\Service\Sheets;
 use App\Data\Request\GoogleSheetsAPI\ReadRangeData;
+use Google\Service\Sheets\BatchUpdateValuesRequest;
 use Google\Service\Sheets\Spreadsheet;
+use Google\Service\Sheets\ValueRange;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
@@ -156,7 +160,7 @@ class GoogleSheetsAPIService
         $options = [
             'valueInputOption' => $data->valueInputOption,
         ];
-        
+
         try {
             $response = $this->sheetsService
                 ->spreadsheets_values
@@ -185,6 +189,60 @@ class GoogleSheetsAPIService
             return response()->json([
                 'status' => 'error',
                 'message' => 'An unexpected error occurred while writing Google Spreadsheet range.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Batch update values in a Google Spreadsheet.
+     *
+     * @param BatchUpdateData $data
+     * @return JsonResponse
+     */
+    public function batchUpdate(BatchUpdateData $data): JsonResponse
+    {
+        $valueRanges = collect($data->data->all())->map(function (BatchUpdateSheetData $item) {
+            return new ValueRange([
+                'range' => $item->range,
+                'values' => $item->values,
+            ]);
+        })->all();
+
+        $body = new BatchUpdateValuesRequest([
+            'data' => $valueRanges,
+            'valueInputOption' => $data->valueInputOption,
+        ]);
+
+        try {
+            $response = $this->sheetsService
+                ->spreadsheets_values
+                ->batchUpdate($data->spreadSheetId, $body);
+
+            return response()->json($response, 200);
+
+        } catch (\Google\Service\Exception $e) {
+            Log::error('Google Sheets API Error: '.$e->getMessage(), ['code' => $e->getCode(), 'errors' => $e->getErrors()]);
+
+            $httpStatusCode = $e->getCode();
+
+            if (! is_int($httpStatusCode) || $httpStatusCode < 100 || $httpStatusCode > 599) {
+                $httpStatusCode = 500;
+            }
+
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Failed to batch update Google Spreadsheet values due to an external API error.',
+                    'code' => $httpStatusCode,
+                ]
+                , $httpStatusCode
+            );
+        } catch (\Exception $e) {
+            Log::error('Error batch updating Google Spreadsheet values: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An unexpected error occurred while batch updating Google Spreadsheet values.'
             ], 500);
         }
     }
