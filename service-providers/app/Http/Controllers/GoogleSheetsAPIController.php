@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Data\Request\GoogleSheetsAPI\CreateSpreadsheetData;
+use App\Data\Request\GoogleSheetsAPI\BatchUpdateData;
 use App\Data\Request\GoogleSheetsAPI\ReadRangeData;
 use App\Data\Request\GoogleSheetsAPI\WriteRangeData;
+use App\Http\Requests\GoogleSheetAPI\BatchUpdateRequest;
 use App\Http\Requests\GoogleSheetAPI\CreateSpreadsheetRequest;
 use App\Http\Requests\GoogleSheetAPI\ReadRangeRequest;
 use App\Http\Requests\GoogleSheetAPI\WriteRangeRequest;
@@ -233,5 +235,88 @@ class GoogleSheetsAPIController extends Controller
         $writeRangeData = WriteRangeData::from($validatedRequest);
 
         return $this->googleSheetsAPIService->writeRange($writeRangeData);
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/api/sheets/batch_update",
+     *      operationId="batchUpdateGoogleSheetValues",
+     *      tags={"GoogleSheetsAPI"},
+     *      summary="Batch update values in a Google Spreadsheet",
+     *      description="Updates multiple ranges of values in a Google Spreadsheet in a single request.",
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              type="object",
+     *              required={"spreadSheetId", "data", "valueInputOption"},
+     *              @OA\Property(property="spreadSheetId", type="string", example="1pkgT-KFlwDUFlaBVTC6rvenuCoKL6VpAuDw05cQsPVk", description="The ID of the spreadsheet to update."),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  description="Array of ValueRange objects to update.",
+     *                  @OA\Items(
+     *                      type="object",
+     *                      required={"range", "values"},
+     *                      @OA\Property(property="range", type="string", example="Sheet1!A1:B2", description="The A1 notation of the range to update."),
+     *                      @OA\Property(
+     *                          property="values",
+     *                          type="array",
+     *                          description="The data to be written, a 2D array.",
+     *                          @OA\Items(
+     *                              type="array",
+     *                              @OA\Items(type="string", example="A1 Value")
+     *                          )
+     *                      )
+     *                  )
+     *              ),
+     *              @OA\Property(property="valueInputOption", type="string", example="RAW", enum={"RAW", "USER_ENTERED"}, description="How the input data should be interpreted.")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="spreadsheetId", type="string", example="1pkgT-KFlwDUFlaBVTC6rvenuCoKL6VpAuDw05cQsPVk"),
+     *              @OA\Property(property="totalUpdatedCells", type="integer", example=4),
+     *              @OA\Property(property="responses", type="array", @OA\Items(
+     *                  type="object",
+     *                  @OA\Property(property="spreadsheetId", type="string", example="1pkgT-KFlwDUFlaBVTC6rvenuCoKL6VpAuDw05cQsPVk"),
+     *                  @OA\Property(property="updatedRange", type="string", example="Sheet1!A1:B2"),
+     *                  @OA\Property(property="updatedRows", type="integer", example=2),
+     *                  @OA\Property(property="updatedColumns", type="integer", example=2),
+     *                  @OA\Property(property="updatedCells", type="integer", example=4)
+     *              ))
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="The given data was invalid."),
+     *              @OA\Property(property="errors", type="object",
+     *                  @OA\Property(property="spreadSheetId", type="array", @OA\Items(type="string", example="The spreadsheet ID is required."))
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Failed to batch update Google Spreadsheet values due to API error or unexpected error",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="status", type="string", example="error"),
+     *              @OA\Property(property="message", type="string", example="Failed to batch update Google Spreadsheet values due to an external API error."),
+     *              @OA\Property(property="code", type="integer", example=500)
+     *          )
+     *      )
+     * )
+     */
+    public function batchUpdate(BatchUpdateRequest $request): JsonResponse
+    {
+        $validatedRequest = $request->validated();
+        $batchUpdateData = BatchUpdateData::from($validatedRequest);
+
+        return $this->googleSheetsAPIService->batchUpdate($batchUpdateData);
     }
 }

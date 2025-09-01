@@ -292,6 +292,7 @@ Route::prefix('sheets')
         Route::post('create_spreadsheet', 'create');
         Route::get('read_range', 'readRange');
         Route::put('write_range', 'writeRange');
+        Route::post('batch_update', 'batchUpdate');
     }
 );
 
