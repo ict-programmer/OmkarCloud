@@ -10,13 +10,14 @@ use App\Http\Requests\GoogleSheetAPI\ClearRangeRequest;
 use App\Http\Requests\GoogleSheetAPI\CreateSpreadsheetRequest;
 use App\Http\Requests\GoogleSheetAPI\ReadRangeRequest;
 use App\Models\ServiceProvider;
-use App\Models\ServiceType;
 use App\Traits\ServiceProviderSeederTrait;
 use Illuminate\Database\Seeder;
 
 class GoogleSheetsAPIServiceProviderSeeder extends Seeder
 {
     use ServiceProviderSeederTrait;
+
+    protected string $providerName = ServiceProviderEnum::GOOGLE_SHEETS_API->value;
 
     /**
      * The database connection that should be used by the seeder.
@@ -30,17 +31,23 @@ class GoogleSheetsAPIServiceProviderSeeder extends Seeder
      */
     public function run(): void
     {
-        $googleSheetsProvider = $this->createServiceProvider();
+        $serviceProvider = $this->createServiceProvider();
 
-        $this->createServiceTypes($googleSheetsProvider);
+        $serviceTypes = $this->serviceTypeData();
 
-        $this->command->info('GoogleSheetsAPI Service Provider and related types seeded successfully.');
+        $keptServiceTypeIds = $this->processServiceTypes($serviceProvider, $serviceTypes, $this->providerName);
+
+        $deletedProviderTypeCount = $deletedProviderTypeCount = $this->cleanupObsoleteServiceTypes($serviceProvider, $keptServiceTypeIds);
+        
+        $this->command->info("Cleanup completed:");
+        $this->command->info("- Deleted {$deletedProviderTypeCount} obsolete service provider types");
+        $this->command->info("- Kept " . count($keptServiceTypeIds) . " service types for " . $this->providerName);
     }
 
     protected function createServiceProvider(): ServiceProvider
     {
         return ServiceProvider::updateOrCreate(
-            ['type' => ServiceProviderEnum::GOOGLE_SHEETS_API->value],
+            ['type' => $this->providerName],
             [
                 'parameter' => [
                     'api_url' => 'https://sheets.googleapis.com/v4',
@@ -50,26 +57,6 @@ class GoogleSheetsAPIServiceProviderSeeder extends Seeder
                 'controller_name' => GoogleSheetsAPIController::class,
             ]
         );
-    }
-
-    protected function createServiceTypes(ServiceProvider $serviceProvider): void
-    {
-        $serviceTypeData = $this->serviceTypeData();
-
-
-        foreach ($serviceTypeData as $serviceType) {
-            ServiceType::updateOrCreate([
-                'service_provider_id' => $serviceProvider->id,
-                'name' => $serviceType['name']
-            ], [
-                'name' => $serviceType['name'],
-                'input_parameters' => $serviceType['input_parameters'],
-                'response' => $serviceType['response'],
-                'request_class_name' => $serviceType['request_class_name'],
-                'function_name' => $serviceType['function_name'],
-                'status' => $serviceType['status'],
-            ]);
-        }
     }
 
     protected function serviceTypeData() : array 
