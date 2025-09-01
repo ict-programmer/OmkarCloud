@@ -294,6 +294,7 @@ Route::prefix('sheets')
         Route::put('write_range', 'writeRange');
         Route::post('batch_update', 'batchUpdate');
         Route::post('clear_range', 'clearRange');
+        Route::post('management', 'sheetsManagement');
     }
 );
 

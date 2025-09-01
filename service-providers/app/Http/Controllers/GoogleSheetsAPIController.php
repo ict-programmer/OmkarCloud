@@ -6,11 +6,13 @@ use App\Data\Request\GoogleSheetsAPI\CreateSpreadsheetData;
 use App\Data\Request\GoogleSheetsAPI\BatchUpdateData;
 use App\Data\Request\GoogleSheetsAPI\ClearRangeData;
 use App\Data\Request\GoogleSheetsAPI\ReadRangeData;
+use App\Data\Request\GoogleSheetsAPI\SheetsManagementData;
 use App\Data\Request\GoogleSheetsAPI\WriteRangeData;
 use App\Http\Requests\GoogleSheetAPI\BatchUpdateRequest;
 use App\Http\Requests\GoogleSheetAPI\ClearRangeRequest;
 use App\Http\Requests\GoogleSheetAPI\CreateSpreadsheetRequest;
 use App\Http\Requests\GoogleSheetAPI\ReadRangeRequest;
+use App\Http\Requests\GoogleSheetAPI\SheetsManagementRequest;
 use App\Http\Requests\GoogleSheetAPI\WriteRangeRequest;
 use App\Services\GoogleSheetsAPIService;
 use Illuminate\Http\JsonResponse;
@@ -376,5 +378,64 @@ class GoogleSheetsAPIController extends Controller
         $clearRangeData = ClearRangeData::from($validatedRequest);
 
         return $this->googleSheetsAPIService->clearRange($clearRangeData);
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/api/sheets/management",
+     *      operationId="manageGoogleSheets",
+     *      tags={"GoogleSheetsAPI"},
+     *      summary="Perform various management operations on Google Sheets (add, delete, copy)",
+     *      description="Allows adding a new sheet, deleting an existing sheet, or copying a sheet to another spreadsheet.",
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              type="object",
+     *              required={"spreadSheetId", "type"},
+     *              @OA\Property(property="spreadSheetId", type="string", example="1pkgT-KFlwDUFlaBVTC6rvenuCoKL6VpAuDw05cQsPVk", description="The ID of the spreadsheet to manage."),
+     *              @OA\Property(property="type", type="string", example="addSheet", enum={"addSheet", "deleteSheet", "copySheet"}, description="The type of operation to perform."),
+     *              @OA\Property(property="title", type="string", example="New Sheet from Management", description="Required if type is 'addSheet'. The title of the new sheet."),
+     *              @OA\Property(property="sheetId", type="integer", example=0, description="Required if type is 'deleteSheet' or 'copySheet'. The ID of the sheet to delete or copy."),
+     *              @OA\Property(property="destinationSpreadsheetId", type="string", example="YOUR_DESTINATION_SPREADSHEET_ID", description="Required if type is 'copySheet'. The ID of the destination spreadsheet.")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="status", type="string", example="success"),
+     *              @OA\Property(property="message", type="string", example="Sheet operation completed successfully.")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="The given data was invalid."),
+     *              @OA\Property(property="errors", type="object",
+     *                  @OA\Property(property="type", type="array", @OA\Items(type="string", example="The type field is required."))
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Failed to manage Google Sheet due to API error or unexpected error",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="status", type="string", example="error"),
+     *              @OA\Property(property="message", type="string", example="Failed to manage Google Sheet due to an external API error."),
+     *              @OA\Property(property="code", type="integer", example=500)
+     *          )
+     *      )
+     * )
+     */
+    public function sheetsManagement(SheetsManagementRequest $request): JsonResponse
+    {
+        $validatedRequest = $request->validated();
+        $sheetsManagementData = SheetsManagementData::from($validatedRequest);
+
+        return $this->googleSheetsAPIService->sheetsManagement($sheetsManagementData);
     }
 }
