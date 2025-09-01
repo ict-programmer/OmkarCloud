@@ -284,6 +284,40 @@ use OpenApi\Annotations as OA;
  * )
  *
  * @OA\Schema(
+ *     schema="ClearRangeRequest",
+ *     title="Clear Range Request",
+ *     required={"spreadSheetId", "range"},
+ *     @OA\Property(
+ *         property="spreadSheetId",
+ *         type="string",
+ *         description="The ID of the spreadsheet to clear a range from.",
+ *         maxLength=255
+ *     ),
+ *     @OA\Property(
+ *         property="range",
+ *         type="string",
+ *         description="The A1 notation of the range to clear values from.",
+ *         maxLength=255
+ *     )
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ClearValuesResponse",
+ *     title="Clear Values Response",
+ *     description="Response for clearing a range of values in a spreadsheet.",
+ *     @OA\Property(
+ *         property="spreadsheetId",
+ *         type="string",
+ *         description="The ID of the spreadsheet."
+ *     ),
+ *     @OA\Property(
+ *         property="clearedRange",
+ *         type="string",
+ *         description="The range that was cleared, in A1 notation."
+ *     )
+ * )
+ *
+ * @OA\Schema(
  *     schema="ValueRange",
  *     title="Value Range",
  *     description="Represents a range of values in a spreadsheet.",
@@ -595,7 +629,7 @@ class GoogleSheetsAPIController extends BaseController
     }
 
     /**
-     * @OA\Post(
+     * @OA\Put(
      *     path="/api/google-sheets/write-range",
      *     summary="Write a range of values to a Google Spreadsheet",
      *     tags={"Google Sheets API"},
@@ -757,6 +791,32 @@ class GoogleSheetsAPIController extends BaseController
         return $this->logAndResponse(GoogleSheetsAPIResource::make($result));
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/google-sheets/clear-range",
+     *     summary="Clear a range of values from a Google Spreadsheet",
+     *     tags={"Google Sheets API"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/ClearRangeRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/ClearValuesResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error",
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationError")
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     )
+     * )
+     */
     public function clearRange(ClearRangeRequest $request)
     {
         $validatedRequest = $request->validated();
