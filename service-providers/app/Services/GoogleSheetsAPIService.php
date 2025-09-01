@@ -11,8 +11,12 @@ use Google\Client;
 use Google\Service\Drive;
 use Google\Service\Sheets;
 use App\Data\Request\GoogleSheetsAPI\ReadRangeData;
+use App\Data\Request\GoogleSheetsAPI\SheetsManagementData;
+use Google\Service\Sheets\BatchUpdateSpreadsheetRequest;
 use Google\Service\Sheets\BatchUpdateValuesRequest;
 use Google\Service\Sheets\ClearValuesRequest;
+use Google\Service\Sheets\CopySheetToAnotherSpreadsheetRequest;
+use Google\Service\Sheets\Request;
 use Google\Service\Sheets\Spreadsheet;
 use Google\Service\Sheets\ValueRange;
 use Illuminate\Http\JsonResponse;
@@ -286,6 +290,80 @@ class GoogleSheetsAPIService
             return response()->json([
                 'status' => 'error',
                 'message' => 'An unexpected error occurred while clearing Google Spreadsheet range.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Perform various management operations on Google Sheets (add, delete, copy).
+     *
+     * @param SheetsManagementData $data
+     * @return JsonResponse
+     */
+    public function sheetsManagement(SheetsManagementData $data): JsonResponse
+    {
+        try {
+            switch ($data->type) {
+                case 'addSheet':
+                    $request = new Sheets\Request([
+                        'addSheet' => [
+                            'properties' => [
+                                'title' => $data->title,
+                            ],
+                        ],
+                    ]);
+                    break;
+                case 'deleteSheet':
+                    $request = new Sheets\Request([
+                        'deleteSheet' => [
+                            'sheetId' => $data->sheetId,
+                        ],
+                    ]);
+                    break;
+                case 'copySheet':
+                    $copySheetToAnotherSpreadsheetRequest = new Sheets\CopySheetToAnotherSpreadsheetRequest([
+                        'destinationSpreadsheetId' => $data->destinationSpreadsheetId,
+                    ]);
+
+                    $response = $this->sheetsService
+                        ->spreadsheets_sheets
+                        ->copyTo($data->spreadSheetId, $data->sheetId, $copySheetToAnotherSpreadsheetRequest);
+
+                    return response()->json($response, 200);
+                default:
+                    return response()->json(['status' => 'error', 'message' => 'Invalid sheet management type.'], 400);
+            }
+
+            $batchUpdateRequest = new Sheets\BatchUpdateSpreadsheetRequest([
+                'requests' => [$request],
+            ]);
+
+            $response = $this->sheetsService
+                ->spreadsheets
+                ->batchUpdate($data->spreadSheetId, $batchUpdateRequest);
+
+            return response()->json($response, 200);
+
+        } catch (\Google\Service\Exception $e) {
+            Log::error('Google Sheets API Error: '.$e->getMessage(), ['code' => $e->getCode(), 'errors' => $e->getErrors()]);
+
+            $httpStatusCode = $e->getCode();
+
+            if (! is_int($httpStatusCode) || $httpStatusCode < 100 || $httpStatusCode > 599) {
+                $httpStatusCode = 500;
+            }
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to manage Google Sheet due to an external API error.',
+                'code' => $httpStatusCode,
+            ], $httpStatusCode);
+        } catch (\Exception $e) {
+            Log::error('Error managing Google Sheet: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An unexpected error occurred while managing Google Sheet.'
             ], 500);
         }
     }
