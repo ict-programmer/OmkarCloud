@@ -385,6 +385,107 @@ use OpenApi\Annotations as OA;
  *         )
  *     )
  * )
+ *
+ * @OA\Schema(
+ *     schema="BatchUpdateRequest",
+ *     title="Batch Update Request",
+ *     required={"spreadSheetId", "data", "valueInputOption"},
+ *     @OA\Property(
+ *         property="spreadSheetId",
+ *         type="string",
+ *         description="The ID of the spreadsheet to update.",
+ *         maxLength=255
+ *     ),
+ *     @OA\Property(
+ *         property="data",
+ *         type="array",
+ *         description="The data to update, as a list of ValueRange objects.",
+ *         @OA\Items(
+ *             type="object",
+ *             required={"range", "values"},
+ *             @OA\Property(
+ *                 property="range",
+ *                 type="string",
+ *                 description="The A1 notation of the range to update values in.",
+ *                 maxLength=255
+ *             ),
+ *             @OA\Property(
+ *                 property="values",
+ *                 type="array",
+ *                 description="The data to write, as a list of lists.",
+ *                 @OA\Items(
+ *                     type="array",
+ *                     @OA\Items(type="string")
+ *                 )
+ *             )
+ *         )
+ *     ),
+ *     @OA\Property(
+ *         property="valueInputOption",
+ *         type="string",
+ *         description="How the input data should be interpreted.",
+ *         enum={"RAW", "USER_ENTERED"}
+ *     )
+ * )
+ *
+ * @OA\Schema(
+ *     schema="BatchUpdateValuesResponse",
+ *     title="Batch Update Values Response",
+ *     description="Response for batch updating values in a spreadsheet.",
+ *     @OA\Property(
+ *         property="spreadsheetId",
+ *         type="string",
+ *         description="The ID of the spreadsheet."
+ *     ),
+ *     @OA\Property(
+ *         property="totalUpdatedRows",
+ *         type="integer",
+ *         description="The total number of rows updated."
+ *     ),
+ *     @OA\Property(
+ *         property="totalUpdatedColumns",
+ *         type="integer",
+ *         description="The total number of columns updated."
+ *     ),
+ *     @OA\Property(
+ *         property="totalUpdatedCells",
+ *         type="integer",
+ *         description="The total number of cells updated."
+ *     ),
+ *     @OA\Property(
+ *         property="responses",
+ *         type="array",
+ *         description="Information about the updates that were applied to each range.",
+ *         @OA\Items(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="spreadsheetId",
+ *                 type="string",
+ *                 description="The ID of the spreadsheet."
+ *             ),
+ *             @OA\Property(
+ *                 property="updatedRange",
+ *                 type="string",
+ *                 description="The range that the values cover, in A1 notation."
+ *             ),
+ *             @OA\Property(
+ *                 property="updatedRows",
+ *                 type="integer",
+ *                 description="The number of rows that were updated."
+ *             ),
+ *             @OA\Property(
+ *                 property="updatedColumns",
+ *                 type="integer",
+ *                 description="The number of columns that were updated."
+ *             ),
+ *             @OA\Property(
+ *                 property="updatedCells",
+ *                 type="integer",
+ *                 description="The number of cells that were updated."
+ *             )
+ *         )
+ *     )
+ * )
  */
 class GoogleSheetsAPIController extends BaseController
 {
