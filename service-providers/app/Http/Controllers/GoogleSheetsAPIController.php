@@ -282,6 +282,32 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="statusCode", type="integer", example=500),
  *     @OA\Property(property="details", type="string", example="Error details here.")
  * )
+ *
+ * @OA\Schema(
+ *     schema="ValueRange",
+ *     title="Value Range",
+ *     description="Represents a range of values in a spreadsheet.",
+ *     @OA\Property(
+ *         property="range",
+ *         type="string",
+ *         description="The range the values cover, in A1 notation."
+ *     ),
+ *     @OA\Property(
+ *         property="majorDimension",
+ *         type="string",
+ *         description="The major dimension of the values.",
+ *         enum={"ROWS", "COLUMNS"}
+ *     ),
+ *     @OA\Property(
+ *         property="values",
+ *         type="array",
+ *         description="The data in the range, as a list of lists.",
+ *         @OA\Items(
+ *             type="array",
+ *             @OA\Items(type="string")
+ *         )
+ *     )
+ * )
  */
 class GoogleSheetsAPIController extends BaseController
 {
@@ -327,6 +353,60 @@ class GoogleSheetsAPIController extends BaseController
         return $this->logAndResponse(GoogleSheetsAPIResource::make($result));
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/google-sheets/read-range",
+     *     summary="Read a range of values from a Google Spreadsheet",
+     *     tags={"Google Sheets API"},
+     *     @OA\Parameter(
+     *         name="spreadSheetId",
+     *         in="query",
+     *         required=true,
+     *         description="The ID of the spreadsheet to retrieve data from.",
+     *         @OA\Schema(type="string", maxLength=255)
+     *     ),
+     *     @OA\Parameter(
+     *         name="range",
+     *         in="query",
+     *         required=true,
+     *         description="The A1 notation of the range to retrieve values from.",
+     *         @OA\Schema(type="string", maxLength=255)
+     *     ),
+     *     @OA\Parameter(
+     *         name="majorDimensions",
+     *         in="query",
+     *         description="The major dimension that results should use.",
+     *         @OA\Schema(type="string", enum={"ROWS", "COLUMNS"})
+     *     ),
+     *     @OA\Parameter(
+     *         name="valueRenderOption",
+     *         in="query",
+     *         description="How values should be represented in the output.",
+     *         @OA\Schema(type="string", enum={"FORMATTED_VALUE", "UNFORMATTED_VALUE", "FORMULA"})
+     *     ),
+     *     @OA\Parameter(
+     *         name="dateTimeRenderOption",
+     *         in="query",
+     *         description="How dates, times, and durations should be represented in the output.",
+     *         @OA\Schema(type="string", enum={"SERIAL_NUMBER", "FORMATTED_STRING"})
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/ValueRange")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error",
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationError")
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     )
+     * )
+     */
     public function readRange(ReadRangeRequest $request)
     {
         $validatedRequest = $request->validated();
