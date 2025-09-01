@@ -5,12 +5,14 @@ namespace App\Services;
 use App\Data\Request\GoogleSheetsAPI\BatchUpdateSheetData;
 use App\Data\Request\GoogleSheetsAPI\CreateSpreadsheetData;
 use App\Data\Request\GoogleSheetsAPI\BatchUpdateData;
+use App\Data\Request\GoogleSheetsAPI\ClearRangeData;
 use App\Data\Request\GoogleSheetsAPI\WriteRangeData;
 use Google\Client;
 use Google\Service\Drive;
 use Google\Service\Sheets;
 use App\Data\Request\GoogleSheetsAPI\ReadRangeData;
 use Google\Service\Sheets\BatchUpdateValuesRequest;
+use Google\Service\Sheets\ClearValuesRequest;
 use Google\Service\Sheets\Spreadsheet;
 use Google\Service\Sheets\ValueRange;
 use Illuminate\Http\JsonResponse;
@@ -243,6 +245,47 @@ class GoogleSheetsAPIService
             return response()->json([
                 'status' => 'error',
                 'message' => 'An unexpected error occurred while batch updating Google Spreadsheet values.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Clear a range of values from a Google Spreadsheet.
+     *
+     * @param ClearRangeData $data
+     * @return JsonResponse
+     */
+    public function clearRange(ClearRangeData $data): JsonResponse
+    {
+        try {
+            $body = new ClearValuesRequest();
+            $response = $this->sheetsService
+                ->spreadsheets_values
+                ->clear($data->spreadSheetId, $data->range, $body);
+
+            return response()->json($response, 200);
+
+        } catch (\Google\Service\Exception $e) {
+
+            Log::error('Google Sheets API Error: '.$e->getMessage(), ['code' => $e->getCode(), 'errors' => $e->getErrors()]);
+
+            $httpStatusCode = $e->getCode();
+
+            if (! is_int($httpStatusCode) || $httpStatusCode < 100 || $httpStatusCode > 599) {
+                $httpStatusCode = 500;
+            }
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to clear Google Spreadsheet range due to an external API error.',
+                'code' => $httpStatusCode,
+            ], $httpStatusCode);
+        } catch (\Exception $e) {
+            Log::error('Error clearing Google Spreadsheet range: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An unexpected error occurred while clearing Google Spreadsheet range.'
             ], 500);
         }
     }
