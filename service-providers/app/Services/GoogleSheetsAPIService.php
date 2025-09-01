@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Data\Request\GoogleSheetsAPI\CreateSpreadsheetData;
+use App\Data\Request\GoogleSheetsAPI\WriteRangeData;
 use Google\Client;
 use Google\Service\Drive;
 use Google\Service\Sheets;
@@ -136,6 +137,54 @@ class GoogleSheetsAPIService
             return response()->json([
                 'status' => 'error',
                 'message' => 'An unexpected error occurred while reading Google Spreadsheet range.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Write a range of values to a Google Spreadsheet.
+     *
+     * @param WriteRangeData $data
+     * @return JsonResponse
+     */
+    public function writeRange(WriteRangeData $data): JsonResponse
+    {
+        $valueRange = new Sheets\ValueRange([
+            'values' => $data->values,
+        ]);
+
+        $options = [
+            'valueInputOption' => $data->valueInputOption,
+        ];
+        
+        try {
+            $response = $this->sheetsService
+                ->spreadsheets_values
+                ->update($data->spreadSheetId, $data->range, $valueRange, $options);
+
+            return response()->json($response, 200);
+
+        } catch (\Google\Service\Exception $e) {
+
+            Log::error('Google Sheets API Error: '.$e->getMessage(), ['code' => $e->getCode(), 'errors' => $e->getErrors()]);
+
+            $httpStatusCode = $e->getCode();
+
+            if (! is_int($httpStatusCode) || $httpStatusCode < 100 || $httpStatusCode > 599) {
+                $httpStatusCode = 500;
+            }
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to write Google Spreadsheet range due to an external API error.',
+                'code' => $httpStatusCode,
+            ], $httpStatusCode);
+        } catch (\Exception $e) {
+            Log::error('Error writing Google Spreadsheet range: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An unexpected error occurred while writing Google Spreadsheet range.'
             ], 500);
         }
     }
