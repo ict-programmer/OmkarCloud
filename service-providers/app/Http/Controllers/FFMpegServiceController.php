@@ -6,6 +6,7 @@ use App\Data\Request\FFMpeg\AudioFadesData;
 use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\AudioVolumeData;
+use App\Data\Request\FFMpeg\BitrateControlData;
 use App\Data\Request\FFMpeg\ConcatenateData;
 use App\Data\Request\FFMpeg\FileInspectionData;
 use App\Data\Request\FFMpeg\FrameExtractionData;
@@ -20,6 +21,7 @@ use App\Http\Requests\FFMpeg\AudioFadesRequest;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\AudioVolumeRequest;
+use App\Http\Requests\FFMpeg\BitrateControlRequest;
 use App\Http\Requests\FFMpeg\ConcatenateRequest;
 use App\Http\Requests\FFMpeg\FileInspectionRequest;
 use App\Http\Requests\FFMpeg\FrameExtractionRequest;
@@ -203,6 +205,18 @@ class FFMpegServiceController extends BaseController
         return $this->logAndResponse([
             'message' => 'Thumbnail generated successfully',
             'thumbnail_url' => $thumbnailUrl,
+        ]);
+    }
+
+    public function bitrateControl(BitrateControlRequest $request): JsonResponse
+    {
+        $data = BitrateControlData::from($request->validated());
+
+        $path = $this->service->controlBitrate($data);
+
+        return $this->logAndResponse([
+            'message' => 'Bitrate control applied successfully',
+            'output_file_link' => $path,
         ]);
     }
 }

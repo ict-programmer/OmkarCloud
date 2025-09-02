@@ -7,6 +7,7 @@ use App\Http\Requests\FFMpeg\AudioFadesRequest;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\AudioVolumeRequest;
+use App\Http\Requests\FFMpeg\BitrateControlRequest;
 use App\Http\Requests\FFMpeg\ConcatenateRequest;
 use App\Http\Requests\FFMpeg\FileInspectionRequest;
 use App\Http\Requests\FFMpeg\FrameExtractionRequest;
@@ -50,6 +51,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                         'concatenate',
                         'file_inspection',
                         'thumbnail',
+                        'bitrate_control',
                     ],
                 ],
                 'is_active' => true,
@@ -710,6 +712,69 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => ThumbnailRequest::class,
                 'function_name' => 'thumbnail',
+            ],
+            [
+                'name' => 'Video Bitrate Control',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                        'format' => 'url',
+                        'description' => 'URL of the video file to apply bitrate control',
+                    ],
+                    'crf' => [
+                        'type' => 'integer',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 23,
+                        'min' => 0,
+                        'max' => 51,
+                        'description' => 'Constant Rate Factor (0-51). Lower values = higher quality. 18-28 is typical range. Required field.',
+                        'examples' => [18, 20, 23, 28, 35],
+                    ],
+                    'preset' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'medium',
+                        'enum' => ['ultrafast', 'superfast', 'veryfast', 'faster', 'fast', 'medium', 'slow', 'slower', 'veryslow'],
+                        'description' => 'Encoding speed vs quality preset. Slower = better compression but longer processing time. Required field.',
+                    ],
+                    'cbr' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => '2000k',
+                        'pattern' => '^\\d+[kmKM]?$',
+                        'description' => 'Constant Bitrate (e.g., "2000k", "5M", "1000"). Sets fixed bitrate for consistent file sizes. Required field.',
+                        'examples' => ['1000k', '2000k', '5M', '8000k', '10M'],
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Bitrate control applied successfully',
+                    'output_file_link' => 'https://output.example.com/bitrate_controlled_123456.mp4',
+                    'processing_time' => 65.8,
+                    'encoding_settings' => [
+                        'crf' => 23,
+                        'preset' => 'medium',
+                        'video_codec' => 'libx264',
+                        'audio_codec' => 'aac'
+                    ],
+                    'quality_optimization' => [
+                        'target_quality' => 'high',
+                        'compression_efficiency' => '85%',
+                        'file_size_reduction' => '45%'
+                    ],
+                    'file_size' => '98MB',
+                    'bitrate' => '2150k',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => BitrateControlRequest::class,
+                'function_name' => 'bitrateControl',
             ],
         ];
 

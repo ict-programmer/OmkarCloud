@@ -6,6 +6,7 @@ use App\Data\Request\FFMpeg\AudioFadesData;
 use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\AudioVolumeData;
+use App\Data\Request\FFMpeg\BitrateControlData;
 use App\Data\Request\FFMpeg\ConcatenateData;
 use App\Data\Request\FFMpeg\FileInspectionData;
 use App\Data\Request\FFMpeg\FrameExtractionData;
@@ -950,6 +951,62 @@ class FFMpegService
                 $inputFilePath,
                 $command,
                 'jpg'
+            );
+
+        } catch (\Exception $e) {
+            // Clean up on error
+            $this->deleteInputFile($inputFilePath);
+            throw $e;
+        }
+    }
+
+    /**
+     * Control video bitrate using CRF, preset, and CBR parameters
+     *
+     * @param BitrateControlData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function controlBitrate(BitrateControlData $data): string
+    {
+        // Download input video file
+        $inputFilePath = $this->downloadFile($data->input);
+        
+        try {
+            // Build FFmpeg command for bitrate control
+            $command = [
+                '-i', $inputFilePath,
+                '-c:v', 'libx264',  // Use H.264 encoder
+            ];
+
+            // Add CRF (Constant Rate Factor) - required
+            $command[] = '-crf';
+            $command[] = (string) $data->crf;
+
+            // Add preset - required
+            $command[] = '-preset';
+            $command[] = $data->preset;
+
+            // Add CBR (Constant Bitrate) - required
+            $command[] = '-b:v';
+            $command[] = $data->cbr;
+            $command[] = '-maxrate';
+            $command[] = $data->cbr;
+            $command[] = '-bufsize';
+            // Buffer size should be 1-2x the bitrate for CBR
+            $bitrateValue = preg_replace('/[kmKM]/', '', $data->cbr);
+            $bufferSize = (int)$bitrateValue * 2;
+            $command[] = $bufferSize . (preg_match('/[kmKM]/', $data->cbr) ? substr($data->cbr, -1) : '');
+
+            // Add audio codec
+            $command[] = '-c:a';
+            $command[] = 'aac';
+
+            return $this->runAndUpload(
+                $inputFilePath,
+                $command,
+                'mp4'
             );
 
         } catch (\Exception $e) {
