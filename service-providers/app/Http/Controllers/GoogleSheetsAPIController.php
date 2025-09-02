@@ -203,7 +203,32 @@ use OpenApi\Annotations as OA;
  * @OA\Schema(
  *     schema="GoogleSheetsAPIResource",
  *     title="Google Sheets API Resource",
- *     description="Represents a Google Spreadsheet resource.",
+ *     description="Represents a Google Spreadsheet API response.",
+ *     @OA\Property(
+ *         property="status",
+ *         type="string",
+ *         example="success",
+ *         description="The status of the API response."
+ *     ),
+ *     @OA\Property(
+ *         property="data",
+ *         type="object",
+ *         description="The Google Spreadsheet resource data.",
+ *         ref="#/components/schemas/GoogleSheetsAPIResourceData"
+ *     ),
+ *     @OA\Property(
+ *         property="timestamp",
+ *         type="string",
+ *         format="date-time",
+ *         example="2023-10-27T10:00:00Z",
+ *         description="The timestamp of the API response."
+ *     )
+ * )
+ *
+ * @OA\Schema(
+ *     schema="GoogleSheetsAPIResourceData",
+ *     title="Google Sheets API Resource Data",
+ *     description="Represents the actual Google Spreadsheet resource.",
  *     @OA\Property(
  *         property="spreadsheetId",
  *         type="string",
