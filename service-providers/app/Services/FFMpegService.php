@@ -7,7 +7,6 @@ use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\AudioVolumeData;
 use App\Data\Request\FFMpeg\ConcatenateData;
-use App\Data\Request\FFMpeg\FFProbeData;
 use App\Data\Request\FFMpeg\FrameExtractionData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
 use App\Data\Request\FFMpeg\LoudnessNormalizationData;
@@ -26,12 +25,11 @@ class FFMpegService
 {
     use PubliishIOTrait;
 
-    protected string $ffmpeg, $ffprobe, $fileName, $filePath;
+    protected string $ffmpeg, $fileName, $filePath;
 
     public function __construct()
     {
         $this->ffmpeg = config('services.ffmpeg.path');
-        $this->ffprobe = config('services.ffprobe.path');
     }
 
     /**
@@ -305,71 +303,6 @@ class FFMpegService
             ],
             'mp4'
         );
-    }
-
-    /**
-     * Probe media file and return information.
-     *
-     * @param FFProbeData $data
-     * @return array
-     * @throws ConnectionException
-     * @throws RequestException
-     */
-    public function probeMedia(FFProbeData $data): array
-    {
-        $inputFilePath = $this->downloadFile($data->file_link);
-        
-        // Build ffprobe command
-        $command = [
-            $this->ffprobe,
-            '-v', 'quiet',
-            '-print_format', $data->output_format,
-        ];
-
-        // Add show options
-        if ($data->show_format) {
-            $command[] = '-show_format';
-        }
-        if ($data->show_streams) {
-            $command[] = '-show_streams';
-        }
-        if ($data->show_chapters) {
-            $command[] = '-show_chapters';
-        }
-        if ($data->show_programs) {
-            $command[] = '-show_programs';
-        }
-
-        // Add stream selection if specified
-        if (!empty($data->select_streams)) {
-            $command[] = '-select_streams';
-            $command[] = $data->select_streams;
-        }
-
-        // Add input file
-        $command[] = $inputFilePath;
-
-        // Run ffprobe command
-        $process = new Process($command);
-        $process->setTimeout(300);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        // Clean up input file
-        $this->deleteInputFile($inputFilePath);
-
-        $output = $process->getOutput();
-        
-        // Parse output based on format
-        if ($data->output_format === 'json') {
-            return json_decode($output, true) ?? [];
-        }
-        
-        // For other formats, return raw output
-        return ['raw_output' => $output];
     }
 
     /**
