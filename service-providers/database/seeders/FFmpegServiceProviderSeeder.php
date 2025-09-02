@@ -14,6 +14,7 @@ use App\Http\Requests\FFMpeg\FrameExtractionRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
 use App\Http\Requests\FFMpeg\LoudnessNormalizationRequest;
 use App\Http\Requests\FFMpeg\ScaleRequest;
+use App\Http\Requests\FFMpeg\StreamCopyRequest;
 use App\Http\Requests\FFMpeg\ThumbnailRequest;
 use App\Http\Requests\FFMpeg\TranscodingRequest;
 use App\Http\Requests\FFMpeg\VideoProcessingRequest;
@@ -52,6 +53,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                         'file_inspection',
                         'thumbnail',
                         'bitrate_control',
+                        'stream_copy',
                     ],
                 ],
                 'is_active' => true,
@@ -775,6 +777,67 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => BitrateControlRequest::class,
                 'function_name' => 'bitrateControl',
+            ],
+            [
+                'name' => 'Stream Copy',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                        'format' => 'url',
+                        'description' => 'URL of the media file to copy streams from',
+                    ],
+                    'streams' => [
+                        'type' => 'array',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => ['video:0', 'audio:0'],
+                        'min_items' => 1,
+                        'max_items' => 10,
+                        'items' => [
+                            'type' => 'string',
+                            'pattern' => '^(video|audio|subtitle|data|all):\\d+$|^(all)$',
+                        ],
+                        'description' => 'Array of stream specifications to copy. Format: "type:index" (e.g., "video:0", "audio:1") or "all" for all streams.',
+                        'examples' => [
+                            ['video:0', 'audio:0'],
+                            ['video:0'],
+                            ['audio:0', 'audio:1'],
+                            ['all'],
+                            ['video:0', 'subtitle:0'],
+                        ],
+                        'stream_types' => [
+                            'video' => 'Video streams (e.g., video:0, video:1)',
+                            'audio' => 'Audio streams (e.g., audio:0, audio:1)',
+                            'subtitle' => 'Subtitle streams (e.g., subtitle:0)',
+                            'data' => 'Data streams (e.g., data:0)',
+                            'all' => 'Copy all streams without re-encoding'
+                        ],
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Stream copy completed successfully',
+                    'output_file_link' => 'https://output.example.com/stream_copy_123456.mp4',
+                    'processing_time' => 5.2,
+                    'copied_streams' => [
+                        'video:0' => 'h264, 1920x1080, 30fps',
+                        'audio:0' => 'aac, stereo, 44100Hz'
+                    ],
+                    'operation_type' => 'stream_copy',
+                    'encoding_method' => 'copy (no re-encoding)',
+                    'quality_preservation' => '100% lossless',
+                    'speed_benefit' => 'fast (no encoding overhead)',
+                    'file_size' => '95MB',
+                    'original_format' => 'mp4',
+                    'output_format' => 'mp4',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => StreamCopyRequest::class,
+                'function_name' => 'streamCopy',
             ],
         ];
 

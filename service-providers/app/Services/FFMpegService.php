@@ -13,6 +13,7 @@ use App\Data\Request\FFMpeg\FrameExtractionData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
 use App\Data\Request\FFMpeg\LoudnessNormalizationData;
 use App\Data\Request\FFMpeg\ScaleData;
+use App\Data\Request\FFMpeg\StreamCopyData;
 use App\Data\Request\FFMpeg\ThumbnailData;
 use App\Data\Request\FFMpeg\TranscodingData;
 use App\Data\Request\FFMpeg\VideoProcessingData;
@@ -1007,6 +1008,83 @@ class FFMpegService
                 $inputFilePath,
                 $command,
                 'mp4'
+            );
+
+        } catch (\Exception $e) {
+            // Clean up on error
+            $this->deleteInputFile($inputFilePath);
+            throw $e;
+        }
+    }
+
+    /**
+     * Copy specific streams from input file without re-encoding
+     *
+     * @param StreamCopyData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function copyStreams(StreamCopyData $data): string
+    {
+        // Download input file
+        $inputFilePath = $this->downloadFile($data->input);
+        
+        try {
+            // Build FFmpeg command for stream copying
+            $command = [
+                '-i', $inputFilePath,
+            ];
+
+            // Handle stream mappings based on FFmpeg documentation
+            if (in_array('all', $data->streams)) {
+                // Copy all streams - use -c copy without specific mapping
+                $command[] = '-c';
+                $command[] = 'copy';
+            } else {
+                // Map specific streams using FFmpeg syntax
+                foreach ($data->streams as $stream) {
+                    // Parse stream specification (e.g., "video:0", "audio:1")
+                    $parts = explode(':', $stream);
+                    $streamType = $parts[0];
+                    $streamIndex = isset($parts[1]) ? (int)$parts[1] : 0;
+                    
+                    // Use FFmpeg's stream type abbreviations
+                    switch ($streamType) {
+                        case 'video':
+                            $command[] = '-map';
+                            $command[] = "0:v:{$streamIndex}";
+                            break;
+                        case 'audio':
+                            $command[] = '-map';
+                            $command[] = "0:a:{$streamIndex}";
+                            break;
+                        case 'subtitle':
+                            $command[] = '-map';
+                            $command[] = "0:s:{$streamIndex}";
+                            break;
+                        case 'data':
+                            $command[] = '-map';
+                            $command[] = "0:d:{$streamIndex}";
+                            break;
+                    }
+                }
+                
+                // Use copy codec for all mapped streams
+                $command[] = '-c';
+                $command[] = 'copy';
+            }
+
+            // Determine output format based on input file extension
+            $inputExtension = pathinfo($data->input, PATHINFO_EXTENSION);
+            $outputFormat = in_array(strtolower($inputExtension), ['mp4', 'avi', 'mov', 'mkv', 'webm', 'flv', 'wmv', 'm4v', '3gp', 'mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma']) 
+                ? strtolower($inputExtension) 
+                : 'mp4';
+
+            return $this->runAndUpload(
+                $inputFilePath,
+                $command,
+                $outputFormat
             );
 
         } catch (\Exception $e) {

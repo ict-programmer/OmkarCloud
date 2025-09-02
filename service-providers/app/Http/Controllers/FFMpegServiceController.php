@@ -13,6 +13,7 @@ use App\Data\Request\FFMpeg\FrameExtractionData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
 use App\Data\Request\FFMpeg\LoudnessNormalizationData;
 use App\Data\Request\FFMpeg\ScaleData;
+use App\Data\Request\FFMpeg\StreamCopyData;
 use App\Data\Request\FFMpeg\ThumbnailData;
 use App\Data\Request\FFMpeg\TranscodingData;
 use App\Data\Request\FFMpeg\VideoProcessingData;
@@ -28,6 +29,7 @@ use App\Http\Requests\FFMpeg\FrameExtractionRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
 use App\Http\Requests\FFMpeg\LoudnessNormalizationRequest;
 use App\Http\Requests\FFMpeg\ScaleRequest;
+use App\Http\Requests\FFMpeg\StreamCopyRequest;
 use App\Http\Requests\FFMpeg\ThumbnailRequest;
 use App\Http\Requests\FFMpeg\TranscodingRequest;
 use App\Http\Requests\FFMpeg\VideoProcessingRequest;
@@ -216,6 +218,18 @@ class FFMpegServiceController extends BaseController
 
         return $this->logAndResponse([
             'message' => 'Bitrate control applied successfully',
+            'output_file_link' => $path,
+        ]);
+    }
+
+    public function streamCopy(StreamCopyRequest $request): JsonResponse
+    {
+        $data = StreamCopyData::from($request->validated());
+
+        $path = $this->service->copyStreams($data);
+
+        return $this->logAndResponse([
+            'message' => 'Stream copy completed successfully',
             'output_file_link' => $path,
         ]);
     }
