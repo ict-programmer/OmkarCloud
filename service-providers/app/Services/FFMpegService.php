@@ -12,6 +12,7 @@ use App\Data\Request\FFMpeg\FrameExtractionData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
 use App\Data\Request\FFMpeg\LoudnessNormalizationData;
 use App\Data\Request\FFMpeg\ScaleData;
+use App\Data\Request\FFMpeg\ThumbnailData;
 use App\Data\Request\FFMpeg\TranscodingData;
 use App\Data\Request\FFMpeg\VideoProcessingData;
 use App\Data\Request\FFMpeg\VideoTrimmingData;
@@ -918,5 +919,43 @@ class FFMpegService
         $seconds = (float)$parts[2];
         
         return $hours * 3600 + $minutes * 60 + $seconds;
+    }
+
+    /**
+     * Generate thumbnail from video at specified timestamp using FFmpeg.
+     *
+     * @param ThumbnailData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function generateThumbnail(ThumbnailData $data): string
+    {
+        // Download input video file
+        $inputFilePath = $this->downloadFile($data->input);
+        
+        try {
+            // Build FFmpeg command for thumbnail generation
+            $command = [
+                '-i', $inputFilePath,
+                '-ss', $data->timestamp,        // Seek to specified timestamp
+                '-vframes', '1',                // Extract exactly 1 frame
+                '-f', 'image2',                 // Output as image
+                '-vf', 'scale=1280:720',        // Scale to standard thumbnail size
+                '-q:v', '2',                    // High quality (1-31, lower is better)
+                '-y',                           // Overwrite output file
+            ];
+
+            return $this->runAndUpload(
+                $inputFilePath,
+                $command,
+                'jpg'
+            );
+
+        } catch (\Exception $e) {
+            // Clean up on error
+            $this->deleteInputFile($inputFilePath);
+            throw $e;
+        }
     }
 }

@@ -12,6 +12,7 @@ use App\Data\Request\FFMpeg\FrameExtractionData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
 use App\Data\Request\FFMpeg\LoudnessNormalizationData;
 use App\Data\Request\FFMpeg\ScaleData;
+use App\Data\Request\FFMpeg\ThumbnailData;
 use App\Data\Request\FFMpeg\TranscodingData;
 use App\Data\Request\FFMpeg\VideoProcessingData;
 use App\Data\Request\FFMpeg\VideoTrimmingData;
@@ -25,6 +26,7 @@ use App\Http\Requests\FFMpeg\FrameExtractionRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
 use App\Http\Requests\FFMpeg\LoudnessNormalizationRequest;
 use App\Http\Requests\FFMpeg\ScaleRequest;
+use App\Http\Requests\FFMpeg\ThumbnailRequest;
 use App\Http\Requests\FFMpeg\TranscodingRequest;
 use App\Http\Requests\FFMpeg\VideoProcessingRequest;
 use App\Http\Requests\FFMpeg\VideoTrimmingRequest;
@@ -189,6 +191,18 @@ class FFMpegServiceController extends BaseController
         return $this->logAndResponse([
             'message' => 'File inspection completed successfully',
             'metadata' => $metadata,
+        ]);
+    }
+
+    public function thumbnail(ThumbnailRequest $request): JsonResponse
+    {
+        $data = ThumbnailData::from($request->validated());
+
+        $thumbnailUrl = $this->service->generateThumbnail($data);
+
+        return $this->logAndResponse([
+            'message' => 'Thumbnail generated successfully',
+            'thumbnail_url' => $thumbnailUrl,
         ]);
     }
 }

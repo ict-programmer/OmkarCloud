@@ -13,6 +13,7 @@ use App\Http\Requests\FFMpeg\FrameExtractionRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
 use App\Http\Requests\FFMpeg\LoudnessNormalizationRequest;
 use App\Http\Requests\FFMpeg\ScaleRequest;
+use App\Http\Requests\FFMpeg\ThumbnailRequest;
 use App\Http\Requests\FFMpeg\TranscodingRequest;
 use App\Http\Requests\FFMpeg\VideoProcessingRequest;
 use App\Http\Requests\FFMpeg\VideoTrimmingRequest;
@@ -48,6 +49,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                         'scale',
                         'concatenate',
                         'file_inspection',
+                        'thumbnail',
                     ],
                 ],
                 'is_active' => true,
@@ -665,6 +667,49 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => FileInspectionRequest::class,
                 'function_name' => 'fileInspection',
+            ],
+            [
+                'name' => 'Video Thumbnail Generation',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                        'format' => 'url',
+                        'description' => 'URL of the video file to generate thumbnail from',
+                    ],
+                    'timestamp' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => '00:00:05',
+                        'pattern' => '^\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?$',
+                        'description' => 'Timestamp to extract thumbnail from (format: HH:MM:SS or HH:MM:SS.MS). Required field.',
+                        'examples' => [
+                            '00:00:05',
+                            '00:01:30',
+                            '00:02:15.5',
+                            '01:30:45'
+                        ],
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Thumbnail generated successfully',
+                    'thumbnail_url' => 'https://output.example.com/thumbnail_123456.jpg',
+                    'timestamp' => '00:00:05',
+                    'processing_time' => 2.1,
+                    'thumbnail_size' => '1280x720',
+                    'image_format' => 'JPEG',
+                    'image_quality' => 'high',
+                    'file_size' => '245KB',
+                    'source_video' => 'ForBiggerJoyrides.mp4'
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => ThumbnailRequest::class,
+                'function_name' => 'thumbnail',
             ],
         ];
 
