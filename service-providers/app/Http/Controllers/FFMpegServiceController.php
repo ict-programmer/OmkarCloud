@@ -6,26 +6,34 @@ use App\Data\Request\FFMpeg\AudioFadesData;
 use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\AudioVolumeData;
+use App\Data\Request\FFMpeg\BitrateControlData;
 use App\Data\Request\FFMpeg\ConcatenateData;
-use App\Data\Request\FFMpeg\FFProbeData;
+use App\Data\Request\FFMpeg\FileInspectionData;
 use App\Data\Request\FFMpeg\FrameExtractionData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
 use App\Data\Request\FFMpeg\LoudnessNormalizationData;
 use App\Data\Request\FFMpeg\ScaleData;
+use App\Data\Request\FFMpeg\StreamCopyData;
+use App\Data\Request\FFMpeg\ThumbnailData;
 use App\Data\Request\FFMpeg\TranscodingData;
+use App\Data\Request\FFMpeg\VideoEncodeData;
 use App\Data\Request\FFMpeg\VideoProcessingData;
 use App\Data\Request\FFMpeg\VideoTrimmingData;
 use App\Http\Requests\FFMpeg\AudioFadesRequest;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\AudioVolumeRequest;
+use App\Http\Requests\FFMpeg\BitrateControlRequest;
 use App\Http\Requests\FFMpeg\ConcatenateRequest;
-use App\Http\Requests\FFMpeg\FFProbeRequest;
+use App\Http\Requests\FFMpeg\FileInspectionRequest;
 use App\Http\Requests\FFMpeg\FrameExtractionRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
 use App\Http\Requests\FFMpeg\LoudnessNormalizationRequest;
 use App\Http\Requests\FFMpeg\ScaleRequest;
+use App\Http\Requests\FFMpeg\StreamCopyRequest;
+use App\Http\Requests\FFMpeg\ThumbnailRequest;
 use App\Http\Requests\FFMpeg\TranscodingRequest;
+use App\Http\Requests\FFMpeg\VideoEncodeRequest;
 use App\Http\Requests\FFMpeg\VideoProcessingRequest;
 use App\Http\Requests\FFMpeg\VideoTrimmingRequest;
 use App\Services\FFMpegService;
@@ -92,18 +100,6 @@ class FFMpegServiceController extends BaseController
         return $this->logAndResponse([
             'message' => 'Loudness normalized successfully',
             'output_file_link' => $path,
-        ]);
-    }
-
-    public function ffprobe(FFProbeRequest $request): JsonResponse
-    {
-        $data = FFProbeData::from($request->validated());
-
-        $result = $this->service->probeMedia($data);
-
-        return $this->logAndResponse([
-            'message' => 'Media probed successfully',
-            'probe_data' => $result,
         ]);
     }
 
@@ -188,6 +184,66 @@ class FFMpegServiceController extends BaseController
 
         return $this->logAndResponse([
             'message' => 'Videos concatenated successfully',
+            'output_file_link' => $path,
+        ]);
+    }
+
+    public function fileInspection(FileInspectionRequest $request): JsonResponse
+    {
+        $data = FileInspectionData::from($request->validated());
+
+        $metadata = $this->service->inspectFile($data);
+
+        return $this->logAndResponse([
+            'message' => 'File inspection completed successfully',
+            'metadata' => $metadata,
+        ]);
+    }
+
+    public function thumbnail(ThumbnailRequest $request): JsonResponse
+    {
+        $data = ThumbnailData::from($request->validated());
+
+        $thumbnailUrl = $this->service->generateThumbnail($data);
+
+        return $this->logAndResponse([
+            'message' => 'Thumbnail generated successfully',
+            'thumbnail_url' => $thumbnailUrl,
+        ]);
+    }
+
+    public function bitrateControl(BitrateControlRequest $request): JsonResponse
+    {
+        $data = BitrateControlData::from($request->validated());
+
+        $path = $this->service->controlBitrate($data);
+
+        return $this->logAndResponse([
+            'message' => 'Bitrate control applied successfully',
+            'output_file_link' => $path,
+        ]);
+    }
+
+    public function streamCopy(StreamCopyRequest $request): JsonResponse
+    {
+        $data = StreamCopyData::from($request->validated());
+
+        $path = $this->service->copyStreams($data);
+
+        return $this->logAndResponse([
+            'message' => 'Stream copy completed successfully',
+            'output_file_link' => $path,
+        ]);
+    }
+
+    public function videoEncode(VideoEncodeRequest $request): JsonResponse
+    {
+        $data = VideoEncodeData::from($request->validated());
+
+        $path = $this->service->encodeVideo($data);
+
+        return $this->logAndResponse([
+            'message' => 'Video encoded successfully',
             'output_file_link' => $path,
         ]);
     }

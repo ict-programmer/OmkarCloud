@@ -6,13 +6,17 @@ use App\Data\Request\FFMpeg\AudioFadesData;
 use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\AudioVolumeData;
+use App\Data\Request\FFMpeg\BitrateControlData;
 use App\Data\Request\FFMpeg\ConcatenateData;
-use App\Data\Request\FFMpeg\FFProbeData;
+use App\Data\Request\FFMpeg\FileInspectionData;
 use App\Data\Request\FFMpeg\FrameExtractionData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
 use App\Data\Request\FFMpeg\LoudnessNormalizationData;
 use App\Data\Request\FFMpeg\ScaleData;
+use App\Data\Request\FFMpeg\StreamCopyData;
+use App\Data\Request\FFMpeg\ThumbnailData;
 use App\Data\Request\FFMpeg\TranscodingData;
+use App\Data\Request\FFMpeg\VideoEncodeData;
 use App\Data\Request\FFMpeg\VideoProcessingData;
 use App\Data\Request\FFMpeg\VideoTrimmingData;
 use App\Traits\PubliishIOTrait;
@@ -26,12 +30,11 @@ class FFMpegService
 {
     use PubliishIOTrait;
 
-    protected string $ffmpeg, $ffprobe, $fileName, $filePath;
+    protected string $ffmpeg, $fileName, $filePath;
 
     public function __construct()
     {
         $this->ffmpeg = config('services.ffmpeg.path');
-        $this->ffprobe = config('services.ffprobe.path');
     }
 
     /**
@@ -305,71 +308,6 @@ class FFMpegService
             ],
             'mp4'
         );
-    }
-
-    /**
-     * Probe media file and return information.
-     *
-     * @param FFProbeData $data
-     * @return array
-     * @throws ConnectionException
-     * @throws RequestException
-     */
-    public function probeMedia(FFProbeData $data): array
-    {
-        $inputFilePath = $this->downloadFile($data->file_link);
-        
-        // Build ffprobe command
-        $command = [
-            $this->ffprobe,
-            '-v', 'quiet',
-            '-print_format', $data->output_format,
-        ];
-
-        // Add show options
-        if ($data->show_format) {
-            $command[] = '-show_format';
-        }
-        if ($data->show_streams) {
-            $command[] = '-show_streams';
-        }
-        if ($data->show_chapters) {
-            $command[] = '-show_chapters';
-        }
-        if ($data->show_programs) {
-            $command[] = '-show_programs';
-        }
-
-        // Add stream selection if specified
-        if (!empty($data->select_streams)) {
-            $command[] = '-select_streams';
-            $command[] = $data->select_streams;
-        }
-
-        // Add input file
-        $command[] = $inputFilePath;
-
-        // Run ffprobe command
-        $process = new Process($command);
-        $process->setTimeout(300);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        // Clean up input file
-        $this->deleteInputFile($inputFilePath);
-
-        $output = $process->getOutput();
-        
-        // Parse output based on format
-        if ($data->output_format === 'json') {
-            return json_decode($output, true) ?? [];
-        }
-        
-        // For other formats, return raw output
-        return ['raw_output' => $output];
     }
 
     /**
@@ -829,6 +767,380 @@ class FFMpegService
             foreach ($inputFilePaths as $filePath) {
                 $this->deleteInputFile($filePath);
             }
+            throw $e;
+        }
+    }
+
+    /**
+     * Inspect media file and return metadata using FFmpeg.
+     *
+     * @param FileInspectionData $data
+     * @return array
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function inspectFile(FileInspectionData $data): array
+    {
+        // Download input media file
+        $inputFilePath = $this->downloadFile($data->input);
+        
+        try {
+            // Use FFmpeg to get detailed media information
+            $command = [
+                $this->ffmpeg,
+                '-i', $inputFilePath,
+                '-f', 'null',
+                '-'
+            ];
+
+            $process = new Process($command);
+            $process->setTimeout(120);
+            $process->run();
+
+            // FFmpeg outputs media info to stderr, even for successful operations
+            $output = $process->getErrorOutput();
+            
+            // Clean up input file
+            $this->deleteInputFile($inputFilePath);
+
+            // Parse FFmpeg output to extract metadata
+            return $this->parseFFmpegOutput($output, $data->input);
+
+        } catch (\Exception $e) {
+            // Clean up on error
+            $this->deleteInputFile($inputFilePath);
+            throw $e;
+        }
+    }
+
+    /**
+     * Parse FFmpeg output to extract structured metadata.
+     *
+     * @param string $output
+     * @param string $originalUrl
+     * @return array
+     */
+    private function parseFFmpegOutput(string $output, string $originalUrl): array
+    {
+        $metadata = [
+            'file' => [
+                'url' => $originalUrl,
+                'filename' => basename(parse_url($originalUrl, PHP_URL_PATH)),
+            ],
+            'format' => [],
+            'video_streams' => [],
+            'audio_streams' => [],
+            'subtitle_streams' => [],
+            'metadata' => [],
+        ];
+
+        $lines = explode("\n", $output);
+        
+        foreach ($lines as $line) {
+            $line = trim($line);
+            
+            // Extract duration
+            if (preg_match('/Duration: (\d{2}:\d{2}:\d{2}\.\d{2})/', $line, $matches)) {
+                $metadata['format']['duration'] = $matches[1];
+                $metadata['format']['duration_seconds'] = $this->timeToSeconds($matches[1]);
+            }
+            
+            // Extract bitrate
+            if (preg_match('/bitrate: (\d+) kb\/s/', $line, $matches)) {
+                $metadata['format']['bitrate'] = $matches[1] . ' kb/s';
+                $metadata['format']['bitrate_kbps'] = (int)$matches[1];
+            }
+            
+            // Extract container format
+            if (preg_match('/Input #0, ([^,]+),/', $line, $matches)) {
+                $metadata['format']['container'] = trim($matches[1]);
+            }
+            
+            // Extract video stream info
+            if (preg_match('/Stream #0:(\d+).*: Video: ([^,]+).*?(\d+x\d+).*?(\d+(?:\.\d+)?) fps/', $line, $matches)) {
+                $metadata['video_streams'][] = [
+                    'index' => (int)$matches[1],
+                    'codec' => $matches[2],
+                    'resolution' => $matches[3],
+                    'fps' => (float)$matches[4],
+                ];
+            }
+            
+            // Extract audio stream info
+            if (preg_match('/Stream #0:(\d+).*: Audio: ([^,]+).*?(\d+) Hz.*?(\w+)/', $line, $matches)) {
+                $metadata['audio_streams'][] = [
+                    'index' => (int)$matches[1],
+                    'codec' => $matches[2],
+                    'sample_rate' => (int)$matches[3] . ' Hz',
+                    'sample_rate_hz' => (int)$matches[3],
+                    'channels' => $matches[4],
+                ];
+            }
+            
+            // Extract subtitle streams
+            if (preg_match('/Stream #0:(\d+).*: Subtitle: ([^,]+)/', $line, $matches)) {
+                $metadata['subtitle_streams'][] = [
+                    'index' => (int)$matches[1],
+                    'codec' => $matches[2],
+                ];
+            }
+            
+            // Extract metadata tags
+            if (preg_match('/\s+(\w+)\s+:\s+(.+)$/', $line, $matches)) {
+                $key = strtolower($matches[1]);
+                if (in_array($key, ['title', 'artist', 'album', 'date', 'genre', 'comment', 'composer'])) {
+                    $metadata['metadata'][$key] = trim($matches[2]);
+                }
+            }
+        }
+        
+        // Add summary information
+        $metadata['summary'] = [
+            'has_video' => !empty($metadata['video_streams']),
+            'has_audio' => !empty($metadata['audio_streams']),
+            'has_subtitles' => !empty($metadata['subtitle_streams']),
+            'total_streams' => count($metadata['video_streams']) + count($metadata['audio_streams']) + count($metadata['subtitle_streams']),
+            'video_count' => count($metadata['video_streams']),
+            'audio_count' => count($metadata['audio_streams']),
+            'subtitle_count' => count($metadata['subtitle_streams']),
+        ];
+
+        return $metadata;
+    }
+
+    /**
+     * Convert time format (HH:MM:SS.MS) to seconds.
+     *
+     * @param string $time
+     * @return float
+     */
+    private function timeToSeconds(string $time): float
+    {
+        $parts = explode(':', $time);
+        $hours = (int)$parts[0];
+        $minutes = (int)$parts[1];
+        $seconds = (float)$parts[2];
+        
+        return $hours * 3600 + $minutes * 60 + $seconds;
+    }
+
+    /**
+     * Generate thumbnail from video at specified timestamp using FFmpeg.
+     *
+     * @param ThumbnailData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function generateThumbnail(ThumbnailData $data): string
+    {
+        // Download input video file
+        $inputFilePath = $this->downloadFile($data->input);
+        
+        try {
+            // Build FFmpeg command for thumbnail generation
+            $command = [
+                '-i', $inputFilePath,
+                '-ss', $data->timestamp,        // Seek to specified timestamp
+                '-vframes', '1',                // Extract exactly 1 frame
+                '-f', 'image2',                 // Output as image
+                '-vf', 'scale=1280:720',        // Scale to standard thumbnail size
+                '-q:v', '2',                    // High quality (1-31, lower is better)
+                '-y',                           // Overwrite output file
+            ];
+
+            return $this->runAndUpload(
+                $inputFilePath,
+                $command,
+                'jpg'
+            );
+
+        } catch (\Exception $e) {
+            // Clean up on error
+            $this->deleteInputFile($inputFilePath);
+            throw $e;
+        }
+    }
+
+    /**
+     * Control video bitrate using CRF, preset, and CBR parameters
+     *
+     * @param BitrateControlData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function controlBitrate(BitrateControlData $data): string
+    {
+        // Download input video file
+        $inputFilePath = $this->downloadFile($data->input);
+        
+        try {
+            // Build FFmpeg command for bitrate control
+            $command = [
+                '-i', $inputFilePath,
+                '-c:v', 'libx264',  // Use H.264 encoder
+            ];
+
+            // Add CRF (Constant Rate Factor) - required
+            $command[] = '-crf';
+            $command[] = (string) $data->crf;
+
+            // Add preset - required
+            $command[] = '-preset';
+            $command[] = $data->preset;
+
+            // Add CBR (Constant Bitrate) - required
+            $command[] = '-b:v';
+            $command[] = $data->cbr;
+            $command[] = '-maxrate';
+            $command[] = $data->cbr;
+            $command[] = '-bufsize';
+            // Buffer size should be 1-2x the bitrate for CBR
+            $bitrateValue = preg_replace('/[kmKM]/', '', $data->cbr);
+            $bufferSize = (int)$bitrateValue * 2;
+            $command[] = $bufferSize . (preg_match('/[kmKM]/', $data->cbr) ? substr($data->cbr, -1) : '');
+
+            // Add audio codec
+            $command[] = '-c:a';
+            $command[] = 'aac';
+
+            return $this->runAndUpload(
+                $inputFilePath,
+                $command,
+                'mp4'
+            );
+
+        } catch (\Exception $e) {
+            // Clean up on error
+            $this->deleteInputFile($inputFilePath);
+            throw $e;
+        }
+    }
+
+    /**
+     * Copy specific streams from input file without re-encoding
+     *
+     * @param StreamCopyData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function copyStreams(StreamCopyData $data): string
+    {
+        // Download input file
+        $inputFilePath = $this->downloadFile($data->input);
+        
+        try {
+            // Build FFmpeg command for stream copying
+            $command = [
+                '-i', $inputFilePath,
+            ];
+
+            // Handle stream mappings based on FFmpeg documentation
+            if (in_array('all', $data->streams)) {
+                // Copy all streams - use -c copy without specific mapping
+                $command[] = '-c';
+                $command[] = 'copy';
+            } else {
+                // Map specific streams using FFmpeg syntax
+                foreach ($data->streams as $stream) {
+                    // Parse stream specification (e.g., "video:0", "audio:1")
+                    $parts = explode(':', $stream);
+                    $streamType = $parts[0];
+                    $streamIndex = isset($parts[1]) ? (int)$parts[1] : 0;
+                    
+                    // Use FFmpeg's stream type abbreviations
+                    switch ($streamType) {
+                        case 'video':
+                            $command[] = '-map';
+                            $command[] = "0:v:{$streamIndex}";
+                            break;
+                        case 'audio':
+                            $command[] = '-map';
+                            $command[] = "0:a:{$streamIndex}";
+                            break;
+                        case 'subtitle':
+                            $command[] = '-map';
+                            $command[] = "0:s:{$streamIndex}";
+                            break;
+                        case 'data':
+                            $command[] = '-map';
+                            $command[] = "0:d:{$streamIndex}";
+                            break;
+                    }
+                }
+                
+                // Use copy codec for all mapped streams
+                $command[] = '-c';
+                $command[] = 'copy';
+            }
+
+            // Determine output format based on input file extension
+            $inputExtension = pathinfo($data->input, PATHINFO_EXTENSION);
+            $outputFormat = in_array(strtolower($inputExtension), ['mp4', 'avi', 'mov', 'mkv', 'webm', 'flv', 'wmv', 'm4v', '3gp', 'mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma']) 
+                ? strtolower($inputExtension) 
+                : 'mp4';
+
+            return $this->runAndUpload(
+                $inputFilePath,
+                $command,
+                $outputFormat
+            );
+
+        } catch (\Exception $e) {
+            // Clean up on error
+            $this->deleteInputFile($inputFilePath);
+            throw $e;
+        }
+    }
+
+    /**
+     * Encode video with specific codec and parameters
+     *
+     * @param VideoEncodeData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function encodeVideo(VideoEncodeData $data): string
+    {
+        // Download input video file
+        $inputFilePath = $this->downloadFile($data->input);
+        
+        try {
+            // Build FFmpeg command for video encoding
+            $command = [
+                '-i', $inputFilePath,
+                '-c:v', $data->codec,  // Set video codec
+            ];
+
+            // Add encoding parameters
+            foreach ($data->params as $param) {
+                if (str_contains($param, '=')) {
+                    // Parameter with value: key=value
+                    $parts = explode('=', $param, 2);
+                    $command[] = '-' . $parts[0];
+                    $command[] = $parts[1];
+                } else {
+                    // Parameter without value: just key
+                    $command[] = '-' . $param;
+                }
+            }
+
+            // Add audio codec (copy existing or use AAC)
+            $command[] = '-c:a';
+            $command[] = 'aac';
+
+            return $this->runAndUpload(
+                $inputFilePath,
+                $command,
+                'mp4'
+            );
+
+        } catch (\Exception $e) {
+            // Clean up on error
+            $this->deleteInputFile($inputFilePath);
             throw $e;
         }
     }
