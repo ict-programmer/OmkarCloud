@@ -8,6 +8,7 @@ use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\AudioVolumeRequest;
 use App\Http\Requests\FFMpeg\ConcatenateRequest;
+use App\Http\Requests\FFMpeg\FileInspectionRequest;
 use App\Http\Requests\FFMpeg\FrameExtractionRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
 use App\Http\Requests\FFMpeg\LoudnessNormalizationRequest;
@@ -46,6 +47,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                         'audio_fades',
                         'scale',
                         'concatenate',
+                        'file_inspection',
                     ],
                 ],
                 'is_active' => true,
@@ -598,6 +600,71 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => ConcatenateRequest::class,
                 'function_name' => 'concatenate',
+            ],
+            [
+                'name' => 'File Inspection / Metadata Analysis',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                        'format' => 'url',
+                        'description' => 'URL of the media file to inspect and analyze',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'File inspection completed successfully',
+                    'metadata' => [
+                        'file' => [
+                            'url' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                            'filename' => 'ForBiggerJoyrides.mp4'
+                        ],
+                        'format' => [
+                            'container' => 'mov,mp4,m4a,3gp,3g2,mj2',
+                            'duration' => '00:00:15.32',
+                            'duration_seconds' => 15.32,
+                            'bitrate' => '1086 kb/s',
+                            'bitrate_kbps' => 1086
+                        ],
+                        'video_streams' => [
+                            [
+                                'index' => 0,
+                                'codec' => 'h264',
+                                'resolution' => '1920x1080',
+                                'fps' => 30.0
+                            ]
+                        ],
+                        'audio_streams' => [
+                            [
+                                'index' => 1,
+                                'codec' => 'aac',
+                                'sample_rate' => '48000 Hz',
+                                'sample_rate_hz' => 48000,
+                                'channels' => 'stereo'
+                            ]
+                        ],
+                        'subtitle_streams' => [],
+                        'metadata' => [
+                            'title' => 'Sample Video',
+                            'comment' => 'Created with FFmpeg'
+                        ],
+                        'summary' => [
+                            'has_video' => true,
+                            'has_audio' => true,
+                            'has_subtitles' => false,
+                            'total_streams' => 2,
+                            'video_count' => 1,
+                            'audio_count' => 1,
+                            'subtitle_count' => 0
+                        ]
+                    ]
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => FileInspectionRequest::class,
+                'function_name' => 'fileInspection',
             ],
         ];
 

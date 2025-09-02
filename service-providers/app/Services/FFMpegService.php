@@ -7,6 +7,7 @@ use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\AudioVolumeData;
 use App\Data\Request\FFMpeg\ConcatenateData;
+use App\Data\Request\FFMpeg\FileInspectionData;
 use App\Data\Request\FFMpeg\FrameExtractionData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
 use App\Data\Request\FFMpeg\LoudnessNormalizationData;
@@ -764,5 +765,158 @@ class FFMpegService
             }
             throw $e;
         }
+    }
+
+    /**
+     * Inspect media file and return metadata using FFmpeg.
+     *
+     * @param FileInspectionData $data
+     * @return array
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function inspectFile(FileInspectionData $data): array
+    {
+        // Download input media file
+        $inputFilePath = $this->downloadFile($data->input);
+        
+        try {
+            // Use FFmpeg to get detailed media information
+            $command = [
+                $this->ffmpeg,
+                '-i', $inputFilePath,
+                '-f', 'null',
+                '-'
+            ];
+
+            $process = new Process($command);
+            $process->setTimeout(120);
+            $process->run();
+
+            // FFmpeg outputs media info to stderr, even for successful operations
+            $output = $process->getErrorOutput();
+            
+            // Clean up input file
+            $this->deleteInputFile($inputFilePath);
+
+            // Parse FFmpeg output to extract metadata
+            return $this->parseFFmpegOutput($output, $data->input);
+
+        } catch (\Exception $e) {
+            // Clean up on error
+            $this->deleteInputFile($inputFilePath);
+            throw $e;
+        }
+    }
+
+    /**
+     * Parse FFmpeg output to extract structured metadata.
+     *
+     * @param string $output
+     * @param string $originalUrl
+     * @return array
+     */
+    private function parseFFmpegOutput(string $output, string $originalUrl): array
+    {
+        $metadata = [
+            'file' => [
+                'url' => $originalUrl,
+                'filename' => basename(parse_url($originalUrl, PHP_URL_PATH)),
+            ],
+            'format' => [],
+            'video_streams' => [],
+            'audio_streams' => [],
+            'subtitle_streams' => [],
+            'metadata' => [],
+        ];
+
+        $lines = explode("\n", $output);
+        
+        foreach ($lines as $line) {
+            $line = trim($line);
+            
+            // Extract duration
+            if (preg_match('/Duration: (\d{2}:\d{2}:\d{2}\.\d{2})/', $line, $matches)) {
+                $metadata['format']['duration'] = $matches[1];
+                $metadata['format']['duration_seconds'] = $this->timeToSeconds($matches[1]);
+            }
+            
+            // Extract bitrate
+            if (preg_match('/bitrate: (\d+) kb\/s/', $line, $matches)) {
+                $metadata['format']['bitrate'] = $matches[1] . ' kb/s';
+                $metadata['format']['bitrate_kbps'] = (int)$matches[1];
+            }
+            
+            // Extract container format
+            if (preg_match('/Input #0, ([^,]+),/', $line, $matches)) {
+                $metadata['format']['container'] = trim($matches[1]);
+            }
+            
+            // Extract video stream info
+            if (preg_match('/Stream #0:(\d+).*: Video: ([^,]+).*?(\d+x\d+).*?(\d+(?:\.\d+)?) fps/', $line, $matches)) {
+                $metadata['video_streams'][] = [
+                    'index' => (int)$matches[1],
+                    'codec' => $matches[2],
+                    'resolution' => $matches[3],
+                    'fps' => (float)$matches[4],
+                ];
+            }
+            
+            // Extract audio stream info
+            if (preg_match('/Stream #0:(\d+).*: Audio: ([^,]+).*?(\d+) Hz.*?(\w+)/', $line, $matches)) {
+                $metadata['audio_streams'][] = [
+                    'index' => (int)$matches[1],
+                    'codec' => $matches[2],
+                    'sample_rate' => (int)$matches[3] . ' Hz',
+                    'sample_rate_hz' => (int)$matches[3],
+                    'channels' => $matches[4],
+                ];
+            }
+            
+            // Extract subtitle streams
+            if (preg_match('/Stream #0:(\d+).*: Subtitle: ([^,]+)/', $line, $matches)) {
+                $metadata['subtitle_streams'][] = [
+                    'index' => (int)$matches[1],
+                    'codec' => $matches[2],
+                ];
+            }
+            
+            // Extract metadata tags
+            if (preg_match('/\s+(\w+)\s+:\s+(.+)$/', $line, $matches)) {
+                $key = strtolower($matches[1]);
+                if (in_array($key, ['title', 'artist', 'album', 'date', 'genre', 'comment', 'composer'])) {
+                    $metadata['metadata'][$key] = trim($matches[2]);
+                }
+            }
+        }
+        
+        // Add summary information
+        $metadata['summary'] = [
+            'has_video' => !empty($metadata['video_streams']),
+            'has_audio' => !empty($metadata['audio_streams']),
+            'has_subtitles' => !empty($metadata['subtitle_streams']),
+            'total_streams' => count($metadata['video_streams']) + count($metadata['audio_streams']) + count($metadata['subtitle_streams']),
+            'video_count' => count($metadata['video_streams']),
+            'audio_count' => count($metadata['audio_streams']),
+            'subtitle_count' => count($metadata['subtitle_streams']),
+        ];
+
+        return $metadata;
+    }
+
+    /**
+     * Convert time format (HH:MM:SS.MS) to seconds.
+     *
+     * @param string $time
+     * @return float
+     */
+    private function timeToSeconds(string $time): float
+    {
+        $parts = explode(':', $time);
+        $hours = (int)$parts[0];
+        $minutes = (int)$parts[1];
+        $seconds = (float)$parts[2];
+        
+        return $hours * 3600 + $minutes * 60 + $seconds;
     }
 }

@@ -7,6 +7,7 @@ use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\AudioVolumeData;
 use App\Data\Request\FFMpeg\ConcatenateData;
+use App\Data\Request\FFMpeg\FileInspectionData;
 use App\Data\Request\FFMpeg\FrameExtractionData;
 use App\Data\Request\FFMpeg\ImageProcessingData;
 use App\Data\Request\FFMpeg\LoudnessNormalizationData;
@@ -19,6 +20,7 @@ use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\AudioVolumeRequest;
 use App\Http\Requests\FFMpeg\ConcatenateRequest;
+use App\Http\Requests\FFMpeg\FileInspectionRequest;
 use App\Http\Requests\FFMpeg\FrameExtractionRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
 use App\Http\Requests\FFMpeg\LoudnessNormalizationRequest;
@@ -175,6 +177,18 @@ class FFMpegServiceController extends BaseController
         return $this->logAndResponse([
             'message' => 'Videos concatenated successfully',
             'output_file_link' => $path,
+        ]);
+    }
+
+    public function fileInspection(FileInspectionRequest $request): JsonResponse
+    {
+        $data = FileInspectionData::from($request->validated());
+
+        $metadata = $this->service->inspectFile($data);
+
+        return $this->logAndResponse([
+            'message' => 'File inspection completed successfully',
+            'metadata' => $metadata,
         ]);
     }
 }
