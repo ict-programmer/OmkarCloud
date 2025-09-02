@@ -55,6 +55,10 @@ return [
         'path' => env('FFMPEG_PATH', '/usr/bin/ffmpeg'),
     ],
 
+    'ffprobe' => [
+        'path' => env('FFPROBE_PATH', '/usr/bin/ffprobe'),
+    ],
+
     'runwayml' => [
         'api_key' => env('RUNWAYML_API_KEY'),
     ],
@@ -167,5 +171,9 @@ return [
             'api_key' => env('GOOGLE_CUSTOM_SEARCH_API_KEY'),
             'search_engine_id' => env('GOOGLE_CUSTOM_SEARCH_ENGINE_ID'),
         ],
+    ],
+     'billionmail' => [
+        'api_url' => env('BILLIONMAIL_API_URL', 'https://10.253.10.66:8888//api/batch_mail/api'),
+        'api_key' => env('BILLIONMAIL_API_KEY', 'b98020dae4c501b9e61be56d7312d6bb99595e9b190079e88308d732a6519ec3'),
     ],
 ];

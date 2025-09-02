@@ -593,7 +593,7 @@ class FreepikServiceProviderSeeder extends Seeder
                         'default' => 'kling-elements-pro',
                         'userinput_rqd' => false
                     ],
-                    'image_cid' => [
+                    'image_cids' => [
                         'type' => 'array',
                         'required' => true,
                         'description' => 'Array of up to 4 image cids (publicly accessible)',
