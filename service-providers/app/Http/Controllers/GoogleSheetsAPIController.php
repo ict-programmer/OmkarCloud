@@ -343,6 +343,131 @@ use OpenApi\Annotations as OA;
  * )
  *
  * @OA\Schema(
+ *     schema="ReadRangeResponse",
+ *     title="Read Range Response",
+ *     description="Response for reading a range of values from a spreadsheet.",
+ *     @OA\Property(
+ *         property="status",
+ *         type="string",
+ *         example="success",
+ *         description="The status of the API response."
+ *     ),
+ *     @OA\Property(
+ *         property="data",
+ *         type="object",
+ *         description="The value range data.",
+ *         ref="#/components/schemas/ValueRange"
+ *     ),
+ *     @OA\Property(
+ *         property="timestamp",
+ *         type="string",
+ *         format="date-time",
+ *         example="2023-10-27T10:00:00Z",
+ *         description="The timestamp of the API response."
+ *     )
+ * )
+ *
+ * @OA\Schema(
+ *     schema="WriteRangeResponse",
+ *     title="Write Range Response",
+ *     description="Response for writing a range of values to a spreadsheet.",
+ *     @OA\Property(
+ *         property="status",
+ *         type="string",
+ *         example="success",
+ *         description="The status of the API response."
+ *     ),
+ *     @OA\Property(
+ *         property="data",
+ *         type="object",
+ *         description="The update values response data.",
+ *         ref="#/components/schemas/UpdateValuesResponse"
+ *     ),
+ *     @OA\Property(
+ *         property="timestamp",
+ *         type="string",
+ *         format="date-time",
+ *         example="2023-10-27T10:00:00Z",
+ *         description="The timestamp of the API response."
+ *     )
+ * )
+ *
+ * @OA\Schema(
+ *     schema="AppendValuesResponseWrapper",
+ *     title="Append Values Response Wrapper",
+ *     description="Response for appending values to a spreadsheet.",
+ *     @OA\Property(
+ *         property="status",
+ *         type="string",
+ *         example="success",
+ *         description="The status of the API response."
+ *     ),
+ *     @OA\Property(
+ *         property="data",
+ *         type="object",
+ *         description="The append values response data.",
+ *         ref="#/components/schemas/AppendValuesResponse"
+ *     ),
+ *     @OA\Property(
+ *         property="timestamp",
+ *         type="string",
+ *         format="date-time",
+ *         example="2023-10-27T10:00:00Z",
+ *         description="The timestamp of the API response."
+ *     )
+ * )
+ *
+ * @OA\Schema(
+ *     schema="BatchUpdateValuesResponseWrapper",
+ *     title="Batch Update Values Response Wrapper",
+ *     description="Response for batch updating values in a spreadsheet.",
+ *     @OA\Property(
+ *         property="status",
+ *         type="string",
+ *         example="success",
+ *         description="The status of the API response."
+ *     ),
+ *     @OA\Property(
+ *         property="data",
+ *         type="object",
+ *         description="The batch update values response data.",
+ *         ref="#/components/schemas/BatchUpdateValuesResponse"
+ *     ),
+ *     @OA\Property(
+ *         property="timestamp",
+ *         type="string",
+ *         format="date-time",
+ *         example="2023-10-27T10:00:00Z",
+ *         description="The timestamp of the API response."
+ *     )
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ClearValuesResponseWrapper",
+ *     title="Clear Values Response Wrapper",
+ *     description="Response for clearing a range of values in a spreadsheet.",
+ *     @OA\Property(
+ *         property="status",
+ *         type="string",
+ *         example="success",
+ *         description="The status of the API response."
+ *     ),
+ *     @OA\Property(
+ *         property="data",
+ *         type="object",
+ *         description="The clear values response data.",
+ *         ref="#/components/schemas/ClearValuesResponse"
+ *     ),
+ *     @OA\Property(
+ *         property="timestamp",
+ *         type="string",
+ *         format="date-time",
+ *         example="2023-10-27T10:00:00Z",
+ *         description="The timestamp of the API response."
+ *     )
+ * )
+ *
+ * @OA\Schema(
  *     schema="ValueRange",
  *     title="Value Range",
  *     description="Represents a range of values in a spreadsheet.",
@@ -669,7 +794,7 @@ class GoogleSheetsAPIController extends BaseController
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
-     *         @OA\JsonContent(ref="#/components/schemas/ValueRange")
+     *         @OA\JsonContent(ref="#/components/schemas/ReadRangeResponse")
      *     ),
      *     @OA\Response(
      *         response=422,
@@ -733,7 +858,7 @@ class GoogleSheetsAPIController extends BaseController
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
-     *         @OA\JsonContent(ref="#/components/schemas/UpdateValuesResponse")
+     *         @OA\JsonContent(ref="#/components/schemas/WriteRangeResponse")
      *     ),
      *     @OA\Response(
      *         response=422,
@@ -797,7 +922,7 @@ class GoogleSheetsAPIController extends BaseController
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
-     *         @OA\JsonContent(ref="#/components/schemas/AppendValuesResponse")
+     *         @OA\JsonContent(ref="#/components/schemas/AppendValuesResponseWrapper")
      *     ),
      *     @OA\Response(
      *         response=422,
@@ -832,7 +957,7 @@ class GoogleSheetsAPIController extends BaseController
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
-     *         @OA\JsonContent(ref="#/components/schemas/BatchUpdateValuesResponse")
+     *         @OA\JsonContent(ref="#/components/schemas/BatchUpdateValuesResponseWrapper")
      *     ),
      *     @OA\Response(
      *         response=422,
@@ -867,7 +992,7 @@ class GoogleSheetsAPIController extends BaseController
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
-     *         @OA\JsonContent(ref="#/components/schemas/ClearValuesResponse")
+     *         @OA\JsonContent(ref="#/components/schemas/ClearValuesResponseWrapper")
      *     ),
      *     @OA\Response(
      *         response=422,
