@@ -520,6 +520,45 @@ use OpenApi\Annotations as OA;
  *         )
  *     )
  * )
+ * 
+ * @OA\Schema(
+ *     schema="SheetsManagementRequest",
+ *     title="Sheets Management Request",
+ *     required={"spreadSheetId", "type"},
+ *     @OA\Property(
+ *         property="spreadSheetId",
+ *         type="string",
+ *         description="The ID of the spreadsheet to perform operations on.",
+ *         maxLength=255
+ *     ),
+ *     @OA\Property(
+ *         property="type",
+ *         type="string",
+ *         description="The type of sheet management operation.",
+ *         enum={"addSheet", "deleteSheet", "copySheet"}
+ *     ),
+ *     @OA\Property(
+ *         property="title",
+ *         type="string",
+ *         description="The title of the new sheet (required for 'addSheet' type).",
+ *         maxLength=255,
+ *         nullable=true
+ *     ),
+ *     @OA\Property(
+ *         property="sheetId",
+ *         type="integer",
+ *         description="The ID of the sheet to delete or copy (required for 'deleteSheet' or 'copySheet' types).",
+ *         nullable=true
+ *     ),
+ *     @OA\Property(
+ *         property="destinationSpreadsheetId",
+ *         type="string",
+ *         description="The ID of the destination spreadsheet for copying a sheet (required for 'copySheet' type).",
+ *         maxLength=255,
+ *         nullable=true
+ *     )
+ * )
+ *
  */
 class GoogleSheetsAPIController extends BaseController
 {
@@ -532,7 +571,7 @@ class GoogleSheetsAPIController extends BaseController
 
     /**
      * @OA\Post(
-     *     path="/api/sheets/create",
+     *     path="/api/sheets/create_spreadsheet",
      *     summary="Create a new Google Spreadsheet",
      *     tags={"Google Sheets API"},
      *     @OA\RequestBody(
@@ -567,7 +606,7 @@ class GoogleSheetsAPIController extends BaseController
 
     /**
      * @OA\Get(
-     *     path="/api/sheets/read-range",
+     *     path="/api/sheets/read_range",
      *     summary="Read a range of values from a Google Spreadsheet",
      *     tags={"Google Sheets API"},
      *     @OA\Parameter(
@@ -630,7 +669,7 @@ class GoogleSheetsAPIController extends BaseController
 
     /**
      * @OA\Put(
-     *     path="/api/sheets/write-range",
+     *     path="/api/sheets/write_range",
      *     summary="Write a range of values to a Google Spreadsheet",
      *     tags={"Google Sheets API"},
      *     @OA\RequestBody(
@@ -694,7 +733,7 @@ class GoogleSheetsAPIController extends BaseController
 
     /**
      * @OA\Post(
-     *     path="/api/sheets/append-values",
+     *     path="/api/sheets/append_values",
      *     summary="Append values to a Google Spreadsheet",
      *     tags={"Google Sheets API"},
      *     @OA\RequestBody(
@@ -758,7 +797,7 @@ class GoogleSheetsAPIController extends BaseController
 
     /**
      * @OA\Post(
-     *     path="/api/sheets/batch-update",
+     *     path="/api/sheets/batch_update",
      *     summary="Batch update values in a Google Spreadsheet",
      *     tags={"Google Sheets API"},
      *     @OA\RequestBody(
@@ -793,7 +832,7 @@ class GoogleSheetsAPIController extends BaseController
 
     /**
      * @OA\Post(
-     *     path="/api/sheets/clear-range",
+     *     path="/api/sheets/clear_range",
      *     summary="Clear a range of values from a Google Spreadsheet",
      *     tags={"Google Sheets API"},
      *     @OA\RequestBody(
@@ -826,6 +865,32 @@ class GoogleSheetsAPIController extends BaseController
         return $this->logAndResponse(GoogleSheetsAPIResource::make($result));
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/sheets/management",
+     *     summary="Perform various management operations on Google Sheets (add, delete, copy)",
+     *     tags={"Google Sheets API"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/SheetsManagementRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/GoogleSheetsAPIResource")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error",
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationError")
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     )
+     * )
+     */
     public function sheetsManagement(SheetsManagementRequest $request)
     {
         $validatedRequest = $request->validated();
