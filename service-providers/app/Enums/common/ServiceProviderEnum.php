@@ -25,10 +25,12 @@ enum ServiceProviderEnum: string
     case CHATGPT = 'ChatGPT';
     case PEXELS = 'Pexels';
     case GOOGLE_SHEETS = 'Google Sheets';
+    case GOOGLE_SHEETS_API = 'Google Sheets API';
     case GOOGLE_SPREADSHEET = 'Google spreadsheet';
     case PREMIER_PRO = 'Premier Pro';
     case REACT_JS = 'ReactJS';
     case DESCRIPT_AI = 'DescriptAI';
     case ASSET = 'Asset';
     case USER = 'User';
+
 }
