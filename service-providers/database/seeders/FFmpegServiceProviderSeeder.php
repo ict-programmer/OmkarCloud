@@ -17,6 +17,7 @@ use App\Http\Requests\FFMpeg\ScaleRequest;
 use App\Http\Requests\FFMpeg\StreamCopyRequest;
 use App\Http\Requests\FFMpeg\ThumbnailRequest;
 use App\Http\Requests\FFMpeg\TranscodingRequest;
+use App\Http\Requests\FFMpeg\VideoEncodeRequest;
 use App\Http\Requests\FFMpeg\VideoProcessingRequest;
 use App\Http\Requests\FFMpeg\VideoTrimmingRequest;
 use App\Models\ServiceProvider;
@@ -54,6 +55,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                         'thumbnail',
                         'bitrate_control',
                         'stream_copy',
+                        'video_encode',
                     ],
                 ],
                 'is_active' => true,
@@ -838,6 +840,106 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => StreamCopyRequest::class,
                 'function_name' => 'streamCopy',
+            ],
+            [
+                'name' => 'Video Encoding',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                        'format' => 'url',
+                        'description' => 'URL of the video file to encode',
+                    ],
+                    'codec' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'libx264',
+                        'enum' => ['libx264', 'libx265', 'libvpx', 'libvpx-vp9', 'libaom-av1', 'libsvtav1', 'mpeg4', 'libxvid', 'h264_nvenc', 'hevc_nvenc', 'h264_videotoolbox', 'hevc_videotoolbox'],
+                        'description' => 'Video codec to use for encoding. Required field.',
+                        'codec_info' => [
+                            'libx264' => 'H.264/AVC - Most compatible, good quality',
+                            'libx265' => 'H.265/HEVC - Better compression, newer standard',
+                            'libvpx' => 'VP8 - Open source, web-friendly',
+                            'libvpx-vp9' => 'VP9 - Better than VP8, YouTube uses this',
+                            'libaom-av1' => 'AV1 - Next-gen codec, excellent compression',
+                            'libsvtav1' => 'SVT-AV1 - Intel\'s fast AV1 encoder',
+                            'mpeg4' => 'MPEG-4 Part 2 - Legacy codec',
+                            'libxvid' => 'Xvid - Legacy MPEG-4 implementation',
+                            'h264_nvenc' => 'H.264 NVIDIA GPU encoder',
+                            'hevc_nvenc' => 'H.265 NVIDIA GPU encoder',
+                            'h264_videotoolbox' => 'H.264 Apple hardware encoder',
+                            'hevc_videotoolbox' => 'H.265 Apple hardware encoder'
+                        ],
+                    ],
+                    'params' => [
+                        'type' => 'array',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => ['crf=23', 'preset=medium'],
+                        'min_items' => 1,
+                        'max_items' => 20,
+                        'items' => [
+                            'type' => 'string',
+                            'pattern' => '^[a-zA-Z_][a-zA-Z0-9_-]*(?:=[a-zA-Z0-9_.-]+)?$',
+                        ],
+                        'description' => 'Array of encoding parameters in "key=value" or "key" format. Required field.',
+                        'examples' => [
+                            ['crf=23', 'preset=medium'],
+                            ['b:v=2000k', 'maxrate=2000k', 'bufsize=4000k'],
+                            ['qp=28', 'profile=main'],
+                            ['crf=18', 'preset=slow', 'tune=film'],
+                            ['pix_fmt=yuv420p', 'movflags=+faststart'],
+                        ],
+                        'common_params' => [
+                            'crf' => 'Constant Rate Factor (0-51, lower=better quality)',
+                            'preset' => 'Encoding speed (ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow)',
+                            'tune' => 'Optimize for content type (film, animation, grain, stillimage, psnr, ssim, fastdecode, zerolatency)',
+                            'profile' => 'Encoder profile (baseline, main, high)',
+                            'level' => 'Encoder level (3.0, 3.1, 4.0, 4.1, 5.0, 5.1)',
+                            'b:v' => 'Video bitrate (e.g., 2000k, 5M)',
+                            'maxrate' => 'Maximum bitrate for CBR',
+                            'bufsize' => 'Buffer size for rate control',
+                            'pix_fmt' => 'Pixel format (yuv420p, yuv444p)',
+                            'movflags' => 'MP4 optimization flags (+faststart)'
+                        ],
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Video encoded successfully',
+                    'output_file_link' => 'https://output.example.com/video_encoded_123456.mp4',
+                    'processing_time' => 85.4,
+                    'encoding_settings' => [
+                        'codec' => 'libx264',
+                        'parameters_applied' => [
+                            'crf' => '23',
+                            'preset' => 'medium'
+                        ],
+                        'video_codec' => 'libx264',
+                        'audio_codec' => 'aac'
+                    ],
+                    'quality_metrics' => [
+                        'original_size' => '120MB',
+                        'encoded_size' => '85MB',
+                        'compression_ratio' => '29.2%',
+                        'quality_setting' => 'crf=23 (high quality)',
+                        'encoding_speed' => 'medium preset'
+                    ],
+                    'technical_details' => [
+                        'resolution' => '1920x1080',
+                        'frame_rate' => '30fps',
+                        'pixel_format' => 'yuv420p',
+                        'bitrate' => '1890k',
+                        'duration' => '15.32s'
+                    ],
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => VideoEncodeRequest::class,
+                'function_name' => 'videoEncode',
             ],
         ];
 

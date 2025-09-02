@@ -16,6 +16,7 @@ use App\Data\Request\FFMpeg\ScaleData;
 use App\Data\Request\FFMpeg\StreamCopyData;
 use App\Data\Request\FFMpeg\ThumbnailData;
 use App\Data\Request\FFMpeg\TranscodingData;
+use App\Data\Request\FFMpeg\VideoEncodeData;
 use App\Data\Request\FFMpeg\VideoProcessingData;
 use App\Data\Request\FFMpeg\VideoTrimmingData;
 use App\Traits\PubliishIOTrait;
@@ -1085,6 +1086,56 @@ class FFMpegService
                 $inputFilePath,
                 $command,
                 $outputFormat
+            );
+
+        } catch (\Exception $e) {
+            // Clean up on error
+            $this->deleteInputFile($inputFilePath);
+            throw $e;
+        }
+    }
+
+    /**
+     * Encode video with specific codec and parameters
+     *
+     * @param VideoEncodeData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function encodeVideo(VideoEncodeData $data): string
+    {
+        // Download input video file
+        $inputFilePath = $this->downloadFile($data->input);
+        
+        try {
+            // Build FFmpeg command for video encoding
+            $command = [
+                '-i', $inputFilePath,
+                '-c:v', $data->codec,  // Set video codec
+            ];
+
+            // Add encoding parameters
+            foreach ($data->params as $param) {
+                if (str_contains($param, '=')) {
+                    // Parameter with value: key=value
+                    $parts = explode('=', $param, 2);
+                    $command[] = '-' . $parts[0];
+                    $command[] = $parts[1];
+                } else {
+                    // Parameter without value: just key
+                    $command[] = '-' . $param;
+                }
+            }
+
+            // Add audio codec (copy existing or use AAC)
+            $command[] = '-c:a';
+            $command[] = 'aac';
+
+            return $this->runAndUpload(
+                $inputFilePath,
+                $command,
+                'mp4'
             );
 
         } catch (\Exception $e) {

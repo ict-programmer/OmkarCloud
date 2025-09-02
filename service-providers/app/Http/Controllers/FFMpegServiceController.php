@@ -16,6 +16,7 @@ use App\Data\Request\FFMpeg\ScaleData;
 use App\Data\Request\FFMpeg\StreamCopyData;
 use App\Data\Request\FFMpeg\ThumbnailData;
 use App\Data\Request\FFMpeg\TranscodingData;
+use App\Data\Request\FFMpeg\VideoEncodeData;
 use App\Data\Request\FFMpeg\VideoProcessingData;
 use App\Data\Request\FFMpeg\VideoTrimmingData;
 use App\Http\Requests\FFMpeg\AudioFadesRequest;
@@ -32,6 +33,7 @@ use App\Http\Requests\FFMpeg\ScaleRequest;
 use App\Http\Requests\FFMpeg\StreamCopyRequest;
 use App\Http\Requests\FFMpeg\ThumbnailRequest;
 use App\Http\Requests\FFMpeg\TranscodingRequest;
+use App\Http\Requests\FFMpeg\VideoEncodeRequest;
 use App\Http\Requests\FFMpeg\VideoProcessingRequest;
 use App\Http\Requests\FFMpeg\VideoTrimmingRequest;
 use App\Services\FFMpegService;
@@ -230,6 +232,18 @@ class FFMpegServiceController extends BaseController
 
         return $this->logAndResponse([
             'message' => 'Stream copy completed successfully',
+            'output_file_link' => $path,
+        ]);
+    }
+
+    public function videoEncode(VideoEncodeRequest $request): JsonResponse
+    {
+        $data = VideoEncodeData::from($request->validated());
+
+        $path = $this->service->encodeVideo($data);
+
+        return $this->logAndResponse([
+            'message' => 'Video encoded successfully',
             'output_file_link' => $path,
         ]);
     }
