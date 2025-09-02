@@ -9,6 +9,7 @@ use App\Http\Requests\GoogleSheetAPI\BatchUpdateRequest;
 use App\Http\Requests\GoogleSheetAPI\ClearRangeRequest;
 use App\Http\Requests\GoogleSheetAPI\CreateSpreadsheetRequest;
 use App\Http\Requests\GoogleSheetAPI\ReadRangeRequest;
+use App\Http\Requests\GoogleSheetAPI\SheetsManagementRequest;
 use App\Models\ServiceProvider;
 use App\Traits\ServiceProviderSeederTrait;
 use Illuminate\Database\Seeder;
@@ -556,8 +557,8 @@ class GoogleSheetsAPIServiceProviderSeeder extends Seeder
                     'replies.*.addSheet.properties.title' => '$.replies.*.addSheet.properties.title',
                     'replies.*.addSheet.properties.index' => '$.replies.*.addSheet.properties.index',
                 ],
-                'request_class_name' => BatchUpdateRequest::class, 
-                'function_name' => 'batchUpdate', 
+                'request_class_name' => SheetsManagementRequest::class, 
+                'function_name' => 'sheetsManagement', 
                 'status' => 1,
             ],
         ];
