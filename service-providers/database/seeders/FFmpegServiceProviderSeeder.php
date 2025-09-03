@@ -7,13 +7,17 @@ use App\Http\Requests\FFMpeg\AudioFadesRequest;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\AudioVolumeRequest;
+use App\Http\Requests\FFMpeg\BitrateControlRequest;
 use App\Http\Requests\FFMpeg\ConcatenateRequest;
-use App\Http\Requests\FFMpeg\FFProbeRequest;
+use App\Http\Requests\FFMpeg\FileInspectionRequest;
 use App\Http\Requests\FFMpeg\FrameExtractionRequest;
 use App\Http\Requests\FFMpeg\ImageProcessingRequest;
 use App\Http\Requests\FFMpeg\LoudnessNormalizationRequest;
 use App\Http\Requests\FFMpeg\ScaleRequest;
+use App\Http\Requests\FFMpeg\StreamCopyRequest;
+use App\Http\Requests\FFMpeg\ThumbnailRequest;
 use App\Http\Requests\FFMpeg\TranscodingRequest;
+use App\Http\Requests\FFMpeg\VideoEncodeRequest;
 use App\Http\Requests\FFMpeg\VideoProcessingRequest;
 use App\Http\Requests\FFMpeg\VideoTrimmingRequest;
 use App\Models\ServiceProvider;
@@ -34,14 +38,12 @@ class FFmpegServiceProviderSeeder extends Seeder
             [
                 'parameters' => [
                     'ffmpeg_path' => '/opt/homebrew/bin/ffmpeg',
-                    'ffprobe_path' => '/opt/homebrew/bin/ffprobe',
                     'features' => [
                         'video_processing',
                         'audio_processing',
                         'image_processing',
                         'video_trimming',
                         'loudness_normalization',
-                        'ffprobe',
                         'transcoding',
                         'audio_overlay',
                         'frame_extraction',
@@ -49,6 +51,11 @@ class FFmpegServiceProviderSeeder extends Seeder
                         'audio_fades',
                         'scale',
                         'concatenate',
+                        'file_inspection',
+                        'thumbnail',
+                        'bitrate_control',
+                        'stream_copy',
+                        'video_encode',
                     ],
                 ],
                 'is_active' => true,
@@ -296,104 +303,6 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => LoudnessNormalizationRequest::class,
                 'function_name' => 'loudnessNormalization',
-            ],
-            [
-                'name' => 'FFProbe Media Analysis',
-                'input_parameters' => [
-                    'file_link' => [
-                        'type' => 'string',
-                        'required' => true,
-                        'userinput_rqd' => true,
-                        'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
-                        'format' => 'url',
-                        'description' => 'URL of the media file to analyze',
-                    ],
-                    'output_format' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'userinput_rqd' => false,
-                        'default' => 'json',
-                        'enum' => ['json', 'xml', 'csv', 'flat', 'ini', 'default'],
-                        'description' => 'Output format for probe data (default: json)',
-                    ],
-                    'show_format' => [
-                        'type' => 'boolean',
-                        'required' => false,
-                        'userinput_rqd' => false,
-                        'default' => true,
-                        'description' => 'Show format/container information',
-                    ],
-                    'show_streams' => [
-                        'type' => 'boolean',
-                        'required' => false,
-                        'userinput_rqd' => false,
-                        'default' => true,
-                        'description' => 'Show streams information',
-                    ],
-                    'show_chapters' => [
-                        'type' => 'boolean',
-                        'required' => false,
-                        'userinput_rqd' => false,
-                        'default' => false,
-                        'description' => 'Show chapters information',
-                    ],
-                    'show_programs' => [
-                        'type' => 'boolean',
-                        'required' => false,
-                        'userinput_rqd' => false,
-                        'default' => false,
-                        'description' => 'Show programs information',
-                    ],
-                    'select_streams' => [
-                        'type' => 'string',
-                        'required' => false,
-                        'userinput_rqd' => false,
-                        'default' => '',
-                        'description' => 'Select specific streams (e.g., "v:0" for first video stream, "a" for all audio)',
-                    ],
-                ],
-                'response' => [
-                    'message' => 'Media probed successfully',
-                    'probe_data' => [
-                        'format' => [
-                            'filename' => 'example.mp4',
-                            'nb_streams' => 2,
-                            'nb_programs' => 0,
-                            'format_name' => 'mov,mp4,m4a,3gp,3g2,mj2',
-                            'format_long_name' => 'QuickTime / MOV',
-                            'start_time' => '0.000000',
-                            'duration' => '120.000000',
-                            'size' => '15728640',
-                            'bit_rate' => '1048576',
-                        ],
-                        'streams' => [
-                            [
-                                'index' => 0,
-                                'codec_name' => 'h264',
-                                'codec_type' => 'video',
-                                'width' => 1920,
-                                'height' => 1080,
-                                'r_frame_rate' => '30/1',
-                                'avg_frame_rate' => '30/1',
-                                'duration' => '120.000000',
-                            ],
-                            [
-                                'index' => 1,
-                                'codec_name' => 'aac',
-                                'codec_type' => 'audio',
-                                'sample_rate' => '48000',
-                                'channels' => 2,
-                                'channel_layout' => 'stereo',
-                                'duration' => '120.000000',
-                            ],
-                        ],
-                    ],
-                ],
-                'response_path' => [
-                    'final_result' => '$',
-                ],
-                'request_class_name' => FFProbeRequest::class,
-                'function_name' => 'ffprobe',
             ],
             [
                 'name' => 'Media Transcoding',
@@ -699,6 +608,338 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => ConcatenateRequest::class,
                 'function_name' => 'concatenate',
+            ],
+            [
+                'name' => 'File Inspection / Metadata Analysis',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                        'format' => 'url',
+                        'description' => 'URL of the media file to inspect and analyze',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'File inspection completed successfully',
+                    'metadata' => [
+                        'file' => [
+                            'url' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                            'filename' => 'ForBiggerJoyrides.mp4'
+                        ],
+                        'format' => [
+                            'container' => 'mov,mp4,m4a,3gp,3g2,mj2',
+                            'duration' => '00:00:15.32',
+                            'duration_seconds' => 15.32,
+                            'bitrate' => '1086 kb/s',
+                            'bitrate_kbps' => 1086
+                        ],
+                        'video_streams' => [
+                            [
+                                'index' => 0,
+                                'codec' => 'h264',
+                                'resolution' => '1920x1080',
+                                'fps' => 30.0
+                            ]
+                        ],
+                        'audio_streams' => [
+                            [
+                                'index' => 1,
+                                'codec' => 'aac',
+                                'sample_rate' => '48000 Hz',
+                                'sample_rate_hz' => 48000,
+                                'channels' => 'stereo'
+                            ]
+                        ],
+                        'subtitle_streams' => [],
+                        'metadata' => [
+                            'title' => 'Sample Video',
+                            'comment' => 'Created with FFmpeg'
+                        ],
+                        'summary' => [
+                            'has_video' => true,
+                            'has_audio' => true,
+                            'has_subtitles' => false,
+                            'total_streams' => 2,
+                            'video_count' => 1,
+                            'audio_count' => 1,
+                            'subtitle_count' => 0
+                        ]
+                    ]
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => FileInspectionRequest::class,
+                'function_name' => 'fileInspection',
+            ],
+            [
+                'name' => 'Video Thumbnail Generation',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                        'format' => 'url',
+                        'description' => 'URL of the video file to generate thumbnail from',
+                    ],
+                    'timestamp' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => '00:00:05',
+                        'pattern' => '^\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?$',
+                        'description' => 'Timestamp to extract thumbnail from (format: HH:MM:SS or HH:MM:SS.MS). Required field.',
+                        'examples' => [
+                            '00:00:05',
+                            '00:01:30',
+                            '00:02:15.5',
+                            '01:30:45'
+                        ],
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Thumbnail generated successfully',
+                    'thumbnail_url' => 'https://output.example.com/thumbnail_123456.jpg',
+                    'timestamp' => '00:00:05',
+                    'processing_time' => 2.1,
+                    'thumbnail_size' => '1280x720',
+                    'image_format' => 'JPEG',
+                    'image_quality' => 'high',
+                    'file_size' => '245KB',
+                    'source_video' => 'ForBiggerJoyrides.mp4'
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => ThumbnailRequest::class,
+                'function_name' => 'thumbnail',
+            ],
+            [
+                'name' => 'Video Bitrate Control',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                        'format' => 'url',
+                        'description' => 'URL of the video file to apply bitrate control',
+                    ],
+                    'crf' => [
+                        'type' => 'integer',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 23,
+                        'min' => 0,
+                        'max' => 51,
+                        'description' => 'Constant Rate Factor (0-51). Lower values = higher quality. 18-28 is typical range. Required field.',
+                        'examples' => [18, 20, 23, 28, 35],
+                    ],
+                    'preset' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'medium',
+                        'enum' => ['ultrafast', 'superfast', 'veryfast', 'faster', 'fast', 'medium', 'slow', 'slower', 'veryslow'],
+                        'description' => 'Encoding speed vs quality preset. Slower = better compression but longer processing time. Required field.',
+                    ],
+                    'cbr' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => '2000k',
+                        'pattern' => '^\\d+[kmKM]?$',
+                        'description' => 'Constant Bitrate (e.g., "2000k", "5M", "1000"). Sets fixed bitrate for consistent file sizes. Required field.',
+                        'examples' => ['1000k', '2000k', '5M', '8000k', '10M'],
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Bitrate control applied successfully',
+                    'output_file_link' => 'https://output.example.com/bitrate_controlled_123456.mp4',
+                    'processing_time' => 65.8,
+                    'encoding_settings' => [
+                        'crf' => 23,
+                        'preset' => 'medium',
+                        'video_codec' => 'libx264',
+                        'audio_codec' => 'aac'
+                    ],
+                    'quality_optimization' => [
+                        'target_quality' => 'high',
+                        'compression_efficiency' => '85%',
+                        'file_size_reduction' => '45%'
+                    ],
+                    'file_size' => '98MB',
+                    'bitrate' => '2150k',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => BitrateControlRequest::class,
+                'function_name' => 'bitrateControl',
+            ],
+            [
+                'name' => 'Stream Copy',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                        'format' => 'url',
+                        'description' => 'URL of the media file to copy streams from',
+                    ],
+                    'streams' => [
+                        'type' => 'array',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => ['video:0', 'audio:0'],
+                        'min_items' => 1,
+                        'max_items' => 10,
+                        'items' => [
+                            'type' => 'string',
+                            'pattern' => '^(video|audio|subtitle|data|all):\\d+$|^(all)$',
+                        ],
+                        'description' => 'Array of stream specifications to copy. Format: "type:index" (e.g., "video:0", "audio:1") or "all" for all streams.',
+                        'examples' => [
+                            ['video:0', 'audio:0'],
+                            ['video:0'],
+                            ['audio:0', 'audio:1'],
+                            ['all'],
+                            ['video:0', 'subtitle:0'],
+                        ],
+                        'stream_types' => [
+                            'video' => 'Video streams (e.g., video:0, video:1)',
+                            'audio' => 'Audio streams (e.g., audio:0, audio:1)',
+                            'subtitle' => 'Subtitle streams (e.g., subtitle:0)',
+                            'data' => 'Data streams (e.g., data:0)',
+                            'all' => 'Copy all streams without re-encoding'
+                        ],
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Stream copy completed successfully',
+                    'output_file_link' => 'https://output.example.com/stream_copy_123456.mp4',
+                    'processing_time' => 5.2,
+                    'copied_streams' => [
+                        'video:0' => 'h264, 1920x1080, 30fps',
+                        'audio:0' => 'aac, stereo, 44100Hz'
+                    ],
+                    'operation_type' => 'stream_copy',
+                    'encoding_method' => 'copy (no re-encoding)',
+                    'quality_preservation' => '100% lossless',
+                    'speed_benefit' => 'fast (no encoding overhead)',
+                    'file_size' => '95MB',
+                    'original_format' => 'mp4',
+                    'output_format' => 'mp4',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => StreamCopyRequest::class,
+                'function_name' => 'streamCopy',
+            ],
+            [
+                'name' => 'Video Encoding',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                        'format' => 'url',
+                        'description' => 'URL of the video file to encode',
+                    ],
+                    'codec' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'libx264',
+                        'enum' => ['libx264', 'libx265', 'libvpx', 'libvpx-vp9', 'libaom-av1', 'libsvtav1', 'mpeg4', 'libxvid', 'h264_nvenc', 'hevc_nvenc', 'h264_videotoolbox', 'hevc_videotoolbox'],
+                        'description' => 'Video codec to use for encoding. Required field.',
+                        'codec_info' => [
+                            'libx264' => 'H.264/AVC - Most compatible, good quality',
+                            'libx265' => 'H.265/HEVC - Better compression, newer standard',
+                            'libvpx' => 'VP8 - Open source, web-friendly',
+                            'libvpx-vp9' => 'VP9 - Better than VP8, YouTube uses this',
+                            'libaom-av1' => 'AV1 - Next-gen codec, excellent compression',
+                            'libsvtav1' => 'SVT-AV1 - Intel\'s fast AV1 encoder',
+                            'mpeg4' => 'MPEG-4 Part 2 - Legacy codec',
+                            'libxvid' => 'Xvid - Legacy MPEG-4 implementation',
+                            'h264_nvenc' => 'H.264 NVIDIA GPU encoder',
+                            'hevc_nvenc' => 'H.265 NVIDIA GPU encoder',
+                            'h264_videotoolbox' => 'H.264 Apple hardware encoder',
+                            'hevc_videotoolbox' => 'H.265 Apple hardware encoder'
+                        ],
+                    ],
+                    'params' => [
+                        'type' => 'array',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => ['crf=23', 'preset=medium'],
+                        'min_items' => 1,
+                        'max_items' => 20,
+                        'items' => [
+                            'type' => 'string',
+                            'pattern' => '^[a-zA-Z_][a-zA-Z0-9_-]*(?:=[a-zA-Z0-9_.-]+)?$',
+                        ],
+                        'description' => 'Array of encoding parameters in "key=value" or "key" format. Required field.',
+                        'examples' => [
+                            ['crf=23', 'preset=medium'],
+                            ['b:v=2000k', 'maxrate=2000k', 'bufsize=4000k'],
+                            ['qp=28', 'profile=main'],
+                            ['crf=18', 'preset=slow', 'tune=film'],
+                            ['pix_fmt=yuv420p', 'movflags=+faststart'],
+                        ],
+                        'common_params' => [
+                            'crf' => 'Constant Rate Factor (0-51, lower=better quality)',
+                            'preset' => 'Encoding speed (ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow)',
+                            'tune' => 'Optimize for content type (film, animation, grain, stillimage, psnr, ssim, fastdecode, zerolatency)',
+                            'profile' => 'Encoder profile (baseline, main, high)',
+                            'level' => 'Encoder level (3.0, 3.1, 4.0, 4.1, 5.0, 5.1)',
+                            'b:v' => 'Video bitrate (e.g., 2000k, 5M)',
+                            'maxrate' => 'Maximum bitrate for CBR',
+                            'bufsize' => 'Buffer size for rate control',
+                            'pix_fmt' => 'Pixel format (yuv420p, yuv444p)',
+                            'movflags' => 'MP4 optimization flags (+faststart)'
+                        ],
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Video encoded successfully',
+                    'output_file_link' => 'https://output.example.com/video_encoded_123456.mp4',
+                    'processing_time' => 85.4,
+                    'encoding_settings' => [
+                        'codec' => 'libx264',
+                        'parameters_applied' => [
+                            'crf' => '23',
+                            'preset' => 'medium'
+                        ],
+                        'video_codec' => 'libx264',
+                        'audio_codec' => 'aac'
+                    ],
+                    'quality_metrics' => [
+                        'original_size' => '120MB',
+                        'encoded_size' => '85MB',
+                        'compression_ratio' => '29.2%',
+                        'quality_setting' => 'crf=23 (high quality)',
+                        'encoding_speed' => 'medium preset'
+                    ],
+                    'technical_details' => [
+                        'resolution' => '1920x1080',
+                        'frame_rate' => '30fps',
+                        'pixel_format' => 'yuv420p',
+                        'bitrate' => '1890k',
+                        'duration' => '15.32s'
+                    ],
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => VideoEncodeRequest::class,
+                'function_name' => 'videoEncode',
             ],
         ];
 
