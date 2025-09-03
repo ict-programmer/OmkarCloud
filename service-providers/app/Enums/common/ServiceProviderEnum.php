@@ -32,5 +32,6 @@ enum ServiceProviderEnum: string
     case DESCRIPT_AI = 'DescriptAI';
     case ASSET = 'Asset';
     case USER = 'User';
+    case SHOTSTACK = 'Shotstack';
 
 }
