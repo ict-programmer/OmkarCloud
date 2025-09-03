@@ -141,4 +141,9 @@ return [
     'descriptai' => [
         'api_key' => env('DESCRIPTAI_API_KEY'),
     ],
+
+    'omkarcloud' => [
+        'base_url' => env('OMKAR_MAPS_BASE_URL', 'https://api.omkar.cloud/maps'),
+        // do NOT store api key here if you rotate often; keep in ENV
+    ],
 ];

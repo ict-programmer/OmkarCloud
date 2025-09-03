@@ -18,7 +18,7 @@ class ServiceType extends Model
      *
      * @var string
      */
-    protected $table = 'service_types';
+    protected $collection = 'service_types';
 
     /**
      * The attributes that are mass assignable.
