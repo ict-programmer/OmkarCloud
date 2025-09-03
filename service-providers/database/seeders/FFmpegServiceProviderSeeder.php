@@ -7,6 +7,7 @@ use App\Http\Requests\FFMpeg\AudioFadesRequest;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\AudioVolumeRequest;
+use App\Http\Requests\FFMpeg\BatchProcessRequest;
 use App\Http\Requests\FFMpeg\BitrateControlRequest;
 use App\Http\Requests\FFMpeg\ConcatenateRequest;
 use App\Http\Requests\FFMpeg\FileInspectionRequest;
@@ -56,6 +57,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                         'bitrate_control',
                         'stream_copy',
                         'video_encode',
+                        'batch_process',
                     ],
                 ],
                 'is_active' => true,
@@ -940,6 +942,85 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => VideoEncodeRequest::class,
                 'function_name' => 'videoEncode',
+            ],
+            [
+                'name' => 'Batch Processing',
+                'input_parameters' => [
+                    'jobs' => [
+                        'type' => 'array',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'min_items' => 1,
+                        'max_items' => 10,
+                        'items' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'service_type_id' => [
+                                    'type' => 'string',
+                                    'required' => true,
+                                    'description' => 'MongoDB ObjectId of the FFmpeg service type to execute',
+                                ],
+                                'input_data' => [
+                                    'type' => 'object',
+                                    'required' => true,
+                                    'description' => 'Input parameters specific to the selected service type',
+                                ],
+                            ],
+                        ],
+                        'default' => [
+                            [
+                                'service_type_id' => '507f1f77bcf86cd799439011',
+                                'input_data' => [
+                                    'file_link' => 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+                                    'resolution' => '1920x1080',
+                                    'bitrate' => '2000k',
+                                    'frame_rate' => 30,
+                                ],
+                            ],
+                            [
+                                'service_type_id' => '507f1f77bcf86cd799439012',
+                                'input_data' => [
+                                    'file_link' => 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
+                                    'bitrate' => '192k',
+                                    'channels' => 2,
+                                    'sample_rate' => 44100,
+                                ],
+                            ],
+                        ],
+                        'description' => 'Array of FFmpeg processing jobs to execute concurrently. Each job contains a service_type_id and corresponding inputs.',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Batch processing completed',
+                    'total_jobs' => 2,
+                    'successful_jobs' => 2,
+                    'failed_jobs' => 0,
+                    'results' => [
+                        [
+                            'job_id' => 'chunk_0_job_0',
+                            'service_type_id' => '507f1f77bcf86cd799439011',
+                            'function_name' => 'processVideo',
+                            'status' => 'success',
+                            'result' => 'https://output.example.com/processed_video_123456.mp4',
+                            'processing_time' => 45.2,
+                        ],
+                        [
+                            'job_id' => 'chunk_0_job_1',
+                            'service_type_id' => '507f1f77bcf86cd799439012',
+                            'function_name' => 'processAudio',
+                            'status' => 'success',
+                            'result' => 'https://output.example.com/processed_audio_123456.mp3',
+                            'processing_time' => 12.5,
+                        ],
+                    ],
+                    'batch_processing_time' => 57.7,
+                    'efficiency_ratio' => '85%',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => BatchProcessRequest::class,
+                'function_name' => 'batchProcess',
             ],
         ];
 
