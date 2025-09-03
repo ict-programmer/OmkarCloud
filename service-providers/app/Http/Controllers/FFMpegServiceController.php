@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Data\Request\FFMpeg\AudioFadesData;
+use App\Data\Request\FFMpeg\AudioMixData;
 use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\AudioResampleData;
@@ -22,6 +23,7 @@ use App\Data\Request\FFMpeg\VideoEncodeData;
 use App\Data\Request\FFMpeg\VideoProcessingData;
 use App\Data\Request\FFMpeg\VideoTrimmingData;
 use App\Http\Requests\FFMpeg\AudioFadesRequest;
+use App\Http\Requests\FFMpeg\AudioMixRequest;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\AudioResampleRequest;
@@ -176,6 +178,18 @@ class FFMpegServiceController extends BaseController
 
         return $this->logAndResponse([
             'message' => 'Audio resampled and normalized successfully',
+            'output_file_link' => $path,
+        ]);
+    }
+
+    public function audioMix(AudioMixRequest $request): JsonResponse
+    {
+        $data = AudioMixData::from($request->validated());
+
+        $path = $this->service->audioMix($data);
+
+        return $this->logAndResponse([
+            'message' => 'Audio tracks mixed successfully',
             'output_file_link' => $path,
         ]);
     }

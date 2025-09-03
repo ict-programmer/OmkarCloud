@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Data\Request\FFMpeg\AudioFadesData;
+use App\Data\Request\FFMpeg\AudioMixData;
 use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\AudioResampleData;
@@ -1200,6 +1201,122 @@ class FFMpegService
         } catch (\Exception $e) {
             // Clean up on error
             $this->deleteInputFile($inputFilePath);
+            throw $e;
+        }
+    }
+
+    /**
+     * Mix multiple audio tracks into a single output.
+     *
+     * @param AudioMixData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function audioMix(AudioMixData $data): string
+    {
+        // Set defaults for service parameters
+        $outputFormat = 'mp3';
+        $normalization = true;
+        $mixMode = 'equal';
+        $weights = null;
+
+        // Download all audio files
+        $inputFilePaths = [];
+        foreach ($data->audio_tracks as $trackUrl) {
+            $inputFilePaths[] = $this->downloadFile($trackUrl);
+        }
+
+        // Set audio codec based on output format
+        $audioCodec = match ($outputFormat) {
+            'wav' => 'pcm_s16le',
+            'flac' => 'flac',
+            'aac', 'm4a' => 'aac',
+            'ogg' => 'libvorbis',
+            'wma' => 'wmav2',
+            default => 'libmp3lame',
+        };
+
+        try {
+            // Build FFmpeg command for audio mixing
+            $command = [];
+
+            // Add all input files
+            foreach ($inputFilePaths as $filePath) {
+                $command[] = '-i';
+                $command[] = $filePath;
+            }
+
+            // Build amix filter based on mix mode
+            $inputCount = count($inputFilePaths);
+            $filterComplex = '';
+
+            if ($mixMode === 'weighted' && $weights) {
+                // Weighted mixing - apply volume filters before mixing
+                $weightedInputs = [];
+                for ($i = 0; $i < $inputCount; $i++) {
+                    $weight = $weights[$i] ?? 1.0;
+                    $weightedInputs[] = "[$i:a]volume={$weight}[a{$i}]";
+                }
+                
+                // Combine weighted inputs
+                $amixInputs = '';
+                for ($i = 0; $i < $inputCount; $i++) {
+                    $amixInputs .= "[a{$i}]";
+                }
+                
+                $filterComplex = implode(';', $weightedInputs) . ';' . 
+                               $amixInputs . "amix=inputs={$inputCount}:duration=longest:dropout_transition=0[mixed]";
+            } else {
+                // Equal mixing - simple amix
+                $amixInputs = '';
+                for ($i = 0; $i < $inputCount; $i++) {
+                    $amixInputs .= "[$i:a]";
+                }
+                $filterComplex = $amixInputs . "amix=inputs={$inputCount}:duration=longest:dropout_transition=0[mixed]";
+            }
+
+            // Add normalization if requested
+            if ($normalization) {
+                $filterComplex .= ';[mixed]loudnorm[out]';
+                $command[] = '-filter_complex';
+                $command[] = $filterComplex;
+                $command[] = '-map';
+                $command[] = '[out]';
+            } else {
+                $command[] = '-filter_complex';
+                $command[] = $filterComplex;
+                $command[] = '-map';
+                $command[] = '[mixed]';
+            }
+
+            // Add codec and output settings
+            $command[] = '-c:a';
+            $command[] = $audioCodec;
+            $command[] = '-ar';
+            $command[] = '44100';
+            $command[] = '-ac';
+            $command[] = '2';
+
+            // Use the first input file path as reference for runAndUpload
+            $result = $this->runAndUpload(
+                $inputFilePaths[0],
+                $command,
+                $outputFormat
+            );
+
+            // Clean up all other input files
+            for ($i = 1; $i < count($inputFilePaths); $i++) {
+                $this->deleteInputFile($inputFilePaths[$i]);
+            }
+
+            return $result;
+
+        } catch (\Exception $e) {
+            // Clean up all input files on error
+            foreach ($inputFilePaths as $filePath) {
+                $this->deleteInputFile($filePath);
+            }
             throw $e;
         }
     }

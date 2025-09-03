@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Http\Controllers\FFMpegServiceController;
 use App\Http\Requests\FFMpeg\AudioFadesRequest;
+use App\Http\Requests\FFMpeg\AudioMixRequest;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\AudioResampleRequest;
@@ -52,6 +53,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                         'audio_volume',
                         'audio_fades',
                         'audio_resample',
+                        'audio_mix',
                         'scale',
                         'concatenate',
                         'file_inspection',
@@ -567,6 +569,38 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => AudioResampleRequest::class,
                 'function_name' => 'audioResample',
+            ],
+            [
+                'name' => 'Audio Mixing / Blending',
+                'input_parameters' => [
+                    'audio_tracks' => [
+                        'type' => 'array',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => [
+                            'https://commondatastorage.googleapis.com/codeskulptor-assets/Evillaugh.ogg',
+                            'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4'
+                        ],
+                        'min_items' => 2,
+                        'max_items' => 8,
+                        'items' => [
+                            'type' => 'string',
+                            'format' => 'url'
+                        ],
+                        'description' => 'Array of audio file URLs to mix (2-8 tracks)',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Audio tracks mixed successfully',
+                    'output_file_link' => 'https://output.example.com/mixed_audio_123456.mp3',
+                    'processing_time' => 5.8,
+                    'tracks_mixed' => 3,
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => AudioMixRequest::class,
+                'function_name' => 'audioMix',
             ],
             [
                 'name' => 'Video Scaling / Resizing',
