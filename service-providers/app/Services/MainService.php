@@ -5,11 +5,14 @@ namespace App\Services;
 use App\Models\ServiceProvider;
 use App\Models\ServiceProviderModel;
 use App\Models\ServiceType;
+use App\Traits\MongoObjectIdTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class MainService
 {
+    use MongoObjectIdTrait;
+    
     /**
      * Execute the main function based on service provider and service type
      *
@@ -20,13 +23,13 @@ class MainService
      */
     public function executeMainFunction(string $serviceProviderId, string $serviceTypeId, Request $request): mixed
     {
-        $serviceProvider = ServiceProvider::query()->find($serviceProviderId);
+        $serviceProvider = ServiceProvider::query()->find($this->toObjectId($serviceProviderId));
 
         if (is_null($serviceProvider)) {
             return $this->errorResponse('Service provider not found');
         }
 
-        $serviceType = ServiceType::query()->where('service_provider_id', $serviceProviderId)
+        $serviceType = ServiceType::query()->where('service_provider_id', $this->toObjectId($serviceProviderId))
             ->where('_id', $serviceTypeId)
             ->first();
 
@@ -48,7 +51,7 @@ class MainService
 
         if (!is_null($model)) {
             $modelExists = ServiceProviderModel::query()
-                ->where('service_provider_id', $serviceProviderId)
+                ->where('service_provider_id', $this->toObjectId($serviceProviderId))
                 ->where('name', $model)
                 ->exists();
 
@@ -83,14 +86,14 @@ class MainService
 
     public function getRequestBody(string $serviceProviderId, string $serviceTypeId)
     {
-        $serviceProvider = ServiceProvider::query()->find($serviceProviderId);
+        $serviceProvider = ServiceProvider::query()->find($this->toObjectId($serviceProviderId));
 
         if (is_null($serviceProvider)) {
             return $this->errorResponse('Service provider not found');
         }
 
-        $serviceType = ServiceType::query()->where('service_provider_id', $serviceProviderId)
-            ->where('_id', $serviceTypeId)
+        $serviceType = ServiceType::query()->where('service_provider_id', $this->toObjectId($serviceProviderId))
+            ->where('id', $this->toObjectId($serviceTypeId))
             ->first();
 
         if (is_null($serviceType)) {

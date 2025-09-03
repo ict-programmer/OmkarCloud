@@ -17,6 +17,7 @@ use App\Http\Resources\Gemini\TextGenerationResource;
 use App\Models\ServiceProvider;
 use App\Models\ServiceType;
 use App\Traits\GeminiTrait;
+use App\Traits\MongoObjectIdTrait;
 use Exception;
 use Gemini\Exceptions\ErrorException;
 use Illuminate\Http\Client\ConnectionException;
@@ -31,6 +32,7 @@ use Throwable;
 class GeminiService
 {
     use GeminiTrait;
+    use MongoObjectIdTrait;
 
     protected string $baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
 
@@ -50,7 +52,7 @@ class GeminiService
             throw new NotFound('Gemini service provider not found.');
         }
 
-        $serviceType = ServiceType::where('service_provider_id', $provider->id)
+        $serviceType = ServiceType::where('service_provider_id', $this->toObjectId($provider->id))
             ->where('name', $serviceTypeName)
             ->first();
 

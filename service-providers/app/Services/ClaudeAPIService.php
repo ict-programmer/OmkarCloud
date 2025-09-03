@@ -27,6 +27,7 @@ use App\Models\ServiceProvider;
 use App\Models\ServiceProviderModel;
 use App\Models\ServiceType;
 use App\Traits\ClaudeAITrait;
+use App\Traits\MongoObjectIdTrait;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
@@ -39,6 +40,7 @@ use stdClass;
 class ClaudeAPIService
 {
     use ClaudeAITrait;
+    use MongoObjectIdTrait;
 
     /**
      * Claude API model
@@ -75,7 +77,7 @@ class ClaudeAPIService
 
         $this->apiKey = $apiKey;
 
-        $serviceType = ServiceType::where('service_provider_id', $provider->id)
+        $serviceType = ServiceType::where('service_provider_id', $this->toObjectId($provider->id))
             ->where('name', $serviceTypeName->value)
             ->first();
 
@@ -86,7 +88,7 @@ class ClaudeAPIService
         if (!is_null($model)) {
 
             $modelExists = ServiceProviderModel::where([
-                ['service_provider_id', $provider->id],
+                ['service_provider_id', $this->toObjectId($provider->id)],
                 ['name', $model],
             ])->exists();
 

@@ -9,16 +9,19 @@ use App\Data\Request\ReactJs\ReactJsMergeJsonData;
 use App\Models\Element;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
+use App\Traits\MongoObjectIdTrait;
 
 class ReactJsService
 {
+    use MongoObjectIdTrait;
+
     private mixed $projectStructure;
 
     public function mergeJson(ReactJsMergeJsonData $data): true
     {
         $this->projectStructure = $data->project_structure->design_json;
         Element::query()
-            ->where('project_structure_id', $data->project_structure->id)
+            ->where('project_structure_id', $this->toObjectId($data->project_structure->id))
             ->get(['_id', 'project_structure_id', 'element_json'])
             ->each(fn ($element) => $element->update([
                 $element->element_fused_json = [
@@ -60,7 +63,7 @@ class ReactJsService
     public function generateCodeCollecting(ReactJsCodeGenerationData $data): array
     {
         $elements = Element::query()
-            ->where('project_structure_id', $data->project_structure->id)
+            ->where('project_structure_id', $this->toObjectId($data->project_structure->id))
             ->get(['_id', 'project_structure_id', 'element_code'])
             ->toArray();
 
@@ -89,7 +92,7 @@ class ReactJsService
     public function generateCodeDirectly(ReactJsCodeGenerationData $data): array
     {
         $elements = Element::query()
-            ->where('project_structure_id', $data->project_structure->id)
+            ->where('project_structure_id', $this->toObjectId($data->project_structure->id))
             ->get(['_id', 'project_structure_id', 'element_json']);
 
         $json = $elements->pluck('element_json')->toArray();

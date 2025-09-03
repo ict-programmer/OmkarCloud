@@ -5,9 +5,12 @@ namespace App\Traits;
 use App\Models\ServiceProvider;
 use App\Models\ServiceType;
 use App\Models\ServiceProviderModel;
+use App\Traits\MongoObjectIdTrait;
 
 trait ServiceProviderSeederTrait
 {
+    use MongoObjectIdTrait;
+    
     /**
      * Process service types for a service provider
      */
@@ -18,7 +21,7 @@ trait ServiceProviderSeederTrait
         foreach ($serviceTypes as $serviceTypeData) {
             $serviceTypeName = $serviceTypeData['name'];
 
-            $existingServiceType = ServiceType::where('service_provider_id', $serviceProvider->id)
+            $existingServiceType = ServiceType::where('service_provider_id', $this->toObjectId($serviceProvider->id))
                 ->where('name', $serviceTypeName)
                 ->first();
 
@@ -39,7 +42,7 @@ trait ServiceProviderSeederTrait
             } else {
                 $serviceType = ServiceType::create([
                     'name' => $serviceTypeName,
-                    'service_provider_id' => $serviceProvider->id,
+                    'service_provider_id' => $this->toObjectId($serviceProvider->id),
                     'input_parameters' => $serviceTypeData['input_parameters'],
                     'request_class_name' => $serviceTypeData['request_class_name'],
                     'function_name' => $serviceTypeData['function_name'],
@@ -57,7 +60,7 @@ trait ServiceProviderSeederTrait
                     ServiceProviderModel::updateOrCreate(
                         [
                             'name' => $model,
-                            'service_provider_id' => $serviceProvider->id,
+                            'service_provider_id' => $this->toObjectId($serviceProvider->id),
                             'service_type_id' => $currentServiceType->id,
                         ],
                         [
@@ -76,7 +79,7 @@ trait ServiceProviderSeederTrait
      */
     protected function cleanupObsoleteServiceTypes(ServiceProvider $serviceProvider, array $keptServiceTypeIds): int
     {
-        $allServiceTypes = ServiceType::where('service_provider_id', $serviceProvider->id)->get();
+        $allServiceTypes = ServiceType::where('service_provider_id', $this->toObjectId($serviceProvider->id))->get();
 
         $serviceTypesToDelete = $allServiceTypes->filter(function ($serviceType) use ($keptServiceTypeIds) {
             return !in_array($serviceType->id, $keptServiceTypeIds);
