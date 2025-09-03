@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Data\Request\FFMpeg\AudioEncodeData;
 use App\Data\Request\FFMpeg\AudioFadesData;
 use App\Data\Request\FFMpeg\AudioMixData;
 use App\Data\Request\FFMpeg\AudioOverlayData;
@@ -1317,6 +1318,78 @@ class FFMpegService
             foreach ($inputFilePaths as $filePath) {
                 $this->deleteInputFile($filePath);
             }
+            throw $e;
+        }
+    }
+
+    /**
+     * Encode audio with specified codec and bitrate.
+     *
+     * @param AudioEncodeData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function audioEncode(AudioEncodeData $data): string
+    {
+        // Download input audio file
+        $inputFilePath = $this->downloadFile($data->input);
+
+        // Determine output format based on codec
+        $outputFormat = match ($data->codec) {
+            'libmp3lame' => 'mp3',
+            'aac', 'libfdk_aac' => 'aac',
+            'flac' => 'flac',
+            'libvorbis' => 'ogg',
+            'pcm_s16le' => 'wav',
+            'wmav2' => 'wma',
+            'libopus' => 'opus',
+            default => 'mp3',
+        };
+
+        try {
+            // Build FFmpeg command for audio encoding
+            $command = [
+                '-i', $inputFilePath,
+                '-c:a', $data->codec,           // Set audio codec
+                '-b:a', $data->bitrate,         // Set audio bitrate
+                '-vn',                          // Remove video stream if present
+            ];
+
+            // Add codec-specific parameters for optimal quality
+            switch ($data->codec) {
+                case 'libmp3lame':
+                    $command[] = '-q:a';
+                    $command[] = '0';  // Highest quality VBR mode
+                    break;
+                case 'aac':
+                case 'libfdk_aac':
+                    $command[] = '-profile:a';
+                    $command[] = 'aac_low';
+                    break;
+                case 'flac':
+                    $command[] = '-compression_level';
+                    $command[] = '8';  // Maximum compression
+                    break;
+                case 'libvorbis':
+                    $command[] = '-q:a';
+                    $command[] = '6';  // High quality
+                    break;
+                case 'libopus':
+                    $command[] = '-application';
+                    $command[] = 'audio';
+                    break;
+            }
+
+            return $this->runAndUpload(
+                $inputFilePath,
+                $command,
+                $outputFormat
+            );
+
+        } catch (\Exception $e) {
+            // Clean up on error
+            $this->deleteInputFile($inputFilePath);
             throw $e;
         }
     }

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Http\Controllers\FFMpegServiceController;
+use App\Http\Requests\FFMpeg\AudioEncodeRequest;
 use App\Http\Requests\FFMpeg\AudioFadesRequest;
 use App\Http\Requests\FFMpeg\AudioMixRequest;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
@@ -54,6 +55,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                         'audio_fades',
                         'audio_resample',
                         'audio_mix',
+                        'audio_encode',
                         'scale',
                         'concatenate',
                         'file_inspection',
@@ -601,6 +603,45 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => AudioMixRequest::class,
                 'function_name' => 'audioMix',
+            ],
+            [
+                'name' => 'Audio Encoding / Format Conversion',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/codeskulptor-assets/Evillaugh.ogg',
+                        'format' => 'url',
+                        'description' => 'URL of the audio file to encode',
+                    ],
+                    'codec' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'libmp3lame',
+                        'enum' => ['aac', 'libmp3lame', 'flac', 'libvorbis', 'pcm_s16le', 'wmav2', 'libfdk_aac', 'libopus'],
+                        'description' => 'Audio codec for encoding',
+                    ],
+                    'bitrate' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => '128k',
+                        'pattern' => '^\\d+[kKmM]?$',
+                        'description' => 'Audio bitrate (e.g., 128k, 320k, 1M)',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Audio encoded successfully',
+                    'output_file_link' => 'https://output.example.com/encoded_audio_123456.mp3',
+                    'processing_time' => 2.3,
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => AudioEncodeRequest::class,
+                'function_name' => 'audioEncode',
             ],
             [
                 'name' => 'Video Scaling / Resizing',
