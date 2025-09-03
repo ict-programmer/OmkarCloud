@@ -6,6 +6,7 @@ use App\Data\Request\FFMpeg\AudioFadesData;
 use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
 use App\Data\Request\FFMpeg\AudioVolumeData;
+use App\Data\Request\FFMpeg\BatchProcessData;
 use App\Data\Request\FFMpeg\BitrateControlData;
 use App\Data\Request\FFMpeg\ConcatenateData;
 use App\Data\Request\FFMpeg\FileInspectionData;
@@ -23,6 +24,7 @@ use App\Http\Requests\FFMpeg\AudioFadesRequest;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
 use App\Http\Requests\FFMpeg\AudioVolumeRequest;
+use App\Http\Requests\FFMpeg\BatchProcessRequest;
 use App\Http\Requests\FFMpeg\BitrateControlRequest;
 use App\Http\Requests\FFMpeg\ConcatenateRequest;
 use App\Http\Requests\FFMpeg\FileInspectionRequest;
@@ -245,6 +247,23 @@ class FFMpegServiceController extends BaseController
         return $this->logAndResponse([
             'message' => 'Video encoded successfully',
             'output_file_link' => $path,
+        ]);
+    }
+
+    public function batchProcess(BatchProcessRequest $request): JsonResponse
+    {
+        $data = BatchProcessData::from([
+            'services' => $request->services,
+            'ffmpegProvider' => $request->ffmpegProvider,
+        ]);
+        $results = $this->service->processBatch($data);
+
+        return $this->logAndResponse([
+            'message' => 'Batch processing completed',
+            'total_jobs' => count($data->services),
+            'successful_jobs' => count(array_filter($results, fn($result) => $result['status'] === 'success')),
+            'failed_jobs' => count(array_filter($results, fn($result) => $result['status'] === 'error')),
+            'results' => $results,
         ]);
     }
 }
