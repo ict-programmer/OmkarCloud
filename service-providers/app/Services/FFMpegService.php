@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Data\Request\FFMpeg\AudioFadesData;
 use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
+use App\Data\Request\FFMpeg\AudioResampleData;
 use App\Data\Request\FFMpeg\AudioVolumeData;
 use App\Data\Request\FFMpeg\BatchProcessData;
 use App\Data\Request\FFMpeg\BitrateControlData;
@@ -1142,6 +1143,58 @@ class FFMpegService
                 $inputFilePath,
                 $command,
                 'mp4'
+            );
+
+        } catch (\Exception $e) {
+            // Clean up on error
+            $this->deleteInputFile($inputFilePath);
+            throw $e;
+        }
+    }
+
+    /**
+     * Resample audio to specified sample rate and channels.
+     *
+     * @param AudioResampleData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function audioResample(AudioResampleData $data): string
+    {
+        // Download input audio file
+        $inputFilePath = $this->downloadFile($data->input);
+
+        // Determine output format based on input file extension
+        $inputExtension = pathinfo($data->input, PATHINFO_EXTENSION);
+        $outputFormat = in_array(strtolower($inputExtension), ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma'])
+            ? strtolower($inputExtension)
+            : 'wav';
+
+        // Set audio codec based on output format
+        $audioCodec = match ($outputFormat) {
+            'wav' => 'pcm_s16le',
+            'flac' => 'flac',
+            'aac', 'm4a' => 'aac',
+            'ogg' => 'libvorbis',
+            'wma' => 'wmav2',
+            default => 'libmp3lame',
+        };
+
+        try {
+            // Build FFmpeg command for audio resampling with normalization
+            $command = [
+                '-i', $inputFilePath,
+                '-ar', (string) $data->sample_rate,    // Set sample rate
+                '-ac', (string) $data->channels,       // Set number of channels
+                '-af', 'loudnorm',                     // Apply loudness normalization
+                '-c:a', $audioCodec,                   // Set audio codec
+            ];
+
+            return $this->runAndUpload(
+                $inputFilePath,
+                $command,
+                $outputFormat
             );
 
         } catch (\Exception $e) {

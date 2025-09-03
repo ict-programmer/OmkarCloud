@@ -6,6 +6,7 @@ use App\Http\Controllers\FFMpegServiceController;
 use App\Http\Requests\FFMpeg\AudioFadesRequest;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
+use App\Http\Requests\FFMpeg\AudioResampleRequest;
 use App\Http\Requests\FFMpeg\AudioVolumeRequest;
 use App\Http\Requests\FFMpeg\BatchProcessRequest;
 use App\Http\Requests\FFMpeg\BitrateControlRequest;
@@ -50,6 +51,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                         'frame_extraction',
                         'audio_volume',
                         'audio_fades',
+                        'audio_resample',
                         'scale',
                         'concatenate',
                         'file_inspection',
@@ -519,6 +521,52 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => AudioFadesRequest::class,
                 'function_name' => 'audioFades',
+            ],
+            [
+                'name' => 'Audio Resampling / Normalization',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/codeskulptor-assets/Evillaugh.ogg',
+                        'format' => 'url',
+                        'description' => 'URL of the audio file to resample and normalize',
+                    ],
+                    'sample_rate' => [
+                        'type' => 'integer',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 44100,
+                        'min' => 8000,
+                        'max' => 192000,
+                        'description' => 'Target sample rate in Hz (8000-192000)',
+                    ],
+                    'channels' => [
+                        'type' => 'integer',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 2,
+                        'min' => 1,
+                        'max' => 8,
+                        'description' => 'Number of audio channels (1=mono, 2=stereo, etc.)',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Audio resampled and normalized successfully',
+                    'output_file_link' => 'https://output.example.com/resampled_audio_123456.wav',
+                    'processing_time' => 3.2,
+                    'sample_rate' => 44100,
+                    'channels' => 2,
+                    'normalization_applied' => true,
+                    'output_format' => 'wav',
+                    'file_size' => '5.8MB',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => AudioResampleRequest::class,
+                'function_name' => 'audioResample',
             ],
             [
                 'name' => 'Video Scaling / Resizing',
