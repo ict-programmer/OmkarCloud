@@ -135,7 +135,7 @@ const mongoDBData = {
     ]
 };
 
-// Helper function to get all clusters from API
+// Helper function to get all clusters
 async function getAllClusters() {
     try {
         // Show loading spinner
@@ -153,9 +153,11 @@ async function getAllClusters() {
             const transformedClusters = result.data.map(cluster => ({
                 id: cluster.id,
                 name: cluster.cluster_name,
-                description: cluster.description,
-                database_count: cluster.database_count,
-                tables: [] // Will be loaded on-demand later
+                description: cluster.description || 'No description available',
+                host: 'API Cluster', // Placeholder since API doesn't have host
+                port: 27017, // Placeholder since API doesn't have port
+                status: 'active', // Placeholder since API doesn't have status
+                tables: [] // Empty for now, will be loaded later
             }));
             
             // Hide loader
@@ -167,16 +169,20 @@ async function getAllClusters() {
     } catch (error) {
         console.error('Error fetching clusters:', error);
         hideLoader();
-        // Return empty array on error
-        return [];
+        // Fallback to static data if API fails
+        return mongoDBData.clusters;
     }
 }
 
 // Helper function to get cluster by ID
 async function getClusterById(clusterId) {
     try {
+        console.log('getClusterById called with ID:', clusterId);
         const clusters = await getAllClusters();
-        return clusters.find(cluster => cluster.id === clusterId);
+        console.log('All clusters received:', clusters);
+        const foundCluster = clusters.find(cluster => cluster.id == clusterId); // Use == for type coercion
+        console.log('Found cluster:', foundCluster);
+        return foundCluster;
     } catch (error) {
         console.error('Error getting cluster by ID:', error);
         return null;
@@ -245,37 +251,23 @@ function searchData(query) {
 }
 
 // Helper function to get statistics
-async function getStatistics() {
-    try {
-        const clusters = await getAllClusters();
-        let totalClusters = clusters.length;
-        let totalTables = 0;
-        let totalFields = 0;
-        
-        // For now, we only have cluster data, so tables and fields are 0
-        // This will be updated when we implement the other APIs
-        clusters.forEach(cluster => {
-            totalTables += cluster.tables ? cluster.tables.length : 0;
-            if (cluster.tables) {
-                cluster.tables.forEach(table => {
-                    totalFields += table.fields ? table.fields.length : 0;
-                });
-            }
+function getStatistics() {
+    let totalClusters = mongoDBData.clusters.length;
+    let totalTables = 0;
+    let totalFields = 0;
+    
+    mongoDBData.clusters.forEach(cluster => {
+        totalTables += cluster.tables.length;
+        cluster.tables.forEach(table => {
+            totalFields += table.fields.length;
         });
-        
-        return {
-            clusters: totalClusters,
-            tables: totalTables,
-            fields: totalFields
-        };
-    } catch (error) {
-        console.error('Error getting statistics:', error);
-        return {
-            clusters: 0,
-            tables: 0,
-            fields: 0
-        };
-    }
+    });
+    
+    return {
+        clusters: totalClusters,
+        tables: totalTables,
+        fields: totalFields
+    };
 }
 
 // Loader functions

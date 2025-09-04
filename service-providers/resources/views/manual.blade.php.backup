@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MongoDB Manual Book</title>
+    <title>Monitoring App</title>
     <script src="{{ asset('js/data.js') }}"></script>
     <script src="{{ asset('js/search.js') }}"></script>
     <script src="{{ asset('js/navigation.js') }}"></script>   
@@ -18,7 +18,7 @@
             <div class="header-content">
                 <div class="logo">
                     <i class="fas fa-database"></i>
-                    <h1>MongoDB Manual Book</h1>
+                    <h1>Monitoring App</h1>
                 </div>
                 <div class="search-container">
                     <div class="search-box">
@@ -71,8 +71,8 @@
                     <div class="welcome-screen">
                         <div class="welcome-content">
                             <i class="fas fa-database welcome-icon"></i>
-                            <h2>Welcome to MongoDB Manual Book</h2>
-                            <p>Your comprehensive reference guide for MongoDB clusters, tables, and fields. Use the navigation panel on the left to browse through your database structure, or use the global search above to quickly find specific information.</p>
+                            <h2>Welcome to Monitoring App</h2>
+                            <p>Your comprehensive monitoring solution for clusters, tables, and fields. Use the navigation panel on the left to browse through your system structure, or use the global search above to quickly find specific information.</p>
                             
                             <div class="quick-stats">
                                 <div class="stat-card">

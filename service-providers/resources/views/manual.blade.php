@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MongoDB Manual Book</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Monitoring App</title>
     <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 </head>
 <body>
     <div class="app-container">
@@ -15,7 +17,7 @@
             <div class="header-content">
                 <div class="logo">
                     <i class="fas fa-database"></i>
-                    <h1>MongoDB Manual Book</h1>
+                    <h1>Monitoring App</h1>
                 </div>
                 <div class="search-container">
                     <div class="search-box">
@@ -29,6 +31,11 @@
                         <i class="fas fa-download"></i>
                         Export
                     </button>
+                    <button class="btn-secondary" id="logoutBtn" style="margin-left: 0.5rem;" onclick="performLogout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+
                 </div>
             </div>
         </header>
@@ -38,12 +45,6 @@
             <aside class="sidebar">
                 <div class="sidebar-header">
                     <h3>Navigation</h3>
-                    <div class="search-filters">
-                        <button class="filter-btn active" data-filter="all">All</button>
-                        <button class="filter-btn" data-filter="cluster">Clusters</button>
-                        <button class="filter-btn" data-filter="table">Tables</button>
-                        <button class="filter-btn" data-filter="field">Fields</button>
-                    </div>
                 </div>
                 
                 <div class="tree-view" id="treeView">
@@ -65,48 +66,7 @@
                 </div>
 
                 <div class="content-area" id="contentArea">
-                    <div class="welcome-screen">
-                        <div class="welcome-content">
-                            <i class="fas fa-database welcome-icon"></i>
-                            <h2>Welcome to MongoDB Manual Book</h2>
-                            <p>Your comprehensive reference guide for MongoDB clusters, tables, and fields. Use the navigation panel on the left to browse through your database structure, or use the global search above to quickly find specific information.</p>
-                            
-                            <div class="quick-stats">
-                                <div class="stat-card">
-                                    <i class="fas fa-server"></i>
-                                    <div class="stat-info">
-                                        <span class="stat-number" id="clusterCount">0</span>
-                                        <span class="stat-label">Clusters</span>
-                                    </div>
-                                </div>
-                                <div class="stat-card">
-                                    <i class="fas fa-table"></i>
-                                    <div class="stat-info">
-                                        <span class="stat-number" id="tableCount">0</span>
-                                        <span class="stat-label">Tables</span>
-                                    </div>
-                                </div>
-                                <div class="stat-card">
-                                    <i class="fas fa-tags"></i>
-                                    <div class="stat-info">
-                                        <span class="stat-number" id="fieldCount">0</span>
-                                        <span class="stat-label">Fields</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="quick-actions">
-                                <button class="btn-primary" onclick="showAllClusters()">
-                                    <i class="fas fa-list"></i>
-                                    Browse All Clusters
-                                </button>
-                                <button class="btn-secondary" onclick="focusSearch()">
-                                    <i class="fas fa-search"></i>
-                                    Start Searching
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Content will be populated by JavaScript -->
                 </div>
             </main>
 
@@ -142,5 +102,131 @@
     <script src="{{ asset('js/search.js') }}"></script>
     <script src="{{ asset('js/navigation.js') }}"></script>
     <script src="{{ asset('js/app.js') }}"></script>
+    
+    <script>
+        // Global logout function - called by onclick handler
+        window.performLogout = async function() {
+            console.log('performLogout called!');
+            
+            try {
+                console.log('Making logout request...');
+                
+                const response = await fetch('/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+                
+                console.log('Logout response status:', response.status);
+                
+                if (response.ok) {
+                    console.log('Logout successful, redirecting...');
+                    // Clear any stored data
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    
+                    // Redirect to login page
+                    window.location.href = '/login';
+                } else {
+                    console.error('Logout failed with status:', response.status);
+                    // Still redirect to login page
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                // Fallback: redirect to login page
+                window.location.href = '/login';
+            }
+        };
+        
+
+        
+        // Wait for DOM to be fully loaded before setting up event listeners
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('DOM loaded, setting up logout functionality...');
+            
+            // Debug: Check if logout button exists
+            const logoutBtn = document.getElementById('logoutBtn');
+            console.log('Logout button found:', !!logoutBtn);
+            if (logoutBtn) {
+                console.log('Logout button text:', logoutBtn.textContent);
+                console.log('Logout button ID:', logoutBtn.id);
+                
+                // Set up logout functionality
+                logoutBtn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    console.log('Logout button clicked!');
+                    
+                    try {
+                        console.log('Making logout request...');
+                        
+                        const response = await fetch('/logout', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            }
+                        });
+                        
+                        console.log('Logout response status:', response.status);
+                        console.log('Logout response:', response);
+                        
+                        if (response.ok) {
+                            console.log('Logout successful, redirecting...');
+                            // Clear any stored data
+                            localStorage.clear();
+                            sessionStorage.clear();
+                            
+                            // Redirect to login page
+                            window.location.href = '/login';
+                        } else {
+                            console.error('Logout failed with status:', response.status);
+                            // Try to get response text for debugging
+                            const responseText = await response.text();
+                            console.error('Response text:', responseText);
+                            
+                            // Still redirect to login page
+                            window.location.href = '/login';
+                        }
+                    } catch (error) {
+                        console.error('Logout error:', error);
+                        // Fallback: try direct redirect
+                        try {
+                            // Clear any stored data
+                            localStorage.clear();
+                            sessionStorage.clear();
+                            
+                            // Redirect to login page
+                            window.location.href = '/login';
+                        } catch (redirectError) {
+                            console.error('Redirect failed:', redirectError);
+                            // Last resort: reload the page
+                            window.location.reload();
+                        }
+                    }
+                });
+                
+                console.log('Logout event listener attached successfully');
+            } else {
+                console.error('Logout button not found!');
+            }
+            
+            // Check authentication status
+            try {
+                const response = await fetch('/check-auth');
+                const result = await response.json();
+                
+                if (!result.authenticated) {
+                    // Redirect to login if not authenticated
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                // Continue showing login form
+            }
+        });
+    </script>
 </body>
 </html>

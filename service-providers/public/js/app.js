@@ -1,4 +1,4 @@
-// Main application file for MongoDB Manual Book
+// Main application file for Monitoring App
 class MongoDBManualBook {
     constructor() {
         this.modal = document.getElementById('detailModal');
@@ -95,26 +95,220 @@ class MongoDBManualBook {
         }
     }
     
-    exportData() {
+    async exportData() {
         try {
-            const data = {
-                clusters: getAllClusters(),
+            // Show loading notification
+            this.showNotification('Preparing export...', 'info');
+            
+            // Get the export button and transform it to stop button
+            const exportButton = document.querySelector('button[onclick*="exportData"]');
+            if (exportButton) {
+                exportButton.innerHTML = '<i class="fas fa-stop"></i> Stop Export';
+                exportButton.className = 'btn-danger';
+                exportButton.style.background = '#dc3545';
+                exportButton.style.color = 'white';
+                exportButton.onclick = () => this.stopExport();
+            }
+            
+            // Wait for clusters data to be fetched
+            const clusters = await getAllClusters();
+            
+            // Fetch complete data hierarchy for each cluster
+            const completeData = {
+                clusters: [],
                 exportDate: new Date().toISOString(),
-                version: '1.0.0'
+                version: '1.0.0',
+                totalClusters: 0,
+                totalDatabases: 0,
+                totalTables: 0,
+                totalFields: 0
             };
             
-            const dataStr = JSON.stringify(data, null, 2);
+            let totalDatabases = 0;
+            let totalTables = 0;
+            let totalFields = 0;
+            
+            // Initialize stop flag
+            this.exportStopped = false;
+            
+            // Process each cluster to get complete data
+            for (const cluster of clusters) {
+                // Check if export was stopped
+                if (this.exportStopped) {
+                    console.log('Export stopped by user');
+                    return;
+                }
+                
+                try {
+                    console.log(`Processing cluster: ${cluster.name} (ID: ${cluster.id})`);
+                    
+                    // Fetch databases for this cluster
+                    const databasesResponse = await fetch(`https://dev-master-clusterseed.internetcash.io/api/v2.0.0/clusters_json/${cluster.id}/databases`);
+                    
+                    if (!databasesResponse.ok) {
+                        console.log(`Skipping cluster ${cluster.id} - databases API returned ${databasesResponse.status}`);
+                        continue;
+                    }
+                    
+                    const databasesResult = await databasesResponse.json();
+                    let databases = [];
+                    
+                    if (databasesResult.success && databasesResult.data && databasesResult.data.length > 0) {
+                        console.log(`Cluster ${cluster.name} has ${databasesResult.data.length} databases`);
+                        
+                        // Process each database to get tables
+                        for (const database of databasesResult.data) {
+                            // Check if export was stopped
+                            if (this.exportStopped) {
+                                console.log('Export stopped by user');
+                                return;
+                            }
+                            
+                            try {
+                                console.log(`Processing database: ${database.database_name} (ID: ${database.id})`);
+                                
+                                // Fetch tables for this database
+                                const tablesResponse = await fetch(`https://dev-master-clusterseed.internetcash.io/api/v2.0.0/databases_json/${database.id}/tables`);
+                                
+                                if (!tablesResponse.ok) {
+                                    console.log(`Skipping database ${database.id} - tables API returned ${tablesResponse.status}`);
+                                    continue;
+                                }
+                                
+                                const tablesResult = await tablesResponse.json();
+                                let tables = [];
+                                
+                                if (tablesResult.success && tablesResult.data && tablesResult.data.length > 0) {
+                                    console.log(`Database ${database.database_name} has ${tablesResult.data.length} tables`);
+                                    
+                                    // Process each table to get fields
+                                    for (const table of tablesResult.data) {
+                                        // Check if export was stopped
+                                        if (this.exportStopped) {
+                                            console.log('Export stopped by user');
+                                            return;
+                                        }
+                                        
+                                        try {
+                                            console.log(`Processing table: ${table.table_name} (ID: ${table.id})`);
+                                            
+                                            // Fetch fields for this table
+                                            const fieldsResponse = await fetch(`https://dev-master-clusterseed.internetcash.io/api/v2.0.0/tables_json/${table.id}/fields`);
+                                            
+                                            if (!fieldsResponse.ok) {
+                                                console.log(`Skipping table ${table.id} - fields API returned ${fieldsResponse.status}`);
+                                                continue;
+                                            }
+                                            
+                                            const fieldsData = await fieldsResponse.json();
+                                            let fields = [];
+                                            
+                                            if (Array.isArray(fieldsData) && fieldsData.length > 0) {
+                                                fields = fieldsData.map(field => ({
+                                                    id: field.id,
+                                                    name: field.field_name,
+                                                    type: field.comment ? field.comment.split('~#')[0] : 'Unknown',
+                                                    description: field.description || 'No description available'
+                                                }));
+                                                totalFields += fields.length;
+                                                console.log(`Table ${table.table_name} has ${fields.length} fields`);
+                                            } else {
+                                                console.log(`Table ${table.table_name} has no fields`);
+                                            }
+                                            
+                                            // Add table with fields (even if empty)
+                                            table.fields = fields;
+                                            tables.push(table);
+                                            totalTables++;
+                                            
+                                        } catch (error) {
+                                            console.log(`Error processing table ${table.id}:`, error.message);
+                                            continue;
+                                        }
+                                    }
+                                } else {
+                                    console.log(`Database ${database.database_name} has no tables`);
+                                }
+                                
+                                // Add database with tables (even if empty)
+                                database.tables = tables;
+                                databases.push(database);
+                                totalDatabases++;
+                                
+                            } catch (error) {
+                                console.log(`Error processing database ${database.id}:`, error.message);
+                                continue;
+                            }
+                        }
+                    } else {
+                        console.log(`Cluster ${cluster.name} has no databases`);
+                    }
+                    
+                    // Add cluster with databases (even if empty)
+                    const completeCluster = {
+                        ...cluster,
+                        databases: databases
+                    };
+                    
+                    completeData.clusters.push(completeCluster);
+                    
+                } catch (error) {
+                    console.log(`Error processing cluster ${cluster.id}:`, error.message);
+                    continue;
+                }
+            }
+            
+            // Update totals
+            completeData.totalClusters = completeData.clusters.length;
+            completeData.totalDatabases = totalDatabases;
+            completeData.totalTables = totalTables;
+            completeData.totalFields = totalFields;
+            
+            const dataStr = JSON.stringify(completeData, null, 2);
             const dataBlob = new Blob([dataStr], { type: 'application/json' });
             
             const link = document.createElement('a');
             link.href = URL.createObjectURL(dataBlob);
-            link.download = `mongodb-manual-${new Date().toISOString().split('T')[0]}.json`;
+            link.download = `mongodb-complete-data-${new Date().toISOString().split('T')[0]}.json`;
             link.click();
             
-            this.showNotification('Data exported successfully!', 'success');
+            // Clean up the URL object
+            URL.revokeObjectURL(link.href);
+            
+            this.showNotification(`Export completed! ${completeData.totalClusters} clusters, ${completeData.totalDatabases} databases, ${completeData.totalTables} tables, ${completeData.totalFields} fields`, 'success');
         } catch (error) {
             console.error('Export failed:', error);
             this.showNotification('Export failed. Please try again.', 'error');
+        } finally {
+            // Restore the export button
+            const exportButton = document.querySelector('button[onclick*="exportData"]');
+            if (exportButton) {
+                exportButton.innerHTML = '<i class="fas fa-download"></i> Export All';
+                exportButton.className = 'btn-secondary';
+                exportButton.style.background = '';
+                exportButton.style.color = '';
+                exportButton.onclick = () => this.exportData();
+            }
+        }
+    }
+    
+
+    
+    stopExport() {
+        // Set a flag to stop the export
+        this.exportStopped = true;
+        
+        // Show notification
+        this.showNotification('Export stopped by user', 'warning');
+        
+        // Restore the export button immediately
+        const exportButton = document.querySelector('button[onclick*="exportData"]');
+        if (exportButton) {
+            exportButton.innerHTML = '<i class="fas fa-download"></i> Export All';
+            exportButton.className = 'btn-secondary';
+            exportButton.style.background = '';
+            exportButton.style.color = '';
+            exportButton.onclick = () => this.exportData();
         }
     }
     
@@ -307,7 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Show welcome message
     setTimeout(() => {
         if (window.app) {
-            window.app.showNotification('Welcome to MongoDB Manual Book! Use Ctrl+K to search.', 'info');
+            window.app.showNotification('Welcome to Monitoring App! Use Ctrl+K to search.', 'info');
         }
     }, 1000);
 });
