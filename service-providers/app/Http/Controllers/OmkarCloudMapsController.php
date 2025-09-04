@@ -2,134 +2,84 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Maps\MapsRequest;
 use App\Services\OmkarCloudMapsService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
-use Throwable;
 
-use App\Data\OmkarCloud\Requests\{
-    SearchQuery, SearchLinks, FetchReviews, TaskId, ExportData,
-    ManageTasks, FilterResults, SortLogic
+// Requests
+use App\Http\Requests\OmkarCloud\{
+    BusinessSearchRequest, SearchLinksRequest, FetchReviewsRequest, TaskIdRequest,
+    ExportRequest, ManageTasksRequest, FilterResultsRequest, SortLogicRequest
 };
-use App\Data\OmkarCloud\Responses\GenericResponse;
+// Data
+use App\Data\Request\OmkarCloud\{
+    BusinessSearchData, SearchLinksData, FetchReviewsData, TaskIdData,
+    ExportData as ExportDataDto, ManageTasksData, FilterResultsData, SortLogicData
+};
 
 class OmkarCloudMapsController extends Controller
 {
-    public function __construct(private OmkarCloudMapsService $service) {}
+    public function __construct(private OmkarCloudMapsService $svc) {}
 
-    private function respond(GenericResponse $g): JsonResponse
+    public function searchByQuery(BusinessSearchRequest $r): JsonResponse
     {
-        return response()->json(
-            ['ok' => $g->error === null, 'data' => $g->data, 'error' => $g->error],
-            $g->status
-        );
+        $dto = BusinessSearchData::from($r->validated());
+        $res = $this->svc->searchQuery($dto);
+        return response()->json($res->json(), $res->status());
     }
 
-    private function exec(callable $fn): JsonResponse
+    public function searchByLinks(SearchLinksRequest $r): JsonResponse
     {
-        try {
-            $res = $fn(); // GenericResponse
-            Log::info('omkar_maps_success', ['endpoint' => request()->path(), 'status' => $res->status]);
-            return $this->respond($res);
-        } catch (Throwable $e) {
-            Log::error('omkar_maps_error', ['endpoint' => request()->path(), 'err' => $e->getMessage()]);
-            return response()->json(['ok' => false, 'error' => 'Internal error'], 500);
-        }
+        $dto = SearchLinksData::from($r->validated());
+        $res = $this->svc->searchLinks($dto);
+        return response()->json($res->json(), $res->status());
     }
 
-    public function searchByQuery(MapsRequest $r): JsonResponse
+    public function fetchReviews(FetchReviewsRequest $r): JsonResponse
     {
-        $dto = new SearchQuery(
-            query:   (string)$r->input('query'),
-            filters: $r->input('filters'),
-            format:  $r->input('format', 'json')
-        );
-        return $this->exec(fn() => $this->service->searchByQuery($dto));
+        $dto = FetchReviewsData::from($r->validated());
+        $res = $this->svc->fetchReviews($dto);
+        return response()->json($res->json(), $res->status());
     }
 
-    public function searchByLinks(MapsRequest $r): JsonResponse
+    public function getResultsStatus(TaskIdRequest $r): JsonResponse
     {
-        $dto = new SearchLinks(
-            links:   (array)$r->input('links', []),
-            filters: $r->input('filters'),
-            format:  $r->input('format', 'json')
-        );
-        return $this->exec(fn() => $this->service->searchByLinks($dto));
+        $dto = TaskIdData::from($r->validated());
+        $res = $this->svc->resultsStatus($dto);
+        return response()->json($res->json(), $res->status());
     }
 
-    public function fetchReviews(MapsRequest $r): JsonResponse
+    public function getOutputData(TaskIdRequest $r): JsonResponse
     {
-        $identifier = $r->input('identifier') ?? $r->input('place_id') ?? $r->input('link');
-        $dto = new FetchReviews(
-            identifier: (string)$identifier,
-            limit:      $r->integer('limit'),
-            format:     $r->input('format', 'json')
-        );
-        return $this->exec(fn() => $this->service->fetchReviews($dto));
+        $dto = TaskIdData::from($r->validated());
+        $res = $this->svc->outputData($dto);
+        return response()->json($res->json(), $res->status());
     }
 
-    public function getResultsStatus(MapsRequest $r): JsonResponse
+    public function exportData(ExportRequest $r): JsonResponse
     {
-        $dto = new TaskId(
-            taskId: (string)$r->input('task_id'),
-            format: $r->input('format', 'json')
-        );
-        return $this->exec(fn() => $this->service->resultsStatus($dto));
+        $dto = ExportDataDto::from($r->validated());
+        $res = $this->svc->exportData($dto);
+        return response()->json($res->json(), $res->status());
     }
 
-    public function getOutputData(MapsRequest $r): JsonResponse
+    public function manageTasks(ManageTasksRequest $r): JsonResponse
     {
-        $dto = new TaskId(
-            taskId: (string)$r->input('task_id'),
-            format: $r->input('format', 'json')
-        );
-        return $this->exec(fn() => $this->service->outputData($dto));
+        $dto = ManageTasksData::from($r->validated());
+        $res = $this->svc->manageTasks($dto);
+        return response()->json($res->json(), $res->status());
     }
 
-    public function exportData(MapsRequest $r): JsonResponse
+    public function filterResults(FilterResultsRequest $r): JsonResponse
     {
-        $dto = new ExportData(
-            taskId: (string)$r->input('task_id'),
-            format: (string)$r->input('format', 'csv') // csv|json|excel
-        );
-        return $this->exec(fn() => $this->service->exportData($dto));
+        $dto = FilterResultsData::from($r->validated());
+        $res = $this->svc->filterResults($dto);
+        return response()->json($res->json(), $res->status());
     }
 
-    public function manageTasks(MapsRequest $r): JsonResponse
+    public function applySortLogic(SortLogicRequest $r): JsonResponse
     {
-        $payload = null;
-        if ($r->filled('query')) {
-            $payload = new SearchQuery($r->input('query'), $r->input('filters'), $r->input('format', 'json'));
-        } elseif ($r->filled('links')) {
-            $payload = new SearchLinks((array)$r->input('links'), $r->input('filters'), $r->input('format', 'json'));
-        }
-
-        $dto = new ManageTasks(
-            action: (string)$r->input('action'),  // 'start'|'abort'|'delete'
-            taskId: $r->input('task_id'),
-            payload: $payload
-        );
-        return $this->exec(fn() => $this->service->manageTasks($dto));
-    }
-
-    public function filterResults(MapsRequest $r): JsonResponse
-    {
-        $dto = new FilterResults(
-            taskId:  $r->input('task_id'),
-            filters: $r->input('filters'),
-            format:  $r->input('format', 'json')
-        );
-        return $this->exec(fn() => $this->service->filterResults($dto));
-    }
-
-    public function applySortLogic(MapsRequest $r): JsonResponse
-    {
-        $dto = new SortLogic(
-            taskId: $r->input('task_id'),
-            mode:   $r->input('mode', 'best_customer'),
-            format: $r->input('format', 'json')
-        );
-        return $this->exec(fn() => $this->service->sortLogic($dto));
+        $dto = SortLogicData::from($r->validated());
+        $res = $this->svc->sortLogic($dto);
+        return response()->json($res->json(), $res->status());
     }
 }

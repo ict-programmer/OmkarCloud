@@ -164,6 +164,6 @@ Route::prefix('maps')->group(function () {
     Route::get('output_data',    [OmkarCloudMapsController::class, 'getOutputData']);
     Route::post('export_csv',    [OmkarCloudMapsController::class, 'exportData']);
     Route::post('manage_tasks',  [OmkarCloudMapsController::class, 'manageTasks']);
-    Route::post('filter_results',[OmkarCloudMapsController::class, 'filterResults']); // POST to allow JSON filters
+    Route::post('filter_results',[OmkarCloudMapsController::class, 'filterResults']);
     Route::post('sort_logic',    [OmkarCloudMapsController::class, 'applySortLogic']);
 });
