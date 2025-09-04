@@ -157,13 +157,13 @@ Route::prefix('users')->controller(UserController::class)->group(function () {
 });
 
 Route::prefix('maps')->group(function () {
-  Route::post('search_query',[OmkarCloudMapsController::class,'searchByQuery']);
-  Route::post('search_links',[OmkarCloudMapsController::class,'searchByLinks']);
-  Route::post('fetch_reviews',[OmkarCloudMapsController::class,'fetchReviews']);
-  Route::get('results_status',[OmkarCloudMapsController::class,'getResultsStatus']);
-  Route::get('output_data',[OmkarCloudMapsController::class,'getOutputData']);
-  Route::get('export_csv',[OmkarCloudMapsController::class,'exportData']);
-  Route::post('manage_tasks',[OmkarCloudMapsController::class,'manageTasks']);
-  Route::get('filter_results',[OmkarCloudMapsController::class,'filterResults']);
-  Route::get('sort_logic',[OmkarCloudMapsController::class,'applySortLogic']);
+    Route::post('search_query',  [OmkarCloudMapsController::class, 'searchByQuery']);
+    Route::post('search_links',  [OmkarCloudMapsController::class, 'searchByLinks']);
+    Route::post('fetch_reviews', [OmkarCloudMapsController::class, 'fetchReviews']);
+    Route::get('results_status', [OmkarCloudMapsController::class, 'getResultsStatus']);
+    Route::get('output_data',    [OmkarCloudMapsController::class, 'getOutputData']);
+    Route::post('export_csv',    [OmkarCloudMapsController::class, 'exportData']);
+    Route::post('manage_tasks',  [OmkarCloudMapsController::class, 'manageTasks']);
+    Route::post('filter_results',[OmkarCloudMapsController::class, 'filterResults']); // POST to allow JSON filters
+    Route::post('sort_logic',    [OmkarCloudMapsController::class, 'applySortLogic']);
 });

@@ -18,7 +18,7 @@ class ServiceProviderType extends Model
      *
      * @var string
      */
-    protected $collection = 'service_provider_types';
+    protected $table = 'service_provider_types';
 
     /**
      * The attributes that are mass assignable.
@@ -26,11 +26,8 @@ class ServiceProviderType extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-      'service_provider_id','service_type_id','parameters',
-      'create_by','updated_by','deleted_by',
-      'created_at','updated_at','deleted_at','seed'
+        'service_type_id',
+        'service_provider_id',
+        'parameter',
     ];
-
-    protected $casts = ['parameters'=>'array','created_at'=>'datetime','updated_at'=>'datetime','deleted_at'=>'datetime'];
-
 }

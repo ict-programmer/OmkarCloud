@@ -21,7 +21,7 @@ class ServiceProvider extends Model
      *
      * @var string
      */
-    protected $collection = 'service_providers';
+    protected $table = 'service_providers';
 
     /**
      * The attributes that are mass assignable.
@@ -49,7 +49,6 @@ class ServiceProvider extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'parameter' => 'array',
         'redirect_uris' => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
