@@ -305,7 +305,7 @@ class FFMpegServiceController extends BaseController
             'total_jobs' => count($data->services),
             'successful_jobs' => count(array_filter($results, fn($result) => $result['status'] === 'success')),
             'failed_jobs' => count(array_filter($results, fn($result) => $result['status'] === 'error')),
-            'results' => $results,
+            'processed_files' => $results,
         ]);
     }
 }
