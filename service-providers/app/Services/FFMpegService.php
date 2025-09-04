@@ -1432,7 +1432,7 @@ class FFMpegService
                             'service_type_id' => $service['service_type_id'],
                             'status' => 'success',
                             'result' => $call->original ?? $call,
-                            'processing_time' => $processingTime,
+                            'duration' => $processingTime,
                         ];
                         
                     } catch (\Exception $e) {
@@ -1442,7 +1442,7 @@ class FFMpegService
                             'service_type_id' => $service['service_type_id'],
                             'status' => 'error',
                             'error' => $e->getMessage(),
-                            'processing_time' => $processingTime,
+                            'duration' => $processingTime,
                         ];
                     }
                 };
