@@ -4,6 +4,7 @@ use App\Exceptions\ApiException;
 use App\Http\Exceptions\BadRequest;
 use App\Http\Exceptions\Forbidden;
 use App\Http\Exceptions\NotFound;
+use App\Http\Middleware\ManualAuth;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -21,7 +22,19 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->alias([
+            'manual.auth' => ManualAuth::class,
+        ]);
+        
+        // Add CSRF protection
+        $middleware->web([
+            \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
+        ]);
+        
+        // Exclude API routes from CSRF protection
+        $middleware->api([
+            // No CSRF protection for API routes
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->dontReport([

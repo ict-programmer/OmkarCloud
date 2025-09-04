@@ -1,6 +1,6 @@
 import './bootstrap';
 
-// Main application file for MongoDB Manual Book
+// Main application file for Monitoring App
 class MongoDBManualBook {
     constructor() {
         this.modal = document.getElementById('detailModal');
@@ -309,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Show welcome message
     setTimeout(() => {
         if (window.app) {
-            window.app.showNotification('Welcome to MongoDB Manual Book! Use Ctrl+K to search.', 'info');
+            window.app.showNotification('Welcome to Monitoring App! Use Ctrl+K to search.', 'info');
         }
     }, 1000);
 });

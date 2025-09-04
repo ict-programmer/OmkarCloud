@@ -1,4 +1,4 @@
-// Search functionality for MongoDB Manual Book
+// Search functionality for Monitoring App
 class SearchManager {
     constructor() {
         this.searchInput = document.getElementById('globalSearch');
