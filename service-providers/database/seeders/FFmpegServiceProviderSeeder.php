@@ -3,9 +3,12 @@
 namespace Database\Seeders;
 
 use App\Http\Controllers\FFMpegServiceController;
+use App\Http\Requests\FFMpeg\AudioEncodeRequest;
 use App\Http\Requests\FFMpeg\AudioFadesRequest;
+use App\Http\Requests\FFMpeg\AudioMixRequest;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
+use App\Http\Requests\FFMpeg\AudioResampleRequest;
 use App\Http\Requests\FFMpeg\AudioVolumeRequest;
 use App\Http\Requests\FFMpeg\BatchProcessRequest;
 use App\Http\Requests\FFMpeg\BitrateControlRequest;
@@ -50,6 +53,9 @@ class FFmpegServiceProviderSeeder extends Seeder
                         'frame_extraction',
                         'audio_volume',
                         'audio_fades',
+                        'audio_resample',
+                        'audio_mix',
+                        'audio_encode',
                         'scale',
                         'concatenate',
                         'file_inspection',
@@ -519,6 +525,123 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => AudioFadesRequest::class,
                 'function_name' => 'audioFades',
+            ],
+            [
+                'name' => 'Audio Resampling / Normalization',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/codeskulptor-assets/Evillaugh.ogg',
+                        'format' => 'url',
+                        'description' => 'URL of the audio file to resample and normalize',
+                    ],
+                    'sample_rate' => [
+                        'type' => 'integer',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 44100,
+                        'min' => 8000,
+                        'max' => 192000,
+                        'description' => 'Target sample rate in Hz (8000-192000)',
+                    ],
+                    'channels' => [
+                        'type' => 'integer',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 2,
+                        'min' => 1,
+                        'max' => 8,
+                        'description' => 'Number of audio channels (1=mono, 2=stereo, etc.)',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Audio resampled and normalized successfully',
+                    'output_file_link' => 'https://output.example.com/resampled_audio_123456.wav',
+                    'processing_time' => 3.2,
+                    'sample_rate' => 44100,
+                    'channels' => 2,
+                    'normalization_applied' => true,
+                    'output_format' => 'wav',
+                    'file_size' => '5.8MB',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => AudioResampleRequest::class,
+                'function_name' => 'audioResample',
+            ],
+            [
+                'name' => 'Audio Mixing / Blending',
+                'input_parameters' => [
+                    'audio_tracks' => [
+                        'type' => 'array',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => [
+                            'https://commondatastorage.googleapis.com/codeskulptor-assets/Evillaugh.ogg',
+                            'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4'
+                        ],
+                        'min_items' => 2,
+                        'max_items' => 8,
+                        'items' => [
+                            'type' => 'string',
+                            'format' => 'url'
+                        ],
+                        'description' => 'Array of audio file URLs to mix (2-8 tracks)',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Audio tracks mixed successfully',
+                    'output_file_link' => 'https://output.example.com/mixed_audio_123456.mp3',
+                    'processing_time' => 5.8,
+                    'tracks_mixed' => 3,
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => AudioMixRequest::class,
+                'function_name' => 'audioMix',
+            ],
+            [
+                'name' => 'Audio Encoding / Format Conversion',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/codeskulptor-assets/Evillaugh.ogg',
+                        'format' => 'url',
+                        'description' => 'URL of the audio file to encode',
+                    ],
+                    'codec' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'libmp3lame',
+                        'enum' => ['aac', 'libmp3lame', 'flac', 'libvorbis', 'pcm_s16le', 'wmav2', 'libfdk_aac', 'libopus'],
+                        'description' => 'Audio codec for encoding',
+                    ],
+                    'bitrate' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => '128k',
+                        'pattern' => '^\\d+[kKmM]?$',
+                        'description' => 'Audio bitrate (e.g., 128k, 320k, 1M)',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Audio encoded successfully',
+                    'output_file_link' => 'https://output.example.com/encoded_audio_123456.mp3',
+                    'processing_time' => 2.3,
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => AudioEncodeRequest::class,
+                'function_name' => 'audioEncode',
             ],
             [
                 'name' => 'Video Scaling / Resizing',

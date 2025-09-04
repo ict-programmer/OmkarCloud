@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Data\Request\FFMpeg\AudioEncodeData;
 use App\Data\Request\FFMpeg\AudioFadesData;
+use App\Data\Request\FFMpeg\AudioMixData;
 use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
+use App\Data\Request\FFMpeg\AudioResampleData;
 use App\Data\Request\FFMpeg\AudioVolumeData;
 use App\Data\Request\FFMpeg\BatchProcessData;
 use App\Data\Request\FFMpeg\BitrateControlData;
@@ -20,9 +23,12 @@ use App\Data\Request\FFMpeg\TranscodingData;
 use App\Data\Request\FFMpeg\VideoEncodeData;
 use App\Data\Request\FFMpeg\VideoProcessingData;
 use App\Data\Request\FFMpeg\VideoTrimmingData;
+use App\Http\Requests\FFMpeg\AudioEncodeRequest;
 use App\Http\Requests\FFMpeg\AudioFadesRequest;
+use App\Http\Requests\FFMpeg\AudioMixRequest;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
+use App\Http\Requests\FFMpeg\AudioResampleRequest;
 use App\Http\Requests\FFMpeg\AudioVolumeRequest;
 use App\Http\Requests\FFMpeg\BatchProcessRequest;
 use App\Http\Requests\FFMpeg\BitrateControlRequest;
@@ -162,6 +168,42 @@ class FFMpegServiceController extends BaseController
 
         return $this->logAndResponse([
             'message' => 'Audio fades applied successfully',
+            'output_file_link' => $path,
+        ]);
+    }
+
+    public function audioResample(AudioResampleRequest $request): JsonResponse
+    {
+        $data = AudioResampleData::from($request->validated());
+
+        $path = $this->service->audioResample($data);
+
+        return $this->logAndResponse([
+            'message' => 'Audio resampled and normalized successfully',
+            'output_file_link' => $path,
+        ]);
+    }
+
+    public function audioMix(AudioMixRequest $request): JsonResponse
+    {
+        $data = AudioMixData::from($request->validated());
+
+        $path = $this->service->audioMix($data);
+
+        return $this->logAndResponse([
+            'message' => 'Audio tracks mixed successfully',
+            'output_file_link' => $path,
+        ]);
+    }
+
+    public function audioEncode(AudioEncodeRequest $request): JsonResponse
+    {
+        $data = AudioEncodeData::from($request->validated());
+
+        $path = $this->service->audioEncode($data);
+
+        return $this->logAndResponse([
+            'message' => 'Audio encoded successfully',
             'output_file_link' => $path,
         ]);
     }

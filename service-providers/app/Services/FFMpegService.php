@@ -2,9 +2,12 @@
 
 namespace App\Services;
 
+use App\Data\Request\FFMpeg\AudioEncodeData;
 use App\Data\Request\FFMpeg\AudioFadesData;
+use App\Data\Request\FFMpeg\AudioMixData;
 use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
+use App\Data\Request\FFMpeg\AudioResampleData;
 use App\Data\Request\FFMpeg\AudioVolumeData;
 use App\Data\Request\FFMpeg\BatchProcessData;
 use App\Data\Request\FFMpeg\BitrateControlData;
@@ -1152,6 +1155,246 @@ class FFMpegService
     }
 
     /**
+     * Resample audio to specified sample rate and channels.
+     *
+     * @param AudioResampleData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function audioResample(AudioResampleData $data): string
+    {
+        // Download input audio file
+        $inputFilePath = $this->downloadFile($data->input);
+
+        // Determine output format based on input file extension
+        $inputExtension = pathinfo($data->input, PATHINFO_EXTENSION);
+        $outputFormat = in_array(strtolower($inputExtension), ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma'])
+            ? strtolower($inputExtension)
+            : 'wav';
+
+        // Set audio codec based on output format
+        $audioCodec = match ($outputFormat) {
+            'wav' => 'pcm_s16le',
+            'flac' => 'flac',
+            'aac', 'm4a' => 'aac',
+            'ogg' => 'libvorbis',
+            'wma' => 'wmav2',
+            default => 'libmp3lame',
+        };
+
+        try {
+            // Build FFmpeg command for audio resampling with normalization
+            $command = [
+                '-i', $inputFilePath,
+                '-ar', (string) $data->sample_rate,    // Set sample rate
+                '-ac', (string) $data->channels,       // Set number of channels
+                '-af', 'loudnorm',                     // Apply loudness normalization
+                '-c:a', $audioCodec,                   // Set audio codec
+            ];
+
+            return $this->runAndUpload(
+                $inputFilePath,
+                $command,
+                $outputFormat
+            );
+
+        } catch (\Exception $e) {
+            // Clean up on error
+            $this->deleteInputFile($inputFilePath);
+            throw $e;
+        }
+    }
+
+    /**
+     * Mix multiple audio tracks into a single output.
+     *
+     * @param AudioMixData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function audioMix(AudioMixData $data): string
+    {
+        // Set defaults for service parameters
+        $outputFormat = 'mp3';
+        $normalization = true;
+        $mixMode = 'equal';
+        $weights = null;
+
+        // Download all audio files
+        $inputFilePaths = [];
+        foreach ($data->audio_tracks as $trackUrl) {
+            $inputFilePaths[] = $this->downloadFile($trackUrl);
+        }
+
+        // Set audio codec based on output format
+        $audioCodec = match ($outputFormat) {
+            'wav' => 'pcm_s16le',
+            'flac' => 'flac',
+            'aac', 'm4a' => 'aac',
+            'ogg' => 'libvorbis',
+            'wma' => 'wmav2',
+            default => 'libmp3lame',
+        };
+
+        try {
+            // Build FFmpeg command for audio mixing
+            $command = [];
+
+            // Add all input files
+            foreach ($inputFilePaths as $filePath) {
+                $command[] = '-i';
+                $command[] = $filePath;
+            }
+
+            // Build amix filter based on mix mode
+            $inputCount = count($inputFilePaths);
+            $filterComplex = '';
+
+            if ($mixMode === 'weighted' && $weights) {
+                // Weighted mixing - apply volume filters before mixing
+                $weightedInputs = [];
+                for ($i = 0; $i < $inputCount; $i++) {
+                    $weight = $weights[$i] ?? 1.0;
+                    $weightedInputs[] = "[$i:a]volume={$weight}[a{$i}]";
+                }
+                
+                // Combine weighted inputs
+                $amixInputs = '';
+                for ($i = 0; $i < $inputCount; $i++) {
+                    $amixInputs .= "[a{$i}]";
+                }
+                
+                $filterComplex = implode(';', $weightedInputs) . ';' . 
+                               $amixInputs . "amix=inputs={$inputCount}:duration=longest:dropout_transition=0[mixed]";
+            } else {
+                // Equal mixing - simple amix
+                $amixInputs = '';
+                for ($i = 0; $i < $inputCount; $i++) {
+                    $amixInputs .= "[$i:a]";
+                }
+                $filterComplex = $amixInputs . "amix=inputs={$inputCount}:duration=longest:dropout_transition=0[mixed]";
+            }
+
+            // Add normalization if requested
+            if ($normalization) {
+                $filterComplex .= ';[mixed]loudnorm[out]';
+                $command[] = '-filter_complex';
+                $command[] = $filterComplex;
+                $command[] = '-map';
+                $command[] = '[out]';
+            } else {
+                $command[] = '-filter_complex';
+                $command[] = $filterComplex;
+                $command[] = '-map';
+                $command[] = '[mixed]';
+            }
+
+            // Add codec and output settings
+            $command[] = '-c:a';
+            $command[] = $audioCodec;
+            $command[] = '-ar';
+            $command[] = '44100';
+            $command[] = '-ac';
+            $command[] = '2';
+
+            // Use the first input file path as reference for runAndUpload
+            $result = $this->runAndUpload(
+                $inputFilePaths[0],
+                $command,
+                $outputFormat
+            );
+
+            // Clean up all other input files
+            for ($i = 1; $i < count($inputFilePaths); $i++) {
+                $this->deleteInputFile($inputFilePaths[$i]);
+            }
+
+            return $result;
+
+        } catch (\Exception $e) {
+            // Clean up all input files on error
+            foreach ($inputFilePaths as $filePath) {
+                $this->deleteInputFile($filePath);
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Encode audio with specified codec and bitrate.
+     *
+     * @param AudioEncodeData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function audioEncode(AudioEncodeData $data): string
+    {
+        // Download input audio file
+        $inputFilePath = $this->downloadFile($data->input);
+
+        // Determine output format based on codec
+        $outputFormat = match ($data->codec) {
+            'libmp3lame' => 'mp3',
+            'aac', 'libfdk_aac' => 'aac',
+            'flac' => 'flac',
+            'libvorbis' => 'ogg',
+            'pcm_s16le' => 'wav',
+            'wmav2' => 'wma',
+            'libopus' => 'opus',
+            default => 'mp3',
+        };
+
+        try {
+            // Build FFmpeg command for audio encoding
+            $command = [
+                '-i', $inputFilePath,
+                '-c:a', $data->codec,           // Set audio codec
+                '-b:a', $data->bitrate,         // Set audio bitrate
+                '-vn',                          // Remove video stream if present
+            ];
+
+            // Add codec-specific parameters for optimal quality
+            switch ($data->codec) {
+                case 'libmp3lame':
+                    $command[] = '-q:a';
+                    $command[] = '0';  // Highest quality VBR mode
+                    break;
+                case 'aac':
+                case 'libfdk_aac':
+                    $command[] = '-profile:a';
+                    $command[] = 'aac_low';
+                    break;
+                case 'flac':
+                    $command[] = '-compression_level';
+                    $command[] = '8';  // Maximum compression
+                    break;
+                case 'libvorbis':
+                    $command[] = '-q:a';
+                    $command[] = '6';  // High quality
+                    break;
+                case 'libopus':
+                    $command[] = '-application';
+                    $command[] = 'audio';
+                    break;
+            }
+
+            return $this->runAndUpload(
+                $inputFilePath,
+                $command,
+                $outputFormat
+            );
+
+        } catch (\Exception $e) {
+            // Clean up on error
+            $this->deleteInputFile($inputFilePath);
+            throw $e;
+        }
+    }
+
+    /**
      * Process single FFmpeg operation from services array.
      *
      * @param BatchProcessData $data
@@ -1189,7 +1432,7 @@ class FFMpegService
                             'service_type_id' => $service['service_type_id'],
                             'status' => 'success',
                             'result' => $call->original ?? $call,
-                            'processing_time' => $processingTime,
+                            'duration' => $processingTime,
                         ];
                         
                     } catch (\Exception $e) {
@@ -1199,7 +1442,7 @@ class FFMpegService
                             'service_type_id' => $service['service_type_id'],
                             'status' => 'error',
                             'error' => $e->getMessage(),
-                            'processing_time' => $processingTime,
+                            'duration' => $processingTime,
                         ];
                     }
                 };
