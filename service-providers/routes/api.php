@@ -295,8 +295,8 @@ Route::prefix('sheets')
     ->controller(App\Http\Controllers\GoogleSheetsAPIController::class)
     ->group(function () {
         Route::post('create_spreadsheet', 'create');
-        Route::get('read_range', 'readRange');
-        Route::put('write_range', 'writeRange');
+        Route::post('read_range', 'readRange');
+        Route::post('write_range', 'writeRange');
         Route::post('append_values', 'appendValues');
         Route::post('batch_update', 'batchUpdate');
         Route::post('clear_range', 'clearRange');
