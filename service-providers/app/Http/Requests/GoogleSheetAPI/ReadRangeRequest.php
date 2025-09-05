@@ -2,20 +2,8 @@
 
 namespace App\Http\Requests\GoogleSheetAPI;
 
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
-
-class ReadRangeRequest extends FormRequest
+class ReadRangeRequest extends GoogleSheetsAPIRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -23,13 +11,13 @@ class ReadRangeRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        return array_merge(parent::rules(), [
             'spreadSheetId' => ['required', 'string'],
             'range' => ['required', 'string'],
             'majorDimensions' => ['nullable', 'string', 'in:ROWS,COLUMNS'],
             'valueRenderOption' => ['nullable', 'string', 'in:FORMATTED_VALUE,UNFORMATTED_VALUE,FORMULA'],
             'dateTimeRenderOption' => ['nullable', 'string', 'in:SERIAL_NUMBER,FORMATTED_STRING']
-        ];
+        ]);
     }
 
     /**
@@ -53,17 +41,4 @@ class ReadRangeRequest extends FormRequest
         ];
     }
 
-    protected function failedValidation(Validator $validator): void
-    {
-        throw new HttpResponseException(
-            response()->json(
-                [
-                    "status" => "error",
-                    "message" => __("Validation failed"),
-                    "errors" => $validator->errors(),
-                ],
-                422,
-            ),
-        );
-    }
 }
