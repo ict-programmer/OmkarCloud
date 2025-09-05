@@ -4,7 +4,7 @@ namespace App\Http\Requests\OmkarCloud;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ManageTasksRequest extends FormRequest
+class TaskManagementRequest extends FormRequest
 {
     public function authorize(): bool { return true; }
 

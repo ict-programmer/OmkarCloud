@@ -4,12 +4,11 @@ namespace App\Data\Request\OmkarCloud;
 
 use Spatie\LaravelData\Data;
 
-class SearchLinksData extends Data
+class FilteredSearchData extends Data
 {
-    /** @param string[] $links */
     public function __construct(
-        public array $links,
-        public ?array $filters = null,
+        public ?string $task_id = null,
+        public string $mode = 'best_customer', // keep extensible
         public ?string $format = 'json',
     ) {}
 }

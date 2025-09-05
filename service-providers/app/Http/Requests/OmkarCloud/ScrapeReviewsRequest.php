@@ -4,19 +4,17 @@ namespace App\Http\Requests\OmkarCloud;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class BusinessSearchRequest extends FormRequest
+class ScrapeReviewsRequest extends FormRequest
 {
     public function authorize(): bool { return true; }
 
     public function rules(): array
     {
         return [
-            'query'       => 'required|string',
-            'location'    => 'nullable|string',
-            'radius_km'   => 'nullable|integer|min:0',
+            'business_id' => 'required|string|max:1024',
             'max_results' => 'nullable|integer|min:1',
-            'format'      => 'nullable|string|in:json,csv,excel',
             'language'    => 'nullable|string|size:2',
+            'format'      => 'nullable|string|in:json,csv,excel',
         ];
     }
 }

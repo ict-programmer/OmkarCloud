@@ -8,7 +8,10 @@ class BusinessSearchData extends Data
 {
     public function __construct(
         public string $query,
-        public ?array $filters = null,     // ['city' => 'Tokyo', 'rating' => 4.2] etc.
-        public ?string $format = 'json',   // 'json'|'csv'|'excel'
+        public ?string $location = null,
+        public ?int $radius_km = null,
+        public ?int $max_results = null,
+        public ?string $format = 'json',
+        public ?string $language = 'en',
     ) {}
 }

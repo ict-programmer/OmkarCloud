@@ -4,16 +4,16 @@ namespace App\Http\Requests\OmkarCloud;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class FilterResultsRequest extends FormRequest
+class SearchByLinksRequest extends FormRequest
 {
     public function authorize(): bool { return true; }
 
     public function rules(): array
     {
         return [
-            'task_id' => ['sometimes','string','max:128'],
-            'filters' => ['required','array'],
-            'format'  => ['sometimes','in:json,csv,excel'],
+            'urls'   => 'required|array|min:1|max:100',
+            'urls.*' => 'url',
+            'format' => 'nullable|string|in:json,csv,excel',
         ];
     }
 }

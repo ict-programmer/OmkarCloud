@@ -4,11 +4,11 @@ namespace App\Data\Request\OmkarCloud;
 
 use Spatie\LaravelData\Data;
 
-class FetchReviewsData extends Data
+class DetailedResultViewData extends Data
 {
     public function __construct(
-        public string $identifier,         // place_id or maps URL
-        public ?int $limit = null,
+        public string $task_id,
+        public ?bool $include_raw = false,
         public ?string $format = 'json',
     ) {}
 }
