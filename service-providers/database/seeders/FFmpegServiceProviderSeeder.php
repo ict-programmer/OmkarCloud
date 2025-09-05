@@ -3,10 +3,14 @@
 namespace Database\Seeders;
 
 use App\Http\Controllers\FFMpegServiceController;
+use App\Http\Requests\FFMpeg\AudioEncodeRequest;
 use App\Http\Requests\FFMpeg\AudioFadesRequest;
+use App\Http\Requests\FFMpeg\AudioMixRequest;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
+use App\Http\Requests\FFMpeg\AudioResampleRequest;
 use App\Http\Requests\FFMpeg\AudioVolumeRequest;
+use App\Http\Requests\FFMpeg\BatchProcessRequest;
 use App\Http\Requests\FFMpeg\BitrateControlRequest;
 use App\Http\Requests\FFMpeg\ConcatenateRequest;
 use App\Http\Requests\FFMpeg\FileInspectionRequest;
@@ -49,6 +53,9 @@ class FFmpegServiceProviderSeeder extends Seeder
                         'frame_extraction',
                         'audio_volume',
                         'audio_fades',
+                        'audio_resample',
+                        'audio_mix',
+                        'audio_encode',
                         'scale',
                         'concatenate',
                         'file_inspection',
@@ -56,6 +63,7 @@ class FFmpegServiceProviderSeeder extends Seeder
                         'bitrate_control',
                         'stream_copy',
                         'video_encode',
+                        'batch_process',
                     ],
                 ],
                 'is_active' => true,
@@ -519,6 +527,123 @@ class FFmpegServiceProviderSeeder extends Seeder
                 'function_name' => 'audioFades',
             ],
             [
+                'name' => 'Audio Resampling / Normalization',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/codeskulptor-assets/Evillaugh.ogg',
+                        'format' => 'url',
+                        'description' => 'URL of the audio file to resample and normalize',
+                    ],
+                    'sample_rate' => [
+                        'type' => 'integer',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 44100,
+                        'min' => 8000,
+                        'max' => 192000,
+                        'description' => 'Target sample rate in Hz (8000-192000)',
+                    ],
+                    'channels' => [
+                        'type' => 'integer',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 2,
+                        'min' => 1,
+                        'max' => 8,
+                        'description' => 'Number of audio channels (1=mono, 2=stereo, etc.)',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Audio resampled and normalized successfully',
+                    'output_file_link' => 'https://output.example.com/resampled_audio_123456.wav',
+                    'processing_time' => 3.2,
+                    'sample_rate' => 44100,
+                    'channels' => 2,
+                    'normalization_applied' => true,
+                    'output_format' => 'wav',
+                    'file_size' => '5.8MB',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => AudioResampleRequest::class,
+                'function_name' => 'audioResample',
+            ],
+            [
+                'name' => 'Audio Mixing / Blending',
+                'input_parameters' => [
+                    'audio_tracks' => [
+                        'type' => 'array',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => [
+                            'https://commondatastorage.googleapis.com/codeskulptor-assets/Evillaugh.ogg',
+                            'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4'
+                        ],
+                        'min_items' => 2,
+                        'max_items' => 8,
+                        'items' => [
+                            'type' => 'string',
+                            'format' => 'url'
+                        ],
+                        'description' => 'Array of audio file URLs to mix (2-8 tracks)',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Audio tracks mixed successfully',
+                    'output_file_link' => 'https://output.example.com/mixed_audio_123456.mp3',
+                    'processing_time' => 5.8,
+                    'tracks_mixed' => 3,
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => AudioMixRequest::class,
+                'function_name' => 'audioMix',
+            ],
+            [
+                'name' => 'Audio Encoding / Format Conversion',
+                'input_parameters' => [
+                    'input' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'https://commondatastorage.googleapis.com/codeskulptor-assets/Evillaugh.ogg',
+                        'format' => 'url',
+                        'description' => 'URL of the audio file to encode',
+                    ],
+                    'codec' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => 'libmp3lame',
+                        'enum' => ['aac', 'libmp3lame', 'flac', 'libvorbis', 'pcm_s16le', 'wmav2', 'libfdk_aac', 'libopus'],
+                        'description' => 'Audio codec for encoding',
+                    ],
+                    'bitrate' => [
+                        'type' => 'string',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'default' => '128k',
+                        'pattern' => '^\\d+[kKmM]?$',
+                        'description' => 'Audio bitrate (e.g., 128k, 320k, 1M)',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Audio encoded successfully',
+                    'output_file_link' => 'https://output.example.com/encoded_audio_123456.mp3',
+                    'processing_time' => 2.3,
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => AudioEncodeRequest::class,
+                'function_name' => 'audioEncode',
+            ],
+            [
                 'name' => 'Video Scaling / Resizing',
                 'input_parameters' => [
                     'input' => [
@@ -940,6 +1065,85 @@ class FFmpegServiceProviderSeeder extends Seeder
                 ],
                 'request_class_name' => VideoEncodeRequest::class,
                 'function_name' => 'videoEncode',
+            ],
+            [
+                'name' => 'Batch Processing',
+                'input_parameters' => [
+                    'jobs' => [
+                        'type' => 'array',
+                        'required' => true,
+                        'userinput_rqd' => true,
+                        'min_items' => 1,
+                        'max_items' => 10,
+                        'items' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'service_type_id' => [
+                                    'type' => 'string',
+                                    'required' => true,
+                                    'description' => 'MongoDB ObjectId of the FFmpeg service type to execute',
+                                ],
+                                'input_data' => [
+                                    'type' => 'object',
+                                    'required' => true,
+                                    'description' => 'Input parameters specific to the selected service type',
+                                ],
+                            ],
+                        ],
+                        'default' => [
+                            [
+                                'service_type_id' => '507f1f77bcf86cd799439011',
+                                'input_data' => [
+                                    'file_link' => 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+                                    'resolution' => '1920x1080',
+                                    'bitrate' => '2000k',
+                                    'frame_rate' => 30,
+                                ],
+                            ],
+                            [
+                                'service_type_id' => '507f1f77bcf86cd799439012',
+                                'input_data' => [
+                                    'file_link' => 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
+                                    'bitrate' => '192k',
+                                    'channels' => 2,
+                                    'sample_rate' => 44100,
+                                ],
+                            ],
+                        ],
+                        'description' => 'Array of FFmpeg processing jobs to execute concurrently. Each job contains a service_type_id and corresponding inputs.',
+                    ],
+                ],
+                'response' => [
+                    'message' => 'Batch processing completed',
+                    'total_jobs' => 2,
+                    'successful_jobs' => 2,
+                    'failed_jobs' => 0,
+                    'results' => [
+                        [
+                            'job_id' => 'chunk_0_job_0',
+                            'service_type_id' => '507f1f77bcf86cd799439011',
+                            'function_name' => 'processVideo',
+                            'status' => 'success',
+                            'result' => 'https://output.example.com/processed_video_123456.mp4',
+                            'processing_time' => 45.2,
+                        ],
+                        [
+                            'job_id' => 'chunk_0_job_1',
+                            'service_type_id' => '507f1f77bcf86cd799439012',
+                            'function_name' => 'processAudio',
+                            'status' => 'success',
+                            'result' => 'https://output.example.com/processed_audio_123456.mp3',
+                            'processing_time' => 12.5,
+                        ],
+                    ],
+                    'batch_processing_time' => 57.7,
+                    'efficiency_ratio' => '85%',
+                ],
+                'response_path' => [
+                    'final_result' => '$',
+                ],
+                'request_class_name' => BatchProcessRequest::class,
+                'function_name' => 'batchProcess',
             ],
         ];
 

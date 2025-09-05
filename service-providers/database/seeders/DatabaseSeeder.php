@@ -25,6 +25,8 @@ class DatabaseSeeder extends Seeder
             CaptionsServiceProviderSeeder::class,
             GettyImageServiceProviderSeeder::class,
             BillionMailServiceProviderSeeder::class,
+            FFmpegServiceProviderSeeder::class,
+            GoogleCustomSearchServiceProviderSeeder::class,
         ]);
     }
 }

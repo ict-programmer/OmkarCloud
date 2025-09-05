@@ -25,4 +25,7 @@ enum ServiceTypeEnum: string
     case GET_FEATURED_COLLECTIONS = 'get featured collections';
     case GET_COLLECTIONS = 'get collections';
     case GET_COLLECTION = 'get collection';
+    case CREATE_ASSET = 'create asset';
+    case CHECK_RENDER_STATUS = 'check render status';
+    case GET_VIDEO_METADATA = 'get video metadata';
 }

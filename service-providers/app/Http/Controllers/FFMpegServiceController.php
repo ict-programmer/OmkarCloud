@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Data\Request\FFMpeg\AudioEncodeData;
 use App\Data\Request\FFMpeg\AudioFadesData;
+use App\Data\Request\FFMpeg\AudioMixData;
 use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
+use App\Data\Request\FFMpeg\AudioResampleData;
 use App\Data\Request\FFMpeg\AudioVolumeData;
+use App\Data\Request\FFMpeg\BatchProcessData;
 use App\Data\Request\FFMpeg\BitrateControlData;
 use App\Data\Request\FFMpeg\ConcatenateData;
 use App\Data\Request\FFMpeg\FileInspectionData;
@@ -19,10 +23,14 @@ use App\Data\Request\FFMpeg\TranscodingData;
 use App\Data\Request\FFMpeg\VideoEncodeData;
 use App\Data\Request\FFMpeg\VideoProcessingData;
 use App\Data\Request\FFMpeg\VideoTrimmingData;
+use App\Http\Requests\FFMpeg\AudioEncodeRequest;
 use App\Http\Requests\FFMpeg\AudioFadesRequest;
+use App\Http\Requests\FFMpeg\AudioMixRequest;
 use App\Http\Requests\FFMpeg\AudioOverlayRequest;
 use App\Http\Requests\FFMpeg\AudioProcessingRequest;
+use App\Http\Requests\FFMpeg\AudioResampleRequest;
 use App\Http\Requests\FFMpeg\AudioVolumeRequest;
+use App\Http\Requests\FFMpeg\BatchProcessRequest;
 use App\Http\Requests\FFMpeg\BitrateControlRequest;
 use App\Http\Requests\FFMpeg\ConcatenateRequest;
 use App\Http\Requests\FFMpeg\FileInspectionRequest;
@@ -164,6 +172,42 @@ class FFMpegServiceController extends BaseController
         ]);
     }
 
+    public function audioResample(AudioResampleRequest $request): JsonResponse
+    {
+        $data = AudioResampleData::from($request->validated());
+
+        $path = $this->service->audioResample($data);
+
+        return $this->logAndResponse([
+            'message' => 'Audio resampled and normalized successfully',
+            'output_file_link' => $path,
+        ]);
+    }
+
+    public function audioMix(AudioMixRequest $request): JsonResponse
+    {
+        $data = AudioMixData::from($request->validated());
+
+        $path = $this->service->audioMix($data);
+
+        return $this->logAndResponse([
+            'message' => 'Audio tracks mixed successfully',
+            'output_file_link' => $path,
+        ]);
+    }
+
+    public function audioEncode(AudioEncodeRequest $request): JsonResponse
+    {
+        $data = AudioEncodeData::from($request->validated());
+
+        $path = $this->service->audioEncode($data);
+
+        return $this->logAndResponse([
+            'message' => 'Audio encoded successfully',
+            'output_file_link' => $path,
+        ]);
+    }
+
     public function scale(ScaleRequest $request): JsonResponse
     {
         $data = ScaleData::from($request->validated());
@@ -245,6 +289,23 @@ class FFMpegServiceController extends BaseController
         return $this->logAndResponse([
             'message' => 'Video encoded successfully',
             'output_file_link' => $path,
+        ]);
+    }
+
+    public function batchProcess(BatchProcessRequest $request): JsonResponse
+    {
+        $data = BatchProcessData::from([
+            'services' => $request->services,
+            'ffmpegProvider' => $request->ffmpegProvider,
+        ]);
+        $results = $this->service->processBatch($data);
+
+        return $this->logAndResponse([
+            'message' => 'Batch processing completed',
+            'total_jobs' => count($data->services),
+            'successful_jobs' => count(array_filter($results, fn($result) => $result['status'] === 'success')),
+            'failed_jobs' => count(array_filter($results, fn($result) => $result['status'] === 'error')),
+            'processed_files' => $results,
         ]);
     }
 }

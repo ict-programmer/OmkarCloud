@@ -21,7 +21,9 @@ use App\Http\Controllers\QwenController;
 use App\Http\Controllers\ReactJsController;
 use App\Http\Controllers\RunwaymlAPIController;
 use App\Http\Controllers\ServiceProviderController;
+use App\Http\Controllers\ShotstackAPIController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -29,6 +31,11 @@ use Illuminate\Support\Facades\Route;
 | API Routes
 |--------------------------------------------------------------------------
 */
+
+// Authentication routes
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout']);
+Route::get('/check-auth', [AuthController::class, 'checkAuth']);
 
 Route::post('/extanal', [ServiceProviderController::class, 'list']);
 
@@ -303,6 +310,12 @@ Route::prefix('sheets')
         Route::post('management', 'sheetsManagement');
     }
 );
+
+Route::prefix('shotstack')->group(function () {
+    Route::post('create_asset', [ShotstackAPIController::class, 'createAsset']);
+    Route::post('check_render_status', [ShotstackAPIController::class, 'checkRenderStatus']);
+    Route::post('get_video_metadata', [ShotstackAPIController::class, 'getVideoMetadata']);
+});
 
 Route::get('services/{service_provider_id}/{service_type_id}', [MainFunctionController::class, 'getRequestBody']);
 Route::post('services/{service_provider_id}/{service_type_id}', MainFunctionController::class);

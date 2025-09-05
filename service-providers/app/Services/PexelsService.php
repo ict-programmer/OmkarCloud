@@ -33,7 +33,6 @@ class PexelsService
 
   public function __construct()
   {
-    throw new Forbidden('Pexels API is not currently supported');
     $apiKey = env('PEXELS_API_KEY');
 
     if (empty($apiKey)) {

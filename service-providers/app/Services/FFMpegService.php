@@ -2,10 +2,14 @@
 
 namespace App\Services;
 
+use App\Data\Request\FFMpeg\AudioEncodeData;
 use App\Data\Request\FFMpeg\AudioFadesData;
+use App\Data\Request\FFMpeg\AudioMixData;
 use App\Data\Request\FFMpeg\AudioOverlayData;
 use App\Data\Request\FFMpeg\AudioProcessingData;
+use App\Data\Request\FFMpeg\AudioResampleData;
 use App\Data\Request\FFMpeg\AudioVolumeData;
+use App\Data\Request\FFMpeg\BatchProcessData;
 use App\Data\Request\FFMpeg\BitrateControlData;
 use App\Data\Request\FFMpeg\ConcatenateData;
 use App\Data\Request\FFMpeg\FileInspectionData;
@@ -19,9 +23,14 @@ use App\Data\Request\FFMpeg\TranscodingData;
 use App\Data\Request\FFMpeg\VideoEncodeData;
 use App\Data\Request\FFMpeg\VideoProcessingData;
 use App\Data\Request\FFMpeg\VideoTrimmingData;
+use App\Http\Controllers\FFMpegServiceController;
+use App\Http\Requests\FFMpeg\VideoEncodeRequest;
+use App\Models\ServiceType;
 use App\Traits\PubliishIOTrait;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Concurrency;
 use Illuminate\Support\Facades\Http;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -38,6 +47,30 @@ class FFMpegService
     }
 
     /**
+     * Process the video with the given parameters.
+     *
+     * @param VideoProcessingData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function processVideo(VideoProcessingData $data): string
+    {
+        $inputFilePath = $this->downloadFile($data->file_link, 'mp4');
+
+        return $this->runAndUpload(
+            $inputFilePath,
+            [
+                '-i', $inputFilePath,
+                '-s', $data->resolution,
+                '-b:v', $data->bitrate,
+                '-r', $data->frame_rate,
+            ],
+            'mp4'
+        );
+    }
+
+    /**
      * Download file from URL to local temporary file.
      *
      * @param string $fileUrl
@@ -49,17 +82,17 @@ class FFMpegService
     {
         $urlPath = parse_url($fileUrl, PHP_URL_PATH);
         $extension = pathinfo($urlPath, PATHINFO_EXTENSION);
-        
+
         // If no extension found in URL, use default or detect from content
         if (empty($extension)) {
             $extension = $defaultExtension;
         }
-        
+
         $fileName = time() . '_' . uniqid() . '.' . $extension;
         $localPath = storage_path($fileName);
 
         $response = Http::timeout(300)->get($fileUrl);
-        
+
         if ($response->failed()) {
             throw new ConnectionException('Failed to download file from URL: ' . $fileUrl);
         }
@@ -78,7 +111,7 @@ class FFMpegService
         }
 
         file_put_contents($localPath, $response->body());
-        
+
         return $localPath;
     }
 
@@ -110,30 +143,6 @@ class FFMpegService
         ];
 
         return $mimeToExtension[$contentType] ?? null;
-    }
-
-    /**
-     * Process the video with the given parameters.
-     *
-     * @param VideoProcessingData $data
-     * @return string
-     * @throws ConnectionException
-     * @throws RequestException
-     */
-    public function processVideo(VideoProcessingData $data): string
-    {
-        $inputFilePath = $this->downloadFile($data->file_link, 'mp4');
-        
-        return $this->runAndUpload(
-            $inputFilePath,
-            [
-                '-i', $inputFilePath,
-                '-s', $data->resolution,
-                '-b:v', $data->bitrate,
-                '-r', $data->frame_rate,
-            ],
-            'mp4'
-        );
     }
 
     /**
@@ -181,7 +190,7 @@ class FFMpegService
                 $extension = 'tmp';
             }
         }
-        
+
         $inputName = time() . '_' . uniqid();
         $this->fileName = $inputName . '.' . $extension;
         $this->filePath = storage_path($this->fileName);
@@ -228,7 +237,7 @@ class FFMpegService
     public function processAudio(AudioProcessingData $data): string
     {
         $inputFilePath = $this->downloadFile($data->file_link, 'mp3');
-        
+
         return $this->runAndUpload(
             $inputFilePath,
             [
@@ -252,7 +261,7 @@ class FFMpegService
     public function processImage(ImageProcessingData $data): string
     {
         $inputFilePath = $this->downloadFile($data->file_link, 'jpg');
-        
+
         return $this->runAndUpload(
             $inputFilePath,
             [
@@ -274,7 +283,7 @@ class FFMpegService
     public function trimVideo(VideoTrimmingData $data): string
     {
         $inputFilePath = $this->downloadFile($data->file_link, 'mp4');
-        
+
         return $this->runAndUpload(
             $inputFilePath,
             [
@@ -298,7 +307,7 @@ class FFMpegService
     public function normalizeLoudness(LoudnessNormalizationData $data): string
     {
         $inputFilePath = $this->downloadFile($data->file_link, 'mp4');
-        
+
         return $this->runAndUpload(
             $inputFilePath,
             [
@@ -321,12 +330,12 @@ class FFMpegService
     public function transcodeMedia(TranscodingData $data): string
     {
         $inputFilePath = $this->downloadFile($data->file_link);
-        
+
         // Set default transcoding parameters
         $videoCodec = 'libx264';
         $audioCodec = 'aac';
         $preset = 'medium';
-        
+
         // Build ffmpeg command for transcoding
         $command = [
             '-i', $inputFilePath,
@@ -334,12 +343,12 @@ class FFMpegService
 
         // Determine output type based on format
         $isAudioOnly = in_array($data->output_format, ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma']);
-        
+
         if ($isAudioOnly) {
             // Audio-only output - remove video stream
             $command[] = '-vn';
             $command[] = '-c:a';
-            
+
             // Set appropriate audio codec based on format
             switch ($data->output_format) {
                 case 'mp3':
@@ -362,15 +371,15 @@ class FFMpegService
             }
         } else {
             // Video output with both video and audio
-            
+
             // Video codec
             $command[] = '-c:v';
             $command[] = $videoCodec;
-            
+
             // Video preset for encoding speed vs compression
             $command[] = '-preset';
             $command[] = $preset;
-            
+
             // Audio codec
             $command[] = '-c:a';
             $command[] = $audioCodec;
@@ -396,7 +405,7 @@ class FFMpegService
         // Download both audio files
         $mainAudioPath = $this->downloadFile($data->background_track);
         $overlayAudioPath = $this->downloadFile($data->overlay_track);
-        
+
         // Set audio codec based on output format
         $audioCodec = match ($data->output_format) {
             'wav' => 'pcm_s16le',
@@ -406,7 +415,7 @@ class FFMpegService
             'wma' => 'wmav2',
             default => 'libmp3lame',
         };
-        
+
         // Build FFmpeg command for audio overlay using amix filter
         $command = [
             '-analyzeduration', '10M',
@@ -444,19 +453,19 @@ class FFMpegService
     {
         // Download input video file
         $inputFilePath = $this->downloadFile($data->input_file, 'mp4');
-        
+
         // Create a temporary directory for extracted frames
         $frameDir = storage_path('frames_' . time() . '_' . uniqid());
         mkdir($frameDir, 0755, true);
-        
+
         // Frame filename pattern
         $framePattern = $frameDir . '/frame_%04d.jpg';
-        
+
         // Build FFmpeg command for frame extraction
         $command = [
             $this->ffmpeg,
             '-i', $inputFilePath,
-            '-r', (string) $data->frame_rate,  // Frame rate
+            '-r', (string)$data->frame_rate,  // Frame rate
             '-f', 'image2',                    // Output format
             '-q:v', '2',                       // High quality (1-31, lower is better)
             $framePattern
@@ -477,20 +486,20 @@ class FFMpegService
         // Get all extracted frame files
         $frameFiles = glob($frameDir . '/*.jpg');
         sort($frameFiles); // Ensure proper order
-        
+
         $frameUrls = [];
-        
+
         // Upload each frame and collect URLs
         foreach ($frameFiles as $frameFile) {
             $uploadedPath = $this->uploadFile($frameFile);
             $frameUrls[] = $this->getPublishUrl($uploadedPath);
             unlink($frameFile); // Clean up local frame file
         }
-        
+
         // Clean up
         $this->deleteInputFile($inputFilePath);
         $this->deleteDirectory($frameDir);
-        
+
         return $frameUrls;
     }
 
@@ -523,13 +532,13 @@ class FFMpegService
     {
         // Download input audio/video file
         $inputFilePath = $this->downloadFile($data->input);
-        
+
         // Determine output format based on input file extension
         $inputExtension = pathinfo($data->input, PATHINFO_EXTENSION);
-        $outputFormat = in_array(strtolower($inputExtension), ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma']) 
-            ? strtolower($inputExtension) 
+        $outputFormat = in_array(strtolower($inputExtension), ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma'])
+            ? strtolower($inputExtension)
             : 'mp3';
-        
+
         // Set audio codec based on output format
         $audioCodec = match ($outputFormat) {
             'wav' => 'pcm_s16le',
@@ -539,7 +548,7 @@ class FFMpegService
             'wma' => 'wmav2',
             default => 'libmp3lame',
         };
-        
+
         // Build FFmpeg command for volume adjustment
         $command = [
             '-i', $inputFilePath,
@@ -567,13 +576,13 @@ class FFMpegService
     {
         // Download input audio/video file
         $inputFilePath = $this->downloadFile($data->input);
-        
+
         // Determine output format based on input file extension
         $inputExtension = pathinfo($data->input, PATHINFO_EXTENSION);
-        $outputFormat = in_array(strtolower($inputExtension), ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma']) 
-            ? strtolower($inputExtension) 
+        $outputFormat = in_array(strtolower($inputExtension), ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma'])
+            ? strtolower($inputExtension)
             : 'mp3';
-        
+
         // Set audio codec based on output format
         $audioCodec = match ($outputFormat) {
             'wav' => 'pcm_s16le',
@@ -586,26 +595,26 @@ class FFMpegService
 
         // Build audio filter chain for fades
         $audioFilters = [];
-        
+
         // Add fade in filter if specified
         if ($data->fade_in_duration !== null && $data->fade_in_duration > 0) {
             $audioFilters[] = 'afade=t=in:d=' . $data->fade_in_duration;
         }
-        
+
         // Add fade out filter if specified
         if ($data->fade_out_duration !== null && $data->fade_out_duration > 0) {
             $audioFilters[] = 'afade=t=out:d=' . $data->fade_out_duration;
         }
-        
+
         // Build FFmpeg command
         $command = ['-i', $inputFilePath];
-        
+
         // Apply audio filters if any fades are specified
         if (!empty($audioFilters)) {
             $command[] = '-af';
             $command[] = implode(',', $audioFilters);
         }
-        
+
         // Add codec and stream copy options
         $command[] = '-c:a';
         $command[] = $audioCodec;
@@ -631,16 +640,16 @@ class FFMpegService
     {
         // Download input video file
         $inputFilePath = $this->downloadFile($data->input);
-        
+
         // Determine output format based on input file extension
         $inputExtension = pathinfo($data->input, PATHINFO_EXTENSION);
-        $outputFormat = in_array(strtolower($inputExtension), ['mp4', 'avi', 'mov', 'mkv', 'webm', 'flv', 'wmv', 'm4v', '3gp']) 
-            ? strtolower($inputExtension) 
+        $outputFormat = in_array(strtolower($inputExtension), ['mp4', 'avi', 'mov', 'mkv', 'webm', 'flv', 'wmv', 'm4v', '3gp'])
+            ? strtolower($inputExtension)
             : 'mp4';
 
         // Convert resolution presets to actual dimensions
         $resolution = $this->convertResolutionPreset($data->resolution_target);
-        
+
         // Set video codec based on output format
         $videoCodec = match ($outputFormat) {
             'webm' => 'libvpx-vp9',
@@ -702,16 +711,16 @@ class FFMpegService
         // Download all input files
         $inputFilePaths = [];
         $outputFormat = 'mp4'; // Default output format
-        
+
         foreach ($data->input_files as $index => $fileUrl) {
             $inputFilePath = $this->downloadFile($fileUrl);
             $inputFilePaths[] = $inputFilePath;
-            
+
             // Determine output format from first file
             if ($index === 0) {
                 $inputExtension = pathinfo($fileUrl, PATHINFO_EXTENSION);
-                $outputFormat = in_array(strtolower($inputExtension), ['mp4', 'avi', 'mov', 'mkv', 'webm', 'flv', 'wmv', 'm4v', '3gp']) 
-                    ? strtolower($inputExtension) 
+                $outputFormat = in_array(strtolower($inputExtension), ['mp4', 'avi', 'mov', 'mkv', 'webm', 'flv', 'wmv', 'm4v', '3gp'])
+                    ? strtolower($inputExtension)
                     : 'mp4';
             }
         }
@@ -719,20 +728,20 @@ class FFMpegService
         try {
             // Use filter_complex method for more reliable concatenation
             $command = [];
-            
+
             // Add all input files
             foreach ($inputFilePaths as $filePath) {
                 $command[] = '-i';
                 $command[] = $filePath;
             }
-            
+
             // Build filter_complex for concatenation
             $inputCount = count($inputFilePaths);
             $filterInputs = '';
             for ($i = 0; $i < $inputCount; $i++) {
                 $filterInputs .= "[$i:v][$i:a]";
             }
-            
+
             $command[] = '-filter_complex';
             $command[] = $filterInputs . "concat=n=$inputCount:v=1:a=1[outv][outa]";
             $command[] = '-map';
@@ -783,7 +792,7 @@ class FFMpegService
     {
         // Download input media file
         $inputFilePath = $this->downloadFile($data->input);
-        
+
         try {
             // Use FFmpeg to get detailed media information
             $command = [
@@ -799,7 +808,7 @@ class FFMpegService
 
             // FFmpeg outputs media info to stderr, even for successful operations
             $output = $process->getErrorOutput();
-            
+
             // Clean up input file
             $this->deleteInputFile($inputFilePath);
 
@@ -835,27 +844,27 @@ class FFMpegService
         ];
 
         $lines = explode("\n", $output);
-        
+
         foreach ($lines as $line) {
             $line = trim($line);
-            
+
             // Extract duration
             if (preg_match('/Duration: (\d{2}:\d{2}:\d{2}\.\d{2})/', $line, $matches)) {
                 $metadata['format']['duration'] = $matches[1];
                 $metadata['format']['duration_seconds'] = $this->timeToSeconds($matches[1]);
             }
-            
+
             // Extract bitrate
             if (preg_match('/bitrate: (\d+) kb\/s/', $line, $matches)) {
                 $metadata['format']['bitrate'] = $matches[1] . ' kb/s';
                 $metadata['format']['bitrate_kbps'] = (int)$matches[1];
             }
-            
+
             // Extract container format
             if (preg_match('/Input #0, ([^,]+),/', $line, $matches)) {
                 $metadata['format']['container'] = trim($matches[1]);
             }
-            
+
             // Extract video stream info
             if (preg_match('/Stream #0:(\d+).*: Video: ([^,]+).*?(\d+x\d+).*?(\d+(?:\.\d+)?) fps/', $line, $matches)) {
                 $metadata['video_streams'][] = [
@@ -865,7 +874,7 @@ class FFMpegService
                     'fps' => (float)$matches[4],
                 ];
             }
-            
+
             // Extract audio stream info
             if (preg_match('/Stream #0:(\d+).*: Audio: ([^,]+).*?(\d+) Hz.*?(\w+)/', $line, $matches)) {
                 $metadata['audio_streams'][] = [
@@ -876,7 +885,7 @@ class FFMpegService
                     'channels' => $matches[4],
                 ];
             }
-            
+
             // Extract subtitle streams
             if (preg_match('/Stream #0:(\d+).*: Subtitle: ([^,]+)/', $line, $matches)) {
                 $metadata['subtitle_streams'][] = [
@@ -884,7 +893,7 @@ class FFMpegService
                     'codec' => $matches[2],
                 ];
             }
-            
+
             // Extract metadata tags
             if (preg_match('/\s+(\w+)\s+:\s+(.+)$/', $line, $matches)) {
                 $key = strtolower($matches[1]);
@@ -893,7 +902,7 @@ class FFMpegService
                 }
             }
         }
-        
+
         // Add summary information
         $metadata['summary'] = [
             'has_video' => !empty($metadata['video_streams']),
@@ -920,7 +929,7 @@ class FFMpegService
         $hours = (int)$parts[0];
         $minutes = (int)$parts[1];
         $seconds = (float)$parts[2];
-        
+
         return $hours * 3600 + $minutes * 60 + $seconds;
     }
 
@@ -936,7 +945,7 @@ class FFMpegService
     {
         // Download input video file
         $inputFilePath = $this->downloadFile($data->input);
-        
+
         try {
             // Build FFmpeg command for thumbnail generation
             $command = [
@@ -974,7 +983,7 @@ class FFMpegService
     {
         // Download input video file
         $inputFilePath = $this->downloadFile($data->input);
-        
+
         try {
             // Build FFmpeg command for bitrate control
             $command = [
@@ -984,7 +993,7 @@ class FFMpegService
 
             // Add CRF (Constant Rate Factor) - required
             $command[] = '-crf';
-            $command[] = (string) $data->crf;
+            $command[] = (string)$data->crf;
 
             // Add preset - required
             $command[] = '-preset';
@@ -1030,7 +1039,7 @@ class FFMpegService
     {
         // Download input file
         $inputFilePath = $this->downloadFile($data->input);
-        
+
         try {
             // Build FFmpeg command for stream copying
             $command = [
@@ -1049,7 +1058,7 @@ class FFMpegService
                     $parts = explode(':', $stream);
                     $streamType = $parts[0];
                     $streamIndex = isset($parts[1]) ? (int)$parts[1] : 0;
-                    
+
                     // Use FFmpeg's stream type abbreviations
                     switch ($streamType) {
                         case 'video':
@@ -1070,7 +1079,7 @@ class FFMpegService
                             break;
                     }
                 }
-                
+
                 // Use copy codec for all mapped streams
                 $command[] = '-c';
                 $command[] = 'copy';
@@ -1078,8 +1087,8 @@ class FFMpegService
 
             // Determine output format based on input file extension
             $inputExtension = pathinfo($data->input, PATHINFO_EXTENSION);
-            $outputFormat = in_array(strtolower($inputExtension), ['mp4', 'avi', 'mov', 'mkv', 'webm', 'flv', 'wmv', 'm4v', '3gp', 'mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma']) 
-                ? strtolower($inputExtension) 
+            $outputFormat = in_array(strtolower($inputExtension), ['mp4', 'avi', 'mov', 'mkv', 'webm', 'flv', 'wmv', 'm4v', '3gp', 'mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma'])
+                ? strtolower($inputExtension)
                 : 'mp4';
 
             return $this->runAndUpload(
@@ -1107,7 +1116,7 @@ class FFMpegService
     {
         // Download input video file
         $inputFilePath = $this->downloadFile($data->input);
-        
+
         try {
             // Build FFmpeg command for video encoding
             $command = [
@@ -1143,5 +1152,301 @@ class FFMpegService
             $this->deleteInputFile($inputFilePath);
             throw $e;
         }
+    }
+
+    /**
+     * Resample audio to specified sample rate and channels.
+     *
+     * @param AudioResampleData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function audioResample(AudioResampleData $data): string
+    {
+        // Download input audio file
+        $inputFilePath = $this->downloadFile($data->input);
+
+        // Determine output format based on input file extension
+        $inputExtension = pathinfo($data->input, PATHINFO_EXTENSION);
+        $outputFormat = in_array(strtolower($inputExtension), ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma'])
+            ? strtolower($inputExtension)
+            : 'wav';
+
+        // Set audio codec based on output format
+        $audioCodec = match ($outputFormat) {
+            'wav' => 'pcm_s16le',
+            'flac' => 'flac',
+            'aac', 'm4a' => 'aac',
+            'ogg' => 'libvorbis',
+            'wma' => 'wmav2',
+            default => 'libmp3lame',
+        };
+
+        try {
+            // Build FFmpeg command for audio resampling with normalization
+            $command = [
+                '-i', $inputFilePath,
+                '-ar', (string) $data->sample_rate,    // Set sample rate
+                '-ac', (string) $data->channels,       // Set number of channels
+                '-af', 'loudnorm',                     // Apply loudness normalization
+                '-c:a', $audioCodec,                   // Set audio codec
+            ];
+
+            return $this->runAndUpload(
+                $inputFilePath,
+                $command,
+                $outputFormat
+            );
+
+        } catch (\Exception $e) {
+            // Clean up on error
+            $this->deleteInputFile($inputFilePath);
+            throw $e;
+        }
+    }
+
+    /**
+     * Mix multiple audio tracks into a single output.
+     *
+     * @param AudioMixData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function audioMix(AudioMixData $data): string
+    {
+        // Set defaults for service parameters
+        $outputFormat = 'mp3';
+        $normalization = true;
+        $mixMode = 'equal';
+        $weights = null;
+
+        // Download all audio files
+        $inputFilePaths = [];
+        foreach ($data->audio_tracks as $trackUrl) {
+            $inputFilePaths[] = $this->downloadFile($trackUrl);
+        }
+
+        // Set audio codec based on output format
+        $audioCodec = match ($outputFormat) {
+            'wav' => 'pcm_s16le',
+            'flac' => 'flac',
+            'aac', 'm4a' => 'aac',
+            'ogg' => 'libvorbis',
+            'wma' => 'wmav2',
+            default => 'libmp3lame',
+        };
+
+        try {
+            // Build FFmpeg command for audio mixing
+            $command = [];
+
+            // Add all input files
+            foreach ($inputFilePaths as $filePath) {
+                $command[] = '-i';
+                $command[] = $filePath;
+            }
+
+            // Build amix filter based on mix mode
+            $inputCount = count($inputFilePaths);
+            $filterComplex = '';
+
+            if ($mixMode === 'weighted' && $weights) {
+                // Weighted mixing - apply volume filters before mixing
+                $weightedInputs = [];
+                for ($i = 0; $i < $inputCount; $i++) {
+                    $weight = $weights[$i] ?? 1.0;
+                    $weightedInputs[] = "[$i:a]volume={$weight}[a{$i}]";
+                }
+                
+                // Combine weighted inputs
+                $amixInputs = '';
+                for ($i = 0; $i < $inputCount; $i++) {
+                    $amixInputs .= "[a{$i}]";
+                }
+                
+                $filterComplex = implode(';', $weightedInputs) . ';' . 
+                               $amixInputs . "amix=inputs={$inputCount}:duration=longest:dropout_transition=0[mixed]";
+            } else {
+                // Equal mixing - simple amix
+                $amixInputs = '';
+                for ($i = 0; $i < $inputCount; $i++) {
+                    $amixInputs .= "[$i:a]";
+                }
+                $filterComplex = $amixInputs . "amix=inputs={$inputCount}:duration=longest:dropout_transition=0[mixed]";
+            }
+
+            // Add normalization if requested
+            if ($normalization) {
+                $filterComplex .= ';[mixed]loudnorm[out]';
+                $command[] = '-filter_complex';
+                $command[] = $filterComplex;
+                $command[] = '-map';
+                $command[] = '[out]';
+            } else {
+                $command[] = '-filter_complex';
+                $command[] = $filterComplex;
+                $command[] = '-map';
+                $command[] = '[mixed]';
+            }
+
+            // Add codec and output settings
+            $command[] = '-c:a';
+            $command[] = $audioCodec;
+            $command[] = '-ar';
+            $command[] = '44100';
+            $command[] = '-ac';
+            $command[] = '2';
+
+            // Use the first input file path as reference for runAndUpload
+            $result = $this->runAndUpload(
+                $inputFilePaths[0],
+                $command,
+                $outputFormat
+            );
+
+            // Clean up all other input files
+            for ($i = 1; $i < count($inputFilePaths); $i++) {
+                $this->deleteInputFile($inputFilePaths[$i]);
+            }
+
+            return $result;
+
+        } catch (\Exception $e) {
+            // Clean up all input files on error
+            foreach ($inputFilePaths as $filePath) {
+                $this->deleteInputFile($filePath);
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Encode audio with specified codec and bitrate.
+     *
+     * @param AudioEncodeData $data
+     * @return string
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function audioEncode(AudioEncodeData $data): string
+    {
+        // Download input audio file
+        $inputFilePath = $this->downloadFile($data->input);
+
+        // Determine output format based on codec
+        $outputFormat = match ($data->codec) {
+            'libmp3lame' => 'mp3',
+            'aac', 'libfdk_aac' => 'aac',
+            'flac' => 'flac',
+            'libvorbis' => 'ogg',
+            'pcm_s16le' => 'wav',
+            'wmav2' => 'wma',
+            'libopus' => 'opus',
+            default => 'mp3',
+        };
+
+        try {
+            // Build FFmpeg command for audio encoding
+            $command = [
+                '-i', $inputFilePath,
+                '-c:a', $data->codec,           // Set audio codec
+                '-b:a', $data->bitrate,         // Set audio bitrate
+                '-vn',                          // Remove video stream if present
+            ];
+
+            // Add codec-specific parameters for optimal quality
+            switch ($data->codec) {
+                case 'libmp3lame':
+                    $command[] = '-q:a';
+                    $command[] = '0';  // Highest quality VBR mode
+                    break;
+                case 'aac':
+                case 'libfdk_aac':
+                    $command[] = '-profile:a';
+                    $command[] = 'aac_low';
+                    break;
+                case 'flac':
+                    $command[] = '-compression_level';
+                    $command[] = '8';  // Maximum compression
+                    break;
+                case 'libvorbis':
+                    $command[] = '-q:a';
+                    $command[] = '6';  // High quality
+                    break;
+                case 'libopus':
+                    $command[] = '-application';
+                    $command[] = 'audio';
+                    break;
+            }
+
+            return $this->runAndUpload(
+                $inputFilePath,
+                $command,
+                $outputFormat
+            );
+
+        } catch (\Exception $e) {
+            // Clean up on error
+            $this->deleteInputFile($inputFilePath);
+            throw $e;
+        }
+    }
+
+    /**
+     * Process single FFmpeg operation from services array.
+     *
+     * @param BatchProcessData $data
+     * @return array
+     */
+    public function processBatch(BatchProcessData $data): array
+    {
+        return Concurrency::run(
+            array_map(function ($service) {
+                return function () use ($service) {
+                    $startTime = microtime(true);
+                    
+                    try {
+                        // Create the proper FormRequest instance manually
+                        $formRequestClass = $service['request_class_name'];
+                        $formRequest = new $formRequestClass();
+                        
+                        // Set up the FormRequest with our data
+                        $formRequest->replace($service['input_data']);
+                        $formRequest->setContainer(app());
+                        $formRequest->setRedirector(app('redirect'));
+                        
+                        // Validate the request
+                        $formRequest->validateResolved();
+                        
+                        $controller = app(FFMpegServiceController::class);
+                        
+                        $call = app()->call([$controller, $service['function_name']], [
+                            'request' => $formRequest,
+                        ]);
+                        
+                        $processingTime = number_format(microtime(true) - $startTime, 2);
+                        
+                        return [
+                            'service_type_id' => $service['service_type_id'],
+                            'status' => 'success',
+                            'result' => $call->original ?? $call,
+                            'duration' => $processingTime,
+                        ];
+                        
+                    } catch (\Exception $e) {
+                        $processingTime = number_format(microtime(true) - $startTime, 2);
+                        
+                        return [
+                            'service_type_id' => $service['service_type_id'],
+                            'status' => 'error',
+                            'error' => $e->getMessage(),
+                            'duration' => $processingTime,
+                        ];
+                    }
+                };
+            }, $data->services)
+        );
     }
 }
