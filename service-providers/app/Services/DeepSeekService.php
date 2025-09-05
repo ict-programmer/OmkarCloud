@@ -7,13 +7,17 @@ use App\Data\Request\DeepSeek\CodeCompletionData;
 use App\Data\Request\DeepSeek\DocumentQaData;
 use App\Data\Request\DeepSeek\mathematicalReasoningData;
 use App\Http\Exceptions\Forbidden;
+use App\Http\Exceptions\NotFound;
+use App\Http\Resources\Deepseek\ChatCompletionResource;
 use App\Http\Resources\DeepSeek\CodeCompletionResource;
+use App\Http\Resources\Deepseek\DocumentQAResource;
+use App\Http\Resources\Deepseek\MathReasoningResource;
 use App\Traits\DeepSeekTrait;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use stdClass;
@@ -24,66 +28,67 @@ class DeepSeekService
 
     protected mixed $apiKey;
     protected string $baseUrl = 'https://api.deepseek.com/v1';
+    protected PendingRequest $client;
 
     public function __construct()
     {
         $this->apiKey = config('services.deep_seek.api_key');
+
+        if (empty($this->apiKey)) {
+            throw new NotFound('Deep Seek API key not configured.');
+        }
+
+        $this->client = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->apiKey,
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+        ])
+            ->timeout(0)
+            ->connectTimeout(5);
     }
 
     /**
      * Generate chat completion using Deep Seek
      *
      * @param ChatCompletionData $data
-     * @return array
+     * @return ChatCompletionResource
      *
      * @throws ConnectionException
      * @throws Forbidden
      */
-    public function chatCompletion(ChatCompletionData $data): array
+    public function chatCompletion(ChatCompletionData $data): ChatCompletionResource
     {
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->apiKey,
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/json',
-        ])->post(
-            $this->baseUrl . '/chat/completions',
-            [
-                'messages' => $data->messages,
-                'model' => $data->model,
-                'max_tokens' => $data->max_tokens,
-                'temperature' => $data->temperature,
-            ]
-        );
-
-        $jsonResponse = $response->json();
-
-        if ($response->failed()) {
-            Log::error('Deep Seek request error: ' . json_encode($response->json()));
-            if (is_array($jsonResponse) && array_key_exists('error', $jsonResponse)) {
-                throw new Forbidden('Deep Seek request failed: ' . $jsonResponse['error']['message']);
-            }
-
-            throw new Forbidden('Deep Seek request failed');
+        try {
+            $response = $this->client->post(
+                $this->baseUrl . '/chat/completions',
+                [
+                    'messages' => $data->messages,
+                    'model' => $data->model,
+                    'max_tokens' => $data->max_tokens,
+                    'temperature' => $data->temperature,
+                ]
+            );
+        } catch (ConnectionException | Exception $e) {
+            Log::error('Deepseek API request error: ' . $e->getMessage());
+            throw new Forbidden('Deepseek API request failed: ' . $e->getMessage());
         }
 
-        return [
-            'chat_completion' => $jsonResponse['choices'][0]['message']['content']
-        ];
+        $result = $this->handleResponse($response);
+
+        return ChatCompletionResource::make($result);
     }
 
     /**
      * Generate code completion using Deep Seek
      *
      * @param  CodeCompletionData  $data
-     * @return JsonResource
+     * @return CodeCompletionResource
      *
      * @throws Forbidden
      */
-    public function codeCompletion(CodeCompletionData $data): JsonResource
+    public function codeCompletion(CodeCompletionData $data): CodeCompletionResource
     {
-
         try {
-
             $messages = [
                 [
                     'role' => 'system',
@@ -102,9 +107,7 @@ class DeepSeekService
 
             if (!empty($data->attachments)) {
                 foreach ($data->attachments as $attachment) {
-                    if ($attachment instanceof UploadedFile) {
-                        $messages[1]['content'][] = $this->prepareAttachment($attachment);
-                    }
+                    $messages[1]['content'][] = $this->prepareAttachment($attachment);
                 }
             }
 
@@ -140,92 +143,72 @@ class DeepSeekService
      * Generate code completion using Deep Seek
      *
      * @param  DocumentQaData  $data
-     * @return array
+     * @return DocumentQAResource
      *
      * @throws ConnectionException
      * @throws Forbidden
      */
-    public function documentQa(DocumentQaData $data): array
+    public function documentQa(DocumentQaData $data): DocumentQAResource
     {
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->apiKey,
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/json',
-        ])->post(
-            $this->baseUrl . '/chat/completions',
-            [
-                'model' => 'deepseek-chat',
-                'messages' => [
-                    [
-                        'role' => 'user',
-                        'content' => json_encode([
-                            'question' => $data->question,
-                            'context' => $data->document_text,
-                        ]),
+        try {
+            $response = $this->client->post(
+                $this->baseUrl . '/chat/completions',
+                [
+                    'model' => 'deepseek-chat',
+                    'messages' => [
+                        [
+                            'role' => 'user',
+                            'content' => json_encode([
+                                'question' => $data->question,
+                                'context' => $data->document_text,
+                            ]),
+                        ]
                     ]
                 ]
-            ]
-        );
-
-        $jsonResponse = $response->json();
-
-        if ($response->failed()) {
-            Log::error('Deep Seek request error: ' . json_encode($response->json()));
-            if (array_key_exists('error', $jsonResponse)) {
-                throw new Forbidden('Deep Seek request failed: ' . $jsonResponse['error']['message']);
-            }
-
-            throw new Forbidden('Deep Seek request failed');
+            );
+        } catch (ConnectionException | Exception $e) {
+            Log::error('Deepseek API request error: ' . $e->getMessage());
+            throw new Forbidden('Deepseek API request failed: ' . $e->getMessage());
         }
 
-        return [
-            'document_qa' => $jsonResponse['choices'][0]['message']['content']
-        ];
+        $result = $this->handleResponse($response);
+
+        return DocumentQAResource::make($result);
     }
 
     /**
      * Generate mathematical reasoning using Deep Seek
      *
      * @param  mathematicalReasoningData  $data
-     * @return array
+     * @return MathReasoningResource
      *
      * @throws ConnectionException
      * @throws Forbidden
      */
-    public function mathematicalReasoning(mathematicalReasoningData $data): array
+    public function mathematicalReasoning(mathematicalReasoningData $data): MathReasoningResource
     {
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->apiKey,
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/json',
-        ])->post(
-            $this->baseUrl . '/chat/completions',
-            [
-                'max_tokens' => $data->max_tokens,
-                'model' => $data->model,
-                'messages' => [
-                    [
-                        'role' => 'user',
-                        'content' => $data->problem_statement
-                    ]
-                ],
-            ]
-        );
-
-        $jsonResponse = $response->json();
-
-        if ($response->failed()) {
-            Log::error('Deep Seek request error: ' . json_encode($response->json()));
-            if (array_key_exists('error', $jsonResponse)) {
-                throw new Forbidden('Deep Seek request failed: ' . $jsonResponse['error']['message']);
-            }
-
-            throw new Forbidden('Deep Seek request failed');
+        try {
+            $response = $this->client->post(
+                $this->baseUrl . '/chat/completions',
+                [
+                    'max_tokens' => $data->max_tokens,
+                    'model' => $data->model,
+                    'messages' => [
+                        [
+                            'role' => 'user',
+                            'content' => $data->problem_statement
+                        ]
+                    ],
+                ]
+            );
+        } catch (ConnectionException | Exception $e) {
+            Log::error('Deepseek API request error: ' . $e->getMessage());
+            throw new Forbidden('Deepseek API request failed: ' . $e->getMessage());
         }
 
-        return [
-            'mathematical_reason' => $jsonResponse['choices'][0]['message']['content']
-        ];
+        $result = $this->handleResponse($response);
+
+        return MathReasoningResource::make($result);
     }
 
     protected function handleResponse(Response $response): stdClass

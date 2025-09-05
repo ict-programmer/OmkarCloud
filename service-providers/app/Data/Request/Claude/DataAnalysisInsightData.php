@@ -8,6 +8,8 @@ class DataAnalysisInsightData extends Data
 {
     public function __construct(
         public array $data,
-        public string $task
+        public string $task,
+        public int $max_tokens,
+        public ?string $model = null
     ) {}
 }

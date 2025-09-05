@@ -7,13 +7,12 @@ use App\Data\Request\ChatGPT\CodeCompletionData;
 use App\Data\Request\ChatGPT\ImageGenerationData;
 use App\Data\Request\ChatGPT\TextEmbeddingData;
 use App\Data\Request\ChatGPT\UiFieldExtractionData;
-use App\Http\Exceptions\BadRequest;
 use App\Http\Exceptions\Forbidden;
 use App\Http\Resources\OpenAI\CodeCompletionResource;
 use App\Traits\OpenAIChatTrait;
 use Exception;
+use finfo;
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\Response;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -32,19 +31,162 @@ class ChatGPTService
         $this->client = OpenAI::client(config('services.openai.api_key'));
     }
 
+    public function chatCompletion(ChatCompletionData $data)
+    {
+        if (is_null($data->knowledge_base) && is_null($data->schema_tool)) {
+            return $this->chatCompletionWithoutThread($data);
+        }
+
+        $fileIds = [];
+
+        if ($data->knowledge_base) {
+            $fileId = $this->uploadFile($data->knowledge_base);
+            if ($fileId) {
+                $fileIds[] = $fileId;
+            }
+        }
+
+        $vectorStoreResponse = Http::withToken(env('OPENAI_API_KEY'))
+            ->withHeader('OpenAI-Beta', 'assistants=v2')
+            ->timeout(60)
+            ->post('https://api.openai.com/v1/vector_stores', [
+                'name' => 'Dynamic Vector Store',
+                'file_ids' => $fileIds,
+            ]);
+
+        $vectorStoreId = $vectorStoreResponse->json('id');
+        if (!$vectorStoreId) {
+            throw new \Exception('Failed to create vector store.');
+        }
+
+        $assistantResponse = Http::withToken(env('OPENAI_API_KEY'))
+            ->withHeader('OpenAI-Beta', 'assistants=v2')
+            ->timeout(60)
+            ->post('https://api.openai.com/v1/assistants', [
+                'name' => 'Dynamic Assistant',
+                'instructions' => 'Use the uploaded knowledge and optional tools.',
+                'model' => 'gpt-4-turbo',
+                'tools' => [['type' => 'file_search']],
+                'tool_resources' => [
+                    'file_search' => [
+                        'vector_store_ids' => [$vectorStoreId],
+                    ],
+                ],
+            ]);
+
+        $assistantId = $assistantResponse->json('id');
+        if (!$assistantId) {
+            throw new \Exception('Failed to create assistant.');
+        }
+
+        $threadResponse = Http::withToken(env('OPENAI_API_KEY'))
+            ->withHeader('OpenAI-Beta', 'assistants=v2')
+            ->timeout(30)
+            ->post('https://api.openai.com/v1/threads');
+
+        $threadId = $threadResponse->json('id');
+        if (!$threadId) {
+            throw new \Exception('Failed to create thread.');
+        }
+
+        if ($data->schema_tool) {
+            try {
+                $content = file_get_contents($data->schema_tool->getRealPath());
+                $json = json_decode($content, true);
+                $url = $json['servers'][0]['url'] ?? null;
+                $path = $url . array_key_first($json['paths']);
+
+                $schemaToolResponse = Http::timeout(30)->get($path);
+                if ($schemaToolResponse->failed()) {
+                    throw new \Exception('Failed to fetch schema tool data');
+                }
+
+                $schemaToolData = $schemaToolResponse->json();
+                Http::withToken(env('OPENAI_API_KEY'))
+                    ->withHeader('OpenAI-Beta', 'assistants=v2')
+                    ->timeout(30)
+                    ->post("https://api.openai.com/v1/threads/{$threadId}/messages", [
+                        'role' => 'user',
+                        'content' => json_encode($schemaToolData),
+                    ]);
+            } catch (\Exception $e) {
+                throw new \Exception('Invalid schema tool file: ' . $e->getMessage());
+            }
+        }
+
+        Http::withToken(env('OPENAI_API_KEY'))
+            ->withHeader('OpenAI-Beta', 'assistants=v2')
+            ->timeout(30)
+            ->post("https://api.openai.com/v1/threads/{$threadId}/messages", [
+                'role' => 'user',
+                'content' => $data->messages,
+            ]);
+
+        $runResponse = Http::withToken(env('OPENAI_API_KEY'))
+            ->withHeader('OpenAI-Beta', 'assistants=v2')
+            ->timeout(30)
+            ->post("https://api.openai.com/v1/threads/{$threadId}/runs", [
+                'assistant_id' => $assistantId,
+            ]);
+
+        $runId = $runResponse->json('id');
+        if (!$runId) {
+            throw new \Exception('Failed to start run.');
+        }
+
+        do {
+            sleep(2);
+            $statusCheck = Http::withToken(env('OPENAI_API_KEY'))
+                ->withHeader('OpenAI-Beta', 'assistants=v2')
+                ->timeout(30)
+                ->get("https://api.openai.com/v1/threads/{$threadId}/runs/{$runId}");
+
+            if ($statusCheck->failed()) {
+                throw new \Exception('Failed to check run status.');
+            }
+        } while ($statusCheck->json('status') !== 'completed');
+
+        $messages = Http::withToken(env('OPENAI_API_KEY'))
+            ->withHeader('OpenAI-Beta', 'assistants=v2')
+            ->timeout(30)
+            ->get("https://api.openai.com/v1/threads/{$threadId}/messages");
+
+        return collect($messages->json('data'))
+            ->firstWhere('role', 'assistant')['content'][0]['text']['value'] ?? 'No response from assistant';
+    }
+
+    protected function uploadFile(UploadedFile $file)
+    {
+        $content = file_get_contents($file->getRealPath());
+
+        $upload = Http::withToken(env('OPENAI_API_KEY'))
+            ->withHeader('OpenAI-Beta', 'assistants=v2')
+            ->attach('file', $content, $file->getClientOriginalName())
+            ->post('https://api.openai.com/v1/files', [
+                'purpose' => 'assistants',
+            ]);
+
+        return $upload->json('id');
+    }
+
     /**
      * Create a chat completion using OpenAI's API.
      *
      * @param  ChatCompletionData  $data
      * @return CreateResponse
      */
-    public function chatCompletion(ChatCompletionData $data): OpenAI\Responses\Chat\CreateResponse
+    public function chatCompletionWithoutThread(ChatCompletionData $data): OpenAI\Responses\Chat\CreateResponse
     {
         $client = OpenAI::client(config('services.openai.api_key'));
 
         return $client->chat()->create([
             'model' => $data->model,
-            'messages' => [json_decode($data->messages, JSON_UNESCAPED_UNICODE)],
+            'messages' => [
+                [
+                    'role' => 'user',
+                    'content' => $data->messages,
+                ],
+            ],
             'max_tokens' => $data->max_tokens,
             'temperature' => $data->temperature,
         ]);
@@ -52,12 +194,13 @@ class ChatGPTService
 
     /**
      * Generate code completion using OpenAI's API
-     * 
-     * @param CodeCompletionData $data Request data
-     * @return \OpenAI\Responses\Chat\CreateResponse
+     *
+     * @param  CodeCompletionData  $data  Request data
+     * @return CodeCompletionResource
+     *
      * @throws Forbidden
      */
-    public function codeCompletion(CodeCompletionData $data)
+    public function codeCompletion(CodeCompletionData $data): CodeCompletionResource
     {
         $client = OpenAI::client(config('services.openai.api_key'));
 
@@ -65,17 +208,17 @@ class ChatGPTService
             $messages = [
                 [
                     'role' => 'system',
-                    'content' => config('chatGPT.system_prompts.code_generation')
+                    'content' => config('chatGPT.system_prompts.code_generation'),
                 ],
                 [
                     'role' => 'user',
                     'content' => [
                         [
                             'type' => 'text',
-                            'text' => $data->description
-                        ]
-                    ]
-                ]
+                            'text' => $data->description,
+                        ],
+                    ],
+                ],
             ];
 
             if (!empty($data->attachments)) {
@@ -92,19 +235,19 @@ class ChatGPTService
                 'messages' => $messages,
                 'max_tokens' => $data->max_tokens,
                 'temperature' => $data->temperature,
-                'stream' => false
+                'stream' => false,
             ];
 
             $response = $client->chat()->create($payload);
-        } catch (Exception | ErrorException $e) {
+        } catch (Exception|ErrorException $e) {
             Log::error('ChatGPT request error: ' . $e->getMessage(), [
                 'exception' => $e,
                 'data' => [
                     'model' => $data->model,
                     'max_tokens' => $data->max_tokens,
                     'temperature' => $data->temperature,
-                    'has_attachments' => !empty($data->attachments)
-                ]
+                    'has_attachments' => !empty($data->attachments),
+                ],
             ]);
 
             throw new Forbidden('ChatGPT request failed with error: ' . $e->getMessage());
@@ -156,78 +299,76 @@ class ChatGPTService
      * @param  UiFieldExtractionData  $data
      * @return array
      *
-     * @throws ConnectionException
+     * @throws ConnectionException|Exception
      */
     public function uiFieldExtraction(UiFieldExtractionData $data): array
     {
-        $imageUrl = $data->image;
+        $client = OpenAI::client(config('services.openai.api_key'));
 
-        $imageContents = file_get_contents($imageUrl);
-
-        $tempImagePath = tempnam(sys_get_temp_dir(), 'openai_img_');
-        file_put_contents($tempImagePath, $imageContents);
-
-        $upload = Http::withToken(config('services.openai.api_key'))
-            ->attach('file', fopen($tempImagePath, 'r'), 'screenshot.png')
-            ->post('https://api.openai.com/v1/files', [
-                'purpose' => 'assistants',
-            ]);
-
-        unlink($tempImagePath);
-
-        $imageId = $upload->json('id');
-
-        $assistant = $this->client->assistants()->create([
-            'instructions' => '
-            You are an expert in UI analysis. From the uploaded image of a user interface, extract all visible form field names and return them in a flat list using snake_case format (lowercase with underscores between words).
-
-Instructions:
-	•	Only include field titles/labels, not the values or input types.
-	•	Ignore any buttons such as save, send, or submit.
-	•	Exclude inputs and dropdowns that are embedded inside rich-text editors like TinyMCE, but retain any visible titles or labels associated with them.
-	•	Do not include hierarchical or nested structure—return a flat list.
-	•	Format all field names in lowercase with underscores, e.g., first_name, email_address.
-	IMPORTANT: Do not include any other text or explanation in the response, just the field names.
-	',
-            'name' => 'UI Field Extraction Assistant',
+        $response = $client->chat()->create([
             'model' => 'gpt-4-turbo',
-        ]);
-        $assistantId = $assistant->id;
-
-        $thread = $this->client->threads()->create([]);
-        $threadId = $thread->id;
-
-        $this->client->threads()->messages()->create(
-            threadId: $threadId,
-            parameters: [
-                'role' => 'user',
-                'content' => [
-                    ['type' => 'text', 'text' => 'Extract the UI field from the image below. I need just field name without any details or description'],
-                    ['type' => 'image_file', 'image_file' => ['file_id' => $imageId]],
+            'messages' => [
+                [
+                    'role' => 'system',
+                    'content' => 'You are a UI field extraction assistant. DO NOT return screen type, reasoning, or any explanation. Just return a comma-separated list of visible UI field labels related to backend database values. No headings, no intros, no explanations.',
+                ],
+                [
+                    'role' => 'user',
+                    'content' => [
+                        [
+                            'type' => 'text',
+                            'text' => 'Extract UI field labels from this form.',
+                        ],
+                        [
+                            'type' => 'image_url',
+                            'image_url' => [
+                                'url' => $data->image,
+                            ],
+                        ],
+                    ],
                 ],
             ],
-        );
+        ]);
 
-        $run = $this->client->threads()->runs()->create(
-            threadId: $threadId,
-            parameters: ['assistant_id' => $assistantId],
-        );
+        if (!isset($response->choices[0]->message->content))
+            throw new Exception('No content returned from OpenAI');
 
-        do {
-            sleep(2);
-            $runStatus = $this->client->threads()->runs()->retrieve(threadId: $threadId, runId: $run->id);
-        } while ($runStatus->status !== 'completed');
+        return explode(',', str_replace(' ', '', $response->choices[0]->message->content));
+    }
 
-        $messages = $this->client->threads()->messages()->list(threadId: $threadId);
-        $extractedFields = null;
-        foreach ($messages->data as $message) {
-            if ($message->role === 'assistant') {
-                $extractedFields = str_replace(',', ' ', $message->content[0]->text->value);
-                break;
-            }
-        }
+    private function selectInterface($image_path): string
+    {
+        $client = OpenAI::client(config('services.openai.api_key'));
 
-        return preg_split('/\s+/', $extractedFields);
+        $messages = [
+            [
+                'role' => 'system',
+                'content' => 'You are a UI interface assistant. Your task is to extract the UI elements from the image and identify the interface type (list, create, edit, show).',
+            ],
+            [
+                'role' => 'user',
+                'content' => [
+                    [
+                        'type' => 'text',
+                        'text' => 'Extract the UI elements from the image below. And select if this screenshot is related to (list - create - edit - show) interface. Just give interface type (Ex: "list") without any explanation.',
+                    ],
+                    [
+                        'type' => 'image_url',
+                        'image_url' => [
+                            'url' => $image_path,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        $payload = [
+            'model' => 'gpt-4-turbo',
+            'messages' => $messages,
+        ];
+
+        $response = $client->chat()->create($payload);
+
+        return $response->choices[0]->message->content;
     }
 
     protected function handleOpenAiResponse(CreateResponse $response): \stdClass
@@ -239,6 +380,7 @@ Instructions:
 
         if (empty($response->choices)) {
             $result->error = 'No choices returned from the API';
+
             return $result;
         }
 
@@ -248,6 +390,7 @@ Instructions:
 
         if (empty(trim($messageContent))) {
             $result->error = 'Empty response content';
+
             return $result;
         }
 

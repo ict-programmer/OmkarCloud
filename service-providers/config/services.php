@@ -55,6 +55,10 @@ return [
         'path' => env('FFMPEG_PATH', '/usr/bin/ffmpeg'),
     ],
 
+    'ffprobe' => [
+        'path' => env('FFPROBE_PATH', '/usr/bin/ffprobe'),
+    ],
+
     'runwayml' => [
         'api_key' => env('RUNWAYML_API_KEY'),
     ],
@@ -71,6 +75,8 @@ return [
             'design:content:write',
             'design:meta:read',
             'profile:read',
+            'folder:write',
+            'folder:read',
         ],
     ],
     'perplexity' => [
@@ -137,7 +143,7 @@ return [
         'api_key' => env('PREMIERPRO_API_KEY'),
         'api_secret' => env('PREMIERPRO_API_SECRET'),
     ],
-    
+
     'descriptai' => [
         'api_key' => env('DESCRIPTAI_API_KEY'),
     ],
@@ -145,5 +151,37 @@ return [
     'omkarcloud' => [
         'base_url' => env('OMKAR_MAPS_BASE_URL', 'https://api.omkar.cloud/maps'),
         // do NOT store api key here if you rotate often; keep in ENV
+    ],
+    'pexels' => [
+        'api_key' => env('PEXELS_API_KEY'),
+    ],
+
+    'freepik' => [
+        'api_key' => env('FREEPIK_API_KEY'),
+        'webhook_secret' => env('FREEPIK_WEBHOOK_SECRET'),
+        'webhook_url' => env('FREEPIK_WEBHOOK_URL'),
+    ],
+
+    'gettyimages' => [
+        'api_key' => env('GETTYIMAGES_API_KEY'),
+    ],
+
+    'captions' => [
+        'api_key' => env('CAPTIONS_API_KEY'),
+    ],
+
+    'google' => [
+        'custom_search' => [
+            'api_key' => env('GOOGLE_CUSTOM_SEARCH_API_KEY'),
+            'search_engine_id' => env('GOOGLE_CUSTOM_SEARCH_ENGINE_ID'),
+        ],
+    ],
+     'billionmail' => [
+        'api_url' => env('BILLIONMAIL_API_URL', 'https://10.253.10.66:8888//api/batch_mail/api'),
+        'api_key' => env('BILLIONMAIL_API_KEY', 'b98020dae4c501b9e61be56d7312d6bb99595e9b190079e88308d732a6519ec3'),
+    ],
+
+    'shotstack' => [
+        'api_key' => env('SHOTSTACK_API_KEY'),
     ],
 ];

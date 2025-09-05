@@ -6,104 +6,117 @@ use App\Data\Request\Gemini\CodeGenerationData;
 use App\Data\Request\Gemini\DocumentSummarizationData;
 use App\Data\Request\Gemini\ImageAnalysisData;
 use App\Data\Request\Gemini\TextGenerationData;
+use App\Enums\common\ServiceProviderEnum;
 use App\Enums\common\ServiceTypeEnum;
 use App\Http\Exceptions\Forbidden;
 use App\Http\Exceptions\NotFound;
 use App\Http\Resources\Gemini\CodeGenerationResource;
+use App\Http\Resources\Gemini\DocumentSummarizationResource;
+use App\Http\Resources\Gemini\ImageAnalysisResource;
+use App\Http\Resources\Gemini\TextGenerationResource;
 use App\Models\ServiceProvider;
 use App\Models\ServiceType;
 use App\Traits\GeminiTrait;
+use App\Traits\MongoObjectIdTrait;
 use Exception;
 use Gemini\Exceptions\ErrorException;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Client\Response;
 use stdClass;
+use Throwable;
 
 class GeminiService
 {
     use GeminiTrait;
+    use MongoObjectIdTrait;
 
     protected string $baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
 
     protected string $apiKey;
 
-    protected int $maxTokens;
+    protected PendingRequest $client;
 
     /**
      * @throws NotFound
+     * @throws Throwable
      */
     protected function initializeService(string $serviceTypeName): void
     {
-        $provider = ServiceProvider::where('type', 'Gemini')->first();
+        $provider = ServiceProvider::where('type', ServiceProviderEnum::GEMINI->value)->first();
 
         if (!$provider) {
             throw new NotFound('Gemini service provider not found.');
         }
 
-        $serviceType = ServiceType::where([
-            'service_provider_id' => $provider->id,
-            'name' => $serviceTypeName,
-        ])->first();
+        $serviceType = ServiceType::where('service_provider_id', $this->toObjectId($provider->id))
+            ->where('name', $serviceTypeName)
+            ->first();
 
         if (!$serviceType) {
             throw new NotFound('Gemini service type not found.');
         }
 
-        $this->apiKey = config('services.gemini.api_key');
-        $this->maxTokens = $provider->parameter['max_tokens'];
+        $apiKey = config('services.gemini.api_key');
+        throw_if(empty($apiKey), new NotFound('Gemini key not configured.'));
+
+        $this->apiKey = $apiKey;
+
+        $this->client = Http::withHeaders(['Content-Type' => 'application/json'])
+            ->timeout(0)
+            ->connectTimeout(5);
     }
 
     /**
      * Generate text using Gemini
      *
      * @param TextGenerationData $data
-     * @return array
+     * @return TextGenerationResource
      *
      * @throws ConnectionException
      * @throws Forbidden
-     * @throws NotFound
+     * @throws NotFound|Throwable
      */
-    public function textGeneration(TextGenerationData $data): array
+    public function textGeneration(TextGenerationData $data): TextGenerationResource
     {
         $this->initializeService(ServiceTypeEnum::TEXT_GENERATION->value);
 
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-        ])
-            ->timeout(60)
-            ->connectTimeout(5)
-            ->post("{$this->baseUrl}/models/{$data->model}:generateContent?key={$this->apiKey}", [
-                'contents' => [
-                    [
+        $systemPrompt = config('gemini.system_prompts.text_generation');
+
+        try {
+            $response = $this->client->post(
+                "{$this->baseUrl}/models/{$data->model}:generateContent?key={$this->apiKey}",
+                [
+                    'system_instruction' => [
                         'parts' => [
-                            [
-                                'text' => $data->prompt,
+                            'text' => $systemPrompt
+                        ]
+                    ],
+                    'contents' => [
+                        [
+                            'parts' => [
+                                [
+                                    'text' => $data->prompt,
+                                ],
                             ],
                         ],
                     ],
-                ],
-                'generationConfig' => [
-                    'maxOutputTokens' => $this->maxTokens,
-                ],
-            ]);
-
-        $jsonResponse = $response->json();
-
-        if ($response->failed()) {
-            Log::error('Gemini request error: ' . json_encode($response->json()));
-            if (array_key_exists('error', $jsonResponse)) {
-                throw new Forbidden('Gemini request failed: ' . $jsonResponse['error']['message']);
-            }
-
-            throw new Forbidden('Gemini request failed');
+                    'generationConfig' => [
+                        'maxOutputTokens' => $data->max_tokens,
+                    ],
+                ]
+            );
+        } catch (ConnectionException | Exception | ErrorException $e) {
+            Log::error('Gemini request error: ' . json_encode($e->getMessage()));
+            throw new Forbidden('Gemini request error: ' . $e->getMessage());
         }
 
-        return [
-            'generated_text' => $jsonResponse['candidates'][0]['content']['parts'][0]['text']
-        ];
+        $result = $this->handleResponse($response);
+
+        return TextGenerationResource::make($result);
     }
 
     /**
@@ -113,11 +126,13 @@ class GeminiService
      * @return CodeGenerationResource
      *
      * @throws Forbidden
-     * @throws NotFound
+     * @throws NotFound|Throwable
      */
     public function codeGeneration(CodeGenerationData $data): CodeGenerationResource
     {
         $this->initializeService(ServiceTypeEnum::TEXT_GENERATION->value);
+
+        $systemPrompt = config('gemini.system_prompts.code_generation');
 
         try {
             $messages = [
@@ -132,32 +147,28 @@ class GeminiService
 
             if (!empty($data->attachments)) {
                 foreach ($data->attachments as $attachment) {
-                    if ($attachment instanceof UploadedFile) {
-                        $messages[0]['parts'][] = $this->prepareAttachmentPart($attachment);
-                    }
+                    $messages[0]['parts'][] = $this->prepareAttachmentPart($attachment, true);
                 }
             }
 
-            
+
             $payload = [
                 'system_instruction' => [
                     'parts' => [
-                        'text' => config('gemini.system_prompts.code_generation')
+                        'text' => $systemPrompt
                     ]
                 ],
                 'contents' => $messages,
                 'generation_config' => [
-                    'max_output_tokens' => $this->maxTokens,
+                    'max_output_tokens' => $data->max_tokens,
                     'temperature' => $data->temperature,
                 ],
             ];
-            
-            $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
-            ])
-                ->timeout(60)
-                ->connectTimeout(5)
-                ->post("{$this->baseUrl}/models/{$data->model}:generateContent?key={$this->apiKey}", $payload);
+
+            $response = $this->client->post(
+                "{$this->baseUrl}/models/{$data->model}:generateContent?key={$this->apiKey}",
+                $payload
+            );
         } catch (ConnectionException | Exception | ErrorException $e) {
             Log::error('Gemini request error: ' . json_encode($e->getMessage()));
             throw new Forbidden('Gemini request error: ' . $e->getMessage());
@@ -172,95 +183,110 @@ class GeminiService
      * Image analysis code using Gemini
      *
      * @param ImageAnalysisData $data
-     * @return array
+     * @return ImageAnalysisResource
      *
      * @throws ConnectionException
      * @throws Forbidden
-     * @throws NotFound
+     * @throws NotFound|Throwable
      */
-    public function imageAnalysis(ImageAnalysisData $data): array
+    public function imageAnalysis(ImageAnalysisData $data): ImageAnalysisResource
     {
         $this->initializeService(ServiceTypeEnum::IMAGE_ANALYSIS->value);
 
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-        ])->post("{$this->baseUrl}/models/gemini-1.5-pro:generateContent?key={$this->apiKey}", [
-            'contents' => [
-                [
-                    'parts' => [
-                        [
-                            'inlineData' => [
-                                'mimeType' => 'image/*',
-                                'data' => base64_encode(file_get_contents($data->image_url)),
-                            ],
-                        ],
-                        ['text' => $data->description_required],
-                    ],
-                ],
-            ],
-        ]);
+        $systemPrompt = config('gemini.system_prompts.image_analysis');
 
-        $jsonResponse = $response->json();
+        $data->image_cid = $this->getPublishUrl($data->image_cid);
 
-        if ($response->failed()) {
-            Log::error('Gemini request error: ' . json_encode($response->json()));
-            if (array_key_exists('error', $jsonResponse)) {
-                throw new Forbidden('Gemini request failed: ' . $jsonResponse['error']['message']);
-            }
-
-            throw new Forbidden('Gemini request failed');
+        try {
+            $file = file_get_contents($data->image_cid);
+        } catch (Throwable $e) {
+            throw new Forbidden('Failed to open provided file. Please try a different file.');
         }
 
-        return [
-            'image_analyzed' => $jsonResponse['candidates'][0]['content']['parts'][0]['text']
-        ];
+        try {
+            $response = $this->client->post(
+                "{$this->baseUrl}/models/{$data->model}:generateContent?key={$this->apiKey}",
+                [
+                    'system_instruction' => [
+                        'parts' => [
+                            'text' => $systemPrompt
+                        ]
+                    ],
+                    'contents' => [
+                        [
+                            'parts' => [
+                                [
+                                    'inlineData' => [
+                                        'mimeType' => 'image/*',
+                                        'data' => base64_encode($file),
+                                    ],
+                                ],
+                                ['text' => $data->description_required],
+                            ],
+                        ],
+                    ],
+                    'generationConfig' => [
+                        'maxOutputTokens' => $data->max_tokens,
+                    ],
+                ]
+            );
+        } catch (ConnectionException | Exception | ErrorException $e) {
+            Log::error('Gemini request error: ' . json_encode($e->getMessage()));
+            throw new Forbidden('Gemini request error: ' . $e->getMessage());
+        }
+
+        $result = $this->handleResponse($response);
+
+        return ImageAnalysisResource::make($result);
     }
 
     /**
      * Document summarization code using Gemini
      *
      * @param DocumentSummarizationData $data
-     * @return array
+     * @return DocumentSummarizationResource
      *
      * @throws ConnectionException
      * @throws Forbidden
-     * @throws NotFound
+     * @throws NotFound|Throwable
      */
-    public function documentSummarization(DocumentSummarizationData $data): array
+    public function documentSummarization(DocumentSummarizationData $data): DocumentSummarizationResource
     {
         $this->initializeService(ServiceTypeEnum::DOCUMENT_SUMMARIZATION->value);
 
-        $prompt = "Please summarize the following document:\n\n{$data->document_text}\n\nSummary length should be approximately {$data->summary_length} tokens.";
+        $systemPrompt = config('gemini.system_prompts.document_summarization') . "\nSummary length should be approximately {$data->summary_length} tokens.";
 
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-        ])->post("{$this->baseUrl}/models/{$data->model}:generateContent?key={$this->apiKey}", [
-            'contents' => [
+        try {
+            $response = $this->client->post(
+                "{$this->baseUrl}/models/{$data->model}:generateContent?key={$this->apiKey}",
                 [
-                    'parts' => [
-                        ['text' => $prompt],
+                    'system_instruction' => [
+                        'parts' => [
+                            'text' => $systemPrompt
+                        ]
                     ],
-                ],
-            ],
-            'generationConfig' => [
-                'maxOutputTokens' => $data->summary_length + 100,
-            ],
-        ]);
-
-        $jsonResponse = $response->json();
-
-        if ($response->failed()) {
-            Log::error('Gemini request error: ' . json_encode($response->json()));
-            if (array_key_exists('error', $jsonResponse)) {
-                throw new Forbidden('Gemini request failed: ' . $jsonResponse['error']['message']);
-            }
-
-            throw new Forbidden('Gemini request failed');
+                    'contents' => [
+                        [
+                            'parts' => [
+                                [
+                                    'text' => $data->document_text
+                                ],
+                            ],
+                        ],
+                    ],
+                    'generationConfig' => [
+                        'maxOutputTokens' => $data->max_tokens,
+                    ],
+                ]
+            );
+        } catch (ConnectionException | Exception | ErrorException $e) {
+            Log::error('Gemini request error: ' . json_encode($e->getMessage()));
+            throw new Forbidden('Gemini request error: ' . $e->getMessage());
         }
 
-        return [
-            'document_summarized' => $jsonResponse['candidates'][0]['content']['parts'][0]['text']
-        ];
+        $result = $this->handleResponse($response);
+
+        return DocumentSummarizationResource::make($result);
     }
 
     protected function handleResponse(Response $response): stdClass
@@ -280,17 +306,20 @@ class GeminiService
 
         $responseData = $response->json();
 
-        if (empty($responseData['candidates'])) {
-            $result->error = 'No candidates returned by Gemini API';
-            Log::error('Gemini Malformed Response: Missing candidates', $responseData);
-            return $result;
-        }
-
         $firstCandidate = $responseData['candidates'][0] ?? null;
         $parts = $firstCandidate['content']['parts'] ?? [];
 
         if (empty($parts) || empty($parts[0]['text'] ?? null)) {
-            $result->error = 'Missing or empty response content from Gemini';
+            // Check if the response was stopped due to not enough tokens
+            $finishReason = $firstCandidate['finishReason'] ?? null;
+
+            if ($finishReason === 'MAX_TOKENS') {
+                $result->error = 'Gemini API reached maximum token limit, try reducing the prompt length or increasing the max_tokens.';
+                Log::error('Gemini API reached maximum token limit: ' . $response->body());
+                return $result;
+            }
+
+            $result->error = 'Missing or empty response content from Gemini' . json_encode($responseData);
             return $result;
         }
 

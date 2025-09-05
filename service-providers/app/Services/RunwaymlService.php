@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Data\Runwayml\TaskManagementData;
 use App\Data\Runwayml\VideoProcessingData;
+use App\Enums\common\ServiceProviderEnum;
 use App\Http\Exceptions\Forbidden;
 use App\Http\Exceptions\NotFound;
 use App\Http\Resources\Runwayml\TaskManagementResource;
@@ -35,11 +36,11 @@ class RunwaymlService
      */
     protected function initializeService(): void
     {
-        $provider = ServiceProvider::where('type', 'RunwayML')->first();
+        $provider = ServiceProvider::where('type', ServiceProviderEnum::RUNWAY_ML->value)->first();
 
         if (
             !$provider ||
-            !isset($provider->parameter['base_url'], $provider->parameter['version'])
+            !isset($provider->parameters['base_url'], $provider->parameters['version'])
         ) {
             throw new NotFound('RunwayML API service provider not found.');
         }
@@ -48,7 +49,7 @@ class RunwaymlService
 
         throw_if(empty($apiKey), new NotFound('RunwayML API key not configured.'));
 
-        $this->apiUrl = "{$provider->parameter['base_url']}/{$provider->parameter['version']}";
+        $this->apiUrl = "{$provider->parameters['base_url']}/{$provider->parameters['version']}";
 
         $this->client = Http::withToken($apiKey)
             ->withHeader('X-Runway-Version', $this->RUNWWAYML_API_VERSION_HEADER)

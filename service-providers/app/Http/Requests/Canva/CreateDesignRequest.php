@@ -23,11 +23,13 @@ class CreateDesignRequest extends FormRequest
     {
         return [
             'design_type' => ['required', 'array'],
-            'design_type.type' => ['required', 'string'],
+            'design_type.type' => ['required', 'string', 'in:custom,preset'],
             'design_type.name' => ['required', 'string'],
+            'design_type.width' => ['nullable', 'required_if:design_type.type,custom', 'integer', 'min:40', 'max:8000'],
+            'design_type.height' => ['nullable', 'required_if:design_type.type,custom', 'integer', 'min:40', 'max:8000'],
             'asset_id' => ['required', 'string'],
             'title' => ['required', 'string'],
-            'endpoint_interface' => ['required', 'string', 'in:generate'],
+            'endpoint_interface' => ['nullable', 'string', 'in:generate'],
         ];
     }
 

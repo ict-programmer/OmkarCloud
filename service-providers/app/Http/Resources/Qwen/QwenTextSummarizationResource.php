@@ -14,6 +14,15 @@ class QwenTextSummarizationResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'status' => $this->status,
+            'data' => $this->status ? [
+                'summary' => $this->message,
+            ] : [
+                'error' => $this->error ?? 'Unknown error',
+                'request_id' => $this->id ?? null
+            ],
+            'timestamp' => now()->toIso8601String()
+        ];
     }
 }

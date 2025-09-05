@@ -1,0 +1,103 @@
+<?php
+
+namespace App\Http\Requests\Google;
+
+use App\Enums\Google\C2CoffEnum;
+use App\Enums\Google\FilterEnum;
+use App\Enums\Google\ImageSizeEnum;
+use App\Enums\Google\ImgColorTypeEnum;
+use App\Enums\Google\ImgDominantColorEnum;
+use App\Enums\Google\ImgTypeEnum;
+use App\Enums\Google\LanguageEnum;
+use App\Enums\Google\SafeEnum;
+use App\Enums\Google\SiteSearchFilterEnum;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class SearchImageWithOperatorsRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'q' => ['required', 'string', 'max:255'],
+
+            'c2coff' => ['nullable', Rule::in(C2CoffEnum::getValuesInArray())],
+            'cr' => ['nullable', 'string', 'max:50'],
+            'dateRestrict' => ['nullable', 'string', 'max:10', 'regex:/^(d|w|m|y)\d+$/i'],
+            'exactTerms' => ['nullable', 'string', 'max:255'],
+            'excludeTerms' => ['nullable', 'string', 'max:255'],
+            'fileType' => ['nullable', 'string', 'max:20'],
+            'filter' => ['nullable', Rule::in(FilterEnum::getValuesInArray())],
+            'gl' => ['nullable', 'string', 'size:2'],
+            'highRange' => ['nullable', 'string', 'max:50'],
+            'hl' => ['nullable', 'string', 'max:5'],
+            'hq' => ['nullable', 'string', 'max:255'],
+
+            'imgColorType' => ['nullable', Rule::in(ImgColorTypeEnum::getValuesInArray())],
+            'imgDominantColor' => ['nullable', Rule::in(ImgDominantColorEnum::getValuesInArray())],
+            'imgSize' => ['nullable', Rule::in(ImageSizeEnum::getValuesInArray())],
+            'imgType' => ['nullable', Rule::in(ImgTypeEnum::getValuesInArray())],
+
+            'linkSite' => ['nullable', 'string', 'max:255'],
+            'lowRange' => ['nullable', 'string', 'max:50'],
+            'lr' => ['nullable', 'string', Rule::in(LanguageEnum::getOriginalValuesInArray())],
+            'num' => ['nullable', 'integer', 'min:1', 'max:10'],
+            'orTerms' => ['nullable', 'string', 'max:255'],
+
+            'rights' => ['nullable', 'string', 'max:100'],
+            'safe' => ['nullable', Rule::in(SafeEnum::getValuesInArray())],
+            'siteSearch' => ['nullable', 'string', 'max:255'],
+            'siteSearchFilter' => ['nullable', Rule::in(SiteSearchFilterEnum::getValuesInArray())],
+
+            'sort' => ['nullable', 'string', 'max:50'],
+            'start' => ['nullable', 'integer', 'min:1', 'max:100'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'c2coff.in' => __('The selected c2coff value is invalid. Valid values: :values', [
+                'values' => C2CoffEnum::getValuesInString(),
+            ]),
+            'filter.in' => __('The selected filter value is invalid. Valid values: :values', [
+                'values' => FilterEnum::getValuesInString(),
+            ]),
+            'imgColorType.in' => __('The selected imgColorType is invalid. Valid values: :values', [
+                'values' => ImgColorTypeEnum::getValuesInString(),
+            ]),
+            'imgDominantColor.in' => __('The selected imgDominantColor is invalid. Valid values: :values', [
+                'values' => ImgDominantColorEnum::getValuesInString(),
+            ]),
+            'imgSize.in' => __('The selected imgSize is invalid. Valid values: :values', [
+                'values' => ImageSizeEnum::getValuesInString(),
+            ]),
+            'imgType.in' => __('The selected imgType is invalid. Valid values: :values', [
+                'values' => ImgTypeEnum::getValuesInString(),
+            ]),
+            'safe.in' => __('The selected safe value is invalid. Valid values: :values', [
+                'values' => SafeEnum::getValuesInString(),
+            ]),
+            'siteSearchFilter.in' => __('The selected siteSearchFilter is invalid. Valid values: :values', [
+                'values' => SiteSearchFilterEnum::getValuesInString(),
+            ]),
+            'dateRestrict.regex' => 'The dateRestrict field must be in the format d[number], w[number], m[number], or y[number]. Example: d7 for the past 7 days.',
+            'lr.in' => __('The selected lr is invalid. Valid values: :values', [
+                'values' => LanguageEnum::getOriginalValuesInString(),
+            ]),
+        ];
+    }
+}

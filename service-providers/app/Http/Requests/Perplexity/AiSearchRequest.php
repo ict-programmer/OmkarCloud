@@ -29,4 +29,12 @@ class AiSearchRequest extends FormRequest
             'temperature' => 'nullable|numeric|min:0|lt:2',
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'model.in' => __('The selected model is invalid. Valid values: sonar-pro,sonar'),
+            'search_type.in' => __('The selected search type is invalid. Valid values: web,news'),
+        ];
+    }
 }

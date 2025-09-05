@@ -20,83 +20,6 @@ class ChatGPTController extends BaseController
 {
     public function __construct(protected ChatGPTService $service) {}
 
-    #[OA\Post(
-        path: '/api/chatgpt/chat_completion',
-        operationId: 'chat_completion',
-        description: 'ChatGPT Chat Completion',
-        summary: 'ChatGPT Chat Completion',
-        security: [['authentication' => []]],
-        tags: ['ChatGPT'],
-    )]
-    #[OA\QueryParameter(
-        name: 'model',
-        description: 'Model',
-        required: true,
-        schema: new OA\Schema(
-            type: 'string',
-            example: 'gpt-4'
-        )
-    )]
-    #[OA\QueryParameter(
-        name: 'messages',
-        description: 'Messages',
-        required: true,
-        schema: new OA\Schema(
-            type: 'array',
-            items: new OA\Items(
-                properties: [
-                    new OA\Property(property: 'role', type: 'string', example: 'user'),
-                    new OA\Property(property: 'content', type: 'string', example: 'Hello, how are you?'),
-                ],
-                type: 'object'
-            )
-        )
-    )]
-    #[OA\QueryParameter(
-        name: 'temperature',
-        description: 'Temperature',
-        required: false,
-        schema: new OA\Schema(
-            type: 'number',
-            example: 0.7
-        )
-    )]
-    #[OA\QueryParameter(
-        name: 'max_tokens',
-        description: 'Max Tokens',
-        required: false,
-        schema: new OA\Schema(
-            type: 'integer',
-            example: 4000
-        )
-    )]
-    #[OA\Response(
-        response: 200,
-        description: 'Successful response',
-        content: new OA\JsonContent(
-            example: [
-                'id' => 'chatgpt_response_id',
-                'object' => 'chatgpt_response_object',
-                'created' => 1234567890,
-                'model' => 'gpt-4',
-                'choices' => [
-                    [
-                        'index' => 0,
-                        'message' => [
-                            'role' => 'assistant',
-                            'content' => 'Hello! I am doing well, thank you!',
-                        ],
-                        'finish_reason' => 'stop',
-                    ],
-                ],
-                'usage' => [
-                    'prompt_tokens' => 10,
-                    'completion_tokens' => 20,
-                    'total_tokens' => 30,
-                ],
-            ],
-        )
-    )]
     public function chatCompletion(ChatCompletionRequest $request): JsonResponse
     {
         $data = ChatCompletionData::from($request->validated());
@@ -224,54 +147,6 @@ class ChatGPTController extends BaseController
         ]);
     }
 
-    #[OA\Post(
-        path: '/api/chatgpt/image_generation',
-        operationId: 'image_generation',
-        description: 'ChatGPT Image Generation',
-        summary: 'ChatGPT Image Generation',
-        security: [['authentication' => []]],
-        tags: ['ChatGPT'],
-    )]
-    #[OA\QueryParameter(
-        name: 'model',
-        description: 'Model',
-        required: true,
-        schema: new OA\Schema(
-            type: 'string',
-            example: 'dall-e-3'
-        )
-    )]
-    #[OA\QueryParameter(
-        name: 'prompt',
-        description: 'Prompt',
-        required: true,
-        schema: new OA\Schema(
-            type: 'string',
-            example: 'A futuristic city skyline at sunset'
-        )
-    )]
-    #[OA\QueryParameter(
-        name: 'size',
-        description: 'Size',
-        required: true,
-        schema: new OA\Schema(
-            type: 'string',
-            example: '1024x1024'
-        )
-    )]
-    #[OA\QueryParameter(
-        name: 'n',
-        description: 'Number of images to generate',
-        required: true,
-        schema: new OA\Schema(
-            type: 'integer',
-            example: 1
-        )
-    )]
-    #[OA\Response(
-        response: 200,
-        description: 'Successful response',
-    )]
     public function imageGeneration(ImageGenerationRequest $request): JsonResponse
     {
         $data = ImageGenerationData::from($request->validated());
@@ -284,36 +159,6 @@ class ChatGPTController extends BaseController
         ]);
     }
 
-    #[OA\Post(
-        path: '/api/chatgpt/text_embedding',
-        operationId: 'text_embedding',
-        description: 'ChatGPT Text Embedding',
-        summary: 'ChatGPT Text Embedding',
-        security: [['authentication' => []]],
-        tags: ['ChatGPT'],
-    )]
-    #[OA\QueryParameter(
-        name: 'model',
-        description: 'Model',
-        required: true,
-        schema: new OA\Schema(
-            type: 'string',
-            example: 'text-embedding-3-large'
-        )
-    )]
-    #[OA\QueryParameter(
-        name: 'input',
-        description: 'Input text to embed',
-        required: true,
-        schema: new OA\Schema(
-            type: 'string',
-            example: 'The food was delicious and the waiter...'
-        )
-    )]
-    #[OA\Response(
-        response: 200,
-        description: 'Successful response',
-    )]
     public function textEmbedding(TextEmbeddingRequest $request): JsonResponse
     {
         $data = TextEmbeddingData::from($request->validated());
@@ -342,7 +187,7 @@ class ChatGPTController extends BaseController
                         new OA\Property(
                             property: 'image',
                             type: 'string',
-                            example: 'https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/2c94a50d-b88a-4148-96bc-4453c288fd7b'
+                            example: 'https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/9a0be22e-d351-4329-bb74-c0bb7592d83e'
                         ),
                     ],
                     type: 'object'
@@ -360,7 +205,7 @@ class ChatGPTController extends BaseController
                 'data' => [
                     'role',
                     'name',
-                ]
+                ],
             ]
         )
     )]

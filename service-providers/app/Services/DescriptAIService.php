@@ -3,12 +3,14 @@
 namespace App\Services;
 
 use App\Data\Request\DescriptAI\GenerateAsyncData;
+use App\Enums\common\ServiceProviderEnum;
 use App\Http\Exceptions\Forbidden;
 use App\Http\Exceptions\NotFound;
 use App\Http\Resources\DescriptAI\GenerateAsyncResource;
 use App\Http\Resources\DescriptAI\GetGenerateAsyncResource;
 use App\Http\Resources\DescriptAI\GetVoicesResource;
 use App\Models\ServiceProvider;
+use App\Traits\PubliishIOTrait;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
@@ -19,6 +21,8 @@ use stdClass;
 
 class DescriptAIService
 {
+  use PubliishIOTrait;
+  
   /**
    * Descript AI API model
    */
@@ -40,11 +44,11 @@ class DescriptAIService
    */
   protected function initializeService(): void
   {
-    $provider = ServiceProvider::where('type', 'DescriptAI')->first();
+    $provider = ServiceProvider::where('type', ServiceProviderEnum::DESCRIPT_AI->value)->first();
 
     if (
       !$provider ||
-      !isset($provider->parameter['base_url'], $provider->parameter['version'])
+      !isset($provider->parameters['base_url'], $provider->parameters['version'])
     ) {
       throw new NotFound('Descript AI service provider not found.');
     }
@@ -53,7 +57,7 @@ class DescriptAIService
 
     throw_if(empty($apiKey), new NotFound('Descript AI key not configured.'));
 
-    $this->apiUrl = "{$provider->parameter['base_url']}/overdub";
+    $this->apiUrl = "{$provider->parameters['base_url']}/overdub";
 
     $this->client = Http::withToken($apiKey)
       ->withHeader('Authorization', "Bearer {$apiKey}")
@@ -71,15 +75,18 @@ class DescriptAIService
   {
     $this->initializeService();
 
+    $data->prefix_audio_cid = $this->getPublishUrl($data->prefix_audio_cid);
+    $data->suffix_audio_cid = $this->getPublishUrl($data->suffix_audio_cid);
+
     try {
       $response = $this->client->post($this->apiUrl."/generate_async", [
         'text' => $data->text,
         'voice_id' => $data->voice_id,
         'voice_style_id' => $data->voice_style_id,
         'prefix_text' => $data->prefix_text,
-        'prefix_audio_url' => $data->prefix_audio_url,
+        'prefix_audio_url' => $data->prefix_audio_cid,
         'suffix_text' => $data->suffix_text,
-        'suffix_audio_url' => $data->suffix_audio_url,
+        'suffix_audio_url' => $data->suffix_audio_cid,
         'callback_url' => $data->callback_url,
       ]);
     } catch (ConnectionException | Exception $e) {

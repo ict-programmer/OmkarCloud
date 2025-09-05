@@ -17,7 +17,10 @@ class QwenCodeGenerationData extends Data
         public string $prompt,
         public ?int $max_tokens = null,
         public ?float $temperature = null,
-        public ?string $endpoint_interface = null,
-        public ?array $attachments = null,
+        public ?string $endpoint_interface = 'generate',
+        /**
+         * @var array<int, string>
+         */
+        public ?array $attachments = [],
     ) {}
 }

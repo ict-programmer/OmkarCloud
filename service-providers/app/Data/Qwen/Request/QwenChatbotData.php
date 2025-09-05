@@ -11,6 +11,6 @@ class QwenChatbotData extends Data
         public array $conversation_history,
         public ?float $temperature = null,
         public ?int $max_tokens = null,
-        public ?string $endpoint_interface = null,
+        public ?string $endpoint_interface = 'generate',
     ) {}
 }

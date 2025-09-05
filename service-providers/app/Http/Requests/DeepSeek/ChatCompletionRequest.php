@@ -26,11 +26,11 @@ class ChatCompletionRequest extends FormRequest
     {
         return [
             'model' => ['required', 'in:deepseek-chat'],
-            'messages' => ['required', 'array', 'min:1'],
+            'messages' => ['required', 'array', 'min:1', 'max:50'],
             'messages.*.role' => ['required', 'string', 'in:system,user,assistant'],
             'messages.*.content' => ['required', 'string'],
-            'max_tokens' => ['required', 'integer', 'min:1', 'max:5000'],
-            'temperature' => ['required', 'numeric', 'between:0,1'],
+            'max_tokens' => ['required', 'integer', 'min:1', 'max:4000'],
+            'temperature' => ['required', 'numeric', 'min:0', 'max:1'],
         ];
     }
 
@@ -45,6 +45,9 @@ class ChatCompletionRequest extends FormRequest
             'model.required' => __('The model field is required.'),
             'model.in' => __('The selected model is invalid. It must be deepseek-chat.'),
             'messages.required' => __('The messages array is required'),
+            'messages.array' => __('The messages must be an array.'),
+            'messages.min' => __('The messages must have at least 1 message.'),
+            'messages.max' => __('The messages may not have more than 50 messages.'),
             'messages.*.role.required' => __('Each message must have a role'),
             'messages.*.role.string' => __('Each message role must be a string.'),
             'messages.*.role.in' => __('Role must be one of: system, user, assistant'),
@@ -53,10 +56,11 @@ class ChatCompletionRequest extends FormRequest
             'max_tokens.required' => __('The max_tokens field is required.'),
             'max_tokens.integer' => __('The max_tokens field must be an integer.'),
             'max_tokens.min' => __('The max_tokens must be at least 1.'),
-            'max_tokens.max' => __('The max_tokens may not be greater than 5000.'),
+            'max_tokens.max' => __('The max_tokens may not be greater than 4000.'),
             'temperature.required' => __('The temperature field is required.'),
             'temperature.numeric' => __('The temperature field must be a number.'),
-            'temperature.between' => __('The temperature must be between 0 and 1.'),
+            'temperature.min' => __('The temperature must be at least 0.'),
+            'temperature.max' => __('The temperature may not be greater than 1.'),
         ];
     }
 
