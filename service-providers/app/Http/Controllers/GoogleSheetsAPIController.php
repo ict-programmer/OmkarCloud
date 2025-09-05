@@ -54,7 +54,10 @@ class GoogleSheetsAPIController extends BaseController
     {
         $validatedRequest = $request->validated();
         $serviceAccountCredentials = ServiceAccountCredentialsData::from($validatedRequest['serviceAccountCredentials']);
-        $googleSheetsAPIService = new GoogleSheetsAPIService(json_encode($serviceAccountCredentials->toArray()));
+        
+        $googleSheetsAPIService = new GoogleSheetsAPIService(
+            $serviceAccountCredentials->toArray()
+        );
         $spreadsheetData = CreateSpreadsheetData::from($validatedRequest);
 
         $result = $googleSheetsAPIService->createSpreadsheet($spreadsheetData);
@@ -96,9 +99,12 @@ class GoogleSheetsAPIController extends BaseController
     {
         $validatedRequest = $request->validated();
         $serviceAccountCredentials = ServiceAccountCredentialsData::from($validatedRequest['serviceAccountCredentials']);
-        $googleSheetsAPIService = new GoogleSheetsAPIService(json_encode($serviceAccountCredentials->toArray()));
         $readRangeData = ReadRangeData::from($validatedRequest);
-
+        
+        $googleSheetsAPIService = new GoogleSheetsAPIService(
+            $serviceAccountCredentials->toArray()
+        );
+        
         $result = $googleSheetsAPIService->readRange($readRangeData);
         return $this->logAndResponse(GoogleSheetsAPIResource::make($result));
     }
@@ -143,8 +149,11 @@ class GoogleSheetsAPIController extends BaseController
     {
         $validatedRequest = $request->validated();
         $serviceAccountCredentials = ServiceAccountCredentialsData::from($validatedRequest['serviceAccountCredentials']);
-        $googleSheetsAPIService = new GoogleSheetsAPIService(json_encode($serviceAccountCredentials->toArray()));
         $writeRangeData = WriteRangeData::from($validatedRequest);
+        
+        $googleSheetsAPIService = new GoogleSheetsAPIService(
+            $serviceAccountCredentials->toArray()
+        );
 
         $result = $googleSheetsAPIService->writeRange($writeRangeData);
         return $this->logAndResponse(GoogleSheetsAPIResource::make($result));
@@ -190,8 +199,11 @@ class GoogleSheetsAPIController extends BaseController
     {
         $validatedRequest = $request->validated();
         $serviceAccountCredentials = ServiceAccountCredentialsData::from($validatedRequest['serviceAccountCredentials']);
-        $googleSheetsAPIService = new GoogleSheetsAPIService(json_encode($serviceAccountCredentials->toArray()));
         $appendValuesData = AppendValuesData::from($validatedRequest);
+        
+        $googleSheetsAPIService = new GoogleSheetsAPIService(
+            $serviceAccountCredentials->toArray()
+        );
 
         $result = $googleSheetsAPIService->appendValues($appendValuesData);
         return $this->logAndResponse(GoogleSheetsAPIResource::make($result));
@@ -229,8 +241,11 @@ class GoogleSheetsAPIController extends BaseController
     {
         $validatedRequest = $request->validated();
         $serviceAccountCredentials = ServiceAccountCredentialsData::from($validatedRequest['serviceAccountCredentials']);
-        $googleSheetsAPIService = new GoogleSheetsAPIService(json_encode($serviceAccountCredentials->toArray()));
         $batchUpdateData = BatchUpdateData::from($validatedRequest);
+        
+        $googleSheetsAPIService = new GoogleSheetsAPIService(
+            $serviceAccountCredentials->toArray()
+        );
 
         $result = $googleSheetsAPIService->batchUpdate($batchUpdateData);
         return $this->logAndResponse(GoogleSheetsAPIResource::make($result));
@@ -268,8 +283,11 @@ class GoogleSheetsAPIController extends BaseController
     {
         $validatedRequest = $request->validated();
         $serviceAccountCredentials = ServiceAccountCredentialsData::from($validatedRequest['serviceAccountCredentials']);
-        $googleSheetsAPIService = new GoogleSheetsAPIService(json_encode($serviceAccountCredentials->toArray()));
         $clearRangeData = ClearRangeData::from($validatedRequest);
+        
+        $googleSheetsAPIService = new GoogleSheetsAPIService(
+            $serviceAccountCredentials->toArray()
+        );
 
         $result = $googleSheetsAPIService->clearRange($clearRangeData);
         return $this->logAndResponse(GoogleSheetsAPIResource::make($result));
@@ -307,8 +325,11 @@ class GoogleSheetsAPIController extends BaseController
     {
         $validatedRequest = $request->validated();
         $serviceAccountCredentials = ServiceAccountCredentialsData::from($validatedRequest['serviceAccountCredentials']);
-        $googleSheetsAPIService = new GoogleSheetsAPIService(json_encode($serviceAccountCredentials->toArray()));
         $sheetsManagementData = SheetsManagementData::from($validatedRequest);
+        
+        $googleSheetsAPIService = new GoogleSheetsAPIService(
+            $serviceAccountCredentials->toArray()
+        );
 
         $result = $googleSheetsAPIService->sheetsManagement($sheetsManagementData);
         return $this->logAndResponse(GoogleSheetsAPIResource::make($result));
