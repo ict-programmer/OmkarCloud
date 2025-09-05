@@ -25,7 +25,7 @@ class GoogleSheetsAPIService
     protected Client $client;
     protected Sheets $sheetsService;
 
-    public function __construct()
+    public function __construct(array $serviceAccountCredentials)
     {
         $this->client = new Client();
         $this->client->setApplicationName(config('app.name'));
@@ -35,7 +35,7 @@ class GoogleSheetsAPIService
             Drive::DRIVE_FILE,
         ]);
 
-        $this->client->setAuthConfig(storage_path('app/google-sheets.json'));
+        $this->client->setAuthConfig($serviceAccountCredentials);
 
         $this->sheetsService = new Sheets($this->client);
     }
