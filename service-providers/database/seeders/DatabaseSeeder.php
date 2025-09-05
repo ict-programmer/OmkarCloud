@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             BillionMailServiceProviderSeeder::class,
             FFmpegServiceProviderSeeder::class,
             GoogleCustomSearchServiceProviderSeeder::class,
+            OmkarCloudMapsServiceProviderSeeder::class,
         ]);
     }
 }
