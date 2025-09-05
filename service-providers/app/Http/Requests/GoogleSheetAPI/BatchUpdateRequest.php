@@ -2,21 +2,10 @@
 
 namespace App\Http\Requests\GoogleSheetAPI;
 
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 
-class BatchUpdateRequest extends FormRequest
+class BatchUpdateRequest extends GoogleSheetsAPIRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -24,14 +13,14 @@ class BatchUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        return array_merge(parent::rules(), [
             'spreadSheetId' => ['required', 'string'],
             'data' => ['required', 'array'],
             'data.*.range' => ['required', 'string'],
             'data.*.values' => ['required', 'array'],
-            'data.*.values.*' => ['array'], 
+            'data.*.values.*' => ['array'],
             'valueInputOption' => ['required', 'string', Rule::in(['RAW', 'USER_ENTERED'])],
-        ];
+        ]);
     }
 
     /**
@@ -57,20 +46,4 @@ class BatchUpdateRequest extends FormRequest
         ];
     }
 
-    /**
-     * Handle a failed validation attempt.
-     */
-    protected function failedValidation(Validator $validator): void
-    {
-        throw new HttpResponseException(
-            response()->json(
-                [
-                    "status" => "error",
-                    "message" => __("Validation failed"),
-                    "errors" => $validator->errors(),
-                ],
-                422,
-            ),
-        );
-    }
 }

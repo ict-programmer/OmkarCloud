@@ -25,7 +25,7 @@ class GoogleSheetsAPIService
     protected Client $client;
     protected Sheets $sheetsService;
 
-    public function __construct()
+    public function __construct(array $serviceAccountCredentials)
     {
         $this->client = new Client();
         $this->client->setApplicationName(config('app.name'));
@@ -35,11 +35,7 @@ class GoogleSheetsAPIService
             Drive::DRIVE_FILE,
         ]);
 
-        if (config('app.env') !== 'production') {
-            $this->client->useApplicationDefaultCredentials();
-        } else {
-            $this->client->setAuthConfig(storage_path('app/credentials.json'));
-        }
+        $this->client->setAuthConfig($serviceAccountCredentials);
 
         $this->sheetsService = new Sheets($this->client);
     }
@@ -65,14 +61,15 @@ class GoogleSheetsAPIService
             }
 
             throw new ApiException(
-                message: $errorMessagePrefix.' due to an external API error.', statusCode: $httpStatusCode,
-                details: $e->getMessage()
+                message: "{$errorMessagePrefix} due to an external API error.",
+                statusCode: $httpStatusCode,
+                details: json_decode($e->getMessage())
             );
         } catch (\Exception $e) {
             Log::error($errorMessagePrefix.': '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
 
             throw new ApiException(
-                message: 'An unexpected error occurred while '.$errorMessagePrefix.'.',
+                message: "An unexpected error occurred while {$errorMessagePrefix}.",
                 statusCode: 500,
                 details: $e->getMessage()
             );
