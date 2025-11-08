@@ -23,7 +23,7 @@ class GetDesignRequest extends FormRequest
     {
         return [
             'design_id' => ['required', 'string'],
-            'endpoint_interface' => ['required', 'string'],
+            'endpoint_interface' => ['nullable', 'string', 'in:generate'],
         ];
     }
 

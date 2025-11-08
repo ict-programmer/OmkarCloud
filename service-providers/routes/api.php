@@ -2,22 +2,28 @@
 
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\CanvaController;
+use App\Http\Controllers\CaptionsController;
 use App\Http\Controllers\ChatGPTController;
 use App\Http\Controllers\ClaudeAPIController;
 use App\Http\Controllers\DeepSeekController;
 use App\Http\Controllers\DescriptAIController;
-use App\Http\Controllers\FFMpegServiceController;
+use App\Http\Controllers\FreepikController;
 use App\Http\Controllers\GeminiController;
+use App\Http\Controllers\GettyimagesController;
+use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\GoogleSheetsController;
+use App\Http\Controllers\BillionMailController;
+use App\Http\Controllers\MainFunctionController;
 use App\Http\Controllers\PerplexityController;
-use App\Http\Controllers\PlacidController;
+use App\Http\Controllers\PexelsController;
 use App\Http\Controllers\PremierProController;
 use App\Http\Controllers\QwenController;
 use App\Http\Controllers\ReactJsController;
 use App\Http\Controllers\RunwaymlAPIController;
 use App\Http\Controllers\ServiceProviderController;
+use App\Http\Controllers\ShotstackAPIController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\WhisperController;
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,6 +31,11 @@ use Illuminate\Support\Facades\Route;
 | API Routes
 |--------------------------------------------------------------------------
 */
+
+// Authentication routes
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout']);
+Route::get('/check-auth', [AuthController::class, 'checkAuth']);
 
 Route::post('/extanal', [ServiceProviderController::class, 'list']);
 
@@ -40,10 +51,7 @@ Route::prefix('reactjs')->group(function () {
 
 // chatgpt
 Route::prefix('chatgpt')->controller(ChatGPTController::class)->group(function () {
-    Route::post('chat_completion', 'chatCompletion');
-    Route::post('code_generation', 'codeCompletion');
     Route::post('image_generation', 'imageGeneration');
-    Route::post('text_embedding', 'textEmbedding');
     Route::post('ui_field_extraction', 'uiFieldExtraction');
 });
 
@@ -51,6 +59,40 @@ Route::get('test', function () {
     $cursor = \App\Models\ProjectStructure::all();
 
     return response()->json($cursor);
+});
+
+Route::prefix('billionmail')->group(function () {
+    Route::post('send', [BillionMailController::class, 'sendEmail']);
+    Route::post('batch_send', [BillionMailController::class, 'sendBatchEmail']);
+});
+
+Route::prefix('descriptai')->controller(DescriptAIController::class)->group(function () {
+    Route::post('/generate', 'generateAsync');
+    Route::get('/generate_async/{id}', 'getGenerateAsync');
+    Route::get('/get_voices', 'getVoices');
+});
+Route::prefix('canva')->group(function () {
+    Route::prefix('oauth')->group(function () {
+        Route::post('authorize', [CanvaController::class, 'initiateOAuth']);
+        Route::get('callback', [CanvaController::class, 'callback']);
+        Route::post('refresh_token', [CanvaController::class, 'refreshToken']);
+    });
+
+    Route::post('create_design', [CanvaController::class, 'createDesign']);
+    Route::post('list_design', [CanvaController::class, 'listDesigns']);
+    Route::post('get_design_details', [CanvaController::class, 'getDesign']);
+    Route::post('create_export_design', [CanvaController::class, 'createDesignExportJob']);
+    Route::post('get_export_design/{exportID}', [CanvaController::class, 'getDesignExportJob']);
+    Route::post('asset_upload', [CanvaController::class, 'uploadAsset']);
+    Route::post('asset_upload_job', [CanvaController::class, 'getUploadJob']);
+
+    // folder
+    Route::post('create_folder', [CanvaController::class, 'createFolder']);
+    Route::post('get_folder_details', [CanvaController::class, 'getFolder']);
+    Route::post('update_folder', [CanvaController::class, 'updateFolder']);
+    Route::post('delete_folder/{folderID}', [CanvaController::class, 'deleteFolder']);
+    Route::post('get_folder_items', [CanvaController::class, 'getFolderItems']);
+    Route::post('move_folder_item', [CanvaController::class, 'moveFolderItem']);
 });
 
 Route::prefix('claudeapi')->group(function () {
@@ -90,53 +132,12 @@ Route::prefix('qwen')->group(function () {
     Route::post('chatbot', [QwenController::class, 'chatbot']);
 });
 
-Route::prefix('ffmpeg')->controller(FFMpegServiceController::class)->group(function () {
-    Route::post('/video_processing', 'videoProcessing');
-    Route::post('/audio_processing', 'audioProcessing');
-    Route::post('/image_processing', 'imageProcessing');
-    Route::post('/video_trimming', 'videoTrimming');
-});
-
-Route::prefix('descriptai')->controller(DescriptAIController::class)->group(function () {
-    Route::post('/generate', 'generateAsync');
-    Route::get('/generate_async/{id}', 'getGenerateAsync');
-    Route::get('/get_voices', 'getVoices');
-});
-Route::prefix('canva')->group(function () {
-    Route::prefix('oauth')->group(function () {
-        Route::post('authorize', [CanvaController::class, 'initiateOAuth']);
-        Route::get('callback', [CanvaController::class, 'callback']);
-        Route::post('refresh_token', [CanvaController::class, 'refreshToken']);
-    });
-
-    Route::post('create_design', [CanvaController::class, 'createDesign']);
-    Route::get('list_design', [CanvaController::class, 'listDesigns']);
-    Route::get('get_design_details', [CanvaController::class, 'getDesign']);
-    Route::post('asset_upload', [CanvaController::class, 'uploadAsset']);
-    Route::get('asset_upload_job', [CanvaController::class, 'getUploadJob']);
-});
-
 // Perplexity
-Route::prefix('perplexity')->controller(PerplexityController::class)->group(function () {
-    Route::post('ai_search', 'aiSearch');
-    Route::post('academic_research', 'academicResearch');
-    Route::post('code_assistant', 'codeAssistant');
-});
-
-Route::prefix('whisper')->controller(WhisperController::class)->group(function () {
-    Route::post('audio-transcribe', 'audioTranscribe');
-    Route::post('audio-translate', 'audioTranslate');
-    Route::post('audio-transcribe-timestamps', 'audioTranscribeTimestamps');
-});
-
-Route::prefix('placid')->controller(PlacidController::class)->group(function () {
-    Route::get('retrieve-template', 'retrieveTemplate');
-    Route::post('image-generation', 'imageGeneration');
-    Route::post('pdf-generation', 'pdfGeneration');
-    Route::get('retrieve-pdf', 'retrievePdf');
-    Route::post('video-generation', 'videoGeneration');
-    Route::get('retrieve-video', 'retrieveVideo');
-});
+// Route::prefix('perplexity')->controller(PerplexityController::class)->group(function () {
+//     Route::post('ai_search', 'aiSearch');
+//     Route::post('academic_research', 'academicResearch');
+//     Route::post('code_assistant', 'codeAssistant');
+// });
 
 Route::prefix('premierpro')->group(function () {
     Route::post('reframe', [PremierProController::class, 'reframe']);
@@ -154,3 +155,167 @@ Route::prefix('users')->controller(UserController::class)->group(function () {
     Route::post('create', 'createUser');
     Route::delete('delete', 'deleteUser');
 });
+
+Route::prefix('pexels')->group(function () {
+    Route::get('photos/search', [PexelsController::class, 'searchPhotos']);
+    Route::get('photos/curated', [PexelsController::class, 'getCuratedPhotos']);
+    Route::get('photos/{id}', [PexelsController::class, 'getPhoto']);
+    Route::get('videos/search', [PexelsController::class, 'searchVideos']);
+    Route::get('videos/popular', [PexelsController::class, 'getPopularVideos']);
+    Route::get('videos/{id}', [PexelsController::class, 'getVideo']);
+    Route::get('collections/featured', [PexelsController::class, 'getFeaturedCollections']);
+    Route::get('collections', [PexelsController::class, 'getCollections']);
+    Route::get('collections/{id}', [PexelsController::class, 'getCollection']);
+});
+
+Route::prefix('gettyimages')->group(function () {
+    Route::prefix('image_search')->group(function () {
+        Route::get('', [GettyimagesController::class, 'imageSearch']);
+        Route::get('creative', [GettyimagesController::class, 'imageSearchCreative']);
+        Route::get('creative/by-image', [GettyimagesController::class, 'imageSearchCreativeByImage']);
+        Route::get('editorial', [GettyimagesController::class, 'imageSearchEditorial']);
+        Route::put('by-image/upload', [GettyimagesController::class, 'imageSearchByImageUpload']);
+    });
+
+    Route::prefix('video_search')->group(function () {
+        Route::get('creative', [GettyimagesController::class, 'videoSearchCreative']);
+        Route::get('creative/by-image', [GettyimagesController::class, 'videoSearchCreativeByImage']);
+        Route::get('editorial', [GettyimagesController::class, 'videoSearchEditorial']);
+    });
+
+    Route::prefix('ai_generate/image-generation')->group(function () {
+        Route::post('', [GettyimagesController::class, 'imageGeneration']);
+        Route::get('{generationRequestId}', [GettyimagesController::class, 'getImageGeneration']);
+        Route::post('{generationRequestId}/images/{index}/variations', [GettyimagesController::class, 'imageVariations']);
+        Route::post('refine', [GettyimagesController::class, 'refineImage']);
+        Route::post('extend', [GettyimagesController::class, 'extendImage']);
+        Route::post('object-removal', [GettyimagesController::class, 'removeObjectFromImage']);
+        Route::post('background-replacement', [GettyimagesController::class, 'replaceBackground']);
+        Route::post('influence-color-by-image', [GettyimagesController::class, 'influenceColorByImage']);
+        Route::post('influence-composition-by-image', [GettyimagesController::class, 'influenceCompositionByImage']);
+        Route::post('background-generations', [GettyimagesController::class, 'generateBackgrounds']);
+        Route::get('{generationRequestId}/images/{index}/download-sizes', [GettyimagesController::class, 'getDownloadSizes']);
+        Route::put('{generationRequestId}/images/{index}/download', [GettyimagesController::class, 'downloadImageAsync']);
+        Route::get('{generationRequestId}/images/{index}/download', [GettyimagesController::class, 'downloadImage']);
+    });
+
+    Route::post('remove_background', [GettyimagesController::class, 'removeBackground']);
+    Route::get('image_metadata/{id}', [GettyimagesController::class, 'imageMetadata']);
+    Route::get('video_metadata/{id}', [GettyimagesController::class, 'videoMetadata']);
+    Route::post('image_download/{id}', [GettyimagesController::class, 'imageDownload']);
+    Route::post('video_download/{id}', [GettyimagesController::class, 'videoDownload']);
+    Route::get('affiliate_image_search', [GettyimagesController::class, 'affiliateImageSearch']);
+    Route::get('affiliate_video_search', [GettyimagesController::class, 'affiliateVideoSearch']);
+});
+
+// Freepik
+// Route::prefix('freepik')->controller(FreepikController::class)->group(function () {
+//     Route::get('stock_content', 'stockContent');
+//     Route::get('resource_detail/{resource_id}', 'resourceDetail');
+//     Route::get('download_resource/{resource_id}', 'downloadResource');
+//     Route::get('download_resource_format', 'downloadResourceFormat');
+//     Route::post('ai_image_classifier', 'aiImageClassifier');
+//     Route::post('icon_generation', 'iconGeneration');
+//     Route::get('icon_generation/result/{task_id}', 'getIconGenerationResult');
+
+//     Route::prefix('kling_video_generation')->group(function () {
+//         Route::post('image_to_video', 'klingVideoGenerationImageToVideo');
+//         Route::get('image_to_video/status', 'klingVideoGenerationImageToVideoStatus');
+//         Route::post('text_to_video', 'klingVideoGenerationTextToVideo');
+//         Route::get('text_to_video/status/{task_id}', 'klingVideoGenerationTextToVideoStatus');
+//         Route::post('image_to_video_elements', 'klingElementsVideo');
+//         Route::get('image_to_video_elements/status/{task_id}', 'klingElementsVideoStatus');
+//     });
+
+//     Route::prefix('mystic')->group(function () {
+//         Route::post('/', 'generateMysticImage');
+//         Route::get('/status/{task_id}', 'getMysticTaskStatus');
+
+//         Route::prefix('loras')->group(function () {
+//             Route::get('/', 'getLoras');
+//             Route::post('styles', 'createLoraStyle');
+//             Route::post('characters', 'trainLoraCharacter');
+//         });
+//     });
+
+//     Route::prefix('text-to-image')->group(function () {
+//         Route::post('/classic-fast', 'generateClassicFastImage');
+//         Route::post('/imagen3', 'generateImagen3');
+//         Route::get('/imagen3/status/{task_id}', 'getImagen3TaskStatus');
+//         Route::post('/flux-dev', 'generateFluxDevImage');
+//         Route::get('/flux-dev/status/{task_id}', 'getFluxDevTaskStatus');
+//         Route::post('/reimagine-flux', 'reimagineFlux');
+//     });
+
+//     Route::prefix('image-editing')->group(function () {
+//         Route::post('/upscaler', 'upscale');
+//         Route::get('/upscaler/status/{task_id}', 'getUpscalerTaskStatus');
+//         Route::post('/relight', 'relight');
+//         Route::get('/relight/status/{task_id}', 'getRelightTaskStatus');
+//         Route::post('/style-transfer', 'styleTransfer');
+//         Route::get('/style-transfer/status/{task_id}', 'getStyleTransferTaskStatus');
+//         Route::post('/remove-background', 'removeBackgroundFromImage');
+//         Route::post('/image-expand/flux-pro', 'imageExpandFluxPro');
+//         Route::get('/image-expand/flux-pro/status/{task_id}', 'getImageExpandFluxProTaskStatus');
+//     });
+// });
+
+Route::post('freepik/webhook', [FreepikController::class, 'handleWebhook'])->name('freepik.webhook');
+
+// Captions
+// Route::prefix('captions')->controller(CaptionsController::class)->group(function () {
+//     Route::prefix('creator')->group(function () {
+//         Route::post('list', 'listCreators');
+//         Route::post('submit', 'submitCreatorVideo');
+//         Route::post('poll', 'pollCreatorStatus');
+//     });
+
+//     Route::prefix('translate')->group(function () {
+//         Route::post('supported-languages', 'getSupportedLanguages');
+//         Route::post('submit', 'submitVideoTranslation');
+//         Route::post('poll', 'pollTranslationStatus');
+//     });
+
+//     Route::prefix('ads')->group(function () {
+//         Route::post('list-creators', 'listAdsCreators');
+//         Route::post('submit', 'submitAdVideo');
+//         Route::post('poll', 'pollAdVideoStatus');
+//     });
+
+//     Route::prefix('twin')->group(function () {
+//         Route::post('supported-languages', 'getTwinSupportedLanguages');
+//         Route::post('list', 'listAiTwins');
+//         Route::post('create', 'createAiTwin');
+//         Route::post('status', 'checkAiTwinStatus');
+//         Route::post('script', 'getAiTwinScript');
+//         Route::post('delete', 'deleteAiTwin');
+//     });
+// });
+
+// Google Custom Search
+Route::prefix('google')->controller(GoogleController::class)->group(function () {
+    Route::post('search_web_with_operators', 'searchWeb');
+    Route::post('search_image_with_operators', 'searchImage');
+});
+
+Route::prefix('sheets')
+    ->controller(App\Http\Controllers\GoogleSheetsAPIController::class)
+    ->group(function () {
+        Route::post('create_spreadsheet', 'create');
+        Route::post('read_range', 'readRange');
+        Route::post('write_range', 'writeRange');
+        Route::post('append_values', 'appendValues');
+        Route::post('batch_update', 'batchUpdate');
+        Route::post('clear_range', 'clearRange');
+        Route::post('management', 'sheetsManagement');
+    }
+);
+
+Route::prefix('shotstack')->group(function () {
+    Route::post('create_asset', [ShotstackAPIController::class, 'createAsset']);
+    Route::post('check_render_status', [ShotstackAPIController::class, 'checkRenderStatus']);
+    Route::post('get_video_metadata', [ShotstackAPIController::class, 'getVideoMetadata']);
+});
+
+Route::get('services/{service_provider_id}/{service_type_id}', [MainFunctionController::class, 'getRequestBody']);
+Route::post('services/{service_provider_id}/{service_type_id}', MainFunctionController::class);

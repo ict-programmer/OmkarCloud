@@ -8,6 +8,6 @@ class ListDesignsData extends Data
 {
   public function __construct(
     public ?string $continuation,
-    public string $endpoint_interface
+    public ?string $endpoint_interface = "generate"
   ) {}
 }

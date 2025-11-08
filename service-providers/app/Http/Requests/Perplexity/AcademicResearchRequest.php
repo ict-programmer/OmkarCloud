@@ -28,4 +28,12 @@ class AcademicResearchRequest extends FormRequest
             'max_results' => 'nullable|integer|min:0',
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'model.in' => __('The selected model is invalid. Valid value: sonar-deep-research'),
+            'search_type.in' => __('The selected search type is invalid. Valid value: academic'),
+        ];
+    }
 }

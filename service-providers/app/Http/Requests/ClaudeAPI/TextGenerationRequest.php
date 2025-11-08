@@ -24,8 +24,9 @@ class TextGenerationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'prompt' => ['required', 'string', 'max:1000'],
+            'prompt' => ['required', 'string', 'max:1000', 'min:1'],
             'max_tokens' => ['required', 'integer', 'min:1', 'max:5000'],
+            'model' => ['nullable', 'string'],
         ];
     }
 
@@ -37,13 +38,28 @@ class TextGenerationRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'prompt.required' => __('The prompt field is required.'),
-            'prompt.string' => __('The prompt must be a string.'),
-            'prompt.max' => __('The prompt may not be greater than 1000 characters.'),
-            'max_tokens.required' => __('The max tokens field is required.'),
-            'max_tokens.integer' => __('The max tokens must be an integer.'),
-            'max_tokens.min' => __('The max tokens must be at least 1.'),
-            'max_tokens.max' => __('The max tokens may not be greater than 5000.'),
+            'prompt.required' => 'The prompt field is required to generate text.',
+            'prompt.string' => 'The prompt must be a valid text string.',
+            'prompt.max' => 'The prompt may not be greater than 1000 characters.',
+            'prompt.min' => 'The prompt must be at least 1 character long.',
+            'max_tokens.required' => 'The max_tokens field is required to specify response length.',
+            'max_tokens.integer' => 'The max_tokens must be a whole number.',
+            'max_tokens.min' => 'The max_tokens must be at least 1 token.',
+            'max_tokens.max' => 'The max_tokens may not be greater than 5000 tokens.',
+            'model.string' => 'The model must be a valid string.',
+        ];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'prompt' => 'text prompt',
+            'max_tokens' => 'maximum tokens',
         ];
     }
 

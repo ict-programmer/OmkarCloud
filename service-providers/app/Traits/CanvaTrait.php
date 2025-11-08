@@ -2,76 +2,114 @@
 
 namespace App\Traits;
 
+use App\Http\Exceptions\Forbidden;
+use App\Models\TempAuthToken;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use App\Http\Exceptions\Forbidden;
-
 
 trait CanvaTrait
 {
     const TOKEN_EXPIRATION = 3600;
-    const CACHE_KEY_ACCESS_TOKEN = 'canva_access_token';
-    const CACHE_KEY_REFRESH_TOKEN = 'canva_refresh_token';
-    const CACHE_KEY_TOKEN_EXPIRES_IN = 'canva_token_expires_in';
     const CACHE_KEY_STATE = 'canva_state_';
     const AUTH_REDIRECT_URI = 'api/canva/oauth/callback';
+    const ACCESS_TOKEN_NAME = 'canva_access_token';
+    const REFRESH_TOKEN_NAME = 'canva_refresh_token';
+
+    /**
+     * Retrieves a token value from the database.
+     *
+     * @param string $name The name of the token (e.g., access or refresh).
+     * @param string $column The column to retrieve ('token' or 'expires_at').
+     * @return mixed
+     * @throws Forbidden If the token is not found.
+     */
+    private function getTokenValue(string $name, string $column): mixed
+    {
+        $tempAuthToken = TempAuthToken::where('name', $name)->first();
+        if (!$tempAuthToken || !isset($tempAuthToken->$column)) {
+            throw new Forbidden(ucfirst($name) . ' not found');
+        }
+
+        return $tempAuthToken->$column;
+    }
+
+    /**
+     * Updates or creates an authentication token in the database.
+     *
+     * @param string $name The name of the token.
+     * @param string $token The token value.
+     * @param int $expiresIn The expiration time.
+     * @return void
+     */
+    private function updateAuthToken(string $name, string $token, int $expiresIn): void
+    {
+        TempAuthToken::updateOrCreate(
+            ['name' => $name],
+            ['token' => $token, 'expires_at' => $expiresIn]
+        );
+        $t = TempAuthToken::where('name', $name)->first();
+        Log::info('Updated token: ' . $t->token);
+    }
+
+    /**
+     * Handles the HTTP request to the Canva token endpoint.
+     *
+     * @param array $payload The request body payload.
+     * @return array The JSON response from the API.
+     * @throws Forbidden
+     */
+    private function handleTokenRequest(array $payload): array
+    {
+        $clientId = config('services.canva.api_key');
+        $clientSecret = config('services.canva.api_secret');
+        $credentials = base64_encode($clientId . ':' . $clientSecret);
+
+        $headers = [
+            'Authorization' => 'Basic ' . $credentials,
+        ];
+
+        $res = Http::asForm()
+            ->withHeaders($headers)
+            ->post('https://api.canva.com/rest/v1/oauth/token', $payload);
+
+        if ($res->failed()) {
+            Log::error('Canva request error: ' . json_encode($res->json()));
+            throw new Forbidden('Canva request failed: ' . ($res->json()['error'] ?? 'Unknown error'));
+        }
+
+        $json = $res->json();
+
+        if (empty($json['access_token']) || empty($json['refresh_token'])) {
+            throw new Forbidden('Canva request failed: No access or refresh token returned');
+        }
+
+        // Save the tokens using the new helper method
+        $this->updateAuthToken(self::ACCESS_TOKEN_NAME, $json['access_token'], $json['expires_in']);
+        $this->updateAuthToken(self::REFRESH_TOKEN_NAME, $json['refresh_token'], $json['expires_in']);
+
+        return $json;
+    }
 
     public function getAccessToken(): string
     {
-        $accessToken = Cache::get(self::CACHE_KEY_ACCESS_TOKEN);
-        if (!$accessToken) {
-            throw new Forbidden('Access token not found');
-        }
-        return $accessToken;
+        return $this->getTokenValue(self::ACCESS_TOKEN_NAME, 'token');
     }
 
     public function getRefreshToken(): string
     {
-        $refreshToken = Cache::get(self::CACHE_KEY_REFRESH_TOKEN);
-        if (!$refreshToken) {
-            throw new Forbidden('Refresh token not found');
-        }
-        return $refreshToken;
+        return $this->getTokenValue(self::REFRESH_TOKEN_NAME, 'token');
     }
 
     public function getTokenExpiresIn(): int
     {
-        $tokenExpiresIn = Cache::get(self::CACHE_KEY_TOKEN_EXPIRES_IN);
-        if (!$tokenExpiresIn) {
-            throw new Forbidden('Token expires in not found');
-        }
-        return $tokenExpiresIn;
-    }
-
-    public function setAccessToken(string $accessToken): void
-    {
-        Cache::put(self::CACHE_KEY_ACCESS_TOKEN, $accessToken, self::TOKEN_EXPIRATION);
-    }
-
-    public function setRefreshToken(string $refreshToken): void
-    {
-        Cache::put(self::CACHE_KEY_REFRESH_TOKEN, $refreshToken, self::TOKEN_EXPIRATION);
-    }
-
-    public function setTokenExpiresIn(int $tokenExpiresIn): void
-    {
-        Cache::put(self::CACHE_KEY_TOKEN_EXPIRES_IN, $tokenExpiresIn, self::TOKEN_EXPIRATION);
-    }
-
-    public function setState(string $state, string $codeVerifier): void
-    {
-        Cache::put(self::CACHE_KEY_STATE . $state,[
-            'code_verifier' => $codeVerifier,
-        ], self::TOKEN_EXPIRATION);
+        return $this->getTokenValue(self::ACCESS_TOKEN_NAME, 'expires_at');
     }
 
     public function clearCache(): void
     {
-        Cache::forget(self::CACHE_KEY_ACCESS_TOKEN);
-        Cache::forget(self::CACHE_KEY_REFRESH_TOKEN);
-        Cache::forget(self::CACHE_KEY_TOKEN_EXPIRES_IN);
-        Cache::forget(self::CACHE_KEY_STATE);
+        TempAuthToken::where('name', self::ACCESS_TOKEN_NAME)->delete();
+        TempAuthToken::where('name', self::REFRESH_TOKEN_NAME)->delete();
     }
 
     public function getAuthorizationUrl(string $state): string
@@ -103,6 +141,13 @@ trait CanvaTrait
         return $codeChallenge;
     }
 
+    public function setState(string $state, string $codeVerifier): void
+    {
+        Cache::put(self::CACHE_KEY_STATE . $state, [
+            'code_verifier' => $codeVerifier,
+        ], self::TOKEN_EXPIRATION);
+    }
+
     public function getCodeVerifier(string $state): string
     {
         $cachedState = Cache::get('canva_state_' . $state);
@@ -116,82 +161,33 @@ trait CanvaTrait
     public function handleOAuthCallback(string $code, string $state): void
     {
         $codeVerifier = $this->getCodeVerifier($state);
-        $clientId = config('services.canva.api_key');
-        $clientSecret = config('services.canva.api_secret');
         $redirectUri = url(self::AUTH_REDIRECT_URI);
-        $credentials = base64_encode($clientId . ':' . $clientSecret);
 
-        $headers = [
-            'Authorization' => 'Basic ' . $credentials,
+        $payload = [
+            'grant_type' => 'authorization_code',
+            'code' => $code,
+            'code_verifier' => $codeVerifier,
+            'redirect_uri' => $redirectUri,
         ];
 
-        $res = Http::asForm()
-            ->withHeaders($headers)
-            ->post('https://api.canva.com/rest/v1/oauth/token', [
-                'grant_type' => 'authorization_code',
-                'code' => $code,
-                'code_verifier' => $codeVerifier,
-                'redirect_uri' => $redirectUri,
-            ]);
-
-        if ($res->failed()) {
-            Log::error('Canva request error: ' . json_encode($res->json()));
-            throw new Forbidden('Canva request failed: ' . $res->json()['error']);
-        }
-
-        $json = $res->json();
-
-        if (empty($json['access_token']) || empty($json['refresh_token'])) {
-            throw new Forbidden('Canva request failed: No access token returned');
-        }
-
-        $accessToken = $json['access_token'];
-        $refreshToken = $json['refresh_token'];
-        $expiresIn = $json['expires_in'];
-
-        $this->setAccessToken($accessToken);
-        $this->setRefreshToken($refreshToken);
-        $this->setTokenExpiresIn($expiresIn);
+        $this->handleTokenRequest($payload);
     }
 
     public function refreshAccessToken(): bool
     {
         $refreshToken = $this->getRefreshToken();
-        $clientId = config('services.canva.api_key');
-        $clientSecret = config('services.canva.api_secret');
 
-        $credentials = base64_encode($clientId . ':' . $clientSecret);
-
-        $headers = [
-            'Authorization' => 'Basic ' . $credentials,
+        $payload = [
+            'grant_type' => 'refresh_token',
+            'refresh_token' => $refreshToken,
         ];
 
-        $res = Http::asForm()
-            ->withHeaders($headers)
-            ->post('https://api.canva.com/rest/v1/oauth/token', [
-                'grant_type' => 'refresh_token',
-                'refresh_token' => $refreshToken,
-            ]);
+        $res = $this->handleTokenRequest($payload);
 
-        if ($res->failed()) {
-            Log::error('Canva request error: ' . json_encode($res->json()));
-            throw new Forbidden('Canva request failed: ' . $res->json()['error']);
+        if ($res['access_token'] && $res['refresh_token']) {
+            return true;
         }
 
-        $json = $res->json();
-
-        if (empty($json['access_token']) || empty($json['refresh_token'])) {
-            throw new Forbidden('Canva request failed: No access token returned');
-        }
-
-        $accessToken = $json['access_token'];
-        $refreshToken = $json['refresh_token'];
-        $expiresIn = $json['expires_in'];
-
-        $this->setAccessToken($accessToken);
-        $this->setRefreshToken($refreshToken);
-        $this->setTokenExpiresIn($expiresIn);
-
-        return true;
+        return false;
     }
 }

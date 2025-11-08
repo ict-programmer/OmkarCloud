@@ -2,51 +2,44 @@
 
 namespace App\Traits;
 
-use Illuminate\Http\Client\ConnectionException;
+use Exception;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 
+/**
+ * Trait ImageTraits
+ *
+ * Provides methods for uploading files to Publiish and generating URLs.
+ */
 trait PubliishIOTrait
 {
-    /**
-     * Uploads a file to the Publiish API and returns the file CID.
-     *
-     * @param string $path The path to the file to be uploaded.
-     * @param bool $isContent
-     * @param string|null $filename
-     * @param bool $isFullResponse
-     * @param int $brandId The ID of the brand. Defaults to 1.
-     * @param int $authUserId The ID of the authenticated user. Defaults to 1.
-     * @return string|array|null The CID of the uploaded file or the full response data.
-     *
-     * @throws ConnectionException If there is a connection issue with the Publiish API.
-     * @throws \Illuminate\Http\Client\RequestException
-     */
-    protected function uploadImage(string $path, bool $isContent = false, ?string $filename = null, bool $isFullResponse = false, int $brandId = 1, int $authUserId = 1): array|string|null
+    protected function uploadFile(string $filePath, int $brandId = 1, int $authUserId = 1): string|array|null
     {
-        $contents = $isContent ? $path : file_get_contents($path);
+        $file = file_get_contents($filePath);
 
-        $publishRes = Http::baseUrl(config('image.base_url'))
-            ->timeout(config('image.upload_time_out'))
-            ->attach('upload_image', $contents, $filename)
-            ->withQueryParameters([
-                'brand_id' => $brandId,
-                'auth_user_id' => $authUserId,
-            ])
-            ->post('api/files/file_add_update');
+        $token = $this->getPublishToken();
 
-        if ($publishRes->successful()) {
-            $publishResCollect = $publishRes->collect();
-            if ($publishResCollect['success'] === 'Y' && isset($publishResCollect['data'][0]['cid'])) {
-                if ($isFullResponse) {
-                    return $publishResCollect['data'][0];
-                }
+        try {
+            $uploadResponse = Http::withToken($token)->retry(3)
+                ->timeout(config('image.upload_time_out'))
+                ->attach('upload_file', $file, str($filePath)->afterLast('/'))
+                ->withQueryParameters([
+                    'brand_id' => $brandId,
+                    'auth_user_id' => $authUserId,
+                ])
+                ->post(config('image.base_url') . '/api/files/file_add_update');
 
-                return $publishResCollect['data'][0]['cid'];
+            $uploadResponse->throw();
+
+            $data = $uploadResponse->json();
+            if (($data['success'] ?? 'N') === 'Y' && isset($data['data'][0]['cid'])) {
+                return $data['data'][0]['cid'];
             }
+        } catch (RequestException $e) {
+            throw new Exception('File upload failed: ' . $e->getMessage());
         }
 
-        // Throw an exception if the response was not successful
-        $publishRes->throw();
+        return null;
     }
 
     /**
@@ -58,5 +51,21 @@ trait PubliishIOTrait
     protected function getPublishUrl(string $cid): string
     {
         return config('image.base_url') . '/ipfs/' . $cid;
+    }
+
+    protected function getPublishToken(): string
+    {
+        $response = Http::baseUrl(config('image.base_url'))
+            ->post('api/auth/signin', [
+                'email' => config('image.auth.email'),
+                'password' => config('image.auth.password'),
+            ]);
+
+        if ($response->successful()) {
+            return $response->json('access_token');
+        }
+        $response->throw();
+
+        return '';
     }
 }

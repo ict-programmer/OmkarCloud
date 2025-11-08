@@ -10,6 +10,6 @@ class CreateDesignData extends Data
     public array $design_type,
     public string $asset_id,
     public string $title,
-    public string $endpoint_interface
+    public ?string $endpoint_interface = "generate"
   ) {}
 }

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use MongoDB\Laravel\Eloquent\Model;
 
 class ServiceType extends Model
@@ -27,5 +29,28 @@ class ServiceType extends Model
      */
     protected $fillable = [
         'name',
+        'description',
+        'request_class_name',
+        'function_name',
+        'input_parameters',
+        'response',
+        'response_path',
+        'service_provider_id'
     ];
+
+    /**
+     * Get the service provider that owns the service type.
+     */
+    public function serviceProvider(): BelongsTo
+    {
+        return $this->belongsTo(ServiceProvider::class);
+    }
+
+    /**
+     * Get the service provider models for this service type.
+     */
+    public function serviceProviderModels(): HasMany
+    {
+        return $this->hasMany(ServiceProviderModel::class);
+    }
 }

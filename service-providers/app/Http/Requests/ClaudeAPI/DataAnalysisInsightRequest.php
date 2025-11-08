@@ -3,9 +3,18 @@
 namespace App\Http\Requests\ClaudeAPI;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class DataAnalysisInsightRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -14,23 +23,63 @@ class DataAnalysisInsightRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'data' => 'required|array',
-            'task' => 'required|string',
+            'data' => ['required', 'array', 'min:1', 'max:1000'],
+            'data.*' => ['required', 'array'],
+            'task' => ['required', 'string', 'min:3', 'max:100'],
+            'max_tokens' => ['required', 'integer', 'min:1', 'max:5000'],
+            'model' => ['nullable', 'string'],
         ];
     }
 
     /**
-     * Get the validation messages that apply to the request.
+     * Get the error messages for the defined validation rules.
      *
-     * @return array
+     * @return array<string, string>
      */
     public function messages(): array
     {
         return [
-            'data.required' => 'The data field is required.',
-            'data.array' => 'The data field must be an array.',
-            'task.required' => 'The task field is required.',
-            'task.string' => 'The task field must be a string.',
+            'data.required' => 'The data field is required for analysis.',
+            'data.array' => 'The data must be an array of objects.',
+            'data.min' => 'The data array must contain at least 1 item for analysis.',
+            'data.max' => 'The data array may not contain more than 1,000 items.',
+            'data.*.required' => 'Each data item must be a valid object.',
+            'data.*.array' => 'Each data item must be an object.',
+            'task.required' => 'The task field is required to specify the analysis task.',
+            'task.string' => 'The task must be a valid string.',
+            'task.min' => 'The task must be at least 3 characters long.',
+            'task.max' => 'The task may not be greater than 100 characters.',
+            'max_tokens.required' => 'The max_tokens field is required to specify response length.',
+            'max_tokens.integer' => 'The max_tokens must be a whole number.',
+            'max_tokens.min' => 'The max_tokens must be at least 1 token.',
+            'max_tokens.max' => 'The max_tokens may not be greater than 5000 tokens.',
+            'model.string' => 'The model must be a valid string.',
         ];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'data' => 'data array',
+            'task' => 'analysis task',
+            'max_tokens' => 'maximum tokens',
+        ];
+    }
+
+    /**
+     * Handle a failed validation attempt.
+     */
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator): void
+    {
+        throw new HttpResponseException(response()->json([
+            'status' => 'error',
+            'message' => 'Validation failed',
+            'errors' => $validator->errors(),
+        ], 422));
     }
 }

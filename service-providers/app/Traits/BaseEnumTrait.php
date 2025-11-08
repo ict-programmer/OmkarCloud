@@ -26,9 +26,9 @@ trait BaseEnumTrait
         return self::transformCaseNames()->toArray();
     }
 
-    private static function transformCaseNames($pointer = 'name'): \Illuminate\Support\Collection
+    private static function transformCaseNames($pointer = 'name', bool $lowercase = true): \Illuminate\Support\Collection
     {
-        return collect(self::cases())->map(fn ($value) => strtolower($value->$pointer));
+        return collect(self::cases())->map(fn ($value) => $lowercase ? strtolower($value->$pointer) : $value->$pointer);
     }
 
     public static function getNamesInString(): string
@@ -44,6 +44,16 @@ trait BaseEnumTrait
     public static function getValuesInString(): string
     {
         return self::transformCaseNames('value')->implode(',');
+    }
+
+    public static function getOriginalValuesInArray(): array
+    {
+        return self::transformCaseNames('value', false)->toArray();
+    }
+
+    public static function getOriginalValuesInString(): string
+    {
+        return self::transformCaseNames('value', false)->implode(',');
     }
 
     public static function valuesFromPartialNames(string $search): array

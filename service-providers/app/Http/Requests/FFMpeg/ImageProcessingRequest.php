@@ -9,7 +9,7 @@ class ImageProcessingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'input_file' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
+            'file_link' => 'required|url',
             'width' => 'required|integer|min:1',
             'height' => 'required|integer|min:1',
         ];

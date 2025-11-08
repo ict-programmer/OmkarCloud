@@ -23,7 +23,7 @@ class ListDesignsRequest extends FormRequest
     {
         return [
             'continuation' => ['nullable', 'string'],
-            'endpoint_interface' => ['required', 'string'],
+            'endpoint_interface' => ['nullable', 'string', 'in:generate'],
         ];
     }
     

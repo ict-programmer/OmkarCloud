@@ -25,7 +25,7 @@ class MathematicalReasoningRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'problem_statement' => ['required', 'string', 'max:100000'],
+            'problem_statement' => ['required', 'string', 'min:1', 'max:100000'],
             'model' => ['required', 'in:deepseek-chat'],
             'max_tokens' => ['required', 'integer', 'min:1', 'max:5000'],
         ];
@@ -41,6 +41,7 @@ class MathematicalReasoningRequest extends FormRequest
         return [
             'problem_statement.required' => __('The problem statement is required.'),
             'problem_statement.string' => __('The problem statement must be a string.'),
+            'problem_statement.min' => __('The problem statement must be at least 1 character.'),
             'problem_statement.max' => __('The problem statement may not be greater than 100000 characters.'),
             'model.required' => __('The model field is required.'),
             'model.in' => __('The selected model is invalid. Only "deepseek-chat" is allowed.'),

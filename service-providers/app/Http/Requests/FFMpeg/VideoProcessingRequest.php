@@ -9,7 +9,7 @@ class VideoProcessingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'input_file' => 'required|mimes:mp4,mov,avi,wmv,flv',
+            'file_link' => 'required|url',
             'resolution' => 'required|string',
             'bitrate' => 'required|string',
             'frame_rate' => 'required|integer|min:1|max:120',

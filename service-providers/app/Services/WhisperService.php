@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Data\Request\Whisper\AudioTranscribeData;
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
 class WhisperService
@@ -18,48 +17,47 @@ class WhisperService
      */
     public function audioTranscribe(AudioTranscribeData $data): array
     {
-        $file = is_null($data->link) ? $data->file : $data->link;
-        $response = $this->callWhisperAPI([
-            'file' => $file,
+        return $this->callWhisperAPI([
+            'file' => $data->link,
             'language' => $data->language,
             'prompt' => $data->prompt,
         ]);
-
-        if ($response->failed()) {
-            throw new ConnectionException('Failed to transcribe audio file.' . $response->body());
-        }
-
-        return $response->json();
     }
 
+    /**
+     * Translate audio files to text.
+     *
+     * @param AudioTranscribeData $data
+     * @return array
+     * @throws ConnectionException
+     */
     public function audioTranslate(AudioTranscribeData $data): array
     {
-        $file = is_null($data->link) ? $data->file : $data->link;
-        $response = $this->callWhisperAPI([
-            'file' => $file,
+        return $this->callWhisperAPI([
+            'file' => $data->link,
             'language' => $data->language,
             'prompt' => $data->prompt,
             'translate' => true,
         ]);
-
-        if ($response->failed()) {
-            throw new ConnectionException('Failed to transcribe audio file.' . $response->body());
-        }
-
-        return $response->json();
     }
 
     /**
      * Call the Whisper API with the provided data.
      *
      * @param array $data
-     * @return Response
+     * @return array|mixed
      * @throws ConnectionException
      */
-    private function callWhisperAPI(array $data): Response
+    private function callWhisperAPI(array $data): mixed
     {
-        return Http::withToken(config('whisper.api_key'))
+        $response = Http::withToken(config('whisper.api_key'))
             ->post(config('whisper.api_url'), $data);
+
+        if ($response->failed()) {
+            throw new ConnectionException('Failed to transcribe audio file.' . $response->body());
+        }
+
+        return $response->json();
     }
 
     /**
@@ -72,18 +70,12 @@ class WhisperService
      */
     public function audioTranscribeTimestamps(AudioTranscribeData $data): array
     {
-        $file = is_null($data->link) ? $data->file : $data->link;
-        $response = $this->callWhisperAPI([
-            'file' => $file,
+        $vtt = $this->callWhisperAPI([
+            'file' => $data->link,
             'language' => $data->language,
             'prompt' => $data->prompt,
             'response_format' => 'vtt'
         ]);
-        if ($response->failed()) {
-            throw new ConnectionException('Failed to transcribe audio file.' . $response->body());
-        }
-
-        $vtt = $response->json();
 
         $lines = explode("\n", $vtt);
         $result = [];

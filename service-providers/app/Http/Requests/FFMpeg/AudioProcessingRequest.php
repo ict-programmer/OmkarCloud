@@ -9,7 +9,7 @@ class AudioProcessingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'input_file' => 'required|mimes:mp3,wav,ogg,m4a,aac',
+            'file_link' => 'required|url',
             'bitrate' => 'required|string',
             'sample_rate' => 'required|integer|min:1',
             'channels' => 'required|integer|min:1|max:2',
